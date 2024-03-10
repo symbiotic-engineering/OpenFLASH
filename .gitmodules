@@ -1,0 +1,3 @@
+[submodule "src/sea-lab-utils"]
+	path = src/sea-lab-utils
+	url = https://github.com/symbiotic-engineering/sea-lab-utils
