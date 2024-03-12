@@ -72,7 +72,6 @@ def phi_p_a2(z):
     return (1 / (2 * (h - d2))) * ((z + h) ** 2 - (a2**2) / 2)
 
 
-#### EXTRA FUNCTION KAPIL HAS HERE
 def phi_p_i1_i2_a1(z):
     res = ((h + z) ** 2 - a1**2 / 2) / (2 * d1 - 2 * h) - (
         (h + z) ** 2 - a1**2 / 2
@@ -97,7 +96,6 @@ def R_1n_2(n, r):
 
 
 # Differentiating equation 7: (Once again look at changing the r's here
-# REWRITE THESE
 def diff_R_1n_1(n, r):
     if n == 0:
         return 0
