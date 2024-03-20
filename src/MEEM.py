@@ -7,6 +7,7 @@ import scipy.linalg as linalg
 import matplotlib.pyplot as plt
 from math import sqrt, cosh, cos, sinh, sin, pi
 from scipy.optimize import newton, minimize_scalar
+import scipy as sp
 
 
 # Constants
@@ -136,7 +137,7 @@ def diff_R_2n_1(n):
 
 def diff_R_2n_2(n, r):
     if n == 0:
-        return sp.diff(0.5 * np.log(r / a2))
+        return 1 / (2 * r)
     else:
         top = n * np.pi * besselk(1, -(np.pi * n * r) / (d2 - h))
         bottom = (d2 - h) * besselk(0, -(np.pi * n * r) / (d2 - h))
@@ -333,32 +334,107 @@ dz_1 = h - d1
 dz_2 = h - d2
 
 
-def match_2e_potential(n):
-    if potential_small_small:
-        integral_part = integrate.quad(lambda z: phi_p_i2(z) * Z_n_i2(n, z), -h, -d2)[0]
-        sum_part = sum(B_k(k) * Lambda_k(k, a2) * C_nk(n, k) for k in range(N_num + 1))
-        return (
-            dz_2 * (C_1n_2(n) * R_1n_2(n, a2) + C_2n_2(n) * R_2n_2(n, a2))
-            + integral_part
-            == sum_part
-        )
-    else:
-        # Similar logic for the else part, adjust as per the equations
-        pass
+'''
+if potential_small_small
+    match_2e_potential = dz_2 * (C_1n_2(n)*subs(R_1n_2(n),r,a2) ...
+        + C_2n_2(n)*subs(R_2n_2(n),r,a2)) + int( subs(phi_p_i2,r,a2) * Z_n_i2(n), z, -h, -d2) == ...
+        symsum( B_k(k) * subs(Lambda_k,r,a2) * C_nk(n,k), k, 0, N_num) %good
+    var2 = vpa(match_2e_potential)
+else
+    match_2e_potential = symsum((C_1n_2(n) * subs(R_1n_2(n),r,a2) + ...
+        C_2n_2(n) * subs(R_2n_2(n),r,a2)) * C_nk(n,k),n,0,N_num)  == ...
+        B_k(k) * subs(Lambda_k(k),r,a2) * h - ...
+        int(subs(phi_p_i2,r,a2) * Z_k_e(k), z, -h, 0)
+end
+'''
 
 
-def match_12_potential(n):
-    if potential_small_small:
-        integral_part = integrate.quad(
-            lambda z: (phi_p_i2(a1, z) * Z_n_i1(n, z) - phi_p_i1(a1, z) * Z_n_i1(n, z)),
-            -h,
-            -d1,
-        )[0]
-        sum_part = sum(
-            (C_1n_2(j) * R_1n_2(j, a1) + C_2n_2(j) * R_2n_2(j, a1)) * C_jn(j, n)
-            for j in range(N_num + 1)
-        )
-        return C_1n_1(n) * R_1n_1(n, a1) * dz_1 == sum_part + integral_part
-    else:
-        # Similar logic for the else part, adjust as per the equations
-        pass
+# if n == 0:
+#     # First piece of the piecewise function
+#     result = d2**2 / 6 - (C_1n_2(0) * (d2 - h)) / 2 - a2**2 / 4 - (d2 * h) / 3 + h**2 / 6
+#     result += -sum([
+#         (B_k(k) * np.sin(m_k(k) * (d2 - h))) / 
+#         (m_k(k) * np.sqrt(np.sin(2 * h * m_k(k)) / (4 * h * m_k(k)) + 1/2))
+#         for k in range(1, 7)
+#     ])
+#     result += -(2 * np.sqrt(h) * B_k(0) * np.sinh(m0 * (d2 - h))) / (np.sqrt(m0) * np.sqrt(np.sinh(2 * h * m0) + 2 * h * m0))
+# else:
+#     # Second piece of the piecewise function
+#     result = (np.sqrt(2) * (d2 - h)**3 * (n**2 * np.pi**2 * np.sin(np.pi * n) - 2 * np.sin(np.pi * n) + 2 * np.pi * n * np.cos(np.pi * n))) / (n**3 * np.pi**3 * (2 * d2 - 2 * h))
+#     result -= (d2 - h) * (C_1n_2(n) + C_2n_2(n))
+#     result += (np.sqrt(2) * a2**2 * np.sin(np.pi * n) * (d2 - h)) / (2 * n * np.pi * (2 * d2 - 2 * h))
+#     result += sum([
+#         (np.sqrt(2) * B_k(k) * (
+#             m_k(k) * (d2 * np.cos(np.pi * n) * np.sin(m_k(k) * (d2 - h)) - h * np.cos(np.pi * n) * np.sin(m_k(k) * (d2 - h))) * (d2 - h) -
+#             np.pi * n * np.sin(np.pi * n) * np.cos(m_k(k) * (d2 - h)) * (d2 - h)
+#         )) / (np.sqrt(np.sin(2 * h * m_k(k)) / (4 * h * m_k(k)) + 1/2) * (-m_k(k)**2 * d2**2 + 2 * m_k(k)**2 * d2 * h - m_k(k)**2 * h**2 + np.pi**2 * n**2))
+#         for k in range(1, 7)
+#     ])
+#     result -= (np.sqrt(2) * B_k(0) * (
+#         m0 * (d2 * np.cos(np.pi * n) * np.sinh(m0 * (d2 - h)) - h * np.cos(np.pi * n) * np.sinh(m0 * (d2 - h))) * (d2 - h) +
+#         np.pi * n * np.sin(np.pi * n) * np.cosh(m0 * (d2 - h)) * (d2 - h)
+#     )) / (np.sqrt(np.sinh(2 * h * m0) / (4 * h * m0) + 1/2) * (d2**2 * m0**2 - 2 * d2 * h * m0**2 + h**2 * m0**2 + np.pi**2 * n**2))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Helper function to perform numerical integration
+def numerical_integrate(func, lower, upper):
+    result, _ = sp.quad(func, lower, upper)
+    return result
+
+if potential_small_small:
+    # Define the integrands and perform numerical integration and summation as needed
+    integrand_2e = lambda z: phi_p_i2(a2, z) * Z_n_i2(n)
+    integral_2e = numerical_integrate(integrand_2e, -h, -d2)
+    
+    summation_2e = sum(B_k(k) * Lambda_k(a2) * C_nk(n, k) for k in range(N_num + 1))
+    
+    match_2e_potential = dz_2 * (C_1n_2(n) * R_1n_2(n, a2) + C_2n_2(n) * R_2n_2(n, a2)) + integral_2e - summation_2e
+
+    # Assuming `var2` is for evaluation/display
+    var2 = match_2e_potential
+else:
+    summation_else_2e = sum((C_1n_2(n) * R_1n_2(n, a2) + C_2n_2(n) * R_2n_2(n, a2)) * C_nk(n, k) for n in range(N_num + 1))
+    
+    integrand_else_2e = lambda z: phi_p_i2(a2, z) * Z_k_e(k)
+    integral_else_2e = numerical_integrate(integrand_else_2e, -h, 0)
+    
+    match_2e_potential = summation_else_2e - B_k(k) * Lambda_k(k, a2) * h + integral_else_2e
+
+# The logic for match_12_potential follows a similar pattern
+if potential_small_small:
+    integrand_12 = lambda z: (phi_p_i2(a1, z) * Z_n_i1(n) - phi_p_i1(a1, z) * Z_n_i1(n))
+    integral_12 = numerical_integrate(integrand_12, -h, -d1)
+    
+    summation_12 = sum((C_1n_2(j) * R_1n_2(j, a1) + C_2n_2(j) * R_2n_2(j, a1) * C_jn(j, n)) for j in range(N_num + 1))
+    
+    match_12_potential = C_1n_1(n) * R_1n_1(n, a1) * dz_1 - summation_12 + integral_12
+else:
+    integrand_else_12 = lambda z: (phi_p_i1(a1, z) * Z_n_i2(n) - phi_p_i2(a1, z) * Z_n_i2(n))
+    integral_else_12 = numerical_integrate(integrand_else_12, -h, -d2)
+    
+    summation_else_12 = sum((C_1n_1(j) * R_1n_1(j, a1) + C_2n_1(j) * R_2n_1(j, a1) * C_nj2(n, j)) for j in range(N_num + 1))
+    
+    match_12_potential = (C_1n_2(n) * R_1n_2(n, a1) + C_2n_2(n) * R_2n_2(n, a1)) * dz_2 - summation_else_12 + integral_else_12
