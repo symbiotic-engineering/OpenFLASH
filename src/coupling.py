@@ -18,7 +18,8 @@ from equations import *
 def sq(n): 
     return n ** 2
 
-def A_jn(j, n):
+# Order is flipped
+def A_nm(j, n):
     if j == 0 and n == 0:
         return h - d1
     if j == 0 and 1 <= n:
@@ -34,7 +35,7 @@ def A_jn(j, n):
         raise ValueError("Invalid values for j and n")
 
 
-def A_jn2(j, n):
+def A_nm2(j, n):
     if j == 0 and n == 0:
         return h - d2
     sigma = (pi * n * (d2 - h)) / (d1 - h)
@@ -89,7 +90,7 @@ def nk_sigma_helper(mk):
     sigma5 = sinh(2 * h * m0)
     return sigma1, sigma2, sigma3, sigma4, sigma5
 
-def A_nk(k, n):
+def A_km(k, n):
     mk = m_k(k)
     sigma1, sigma2, sigma3, sigma4, sigma5 = nk_sigma_helper(mk)
     if k == 0 and n == 0:
@@ -118,7 +119,7 @@ def nk2_sigma_helper(mk):
     return sigma1, sigma2, sigma3, sigma4, sigma5
 
 
-def A_nk2(n, k):
+def A_km2(n, k):
     mk = m_k(k)
     sigma1, sigma2, sigma3, sigma4, sigma5 = nk2_sigma_helper(mk)
     if k == 0 and n == 0:
