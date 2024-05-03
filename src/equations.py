@@ -74,6 +74,9 @@ def diff_phi_p_i2_a2(h):
 def diff_phi_p_i1_i2_a1(z): #differentiation of difference of particular solution
   return ((h + z)**2 - a1**2/2)/(2*d1 - 2*h) - ((h + z)**2 - a1**2/2)/(2*d2 - 2*h) #flux/velocity at a2
 
+def diff_phi_i(r, di): 
+    return -r / (2 * (h - di))
+
 
 #############################################
 # Equation 7: (r specifies the raidus, use a1/a2 for the radius of the cylinder you want)
@@ -116,7 +119,6 @@ def diff_R_1n_2(n, r):
 def R_2n_1(n):
     return 0.0
 
-
 # My original definition
 def R_2n_2(n, r):
     if n == 0:
@@ -141,14 +143,14 @@ def diff_R_2n_2(n, r):
 
 #############################################
 # Equation 9:
-def Z_n_i1(n):
+def Z_n_i1(n, z):
     if n == 0:
         return 1
     else:
         return np.sqrt(2) * np.cos(lambda_n1(n) * (z + h))
 
 
-def Z_n_i2(n):
+def Z_n_i2(n, z):
     if n == 0:
         return 1
     else:
@@ -157,11 +159,11 @@ def Z_n_i2(n):
 
 #############################################
 # Equation 13: (m_k is a function)
-def Lambda_k_a2(k):
+def Lambda_k_r(k, r):
     if k == 0:
-        return besselh(0, m0 * a2) / besselh(0, m0 * a2)
+        return besselh(0, m0 * r) / besselh(0, m0 * r)
     else:
-        return besselk(0, m_k(k) * a2) / besselk(0, m_k(k) * a2)
+        return besselk(0, m_k(k) * r) / besselk(0, m_k(k) * r)
 
 
 def diff_Lambda_k_a2(n):
@@ -185,7 +187,7 @@ def N_k(k):
 
 #############################################
 # Equation 14: (m_k is a function)
-def Z_n_e(k):
+def Z_n_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
     else:
