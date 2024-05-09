@@ -19,17 +19,17 @@ def sq(n):
     return n ** 2
 
 # Order is flipped
-def A_nm(j, n):
-    if j == 0 and n == 0:
+def A_nm(n, m):
+    if n == 0 and m == 0:
         return h - d1
-    if j == 0 and 1 <= n:
-        return (-sqrt(2) * sin(pi * n) * (d1 - h)) / (n * pi)
-    sigma = (pi * j * (d1 - h)) / (d2 - h)
-    if 1 <= j and n == 0:
-        return (-sqrt(2) * sin(sigma) * (d2 - h)) / (j * pi)
-    if 1 <= j and 1 <= n:
-        top = -2 * (j * (d1 - h) * (d2 - h) * (d1 * sin(sigma) * cos(pi * n) - h * sin(sigma) * cos(pi * n)) - n * (d1 - h) * (d2 - h) * (d2 * sin(pi * n) * cos(sigma) - h * sin(pi * n) * cos(sigma)))
-        bottom = pi * ((sq(d1) * sq(j)) - (2 * d1 * h * sq(j)) - (sq(d2) * sq(n)) + (2 * d2 * h * sq(n)) + (sq(h) * sq(j)) - (sq(h) * sq(n)))
+    if m == 0 and 1 <= n:
+        return 0
+    sigma = (pi * m * (d1 - h)) / (d2 - h)
+    if 1 <= m and n == 0:
+        return (-sqrt(2) * sin(sigma) * (d2 - h)) / (m * pi)
+    if 1 <= m and 1 <= n:
+        top = -2 * ((-1) ** n) * m * sigma * sq(d1 - h) * (d2 - h)
+        bottom = pi * ((sq(d1) * sq(m)) - (2 * d1 * h * sq(m)) - (sq(d2) * sq(n)) + (2 * d2 * h * sq(n)) + (sq(h) * sq(m)) - (sq(h) * sq(n)))
         return top / bottom     
     else:
         raise ValueError("Invalid values for j and n")

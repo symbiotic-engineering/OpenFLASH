@@ -5,14 +5,14 @@ from scipy.special import kv as besselk
 import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
-from math import sqrt, cosh, cos, sinh, sin, pi
+from numpy import sqrt, cosh, cos, sinh, sin, pi
 from scipy.optimize import newton, minimize_scalar
 import scipy as sp
 from constants import *
 
 
 # Defining m_k function that will be used later on
-def m_k(h_mat):
+def m_k(k):
     m0_vec = np.array([m0])  # Define the m0_vec array
     m_k_mat = np.zeros((len(m0_vec), 1))
 
@@ -20,22 +20,22 @@ def m_k(h_mat):
         m_k_vec = np.zeros(1)
         m0_i = m0_vec[freq_idx]
         m_k_sq_err = (
-            lambda m_k: (m_k * np.tan(m_k * h_mat) - m0_i * np.tanh(m0_i * h_mat)) ** 2
+            lambda m_k: (m_k * np.tan(m_k * h) - m0_i * np.tanh(m0_i * h)) ** 2
         )
-        for k_idx in range(len(m0_vec)):
-            m_k_lower = (np.pi * (k_idx) + np.pi / 2) / m0_i + np.finfo(float).eps
-            m_k_upper = (np.pi * (k_idx) + np.pi) / m0_i - np.finfo(float).eps
-            result = minimize_scalar(
-                m_k_sq_err, bounds=(m_k_lower, m_k_upper), method="bounded"
-            )
-            m_k_vec[k_idx] = result.x
+        k_idx = k
+        m_k_lower = (np.pi * (k_idx) + np.pi / 2) / m0_i + np.finfo(float).eps
+        m_k_upper = (np.pi * (k_idx) + np.pi) / m0_i - np.finfo(float).eps
+        result = minimize_scalar(
+            m_k_sq_err, bounds=(m_k_lower, m_k_upper), method="bounded"
+        )
+        m_k_val = result.x
 
-        shouldnt_be_int = np.round(m0_i * m_k_vec / np.pi - 0.5, 4)
-        not_repeated = len(np.unique(m_k_vec)) == len(m_k_vec)
-        assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int)) and not_repeated
+        shouldnt_be_int = np.round(m0_i * m_k_val / np.pi - 0.5, 4)
+        # not_repeated = np.unique(m_k_val) == m_k_val
+        assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int))
 
-        m_k_mat[freq_idx, :] = m_k_vec
-    return m_k_mat[0][0]
+        # m_k_mat[freq_idx, :] = m_k_vec
+    return m_k_val
 
 
 def m_k_newton(h):
@@ -55,12 +55,16 @@ def lambda_n2(n):
 #############################################
 # Equation 5
 def phi_p_a1(z):
-    return (1 / (2 * (h - d1))) * ((z + h) ** 2 - (a1**2) / 2)
-
+    return phi_p_i1(a1, z)
 
 def phi_p_a2(z):
-    return (1 / (2 * (h - d2))) * ((z + h) ** 2 - (a2**2) / 2)
+    return phi_p_i2(a2, z)
 
+def phi_p_i1(r, z): 
+    return (1 / (2* (h - d1))) * ((z + h) ** 2 - (r**2) / 2)
+
+def phi_p_i2(r, z): 
+    return (1 / (2* (h - d2))) * ((z + h) ** 2 - (r**2) / 2)
 
 def phi_p_i1_i2_a1(z):
     res = ((h + z) ** 2 - a1**2 / 2) / (2 * d1 - 2 * h) - (
@@ -74,8 +78,14 @@ def diff_phi_p_i2_a2(h):
 def diff_phi_p_i1_i2_a1(z): #differentiation of difference of particular solution
   return ((h + z)**2 - a1**2/2)/(2*d1 - 2*h) - ((h + z)**2 - a1**2/2)/(2*d2 - 2*h) #flux/velocity at a2
 
-def diff_phi_i(r, di): 
+def diff_phi_helper(r, di): 
     return -r / (2 * (h - di))
+
+def diff_phi_i1(r): 
+    return diff_phi_helper(r, d1)
+
+def diff_phi_i2(r): 
+    return diff_phi_helper(r, d2)
 
 
 #############################################
