@@ -6,33 +6,35 @@ import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
 from numpy import sqrt, cosh, cos, sinh, sin, pi
-from scipy.optimize import newton, minimize_scalar
+from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 from constants import *
 
 
 # Defining m_k function that will be used later on
 def m_k(k):
-    m0_vec = np.array([m0])  # Define the m0_vec array
-    m_k_mat = np.zeros((len(m0_vec), 1))
+    # m_k_mat = np.zeros((len(m0_vec), 1))
 
-    for freq_idx in range(len(m0_vec)):
-        m_k_vec = np.zeros(1)
-        m0_i = m0_vec[freq_idx]
-        m_k_sq_err = (
-            lambda m_k: (m_k * np.tan(m_k * h) - m0_i * np.tanh(m0_i * h)) ** 2
-        )
-        k_idx = k
-        m_k_lower = (np.pi * (k_idx) + np.pi / 2) / m0_i + np.finfo(float).eps
-        m_k_upper = (np.pi * (k_idx) + np.pi) / m0_i - np.finfo(float).eps
-        result = minimize_scalar(
-            m_k_sq_err, bounds=(m_k_lower, m_k_upper), method="bounded"
-        )
-        m_k_val = result.x
+    m_k_h_err = (
+        lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
+    )
+    k_idx = k
+    m_k_h_lower = pi * (k_idx - 1/2) + np.finfo(float).eps
+    m_k_h_upper = pi * k_idx - np.finfo(float).eps
+    # x_0 =  (m_k_upper - m_k_lower) / 2
+    
+    m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
+    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton")
+    # result = minimize_scalar(
+        # m_k_h_err, bounds=(m_k_h_lower, m_k_h_upper), method="bounded"
+    # )
+    
 
-        shouldnt_be_int = np.round(m0_i * m_k_val / np.pi - 0.5, 4)
-        # not_repeated = np.unique(m_k_val) == m_k_val
-        assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int))
+    m_k_val = result.root / h
+
+    shouldnt_be_int = np.round(m0 * m_k_val / np.pi - 0.5, 4)
+    # not_repeated = np.unique(m_k_val) == m_k_val
+    assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int))
 
         # m_k_mat[freq_idx, :] = m_k_vec
     return m_k_val
@@ -93,16 +95,18 @@ def diff_phi_i2(r):
 def R_1n_1(n, r):
     if n == 0:
         return 0.5
-    else:
+    elif n >= 1:
         return besseli(0, lambda_n1(n) * r) / besseli(0, lambda_n1(n) * a2)
-
+    else: 
+        raise ValueError("Invalid value for n")
 
 def R_1n_2(n, r):
     if n == 0:
         return 0.5
-    else:
+    elif n >= 1:
         return besseli(0, lambda_n2(n) * r) / besseli(0, lambda_n2(n) * a2)
-
+    else: 
+        raise ValueError("Invalid value for n")
 
 # Differentiating equation 7: (Once again look at changing the r's here
 def diff_R_1n_1(n, r):
@@ -147,7 +151,7 @@ def diff_R_2n_2(n, r):
         return 1 / (2 * r)
     else:
         top = n * np.pi * besselk(1, -(np.pi * n * r) / (d2 - h))
-        bottom = (d2 - h) * besselk(0, -(np.pi * n * r) / (d2 - h))
+        bottom = (d2 - h) * besselk(0, -(np.pi * n * a2) / (d2 - h))
         return top / bottom
 
 

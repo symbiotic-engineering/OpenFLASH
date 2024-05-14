@@ -24,7 +24,7 @@ def A_nm(n, m):
         return h - d1
     if m == 0 and 1 <= n:
         return 0
-    sigma = (pi * m * (d1 - h)) / (d2 - h)
+    sigma = sin((pi * m * (d1 - h)) / (d2 - h))
     if 1 <= m and n == 0:
         return (-sqrt(2) * sin(sigma) * (d2 - h)) / (m * pi)
     if 1 <= m and 1 <= n:
@@ -70,39 +70,39 @@ def A_nj2(n, j):
         return h - d2
     sigma = (pi * j * (d2 - h)) / (d1 - h)
     if 1 <= j and n == 0:
-        return (-sqrt(2) * sin(sigma) * (d1 - h)) / (j * pi)
+        return -(sqrt(2) * sin(sigma) * (d1 - h)) / (j * pi)
     if j == 0 and 1 <= n:
-        return (-sqrt(2) * sin(pi * n) * (d2 - h)) / (n * pi)
+        return -(sqrt(2) * sin(pi * n) * (d2 - h)) / (n * pi)
     if 1 <= j and 1 <= n:
-        top = -2 * (j * (d1 - h) * (d2 - h) * (d2 * sin(sigma) * cos(pi * n) - h * sin(sigma) * cos(pi * n)) - n * (d1 - h) * (d2 - h) * (d1 * sin(pi * n) * cos(sigma) - h * sin(pi * n) * cos(sigma)))
+        top = -(2 * (j * (d1 - h) * (d2 - h) * (d2 * sin(sigma) * cos(pi * n) - h * sin(sigma) * cos(pi * n)) - n * (d1 - h) * (d2 - h) * (d1 * sin(pi * n) * cos(sigma) - h * sin(pi * n) * cos(sigma))))
         bottom = pi * ((-sq(d1) * sq(n)) + (2 * d1 * h * sq(n)) + (sq(d2) * sq(j)) - (2 * d2 * h * sq(j)) + (sq(h) * sq(j)) - (sq(h) * sq(n)))
         return top / bottom     
     else:
         raise ValueError("Invalid values for n and j")
 
 def nk_sigma_helper(mk, k, m):
-    sigma1 = sqrt(sinh(2 * h * m0) + 2 * h * m0) / h
+    sigma1 = sqrt(sinh(2 * h * m0) + 2 * h * m0 / h)
     sigma2 = sin(mk * (d2 - h))
     sigma3 = pi ** 2 * m ** 2
     sigma4 = sinh(m0 * (d2 - h))
     sigma6 = 2 * h * mk
     sigma5 = sqrt(sin(sigma6) / sigma6 + 1)
     
-    return sigma1, sigma2, sigma3, sigma4, sigma5, sigma6
+    return sigma1, sigma2, sigma3, sigma4, sigma5
 
 def A_mk(m, k):
     mk = m_k(k)
-    sigma1, sigma2, sigma3, sigma4, sigma5, sigma6 = nk_sigma_helper(mk, k, m)
+    sigma1, sigma2, sigma3, sigma4, sigma5 = nk_sigma_helper(mk, k, m)
 
     if k == 0 and m == 0:
         C_mk = -2 * sigma4 / (sqrt(m0) * sigma1)
     elif 1 <= k and m == 0:
         C_mk = -sqrt(2) * sigma2 / (mk * sigma5)
     elif k == 0 and 1 <= m:
-        C_mk = (2 * (-1)**m * sqrt(2) * m0**(3/2) * sigma4 * (d2 - h)**2) / \
+        C_mk = -(2 * (-1)**m * sqrt(2) * m0**(3/2) * sigma4 * (d2 - h)**2) / \
                (sigma1 * (d2**2 * m0**2 - 2 * d2 * h * m0**2 + h**2 * m0**2 + sigma3))
     elif 1 <= k and 1 <= m:
-        C_mk = (2 * (-1)**m * sigma2 * mk * (d2 - h)**2) / \
+        C_mk = -(2 * (-1)**m * sigma2 * mk * (d2 - h)**2) / \
                (sigma5 * (d2**2 * mk**2 - 2 * d2 * h * mk**2 + h**2 * mk**2 - sigma3))
     else: 
         raise ValueError("Invalid values for m and k")
