@@ -59,9 +59,9 @@ def A_nj(n, j):
     if j == 0 and 1 <= n:
         return (-sqrt(2) * sin(sigma) * (d2 - h)) / (n * pi)
     if 1 <= j and 1 <= n:
-        top = -2 * (j * (d1 - h) * (d2 - h) * (d2 * sin(pi * j) * cos(sigma) - h * sin(pi * j) * cos(sigma)) - n * (d1 - h) * (d2 - h) * (d2 * sin(sigma) * cos(pi * j) - h * sin(sigma) * cos(pi * j)))
+        top = (2 * (j * (d1 - h) * (d2 - h) * (d2 * sin(pi * j) * cos(sigma) - h * sin(pi * j) * cos(sigma)) - n * (d1 - h) * (d2 - h) * (d2 * sin(sigma) * cos(pi * j) - h * sin(sigma) * cos(pi * j))))
         bottom = pi * ((-sq(d1) * sq(n)) + (2 * d1 * h * sq(n)) + (sq(d2) * sq(j)) - (2 * d2 * h * sq(j)) + (sq(h) * sq(j)) - (sq(h) * sq(n)))
-        return top / bottom     
+        return -(top / bottom)     
     else:
         raise ValueError("Invalid values for n and j")
 

@@ -45,11 +45,11 @@ def m_k_newton(h):
 
 # Equation 4:
 def lambda_n1(n):
-    return n * np.pi / (h - d1)
+    return n * pi / (h - d1)
 
 
 def lambda_n2(n):
-    return n * np.pi / (h - d2)
+    return n * pi / (h - d2)
 
 
 #############################################
