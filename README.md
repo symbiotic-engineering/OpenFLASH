@@ -1,6 +1,12 @@
-# sea-lab-template
-A template repository for all SEA Lab projects
+# semi-analytical-hydro
 
+matlab: see `src/matlab/run_MEEM.m` for the symbolic and numeric code, see `test/matlab/` for some scripts to get results.
+
+python: see `src/python/MEEM.ipynb` to assemble the matrices and get results, and `src/python/` for some helper functions.
+
+unlikely to be useful now, but keeping around in case: `test/time_comparison` for time comparisons of BEM (Capytaine), and `dev\` for various fiddly matlab experiments.
+
+# to fill in
 Describe your project here
 
 Provide a citation to the corresponding paper
