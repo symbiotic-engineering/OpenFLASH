@@ -175,9 +175,9 @@ def Z_n_i2(n, z):
 # Equation 13: (m_k is a function)
 def Lambda_k_r(k, r):
     if k == 0:
-        return besselh(0, m0 * r) / besselh(0, m0 * r)
+        return besselh(0, m0 * r) / besselh(0, m0 * a2)
     else:
-        return besselk(0, m_k(k) * r) / besselk(0, m_k(k) * r)
+        return besselk(0, m_k(k) * r) / besselk(0, m_k(k) * a2)
 
 
 def diff_Lambda_k_a2(n):
