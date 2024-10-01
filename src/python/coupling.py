@@ -26,7 +26,7 @@ def A_nm(n, m):
         return 0
     sigma = sin((pi * m * (d1 - h)) / (d2 - h))
     if 1 <= m and n == 0:
-        return (-sqrt(2) * sin(sigma) * (d2 - h)) / (m * pi)
+        return (-sqrt(2) * sigma * (d2 - h)) / (m * pi)
     if 1 <= m and 1 <= n:
         top = -2 * ((-1) ** n) * m * sigma * sq(d1 - h) * (d2 - h)
         bottom = pi * ((sq(d1) * sq(m)) - (2 * d1 * h * sq(m)) - (sq(d2) * sq(n)) + (2 * d2 * h * sq(n)) + (sq(h) * sq(m)) - (sq(h) * sq(n)))
