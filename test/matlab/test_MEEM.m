@@ -43,7 +43,7 @@ K_num = num_harmonics;
 heaving_OC = true;
 heaving_IC = true;
 
-plot_phi = false;
+plot_phi = true;
 show_A = false;
 
 %% set numerical values
