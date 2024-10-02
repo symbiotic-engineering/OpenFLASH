@@ -189,6 +189,10 @@ function create_symbolic_expressions(heaving_IC, heaving_OC, auto_BCs, N_num, M_
     assumeAlso(n >= 0)
     assumeAlso(m >= 0)
     assumeAlso(k >= 0)
+    assumeAlso(h > d2)
+    assumeAlso(h > d1)
+    assumeAlso(r > 0)
+    assumeAlso(m_k(k) > 0)
     
     % equation numbers refer to Chau & Yeung 2010 unless otherwise noted
     
