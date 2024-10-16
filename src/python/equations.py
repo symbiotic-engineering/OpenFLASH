@@ -225,7 +225,7 @@ def int_R_1n_1(n):
         return a1**2/4
     else:
         top = a1*besseli(1, lambda_n1(n)*a1)
-        bottom = -lambda_n1(n)*besseli(0, lambda_n1(n)*a2)
+        bottom = lambda_n1(n)*besseli(0, lambda_n1(n)*a2)
         return top/bottom
 
 #integrating R_1n_2
@@ -234,7 +234,7 @@ def int_R_1n_2(n):
         return a2**2/4 - a1**2/4
     else:
         top = a2*besseli(1, lambda_n2(n)*a2)-a1*besseli(1, lambda_n2(n)*a1)
-        bottom = -lambda_n2(n)*besseli(0, lambda_n2(n)*a2)
+        bottom = lambda_n2(n)*besseli(0, lambda_n2(n)*a2)
         return top / bottom
 
 #integrating R_2n_2
