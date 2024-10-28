@@ -9,7 +9,7 @@ This module defines the `MEEM_problem` class, which is responsible for managing 
    :members:
    :undoc-members:
 
-Classes:
+Class:
 --------
 .. autoclass:: meem_problem.MEEM_problem
    :members:

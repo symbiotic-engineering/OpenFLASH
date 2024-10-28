@@ -3,17 +3,32 @@
 Domain Module
 =============
 
+.. figure:: _static/domain_table.png
+   :alt: Table of domains
+   :align: center
+   :width: 100%
+
+   **Figure 1**: This table illustrates the domain characteristics.
+
+.. figure:: _static/domain_drawing.png
+   :alt: Example of how domains would look
+   :align: center
+   :width: 100%
+
+   **Figure 2**: This image illustrates the domain characteristics.
+
 This module defines the `Domain` class which represents the characteristics of a physical domain.
 
 .. automodule:: domain
    :members:
    :undoc-members:
 
-Classes:
+Class:
 --------
 
 .. autoclass:: domain.Domain
    :members:
+   :noindex:
    :undoc-members:
    :show-inheritance:
 
@@ -29,6 +44,7 @@ Attributes:
 Methods:
 --------
 .. method:: __init__(number_harmonics, height, radial_width, top_BC, bottom_BC)
+   :noindex:
 
    Initializes the Domain class with specified parameters.
    

@@ -9,7 +9,7 @@ This module defines the `MEEM_engine` class responsible for managing and solving
    :members:
    :undoc-members:
 
-Classes:
+Class:
 --------
 
 .. autoclass:: meem_engine.MEEM_engine

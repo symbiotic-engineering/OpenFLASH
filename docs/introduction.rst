@@ -16,18 +16,23 @@ The project consists of several key components:
 Usage
 -----
 
-To use this project, you will need to instantiate the `Geometry` class, define your domains using the `Domain` class, and then create `MEEM_problem` instances to manage the problem setup. The `MEEM_engine` is used to perform the numerical computations and visualization.
+Follow these steps to utilize this project:
 
-For detailed usage and examples, refer to the specific class documentation.
+1. Instantiate the Geometry Class: Begin by defining the geometric properties of your physical domain.
+2. Define Your Domains: Create objects using the Domain class that represent the physical characteristics and boundary conditions of your domains.
+3. Create MEEM_problem Instances: Manage the overall problem setup and ensure that boundary conditions are matched across different domains.
+4. Perform Numerical Computations: Leverage the MEEM_engine to execute the numerical methods and visualize the results of your analysis.
+
+For detailed usage examples and code snippets, please refer to the specific class documentation sections.
 
 Getting Started
 ---------------
 
 To get started with the matched eigenfunctions project:
 
-1. Install the required dependencies (if any).
-2. Import the necessary modules in your Python environment.
-3. Follow the examples provided in the respective class documentation to implement your specific problem.
+1. Install Required Dependencies: Ensure you have all necessary libraries installed. You can find the list of dependencies in the requirements.txt file. Install them using: pip install -r requirements.txt
+2. Import Necessary Modules: In your Python environment, import the modules you plan to use from the project.
+3. Follow Examples: Refer to the class documentation for examples that illustrate how to implement your specific problem using the project components.
 
-For further inquiries or contributions, please refer to the [project repository](<repository_link>) or contact the project maintainers.
+For further inquiries or contributions, please refer to the `project repository <https://github.com/symbiotic-engineering/semi-analytical-hydro>`_ or contact the project maintainers.
 

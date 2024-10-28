@@ -9,7 +9,7 @@ This module defines the `Geometry` class responsible for creating domain objects
    :members:
    :undoc-members:
 
-Classes:
+Class:
 --------
 
 .. autoclass:: geometry.Geometry
