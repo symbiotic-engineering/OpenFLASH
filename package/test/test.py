@@ -14,7 +14,7 @@ from equations import (
     diff_R_1n_1, diff_R_1n_2, diff_R_2n_2,R_2n_1
 )
 
-# 设置路径
+# Set path
 src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'))
 sys.path.append(src_path)
 
@@ -24,7 +24,7 @@ from geometry import Geometry
 
 np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
 
-# 定义可视化 A 矩阵的函数
+# Define visualization function for A matrix
 def visualize_A_matrix(A, title="Matrix Visualization"):
     rows, cols = np.nonzero(A)
     plt.figure(figsize=(6, 6))
@@ -33,7 +33,7 @@ def visualize_A_matrix(A, title="Matrix Visualization"):
     plt.xticks(range(A.shape[1]))
     plt.yticks(range(A.shape[0]))
 
-    # 绘制分隔线用于可视化 A 矩阵的块结构
+    # Draw dividing lines to visualize block structure in A matrix
     N, M = 4, 4
     block_dividers = [N, N + M, N + 2 * M]
     for val in block_dividers:
@@ -51,7 +51,7 @@ N = 4
 M = 4
 K = 4
 
-# 期望值设置
+# Set expected values
 expected_b = np.array([
     0.0069, 0.0120, -0.0030, 0.0013, 
     0.1560, 0.0808, -0.0202, 0.0090, 
@@ -62,7 +62,7 @@ expected_b = np.array([
 expected_A_path = "../value/A_values.csv"
 df = pd.read_csv(expected_A_path, header=None)
 
-# 转换为复数
+# Convert to complex
 def to_complex(val):
     try:
         return np.complex128(val)
@@ -73,11 +73,11 @@ df_complex = df.applymap(to_complex)
 expected_A = df_complex.to_numpy()
 expected_A[-4][-4] = np.complex128(-0.45178 + 1.0741j)
 
-# 设置误差容限
+# Set tolerance levels
 tolerance = 1e-3
 threshold = 0.01
 
-# 几何配置和问题实例
+# Geometry configuration and problem instance
 a2=1.0
 a1=0.5
 h=1.001
@@ -94,21 +94,21 @@ geometry = Geometry(r_coordinates, z_coordinates, domain_params)
 problem = MEEMProblem(geometry)
 engine = MEEMEngine([problem])
 
-# 生成并验证 A 矩阵
+# Generate and verify A matrix
 generated_A = engine.assemble_A(problem)
 visualize_A_matrix(generated_A, title="Generated A Matrix")
 
-# 保存 A 矩阵到文件
+# Save A matrix to file
 np.savetxt("../value/A.txt", generated_A)
 
-# 设置匹配阈值并检查匹配情况
+# Set threshold and check matches
 threshold = 0.001
 is_within_threshold = np.isclose(expected_A, generated_A, rtol=threshold)
 
-# 保存 A 矩阵的匹配结果到文件
+# Save matching results of A matrix to file
 np.savetxt("../value/A_match.txt", is_within_threshold)
 
-# 显示不匹配的索引和值并绘制不匹配位置
+# Display indices and values of mismatches and plot mismatched positions
 rows, cols = np.nonzero(~is_within_threshold)
 # Plotting
 plt.figure(figsize=(6, 6))
@@ -131,19 +131,19 @@ plt.xlabel('Column Index')
 plt.ylabel('Row Index')
 plt.show()
 
-# 生成并验证 b 向量
+# Generate and verify b vector
 generated_b = engine.assemble_b(problem)
 try:
-    np.testing.assert_allclose(generated_b, expected_b, atol=tolerance, err_msg="b 向量与期望值不匹配")
-    print("b 向量匹配成功。")
+    np.testing.assert_allclose(generated_b, expected_b, atol=tolerance, err_msg="b vector does not match expected values")
+    print("b vector matches successfully.")
 except AssertionError as e:
-    print("b 向量与期望值不匹配。详细信息:")
+    print("b vector does not match expected values. Details:")
     print(e)
 
-# 保存 b 向量的匹配结果
+# Save matching results of b vector
 is_within_threshold_b = np.isclose(expected_b, generated_b, atol=threshold)
 np.savetxt("b_match.txt", is_within_threshold_b, fmt='%d')
-print("b 向量匹配结果已保存至 b_match.txt")
+print("b vector matching results saved to b_match.txt")
 
 # Solve the system A x = b
 X = linalg.solve(generated_A, generated_b)
