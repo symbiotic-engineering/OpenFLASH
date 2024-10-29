@@ -3,7 +3,7 @@
 MEEM_engine Module
 ===================
 
-This module defines the `MEEM_engine` class responsible for managing and solving multiple `MEEM_problem` instances. It handles the numerical methods required to solve boundary value problems, assembles the necessary matrices, and visualizes the results.
+This module defines the `MEEMEngine` class responsible for managing and solving multiple `MEEMProblem` instances. It handles the numerical methods required to solve boundary value problems, assembles the necessary matrices, and visualizes the results.
 
 .. automodule:: meem_engine
    :members:
@@ -12,7 +12,7 @@ This module defines the `MEEM_engine` class responsible for managing and solving
 Class:
 --------
 
-.. autoclass:: meem_engine.MEEM_engine
+.. autoclass:: meem_engine.MEEMEngine
    :members:
    :noindex:
    :undoc-members:
@@ -20,62 +20,54 @@ Class:
 
 Attributes:
 -----------
-- `problem_list`: Dict[str, MEEM_problem] — A collection of `MEEM_problem` instances to be solved.
+- `problem_list`: List[MEEMProblem] — A collection of `MEEMProblem` instances to be solved.
 
 Methods:
 --------
-.. method:: __init__(problem_list: Dict[str, MEEM_problem])
-   :noindex:
+.. method:: __init__(problem_list: List[MEEMProblem])
 
-   Initializes the MEEM_engine with a list of problems.
-   
-   :param problem_list: A dictionary of MEEM_problem instances.
-   :type problem_list: Dict[str, MEEM_problem]
+   Initializes the MEEMEngine with a list of problems.
 
-.. method:: linear_solve_Ax_b(matrix: Matrix, vector: Vector) -> Vector
+   :param problem_list: A list of MEEMProblem instances.
+   :type problem_list: List[MEEMProblem]
 
-   Solves the linear system Ax = b.
-   
-   :param matrix: Coefficient matrix A.
-   :type matrix: Matrix
-   :param vector: Known vector b.
-   :type vector: Vector
-   :returns: Vector x, which is the solution to Ax = b.
-
-.. method:: assemble_A(problem: MEEM_problem) -> Matrix
+.. method:: assemble_A(problem: MEEMProblem) -> np.ndarray
 
    Assembles the coefficient matrix A for the given problem.
    
-   :param problem: The MEEM_problem instance.
-   :type problem: MEEM_problem
+   :param problem: The MEEMProblem instance.
+   :type problem: MEEMProblem
    :returns: The assembled coefficient matrix A.
 
-.. method:: assemble_b(problem: MEEM_problem) -> Vector
+.. method:: assemble_b(problem: MEEMProblem) -> np.ndarray
 
-   Assembles the known vector b for the given problem.
+   Assembles the right-hand side vector b for the given problem.
    
-   :param problem: The MEEM_problem instance.
-   :type problem: MEEM_problem
-   :returns: The assembled known vector b.
+   :param problem: The MEEMProblem instance.
+   :type problem: MEEMProblem
+   :returns: The assembled right-hand side vector b.
 
-.. method:: coupling_integral(domain1: Domain, domain2: Domain) -> float
+.. method:: linear_solve_Axb(A: np.ndarray, b: np.ndarray) -> np.ndarray
 
-   Computes the coupling integral between two domains.
+   Solves the linear system Ax = b.
    
-   :param domain1: The first domain.
-   :type domain1: Domain
-   :param domain2: The second domain.
-   :type domain2: Domain
-   :returns: The value of the coupling integral.
+   :param A: Coefficient matrix A.
+   :type A: np.ndarray
+   :param b: Right-hand side vector b.
+   :type b: np.ndarray
+   :returns: Solution vector x.
 
-.. method:: visualize()
+.. method:: visualize_A(A: np.ndarray)
 
-   Visualizes the results of the solved problems.
+   Visualizes the non-zero entries of matrix A.
 
-.. method:: perform_matching(boundary_conditions: Dict[str, str]) -> bool
+   :param A: Coefficient matrix A.
+   :type A: np.ndarray
 
-   Performs matching of boundary conditions across domains.
+.. method:: perform_matching(matching_info: Dict[int, Dict[str, bool]]) -> bool
+
+   Performs matching for all problems based on the provided matching information.
    
-   :param boundary_conditions: A dictionary containing boundary condition matching data.
-   :type boundary_conditions: Dict[str, str]
-   :returns: True if matching is successful, otherwise False.
+   :param matching_info: Matching information between domains.
+   :type matching_info: Dict[int, Dict[str, bool]]
+   :returns: True if all matchings are successful, False otherwise.

@@ -3,8 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to MEEM's documentation!
+Welcome to MEEM's Documentation!
 ================================
+
+This documentation provides an overview of the **Multiple Expansion Eigenfunction Method (MEEM)** package, which is designed to solve mathematical problems related to eigenfunctions and domain matching. The package is structured to allow for efficient geometry management, boundary condition matching, and problem-solving functionalities.
+
+Modules Overview
+================
 
 .. toctree::
    :maxdepth: 2
@@ -17,7 +22,7 @@ Welcome to MEEM's documentation!
    meem_engine
 
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`

@@ -17,7 +17,7 @@ Domain Module
 
    **Figure 2**: This image illustrates the domain characteristics.
 
-This module defines the `Domain` class which represents the characteristics of a physical domain.
+This module defines the `Domain` class, which represents the characteristics of a physical domain.
 
 .. automodule:: domain
    :members:
@@ -39,15 +39,17 @@ Attributes:
 - `radial_width`: float — Radial width of the domain.
 - `top_BC`: float — Top boundary condition.
 - `bottom_BC`: float — Bottom boundary condition.
-- `category`: str — Category of the domain.
+- `category`: str — Category of the domain, indicating if it is 'inner', 'outer', or 'exterior'.
+- `params`: dict — Dictionary of parameters specific to the domain, such as `h`, `di`, `a1`, `a2`, `m0`.
 
 Methods:
 --------
-.. method:: __init__(number_harmonics, height, radial_width, top_BC, bottom_BC)
+
+.. method:: __init__(number_harmonics, height, radial_width, top_BC, bottom_BC, category, params)
    :noindex:
 
    Initializes the Domain class with specified parameters.
-   
+
    :param number_harmonics: The number of harmonics.
    :type number_harmonics: int
    :param height: Height of the domain.
@@ -58,11 +60,40 @@ Methods:
    :type top_BC: float
    :param bottom_BC: Bottom boundary condition.
    :type bottom_BC: float
+   :param category: Type of the domain (e.g., 'inner', 'outer', 'exterior').
+   :type category: str
+   :param params: Dictionary containing parameters like `h`, `di`, `a1`, `a2`, `m0`.
+   :type params: dict
 
-.. method:: radial_eigenfunctions(r: float)
+.. method:: radial_eigenfunctions(r: float, n: int)
 
    Calculates radial eigenfunctions for a given radial coordinate.
-   
+
    :param r: Radial coordinate.
    :type r: float
-   :returns: Eigenfunction value.
+   :param n: Mode number.
+   :type n: int
+   :returns: Tuple or list of eigenfunction values depending on the domain category.
+   :rtype: tuple or list
+
+.. method:: vertical_eigenfunctions(z: float, n: int)
+
+   Calculates vertical eigenfunctions for a given vertical coordinate.
+
+   :param z: Vertical coordinate.
+   :type z: float
+   :param n: Mode number.
+   :type n: int
+   :returns: Eigenfunction value or list of values, depending on the domain category.
+   :rtype: float or list
+
+.. method:: particular_potential(r: float, z: float)
+
+   Computes the particular solution of the potential at specified coordinates.
+
+   :param r: Radial coordinate.
+   :type r: float
+   :param z: Vertical coordinate.
+   :type z: float
+   :returns: Value of the particular potential at (r, z).
+   :rtype: float
