@@ -23,6 +23,7 @@ Modules Overview
    tutorial
    constants
    coupling
+   citations
 
 Indices and Tables
 ==================
