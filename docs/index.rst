@@ -20,8 +20,9 @@ Modules Overview
    domain
    meem_problem
    meem_engine
-   constants
    tutorial
+   constants
+   coupling
 
 Indices and Tables
 ==================
