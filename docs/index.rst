@@ -21,7 +21,7 @@ Modules Overview
    meem_problem
    meem_engine
    constants
-
+   tutorial
 
 Indices and Tables
 ==================
