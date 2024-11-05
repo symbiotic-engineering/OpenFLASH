@@ -103,15 +103,17 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
 # b-vector computation
 
 def b_potential_entry(n, i): # for two i-type regions
-    j = i + (d[i] < d[i+1]) # use index of larger d for lambda
-    constant = (1 / (h - d[i+1]) - 1 / (h - d[i]))
+    #(integrate over shorter fluid, use shorter fluid eigenfunction)
+    
+    j = i + (d[i] < d[i+1]) # index of shorter fluid
+    constant = (heaving[i+1] / (h - d[i+1]) - heaving[i] / (h - d[i]))
     if n == 0:
         return constant * 1/2 * ((h - d[j])**3/3 - (h-d[j]) * a[i]**2/2)
     else:
         return sqrt(2) * (h - d[j]) * constant * ((-1) ** n)/(lambda_ni(n, j) ** 2)
 
 def b_potential_end_entry(n, i): # between i and e-type regions
-    constant = - 1 / (h - d[i])
+    constant = - heaving[i] / (h - d[i])
     if n == 0:
         return constant * 1/2 * ((h - d[i])**3/3 - (h-d[i]) * a[i]**2/2)
     else:
@@ -121,16 +123,20 @@ def b_velocity_entry(n, i): # for two i-type regions
     if n == 0:
         return 0
     if d[i] > d[i + 1]: #using i+1's vertical eigenvectors
-        num = - sqrt(2) * a[i] * sin(lambda_ni(n, i+1) * (h-d[i]))
-        denom = (2 * (h - d[i]) * lambda_ni(n, i+1))
-        return num/denom
+        if heaving[i]:
+            num = - sqrt(2) * a[i] * sin(lambda_ni(n, i+1) * (h-d[i]))
+            denom = (2 * (h - d[i]) * lambda_ni(n, i+1))
+            return num/denom
+        else: return 0
     else: #using i's vertical eigenvectors
-        num = sqrt(2) * a[i] * sin(lambda_ni(n, i) * (h-d[i+1]))
-        denom = (2 * (h - d[i+1]) * lambda_ni(n, i))
-        return num/denom
+        if heaving[i+1]:
+            num = sqrt(2) * a[i] * sin(lambda_ni(n, i) * (h-d[i+1]))
+            denom = (2 * (h - d[i+1]) * lambda_ni(n, i))
+            return num/denom
+        else: return 0
 
 def b_velocity_end_entry(k, i): # between i and e-type regions
-    constant = -a[i]/(2 * (h - d[i]))
+    constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
         return constant * (1/sqrt(N_k(0))) * sinh(m0 * (h - d[i])) / m0
     else:
@@ -142,6 +148,12 @@ def b_velocity_end_entry(k, i): # between i and e-type regions
 
 def phi_p_i(d, r, z): 
     return (1 / (2* (h - d))) * ((z + h) ** 2 - (r**2) / 2)
+
+def diff_r_phi_p_i(d, r, z): 
+    return (- r / (2* (h - d)))
+
+def diff_z_phi_p_i(d, r, z): 
+    return ((z+h) / (2* (h - d)))
 
 #############################################
 # The "Bessel I" radial eigenfunction
@@ -189,6 +201,13 @@ def Z_n_i(n, z, i):
     else:
         return np.sqrt(2) * np.cos(lambda_ni(n, i) * (z + h))
 
+def diff_Z_n_i(n, z, i):
+    if n == 0:
+        return 0
+    else:
+        lambda0 = lambda_ni(n, i)
+        return - lambda0 * np.sqrt(2) * np.sin(lambda0 * (z + h))
+
 #############################################
 # Region e radial eigenfunction
 def Lambda_k(k, r):
@@ -225,6 +244,13 @@ def Z_n_e(k, z):
         return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
     else:
         return 1 / sqrt(N_k(k)) * cos(m_k(k) * (z + h))
+
+def diff_Z_n_e(k, z):
+    if k == 0:
+        return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
+    else:
+        mk = m_k(k)
+        return -1 / sqrt(N_k(k)) * mk * sin(mk * (z + h))
 
 #############################################
 # To calculate hydrocoefficients
