@@ -81,7 +81,7 @@ def A_nj2(n, j):
         raise ValueError("Invalid values for n and j")
 
 def nk_sigma_helper(mk, k, m):
-    sigma1 = sqrt(sinh(2 * h * m0) + 2 * h * m0 / h)
+    sigma1 = sqrt((sinh(2 * h * m0) + 2 * h * m0) / h)
     sigma2 = sin(mk * (d2 - h))
     sigma3 = pi ** 2 * m ** 2
     sigma4 = sinh(m0 * (d2 - h))
