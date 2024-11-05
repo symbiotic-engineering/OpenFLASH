@@ -1,19 +1,13 @@
+# domain.py
+
 from typing import List
 import numpy as np
-from equations import (
-    phi_p_i1,
-    phi_p_i2,
-    R_1n_1,
-    R_1n_2,
-    R_2n_2,
-    Z_n_i1,
-    Z_n_i2,
-    m_k,
-    Lambda_k_r,
-    N_k,
-    Z_n_e
-)
-from constants import pi
+from equations import *
+from constants import *
+
+# Import multi-region functions
+from multi_equations import *
+from multi_constants import *
 
 class Domain:
     """
@@ -21,35 +15,43 @@ class Domain:
     and methods to compute eigenfunctions and potentials.
     """
 
-    def __init__(self, number_harmonics: int, height: float, radial_width: float, top_BC, bottom_BC, category: str, params: dict):
+    def __init__(self, index: int, number_harmonics: int, height: float, top_BC, bottom_BC, category: str, params: dict):
         """
         Initialize the Domain object.
 
+        :param index: Index of the domain in the geometry.
         :param number_harmonics: Number of harmonics.
         :param height: Height of the domain.
-        :param radial_width: Radial width of the domain.
         :param top_BC: Top boundary condition.
         :param bottom_BC: Bottom boundary condition.
-        :param category: Category/type of the domain.
-        :param params: Dictionary containing parameters like h, di, a1, a2, m0.
+        :param category: Category/type of the domain (e.g., 'inner', 'outer', 'exterior', 'multi').
+        :param params: Dictionary containing parameters like h, di, ai, m0, radial_width, slant, heave.
         """
+        self.index = index
         self.number_harmonics = number_harmonics
         self.height = height
-        self.radial_width = radial_width
         self.top_BC = top_BC
         self.bottom_BC = bottom_BC
-        self.category = category  # 'inner', 'outer', 'exterior'
+        self.category = category  # 'inner', 'outer', 'exterior', 'multi'
         self.params = params
 
+        # Original base code parameters
         self.h = params.get('h', 1.0)
         self.di = params.get('di', 0.0)
         self.a1 = params.get('a1', 0.5)
         self.a2 = params.get('a2', 1.0)
         self.m0 = params.get('m0', 1.0)
+        self.radial_width = params.get('radial_width', self.a2 - self.a1)
         self.m_k_vals = []  # For exterior domain eigenvalues
 
-        # Set r properties based on region characteristics
-        self.r = self.set_r_properties()
+        # Set radial properties based on region characteristics
+        self.r_properties = self.set_r_properties()
+        self.heaving = params.get('heave', heaving[self.index] if self.index < len(heaving) else False)
+        self.slant = params.get('slant', False)
+
+        # For multi-region support
+        self.ai = params.get('ai', a[self.index] if self.index < len(a) else None)
+        self.scale = np.mean(a) if len(a) > 0 else 1.0
 
     def set_r_properties(self):
         """
@@ -60,7 +62,7 @@ class Domain:
         r_properties = {
             "r=0": self.category == 'inner',
             "r=infinity": self.category == 'exterior',
-            "0<r<infinity": self.category in ['inner', 'outer', 'exterior']
+            "0<r<infinity": self.category in ['inner', 'outer', 'exterior', 'multi']
         }
         return r_properties
 
@@ -85,6 +87,11 @@ class Domain:
                 self.m_k_vals = [m_k(k + 1) for k in range(self.number_harmonics)]
             Lambda_k_vals = [Lambda_k_r(k + 1, r) for k in range(self.number_harmonics)]
             return Lambda_k_vals
+        elif self.category == 'multi':
+            # For multi-region support
+            R1n_val = R_1n(n, r, self.index)
+            R2n_val = R_2n(n, r, self.index)
+            return R1n_val, R2n_val
         else:
             raise ValueError("Unknown domain category.")
 
@@ -107,6 +114,10 @@ class Domain:
                 self.m_k_vals = [m_k(k + 1) for k in range(self.number_harmonics)]
             Z_k_vals = [Z_n_e(k + 1, z) for k in range(self.number_harmonics)]
             return Z_k_vals
+        elif self.category == 'multi':
+            # For multi-region support
+            Z_n_val = Z_n_i(n, z, self.index)
+            return Z_n_val
         else:
             raise ValueError("Unknown domain category.")
 
@@ -124,5 +135,8 @@ class Domain:
             return phi_p_i2(r, z)
         elif self.category == 'exterior':
             return 0.0  # No particular potential in the exterior domain
+        elif self.category == 'multi':
+            # For multi-region support
+            return phi_p_i(self.di, r, z)
         else:
             raise ValueError("Unknown domain category.")

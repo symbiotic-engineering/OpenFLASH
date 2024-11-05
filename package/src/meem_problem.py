@@ -15,6 +15,8 @@ class MEEMProblem:
         :param geometry: Geometry object containing domain information.
         """
         self.domain_list = geometry.domain_list
+        self.multi_region = geometry.multi_region
+        self.geometry = geometry  # Store geometry as an attribute
 
     def match_domains(self) -> Dict[int, Dict[str, bool]]:
         """
@@ -48,3 +50,4 @@ class MEEMProblem:
                 return False
         print("All domains matched successfully.")
         return True
+
