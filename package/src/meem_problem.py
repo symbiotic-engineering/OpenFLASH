@@ -15,8 +15,6 @@ class MEEMProblem:
         :param geometry: Geometry object containing domain information.
         """
         self.domain_list = geometry.domain_list
-        self.multi_region = geometry.multi_region
-        self.geometry = geometry  # Store geometry as an attribute
 
     def match_domains(self) -> Dict[int, Dict[str, bool]]:
         """
@@ -31,9 +29,10 @@ class MEEMProblem:
             domain_next = self.domain_list[domain_keys[i + 1]]
             # Implement the logic to check boundary matching
             top_match = domain_current.top_BC == domain_next.bottom_BC
+            # Update matching_info with necessary details
             matching_info[i] = {
                 'top_match': top_match,
-                'bottom_match': True  # Update this as needed
+                # Add more conditions as needed
             }
         return matching_info
 
@@ -51,3 +50,4 @@ class MEEMProblem:
         print("All domains matched successfully.")
         return True
 
+    # Add any additional methods required for multi-region computations
