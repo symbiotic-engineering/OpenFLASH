@@ -12,6 +12,14 @@ from multi_constants import *
 
 scale = np.mean(a)
 
+omega = sqrt(m0 * np.tanh(m0 * h) * g)
+
+def wavenumber(omega):
+    m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
+    return (root_scalar(m0_err, x0 = 2, method="newton")).root
+    
+    
+
 #############################################
 # some common computations
 
@@ -153,7 +161,7 @@ def diff_r_phi_p_i(d, r, z):
     return (- r / (2* (h - d)))
 
 def diff_z_phi_p_i(d, r, z): 
-    return ((z+h) / (2* (h - d)))
+    return ((z+h) / (h - d))
 
 #############################################
 # The "Bessel I" radial eigenfunction
