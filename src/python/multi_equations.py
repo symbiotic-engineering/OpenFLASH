@@ -129,7 +129,7 @@ def b_potential_end_entry(n, i): # between i and e-type regions
 
 def b_velocity_entry(n, i): # for two i-type regions
     if n == 0:
-        return 0
+        return (heaving[i+1] - heaving[i]) * (a[i]/2)
     if d[i] > d[i + 1]: #using i+1's vertical eigenvectors
         if heaving[i]:
             num = - sqrt(2) * a[i] * sin(lambda_ni(n, i+1) * (h-d[i]))
