@@ -316,13 +316,13 @@ hydro_terms = np.zeros((size - NMK[-1]), dtype=complex)
 
 col = 0
 for n in range(NMK[0]):
-    hydro_terms[n] = int_R_1n(0, n)* X[n] * z_n_d(n)
+    hydro_terms[n] = heaving[0] * int_R_1n(0, n)* X[n] * z_n_d(n)
 col += NMK[0]
 for i in range(1, boundary_count):
     M = NMK[i]
     for m in range(M):
-        hydro_terms[col + m] = int_R_1n(i, m)* X[col + m] * z_n_d(m)
-        hydro_terms[col + M + m] = int_R_2n(i, m)* X[col + M + m] * z_n_d(m)
+        hydro_terms[col + m] = heaving[i] * int_R_1n(i, m)* X[col + m] * z_n_d(m)
+        hydro_terms[col + M + m] = heaving[i] * int_R_2n(i, m)* X[col + M + m] * z_n_d(m)
     col += 2 * M
 
 hydro_p_terms = np.zeros(boundary_count, dtype=complex)
