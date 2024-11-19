@@ -513,3 +513,281 @@ plot_potential(np.real(vr), R, Z, 'Radial Velocity - Real')
 plot_potential(np.imag(vr), R, Z, 'Radial Velocity - Imaginary')
 plot_potential(np.real(vz), R, Z, 'Vertical Velocity - Real')
 plot_potential(np.imag(vz), R, Z, 'Vertical Velocity - Imaginary')
+
+# import numpy as np
+# import matplotlib.pyplot as plt
+# from multi_constants import *
+# from multi_equations import *
+# from scipy import linalg
+
+# # Set printing options
+# np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
+
+# def initialize_geometry(NMK, h, d, a, heaving):
+#     """Initialize geometry and domain parameters."""
+#     domain_params = []
+#     for idx in range(len(NMK)):
+#         params = {
+#             'number_harmonics': NMK[idx],
+#             'height': h - d[idx] if idx < len(d) else h,
+#             'radial_width': a[idx] if idx < len(a) else a[-1] * 1.5,
+#             'top_BC': None,
+#             'bottom_BC': None,
+#             'category': 'multi',
+#             'di': d[idx] if idx < len(d) else 0,
+#             'a': a[idx] if idx < len(a) else a[-1] * 1.5,
+#             'heaving': heaving[idx] if idx < len(heaving) else False,
+#             'slant': [0, 0, 1]
+#         }
+#         domain_params.append(params)
+
+#     r_coordinates = {'a': a}
+#     z_coordinates = {'h': h}
+#     return Geometry(r_coordinates, z_coordinates, domain_params)
+
+# def assemble_matrices(engine, problem):
+#     """Assemble matrix A and vector b."""
+#     A = engine.assemble_A_multi(problem)
+#     b = engine.assemble_b_multi(problem)
+#     return A, b
+
+# def solve_system(A, b):
+#     """Solve the linear system A * x = b."""
+#     return linalg.solve(A, b)
+
+# def calculate_hydro_coefficients(X, NMK, heaving, a, d, h, omega):
+#     """Calculate hydrodynamic coefficients."""
+#     boundary_count = len(NMK) - 1
+#     size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
+#     hydro_terms = np.zeros((size - NMK[-1]), dtype=complex)
+
+#     col = 0
+#     for n in range(NMK[0]):
+#         hydro_terms[n] = heaving[0] * int_R_1n(0, n) * X[n] * z_n_d(n)
+#     col += NMK[0]
+
+#     for i in range(1, boundary_count):
+#         M = NMK[i]
+#         for m in range(M):
+#             hydro_terms[col + m] = heaving[i] * int_R_1n(i, m) * X[col + m] * z_n_d(m)
+#             hydro_terms[col + M + m] = heaving[i] * int_R_2n(i, m) * X[col + M + m] * z_n_d(m)
+#         col += 2 * M
+
+#     hydro_p_terms = np.zeros(boundary_count, dtype=complex)
+#     for i in range(boundary_count):
+#         hydro_p_terms[i] = heaving[i] * int_phi_p_i_no_coef(i)
+
+#     hydro_coef = 2 * np.pi * (sum(hydro_terms) + sum(hydro_p_terms))
+#     max_rad = max(a[i] for i in range(boundary_count) if heaving[i])
+#     hydro_coef_nondim = h ** 3 / (max_rad ** 3 * np.pi) * hydro_coef
+
+#     return hydro_coef.real, hydro_coef.imag / omega, hydro_coef_nondim
+
+# ### Write Tests for pytest
+
+
+# import numpy as np
+# import pytest
+# import matplotlib.pyplot as plt
+# from multi_constants import *
+# from multi_equations import *
+# from scipy import linalg
+
+# def test_initialize_geometry():
+#     """Test geometry initialization."""
+#     # Define test parameters
+#     NMK = [20, 20, 20, 20]
+#     h = 10.0
+#     d = [2.0, 4.0, 6.0, 8.0]
+#     a = [1.0, 1.5, 2.0, 2.5]
+#     heaving = [True, False, True, False]
+
+#     # Initialize geometry
+#     geometry = initialize_geometry(NMK, h, d, a, heaving)
+
+#     # Assertions to check correct initialization
+#     assert geometry is not None
+#     assert len(geometry.domain_params) == len(NMK)
+#     for idx, params in enumerate(geometry.domain_params):
+#         assert params['number_harmonics'] == NMK[idx]
+#         assert params['height'] == h - d[idx]
+#         assert params['radial_width'] == a[idx]
+#         assert params['heaving'] == heaving[idx]
+
+# def test_assemble_matrices():
+#     """Test matrix assembly."""
+#     # Define test parameters
+#     NMK = [20, 20, 20, 20]
+#     h = 10.0
+#     d = [2.0, 4.0, 6.0, 8.0]
+#     a = [1.0, 1.5, 2.0, 2.5]
+#     heaving = [True, False, True, False]
+
+#     # Initialize geometry and problem
+#     geometry = initialize_geometry(NMK, h, d, a, heaving)
+#     problem = MEEMProblem(geometry)
+#     engine = MEEMEngine([problem])
+
+#     # Assemble matrices
+#     A, b = assemble_matrices(engine, problem)
+
+#     # Assertions to check matrices
+#     assert A is not None
+#     assert b is not None
+#     assert A.shape[0] == A.shape[1], "Matrix A is not square"
+#     assert A.shape[0] == len(b), "Matrix A and vector b dimensions do not match"
+
+# def test_solve_system():
+#     """Test solving linear systems."""
+#     # Create a simple system to test
+#     A = np.array([[2, 1], [1, 3]], dtype=float)
+#     b = np.array([5, 6], dtype=float)
+
+#     # Solve the system
+#     X = solve_system(A, b)
+
+#     # Expected solution
+#     expected_X = np.array([1, 2], dtype=float)
+
+#     # Assertions to compare the solutions
+#     np.testing.assert_allclose(X, expected_X, atol=1e-6)
+
+# def test_calculate_hydro_coefficients():
+#     """Test hydrodynamic coefficient calculation."""
+#     # Define test parameters
+#     NMK = [20, 20, 20, 20]
+#     h = 10.0
+#     d = [2.0, 4.0, 6.0, 8.0]
+#     a = [1.0, 1.5, 2.0, 2.5]
+#     heaving = [True, False, True, False]
+#     omega = 1.0  # Wave frequency
+
+#     # Initialize geometry and problem
+#     geometry = initialize_geometry(NMK, h, d, a, heaving)
+#     problem = MEEMProblem(geometry)
+#     engine = MEEMEngine([problem])
+
+#     # Assemble matrices and solve
+#     A, b = assemble_matrices(engine, problem)
+#     X = solve_system(A, b)
+
+#     # Calculate hydrodynamic coefficients
+#     real_coef, imag_coef, nondim_coef = calculate_hydro_coefficients(X, NMK, heaving, a, d, h, omega)
+
+#     # Assertions to check coefficients
+#     assert real_coef is not None
+#     assert imag_coef is not None
+#     assert nondim_coef is not None
+#     assert isinstance(real_coef, float), "Real coefficient is not a float"
+#     assert isinstance(imag_coef, float), "Imaginary coefficient is not a float"
+
+# def test_potential_plots():
+#     """Test and plot potential fields."""
+#     # Define test parameters with reduced harmonics for faster plotting
+#     NMK = [5, 5, 5, 5]
+#     h = 10.0
+#     d = [2.0, 4.0, 6.0, 8.0]
+#     a = [1.0, 1.5, 2.0, 2.5]
+#     heaving = [True, False, True, False]
+#     omega = 1.0
+
+#     # Initialize geometry and problem
+#     geometry = initialize_geometry(NMK, h, d, a, heaving)
+#     problem = MEEMProblem(geometry)
+#     engine = MEEMEngine([problem])
+
+#     # Assemble matrices and solve
+#     A, b = assemble_matrices(engine, problem)
+#     X = solve_system(A, b)
+
+#     # Generate spatial grid
+#     spatial_res = 50
+#     r_vec = np.linspace(0.01, 2.5, spatial_res)
+#     z_vec = np.linspace(-h, 0, spatial_res)
+#     R, Z = np.meshgrid(r_vec, z_vec)
+
+#     # Define regions
+#     boundary_count = len(NMK) - 1
+#     regions = []
+#     regions.append((R <= a[0]) & (Z < -d[0]))
+#     for i in range(1, boundary_count):
+#         regions.append((R > a[i - 1]) & (R <= a[i]) & (Z < -d[i]))
+#     regions.append(R > a[-1])
+
+#     # Initialize potentials
+#     phiH = np.zeros_like(R, dtype=complex)
+#     phiP = np.zeros_like(R, dtype=complex)
+
+#     # Split coefficients
+#     Cs = []
+#     row = 0
+#     Cs.append(X[:NMK[0]])
+#     row += NMK[0]
+#     for i in range(1, boundary_count):
+#         Cs.append(X[row: row + NMK[i] * 2])
+#         row += NMK[i] * 2
+#     Cs.append(X[row:])
+
+#     def phi_h_n_inner_func(n, r, z):
+#         return (Cs[0][n] * R_1n(n, r, 0)) * Z_n_i(n, z, 0)
+
+#     def phi_h_m_i_func(i, m, r, z):
+#         return (Cs[i][m] * R_1n(m, r, i) + Cs[i][NMK[i] + m] * R_2n(m, r, i)) * Z_n_i(m, z, i)
+
+#     def phi_e_k_func(k, r, z):
+#         return Cs[-1][k] * Lambda_k(k, r) * Z_n_e(k, z)
+
+#     # Compute homogeneous potential
+#     for idx, region in enumerate(regions):
+#         if idx == 0:
+#             for n in range(NMK[0]):
+#                 temp_phiH = phi_h_n_inner_func(n, R[region], Z[region])
+#                 phiH[region] += temp_phiH
+#         elif idx == len(regions) - 1:
+#             for k in range(NMK[-1]):
+#                 temp_phiH = phi_e_k_func(k, R[region], Z[region])
+#                 phiH[region] += temp_phiH
+#         else:
+#             i = idx
+#             for m in range(NMK[i]):
+#                 temp_phiH = phi_h_m_i_func(i, m, R[region], Z[region])
+#                 phiH[region] += temp_phiH
+
+#     # Compute particular potential
+#     phi_p_i_vec = np.vectorize(phi_p_i)
+#     phiP[regions[0]] = heaving[0] * phi_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
+#     for i in range(1, boundary_count):
+#         phiP[regions[i]] = heaving[i] * phi_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
+#     phiP[regions[-1]] = 0
+
+#     # Total potential
+#     phi = phiH + phiP
+
+#     # Plotting functions
+#     def plot_potential(field, R, Z, title):
+#         plt.figure(figsize=(8, 6))
+#         plt.contourf(R, Z, field, levels=50, cmap='viridis')
+#         plt.colorbar()
+#         plt.title(title)
+#         plt.xlabel('Radial Distance (R)')
+#         plt.ylabel('Vertical Distance (Z)')
+#         plt.show()
+
+#     # Plot potentials
+#     plot_potential(np.real(phiH), R, Z, 'Homogeneous Potential - Real Part')
+#     plot_potential(np.imag(phiH), R, Z, 'Homogeneous Potential - Imaginary Part')
+#     plot_potential(np.real(phiP), R, Z, 'Particular Potential - Real Part')
+#     plot_potential(np.imag(phiP), R, Z, 'Particular Potential - Imaginary Part')
+#     plot_potential(np.real(phi), R, Z, 'Total Potential - Real Part')
+#     plot_potential(np.imag(phi), R, Z, 'Total Potential - Imaginary Part')
+
+#     # Assertions to check potentials
+#     assert phi.shape == R.shape, "Potential field shape does not match grid shape"
+
+#     # Optionally, add more checks or save additional plots as needed
+
+# def main():
+#     test_potential_plots()
+
+# if __name__ == "__main__":
+#     main()
