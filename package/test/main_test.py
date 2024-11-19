@@ -271,523 +271,248 @@ from multi_equations import *
 
 np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
 
-# Number of harmonics in each region
-NMK = [20, 20, 20, 20]  # Adjust these values as needed
-boundary_count = len(NMK) - 1
+def test_main():
+    NMK = [20, 20, 20, 20]  # Adjust these values as needed
+    boundary_count = len(NMK) - 1
 
 
-# Create domain parameters
-domain_params = []
-for idx in range(len(NMK)):
-    params = {
-        'number_harmonics': NMK[idx],
-        'height': h - d[idx] if idx < len(d) else h,
-        'radial_width': a[idx] if idx < len(a) else a[-1]*1.5,
-        'top_BC': None,
-        'bottom_BC': None,
-        'category': 'multi',  # Adjust category as needed
-        'di': d[idx] if idx < len(d) else 0,
-        'a': a[idx] if idx < len(a) else a[-1]*1.5,
-        'heaving': heaving[idx] if idx < len(heaving) else False,
-        'slant': [0, 0, 1]  # Set True if the region is slanted
-    }
-    domain_params.append(params)
+    # Create domain parameters
+    domain_params = []
+    for idx in range(len(NMK)):
+        params = {
+            'number_harmonics': NMK[idx],
+            'height': h - d[idx] if idx < len(d) else h,
+            'radial_width': a[idx] if idx < len(a) else a[-1]*1.5,
+            'top_BC': None,
+            'bottom_BC': None,
+            'category': 'multi',  # Adjust category as needed
+            'di': d[idx] if idx < len(d) else 0,
+            'a': a[idx] if idx < len(a) else a[-1]*1.5,
+            'heaving': heaving[idx] if idx < len(heaving) else False,
+            'slant': [0, 0, 1]  # Set True if the region is slanted
+        }
+        domain_params.append(params)
 
-# Create Geometry object
-r_coordinates = {'a': a}
-z_coordinates = {'h': h}
-geometry = Geometry(r_coordinates, z_coordinates, domain_params)
+    # Create Geometry object
+    r_coordinates = {'a': a}
+    z_coordinates = {'h': h}
+    geometry = Geometry(r_coordinates, z_coordinates, domain_params)
 
-# Create MEEMProblem object
-problem = MEEMProblem(geometry)
+    # Create MEEMProblem object
+    problem = MEEMProblem(geometry)
 
-# Create MEEMEngine object
-engine = MEEMEngine([problem])
+    # Create MEEMEngine object
+    engine = MEEMEngine([problem])
 
-# Assemble A matrix and b vector using multi-region methods
-A = engine.assemble_A_multi(problem)
-b = engine.assemble_b_multi(problem)
+    # Assemble A matrix and b vector using multi-region methods
+    A = engine.assemble_A_multi(problem)
+    b = engine.assemble_b_multi(problem)
 
-# Solve the linear system A x = b
-X = linalg.solve(A, b)
+    # Solve the linear system A x = b
+    X = linalg.solve(A, b)
 
-size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
-hydro_terms = np.zeros((size - NMK[-1]), dtype=complex)
+    size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
+    hydro_terms = np.zeros((size - NMK[-1]), dtype=complex)
 
-col = 0
-for n in range(NMK[0]):
-    hydro_terms[n] = heaving[0] * int_R_1n(0, n)* X[n] * z_n_d(n)
-col += NMK[0]
-for i in range(1, boundary_count):
-    M = NMK[i]
-    for m in range(M):
-        hydro_terms[col + m] = heaving[i] * int_R_1n(i, m)* X[col + m] * z_n_d(m)
-        hydro_terms[col + M + m] = heaving[i] * int_R_2n(i, m)* X[col + M + m] * z_n_d(m)
-    col += 2 * M
+    col = 0
+    for n in range(NMK[0]):
+        hydro_terms[n] = heaving[0] * int_R_1n(0, n)* X[n] * z_n_d(n)
+    col += NMK[0]
+    for i in range(1, boundary_count):
+        M = NMK[i]
+        for m in range(M):
+            hydro_terms[col + m] = heaving[i] * int_R_1n(i, m)* X[col + m] * z_n_d(m)
+            hydro_terms[col + M + m] = heaving[i] * int_R_2n(i, m)* X[col + M + m] * z_n_d(m)
+        col += 2 * M
 
-hydro_p_terms = np.zeros(boundary_count, dtype=complex)
-for i in range(boundary_count):
-    hydro_p_terms[i] = heaving[i] * int_phi_p_i_no_coef(i)
+    hydro_p_terms = np.zeros(boundary_count, dtype=complex)
+    for i in range(boundary_count):
+        hydro_p_terms[i] = heaving[i] * int_phi_p_i_no_coef(i)
 
-hydro_coef =2*pi*(sum(hydro_terms) + sum(hydro_p_terms))
-hydro_coef_real = hydro_coef.real
-hydro_coef_imag = hydro_coef.imag/omega
+    hydro_coef =2*pi*(sum(hydro_terms) + sum(hydro_p_terms))
+    hydro_coef_real = hydro_coef.real
+    hydro_coef_imag = hydro_coef.imag/omega
 
-# find maximum heaving radius
-max_rad = a[0]
-for i in range(boundary_count - 1, 0, -1):
-    if heaving[i]:
-        max_rad = a[i]
-        break
+    # find maximum heaving radius
+    max_rad = a[0]
+    for i in range(boundary_count - 1, 0, -1):
+        if heaving[i]:
+            max_rad = a[i]
+            break
 
-hydro_coef_nondim = h**3/(max_rad**3 * pi)*hydro_coef
+    hydro_coef_nondim = h**3/(max_rad**3 * pi)*hydro_coef
 
-print("real", hydro_coef_real)
-print("imag", hydro_coef_imag)
-print(hydro_coef_nondim)
+    print("real", hydro_coef_real)
+    print("imag", hydro_coef_imag)
+    print(hydro_coef_nondim)
 
-# Split up the Cs into groups depending on which equation they belong to.
-Cs = []
-row = 0
-Cs.append(X[:NMK[0]])
-row += NMK[0]
-for i in range(1, boundary_count):
-    Cs.append(X[row: row + NMK[i] * 2])
-    row += NMK[i] * 2
-Cs.append(X[row:])
+    # Split up the Cs into groups depending on which equation they belong to.
+    Cs = []
+    row = 0
+    Cs.append(X[:NMK[0]])
+    row += NMK[0]
+    for i in range(1, boundary_count):
+        Cs.append(X[row: row + NMK[i] * 2])
+        row += NMK[i] * 2
+    Cs.append(X[row:])
 
-def phi_h_n_inner_func(n, r, z):
-    return (Cs[0][n] * R_1n(n, r, 0)) * Z_n_i(n, z, 0)
+    def phi_h_n_inner_func(n, r, z):
+        return (Cs[0][n] * R_1n(n, r, 0)) * Z_n_i(n, z, 0)
 
-def phi_h_m_i_func(i, m, r, z):
-    return (Cs[i][m] * R_1n(m, r, i) + Cs[i][NMK[i] + m] * R_2n(m, r, i)) * Z_n_i(m, z, i)
+    def phi_h_m_i_func(i, m, r, z):
+        return (Cs[i][m] * R_1n(m, r, i) + Cs[i][NMK[i] + m] * R_2n(m, r, i)) * Z_n_i(m, z, i)
 
-def phi_e_k_func(k, r, z):
-    return Cs[-1][k] * Lambda_k(k, r) * Z_n_e(k, z)
+    def phi_e_k_func(k, r, z):
+        return Cs[-1][k] * Lambda_k(k, r) * Z_n_e(k, z)
 
-#phi_h_n_i1s = np.vectorize(phi_h_n_i1_func, excluded=['n'], signature='(),(),()->()')
-#phi_h_m_i2s = np.vectorize(phi_h_m_i2_func, excluded=['m'], signature='(),(),()->()')
-#phi_e_ks = np.vectorize(phi_e_k_func, excluded=['k'], signature='(),(),()->()')
+    #phi_h_n_i1s = np.vectorize(phi_h_n_i1_func, excluded=['n'], signature='(),(),()->()')
+    #phi_h_m_i2s = np.vectorize(phi_h_m_i2_func, excluded=['m'], signature='(),(),()->()')
+    #phi_e_ks = np.vectorize(phi_e_k_func, excluded=['k'], signature='(),(),()->()')
 
-spatial_res=50
-r_vec = np.linspace(2 * a[-1] / spatial_res, 2*a[-1], spatial_res)
-z_vec = np.linspace(-h, 0, spatial_res)
+    spatial_res=50
+    r_vec = np.linspace(2 * a[-1] / spatial_res, 2*a[-1], spatial_res)
+    z_vec = np.linspace(-h, 0, spatial_res)
 
-#add values at the radii
-a_eps = 1.0e-4
-for i in range(len(a)):
-    r_vec = np.append(r_vec, a[i]*(1-a_eps))
-    r_vec = np.append(r_vec, a[i]*(1+a_eps))
-r_vec = np.unique(r_vec)
+    #add values at the radii
+    a_eps = 1.0e-4
+    for i in range(len(a)):
+        r_vec = np.append(r_vec, a[i]*(1-a_eps))
+        r_vec = np.append(r_vec, a[i]*(1+a_eps))
+    r_vec = np.unique(r_vec)
 
-for i in range(len(d)):
-    z_vec = np.append(z_vec, -d[i])
-z_vec = np.unique(z_vec)
+    for i in range(len(d)):
+        z_vec = np.append(z_vec, -d[i])
+    z_vec = np.unique(z_vec)
 
-R, Z = np.meshgrid(r_vec, z_vec)
- 
+    R, Z = np.meshgrid(r_vec, z_vec)
+    
 
-regions = []
-regions.append((R <= a[0]) & (Z < -d[0]))
-for i in range(1, boundary_count):
-    regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i]))
-regions.append(R > a[-1])
+    regions = []
+    regions.append((R <= a[0]) & (Z < -d[0]))
+    for i in range(1, boundary_count):
+        regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i]))
+    regions.append(R > a[-1])
 
-# region_body = ~region1 & ~region2 & ~regione
+    # region_body = ~region1 & ~region2 & ~regione
 
 
-phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
-phiH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
-phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+    phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+    phiH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+    phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
 
-for n in range(NMK[0]):
-    temp_phiH = phi_h_n_inner_func(n, R[regions[0]], Z[regions[0]])
-    phiH[regions[0]] = temp_phiH if n == 0 else phiH[regions[0]] + temp_phiH
+    for n in range(NMK[0]):
+        temp_phiH = phi_h_n_inner_func(n, R[regions[0]], Z[regions[0]])
+        phiH[regions[0]] = temp_phiH if n == 0 else phiH[regions[0]] + temp_phiH
 
-for i in range(1, boundary_count):
-    for m in range(NMK[i]):
-        temp_phiH = phi_h_m_i_func(i, m, R[regions[i]], Z[regions[i]])
-        phiH[regions[i]] = temp_phiH if m == 0 else phiH[regions[i]] + temp_phiH
+    for i in range(1, boundary_count):
+        for m in range(NMK[i]):
+            temp_phiH = phi_h_m_i_func(i, m, R[regions[i]], Z[regions[i]])
+            phiH[regions[i]] = temp_phiH if m == 0 else phiH[regions[i]] + temp_phiH
 
-for k in range(NMK[-1]):
-    temp_phiH = phi_e_k_func(k, R[regions[-1]], Z[regions[-1]])
-    phiH[regions[-1]] = temp_phiH if k == 0 else phiH[regions[-1]] + temp_phiH
+    for k in range(NMK[-1]):
+        temp_phiH = phi_e_k_func(k, R[regions[-1]], Z[regions[-1]])
+        phiH[regions[-1]] = temp_phiH if k == 0 else phiH[regions[-1]] + temp_phiH
 
-phi_p_i_vec = np.vectorize(phi_p_i)
+    phi_p_i_vec = np.vectorize(phi_p_i)
 
-phiP[regions[0]] = heaving[0] * phi_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
-for i in range(1, boundary_count):
-    phiP[regions[i]] = heaving[i] * phi_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
-phiP[regions[-1]] = 0
+    phiP[regions[0]] = heaving[0] * phi_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
+    for i in range(1, boundary_count):
+        phiP[regions[i]] = heaving[i] * phi_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
+    phiP[regions[-1]] = 0
 
-phi = phiH + phiP
-def plot_potential(field, R, Z, title):
-    plt.figure(figsize=(8, 6))
-    plt.contourf(R, Z, field, levels=50, cmap='viridis')
-    plt.colorbar()
-    plt.title(title)
-    plt.xlabel('Radial Distance (R)')
-    plt.ylabel('Axial Distance (Z)')
-    plt.show()
+    phi = phiH + phiP
+    def plot_potential(field, R, Z, title):
+        plt.figure(figsize=(8, 6))
+        plt.contourf(R, Z, field, levels=50, cmap='viridis')
+        plt.colorbar()
+        plt.title(title)
+        plt.xlabel('Radial Distance (R)')
+        plt.ylabel('Axial Distance (Z)')
+        plt.show()
 
-plot_potential(np.real(phiH), R, Z, 'Homogeneous Potential')
-plot_potential(np.imag(phiH), R, Z, 'Homogeneous Potential Imaginary')
+    plot_potential(np.real(phiH), R, Z, 'Homogeneous Potential')
+    plot_potential(np.imag(phiH), R, Z, 'Homogeneous Potential Imaginary')
 
-plot_potential(np.real(phiP), R, Z, 'Particular Potential')
-plot_potential(np.imag(phiP), R, Z, 'Particular Potential Imaginary')
+    plot_potential(np.real(phiP), R, Z, 'Particular Potential')
+    plot_potential(np.imag(phiP), R, Z, 'Particular Potential Imaginary')
 
-plot_potential(np.real(phi), R, Z, 'Total Potential')
-plot_potential(np.imag(phi), R, Z, 'Total Potential Imaginary')
+    plot_potential(np.real(phi), R, Z, 'Total Potential')
+    plot_potential(np.imag(phi), R, Z, 'Total Potential Imaginary')
 
-def v_r_inner_func(n, r, z):
-    return (Cs[0][n] * diff_R_1n(n, r, 0)) * Z_n_i(n, z, 0)
+    def v_r_inner_func(n, r, z):
+        return (Cs[0][n] * diff_R_1n(n, r, 0)) * Z_n_i(n, z, 0)
 
-def v_r_m_i_func(i, m, r, z):
-    return (Cs[i][m] * diff_R_1n(m, r, i) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i)) * Z_n_i(m, z, i)
+    def v_r_m_i_func(i, m, r, z):
+        return (Cs[i][m] * diff_R_1n(m, r, i) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i)) * Z_n_i(m, z, i)
 
-def v_r_e_k_func(k, r, z):
-    return Cs[-1][k] * diff_Lambda_k(k, r) * Z_n_e(k, z)
+    def v_r_e_k_func(k, r, z):
+        return Cs[-1][k] * diff_Lambda_k(k, r) * Z_n_e(k, z)
 
-def v_z_inner_func(n, r, z):
-    return (Cs[0][n] * R_1n(n, r, 0)) * diff_Z_n_i(n, z, 0)
+    def v_z_inner_func(n, r, z):
+        return (Cs[0][n] * R_1n(n, r, 0)) * diff_Z_n_i(n, z, 0)
 
-def v_z_m_i_func(i, m, r, z):
-    return (Cs[i][m] * R_1n(m, r, i) + Cs[i][NMK[i] + m] * R_2n(m, r, i)) * diff_Z_n_i(m, z, i)
+    def v_z_m_i_func(i, m, r, z):
+        return (Cs[i][m] * R_1n(m, r, i) + Cs[i][NMK[i] + m] * R_2n(m, r, i)) * diff_Z_n_i(m, z, i)
 
-def v_z_e_k_func(k, r, z):
-    return Cs[-1][k] * Lambda_k(k, r) * diff_Z_n_e(k, z)
+    def v_z_e_k_func(k, r, z):
+        return Cs[-1][k] * Lambda_k(k, r) * diff_Z_n_e(k, z)
 
-vr = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
-vrH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
-vrP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+    vr = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+    vrH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+    vrP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
 
-vz = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
-vzH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
-vzP = np.full_like(R, np.nan + np.nan*1j, dtype=complex)
+    vz = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+    vzH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+    vzP = np.full_like(R, np.nan + np.nan*1j, dtype=complex)
 
-for n in range(NMK[0]):
-    temp_vrH = v_r_inner_func(n, R[regions[0]], Z[regions[0]])
-    temp_vzH = v_z_inner_func(n, R[regions[0]], Z[regions[0]])
-    if n == 0:
-        vrH[regions[0]] = temp_vrH
-        vzH[regions[0]] = temp_vzH
-    else:
-        vrH[regions[0]] = vrH[regions[0]] + temp_vrH
-        vzH[regions[0]] = vzH[regions[0]] + temp_vzH
-
-for i in range(1, boundary_count):
-    for m in range(NMK[i]):
-        temp_vrH = v_r_m_i_func(i, m, R[regions[i]], Z[regions[i]])
-        temp_vzH = v_z_m_i_func(i, m, R[regions[i]], Z[regions[i]])
-        if m == 0:
-            vrH[regions[i]] = temp_vrH
-            vzH[regions[i]] = temp_vzH
+    for n in range(NMK[0]):
+        temp_vrH = v_r_inner_func(n, R[regions[0]], Z[regions[0]])
+        temp_vzH = v_z_inner_func(n, R[regions[0]], Z[regions[0]])
+        if n == 0:
+            vrH[regions[0]] = temp_vrH
+            vzH[regions[0]] = temp_vzH
         else:
-            vrH[regions[i]] = vrH[regions[i]] + temp_vrH
-            vzH[regions[i]] = vzH[regions[i]] + temp_vzH
+            vrH[regions[0]] = vrH[regions[0]] + temp_vrH
+            vzH[regions[0]] = vzH[regions[0]] + temp_vzH
 
-for k in range(NMK[-1]):
-    temp_vrH = v_r_e_k_func(k, R[regions[-1]], Z[regions[-1]])
-    temp_vzH = v_z_e_k_func(k, R[regions[-1]], Z[regions[-1]])
-    if k == 0:
-        vrH[regions[-1]] = temp_vrH
-        vzH[regions[-1]] = temp_vzH
-    else:
-        vrH[regions[-1]] = vrH[regions[-1]] + temp_vrH
-        vzH[regions[-1]] = vzH[regions[-1]] + temp_vzH
+    for i in range(1, boundary_count):
+        for m in range(NMK[i]):
+            temp_vrH = v_r_m_i_func(i, m, R[regions[i]], Z[regions[i]])
+            temp_vzH = v_z_m_i_func(i, m, R[regions[i]], Z[regions[i]])
+            if m == 0:
+                vrH[regions[i]] = temp_vrH
+                vzH[regions[i]] = temp_vzH
+            else:
+                vrH[regions[i]] = vrH[regions[i]] + temp_vrH
+                vzH[regions[i]] = vzH[regions[i]] + temp_vzH
 
-vr_p_i_vec = np.vectorize(diff_r_phi_p_i)
-vz_p_i_vec = np.vectorize(diff_z_phi_p_i)
+    for k in range(NMK[-1]):
+        temp_vrH = v_r_e_k_func(k, R[regions[-1]], Z[regions[-1]])
+        temp_vzH = v_z_e_k_func(k, R[regions[-1]], Z[regions[-1]])
+        if k == 0:
+            vrH[regions[-1]] = temp_vrH
+            vzH[regions[-1]] = temp_vzH
+        else:
+            vrH[regions[-1]] = vrH[regions[-1]] + temp_vrH
+            vzH[regions[-1]] = vzH[regions[-1]] + temp_vzH
 
-vrP[regions[0]] = heaving[0] * vr_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
-vzP[regions[0]] = heaving[0] * vz_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
-for i in range(1, boundary_count):
-    vrP[regions[i]] = heaving[i] * vr_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
-    vzP[regions[i]] = heaving[i] * vz_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
-vrP[regions[-1]] = 0
-vzP[regions[-1]] = 0
+    vr_p_i_vec = np.vectorize(diff_r_phi_p_i)
+    vz_p_i_vec = np.vectorize(diff_z_phi_p_i)
 
-vr = vrH + vrP
-vz = vzH + vzP
-plot_potential(np.real(vr), R, Z, 'Radial Velocity - Real')
-plot_potential(np.imag(vr), R, Z, 'Radial Velocity - Imaginary')
-plot_potential(np.real(vz), R, Z, 'Vertical Velocity - Real')
-plot_potential(np.imag(vz), R, Z, 'Vertical Velocity - Imaginary')
+    vrP[regions[0]] = heaving[0] * vr_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
+    vzP[regions[0]] = heaving[0] * vz_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
+    for i in range(1, boundary_count):
+        vrP[regions[i]] = heaving[i] * vr_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
+        vzP[regions[i]] = heaving[i] * vz_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
+    vrP[regions[-1]] = 0
+    vzP[regions[-1]] = 0
 
-# import numpy as np
-# import matplotlib.pyplot as plt
-# from multi_constants import *
-# from multi_equations import *
-# from scipy import linalg
+    vr = vrH + vrP
+    vz = vzH + vzP
+    plot_potential(np.real(vr), R, Z, 'Radial Velocity - Real')
+    plot_potential(np.imag(vr), R, Z, 'Radial Velocity - Imaginary')
+    plot_potential(np.real(vz), R, Z, 'Vertical Velocity - Real')
+    plot_potential(np.imag(vz), R, Z, 'Vertical Velocity - Imaginary')
 
-# # Set printing options
-# np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
-
-# def initialize_geometry(NMK, h, d, a, heaving):
-#     """Initialize geometry and domain parameters."""
-#     domain_params = []
-#     for idx in range(len(NMK)):
-#         params = {
-#             'number_harmonics': NMK[idx],
-#             'height': h - d[idx] if idx < len(d) else h,
-#             'radial_width': a[idx] if idx < len(a) else a[-1] * 1.5,
-#             'top_BC': None,
-#             'bottom_BC': None,
-#             'category': 'multi',
-#             'di': d[idx] if idx < len(d) else 0,
-#             'a': a[idx] if idx < len(a) else a[-1] * 1.5,
-#             'heaving': heaving[idx] if idx < len(heaving) else False,
-#             'slant': [0, 0, 1]
-#         }
-#         domain_params.append(params)
-
-#     r_coordinates = {'a': a}
-#     z_coordinates = {'h': h}
-#     return Geometry(r_coordinates, z_coordinates, domain_params)
-
-# def assemble_matrices(engine, problem):
-#     """Assemble matrix A and vector b."""
-#     A = engine.assemble_A_multi(problem)
-#     b = engine.assemble_b_multi(problem)
-#     return A, b
-
-# def solve_system(A, b):
-#     """Solve the linear system A * x = b."""
-#     return linalg.solve(A, b)
-
-# def calculate_hydro_coefficients(X, NMK, heaving, a, d, h, omega):
-#     """Calculate hydrodynamic coefficients."""
-#     boundary_count = len(NMK) - 1
-#     size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
-#     hydro_terms = np.zeros((size - NMK[-1]), dtype=complex)
-
-#     col = 0
-#     for n in range(NMK[0]):
-#         hydro_terms[n] = heaving[0] * int_R_1n(0, n) * X[n] * z_n_d(n)
-#     col += NMK[0]
-
-#     for i in range(1, boundary_count):
-#         M = NMK[i]
-#         for m in range(M):
-#             hydro_terms[col + m] = heaving[i] * int_R_1n(i, m) * X[col + m] * z_n_d(m)
-#             hydro_terms[col + M + m] = heaving[i] * int_R_2n(i, m) * X[col + M + m] * z_n_d(m)
-#         col += 2 * M
-
-#     hydro_p_terms = np.zeros(boundary_count, dtype=complex)
-#     for i in range(boundary_count):
-#         hydro_p_terms[i] = heaving[i] * int_phi_p_i_no_coef(i)
-
-#     hydro_coef = 2 * np.pi * (sum(hydro_terms) + sum(hydro_p_terms))
-#     max_rad = max(a[i] for i in range(boundary_count) if heaving[i])
-#     hydro_coef_nondim = h ** 3 / (max_rad ** 3 * np.pi) * hydro_coef
-
-#     return hydro_coef.real, hydro_coef.imag / omega, hydro_coef_nondim
-
-# ### Write Tests for pytest
-
-
-# import numpy as np
-# import pytest
-# import matplotlib.pyplot as plt
-# from multi_constants import *
-# from multi_equations import *
-# from scipy import linalg
-
-# def test_initialize_geometry():
-#     """Test geometry initialization."""
-#     # Define test parameters
-#     NMK = [20, 20, 20, 20]
-#     h = 10.0
-#     d = [2.0, 4.0, 6.0, 8.0]
-#     a = [1.0, 1.5, 2.0, 2.5]
-#     heaving = [True, False, True, False]
-
-#     # Initialize geometry
-#     geometry = initialize_geometry(NMK, h, d, a, heaving)
-
-#     # Assertions to check correct initialization
-#     assert geometry is not None
-#     assert len(geometry.domain_params) == len(NMK)
-#     for idx, params in enumerate(geometry.domain_params):
-#         assert params['number_harmonics'] == NMK[idx]
-#         assert params['height'] == h - d[idx]
-#         assert params['radial_width'] == a[idx]
-#         assert params['heaving'] == heaving[idx]
-
-# def test_assemble_matrices():
-#     """Test matrix assembly."""
-#     # Define test parameters
-#     NMK = [20, 20, 20, 20]
-#     h = 10.0
-#     d = [2.0, 4.0, 6.0, 8.0]
-#     a = [1.0, 1.5, 2.0, 2.5]
-#     heaving = [True, False, True, False]
-
-#     # Initialize geometry and problem
-#     geometry = initialize_geometry(NMK, h, d, a, heaving)
-#     problem = MEEMProblem(geometry)
-#     engine = MEEMEngine([problem])
-
-#     # Assemble matrices
-#     A, b = assemble_matrices(engine, problem)
-
-#     # Assertions to check matrices
-#     assert A is not None
-#     assert b is not None
-#     assert A.shape[0] == A.shape[1], "Matrix A is not square"
-#     assert A.shape[0] == len(b), "Matrix A and vector b dimensions do not match"
-
-# def test_solve_system():
-#     """Test solving linear systems."""
-#     # Create a simple system to test
-#     A = np.array([[2, 1], [1, 3]], dtype=float)
-#     b = np.array([5, 6], dtype=float)
-
-#     # Solve the system
-#     X = solve_system(A, b)
-
-#     # Expected solution
-#     expected_X = np.array([1, 2], dtype=float)
-
-#     # Assertions to compare the solutions
-#     np.testing.assert_allclose(X, expected_X, atol=1e-6)
-
-# def test_calculate_hydro_coefficients():
-#     """Test hydrodynamic coefficient calculation."""
-#     # Define test parameters
-#     NMK = [20, 20, 20, 20]
-#     h = 10.0
-#     d = [2.0, 4.0, 6.0, 8.0]
-#     a = [1.0, 1.5, 2.0, 2.5]
-#     heaving = [True, False, True, False]
-#     omega = 1.0  # Wave frequency
-
-#     # Initialize geometry and problem
-#     geometry = initialize_geometry(NMK, h, d, a, heaving)
-#     problem = MEEMProblem(geometry)
-#     engine = MEEMEngine([problem])
-
-#     # Assemble matrices and solve
-#     A, b = assemble_matrices(engine, problem)
-#     X = solve_system(A, b)
-
-#     # Calculate hydrodynamic coefficients
-#     real_coef, imag_coef, nondim_coef = calculate_hydro_coefficients(X, NMK, heaving, a, d, h, omega)
-
-#     # Assertions to check coefficients
-#     assert real_coef is not None
-#     assert imag_coef is not None
-#     assert nondim_coef is not None
-#     assert isinstance(real_coef, float), "Real coefficient is not a float"
-#     assert isinstance(imag_coef, float), "Imaginary coefficient is not a float"
-
-# def test_potential_plots():
-#     """Test and plot potential fields."""
-#     # Define test parameters with reduced harmonics for faster plotting
-#     NMK = [5, 5, 5, 5]
-#     h = 10.0
-#     d = [2.0, 4.0, 6.0, 8.0]
-#     a = [1.0, 1.5, 2.0, 2.5]
-#     heaving = [True, False, True, False]
-#     omega = 1.0
-
-#     # Initialize geometry and problem
-#     geometry = initialize_geometry(NMK, h, d, a, heaving)
-#     problem = MEEMProblem(geometry)
-#     engine = MEEMEngine([problem])
-
-#     # Assemble matrices and solve
-#     A, b = assemble_matrices(engine, problem)
-#     X = solve_system(A, b)
-
-#     # Generate spatial grid
-#     spatial_res = 50
-#     r_vec = np.linspace(0.01, 2.5, spatial_res)
-#     z_vec = np.linspace(-h, 0, spatial_res)
-#     R, Z = np.meshgrid(r_vec, z_vec)
-
-#     # Define regions
-#     boundary_count = len(NMK) - 1
-#     regions = []
-#     regions.append((R <= a[0]) & (Z < -d[0]))
-#     for i in range(1, boundary_count):
-#         regions.append((R > a[i - 1]) & (R <= a[i]) & (Z < -d[i]))
-#     regions.append(R > a[-1])
-
-#     # Initialize potentials
-#     phiH = np.zeros_like(R, dtype=complex)
-#     phiP = np.zeros_like(R, dtype=complex)
-
-#     # Split coefficients
-#     Cs = []
-#     row = 0
-#     Cs.append(X[:NMK[0]])
-#     row += NMK[0]
-#     for i in range(1, boundary_count):
-#         Cs.append(X[row: row + NMK[i] * 2])
-#         row += NMK[i] * 2
-#     Cs.append(X[row:])
-
-#     def phi_h_n_inner_func(n, r, z):
-#         return (Cs[0][n] * R_1n(n, r, 0)) * Z_n_i(n, z, 0)
-
-#     def phi_h_m_i_func(i, m, r, z):
-#         return (Cs[i][m] * R_1n(m, r, i) + Cs[i][NMK[i] + m] * R_2n(m, r, i)) * Z_n_i(m, z, i)
-
-#     def phi_e_k_func(k, r, z):
-#         return Cs[-1][k] * Lambda_k(k, r) * Z_n_e(k, z)
-
-#     # Compute homogeneous potential
-#     for idx, region in enumerate(regions):
-#         if idx == 0:
-#             for n in range(NMK[0]):
-#                 temp_phiH = phi_h_n_inner_func(n, R[region], Z[region])
-#                 phiH[region] += temp_phiH
-#         elif idx == len(regions) - 1:
-#             for k in range(NMK[-1]):
-#                 temp_phiH = phi_e_k_func(k, R[region], Z[region])
-#                 phiH[region] += temp_phiH
-#         else:
-#             i = idx
-#             for m in range(NMK[i]):
-#                 temp_phiH = phi_h_m_i_func(i, m, R[region], Z[region])
-#                 phiH[region] += temp_phiH
-
-#     # Compute particular potential
-#     phi_p_i_vec = np.vectorize(phi_p_i)
-#     phiP[regions[0]] = heaving[0] * phi_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
-#     for i in range(1, boundary_count):
-#         phiP[regions[i]] = heaving[i] * phi_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
-#     phiP[regions[-1]] = 0
-
-#     # Total potential
-#     phi = phiH + phiP
-
-#     # Plotting functions
-#     def plot_potential(field, R, Z, title):
-#         plt.figure(figsize=(8, 6))
-#         plt.contourf(R, Z, field, levels=50, cmap='viridis')
-#         plt.colorbar()
-#         plt.title(title)
-#         plt.xlabel('Radial Distance (R)')
-#         plt.ylabel('Vertical Distance (Z)')
-#         plt.show()
-
-#     # Plot potentials
-#     plot_potential(np.real(phiH), R, Z, 'Homogeneous Potential - Real Part')
-#     plot_potential(np.imag(phiH), R, Z, 'Homogeneous Potential - Imaginary Part')
-#     plot_potential(np.real(phiP), R, Z, 'Particular Potential - Real Part')
-#     plot_potential(np.imag(phiP), R, Z, 'Particular Potential - Imaginary Part')
-#     plot_potential(np.real(phi), R, Z, 'Total Potential - Real Part')
-#     plot_potential(np.imag(phi), R, Z, 'Total Potential - Imaginary Part')
-
-#     # Assertions to check potentials
-#     assert phi.shape == R.shape, "Potential field shape does not match grid shape"
-
-#     # Optionally, add more checks or save additional plots as needed
-
-# def main():
-#     test_potential_plots()
-
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    test_main()
