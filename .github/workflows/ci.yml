@@ -44,12 +44,10 @@ jobs:
         directory: code-coverage
         token: ${{ secrets.CODECOV_TOKEN }}
 
-    - name: Publish test report to Codecov
-      uses: codecov/test-results-action@v1
-      if: always()
+    - name: Publish code coverage to codecov
+      uses: codecov/codecov-action@v4
       with:
-        fail_ci_if_error: true
-        directory: test-results
+        file: ./coverage.xml  # Ensure this matches the pytest-cov output path
         token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Publish test report to GitHub UI
