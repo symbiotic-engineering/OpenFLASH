@@ -29,11 +29,14 @@ jobs:
     - name: Run tests
       run: pytest package/test/  # Run the test code
 
+    - name: Create directories for reports
+      run: mkdir -p test-results code-coverage
+
     - name: Run tests with coverage
       run: |
         pytest --junitxml=test-results/junit.xml --cov=src --cov-report xml:code-coverage/coverage.xml
 
-    - name: Publish code coverage to codecov
+    - name: Publish code coverage to Codecov
       uses: codecov/codecov-action@v4
       if: always()
       with:
@@ -41,7 +44,7 @@ jobs:
         directory: code-coverage
         token: ${{ secrets.CODECOV_TOKEN }}
 
-    - name: Publish test report to codecov
+    - name: Publish test report to Codecov
       uses: codecov/test-results-action@v1
       if: always()
       with:
@@ -55,15 +58,11 @@ jobs:
       with:
         report_paths: 'test-results/**/junit.xml'
 
-    - name: Upload test report PDF
+    - name: Upload test report and coverage artifacts
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-report
+        name: test-and-coverage-reports
         path: |
-          test-results/**/testreport.pdf
+          test-results/**/junit.xml
           code-coverage/**/coverage.xml
-    
-    - name: Create directories for reports
-      run: mkdir -p test-results code-coverage
-

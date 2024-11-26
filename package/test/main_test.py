@@ -111,7 +111,8 @@ def test_main_basic():
         -0.4622, -0.2837, 0.1539, -0.0673
     ], dtype=np.complex128)
 
-    expected_A_path = "../value/A_values.csv"
+    script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory of the current script
+    expected_A_path = os.path.join(script_dir, "../value/A_values.csv")
     df = pd.read_csv(expected_A_path, header=None)
 
     # Convert to complex
