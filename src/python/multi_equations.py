@@ -152,7 +152,7 @@ def b_velocity_end_entry(k, i): # between i and e-type regions
 
 
 #############################################
-# Equation 5
+# Phi particular and partial derivatives
 
 def phi_p_i(d, r, z): 
     return (1 / (2* (h - d))) * ((z + h) ** 2 - (r**2) / 2)
@@ -202,7 +202,7 @@ def diff_R_2n(n, r, i):
 
 
 #############################################
-# Equation 9:
+# i-region vertical eigenfunctions
 def Z_n_i(n, z, i):
     if n == 0:
         return 1
@@ -246,7 +246,7 @@ def N_k(k):
 
 
 #############################################
-# Equation 14: (m_k is a function)
+# e-region vertical eigenfunctions
 def Z_n_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
