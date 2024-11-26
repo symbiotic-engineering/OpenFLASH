@@ -149,14 +149,20 @@ def test_main_basic():
     visualize_A_matrix(generated_A, title="Generated A Matrix")
 
     # Save A matrix to file
-    np.savetxt("../value/A.txt", generated_A)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.abspath(os.path.join(script_dir, "../value"))
+    os.makedirs(output_dir, exist_ok=True)  
+    output_file_path = os.path.join(output_dir, "A.txt")
+    np.savetxt(output_file_path, generated_A)
+
 
     # Set threshold and check matches
     threshold = 0.001
     is_within_threshold = np.isclose(expected_A, generated_A, rtol=threshold)
 
     # Save matching results of A matrix to file
-    np.savetxt("../value/A_match.txt", is_within_threshold)
+    output_file_path_A_match = os.path.join(output_dir, "A_match.txt")
+    np.savetxt(output_file_path_A_match, is_within_threshold)
 
     # Display indices and values of mismatches and plot mismatched positions
     rows, cols = np.nonzero(~is_within_threshold)
@@ -193,8 +199,9 @@ def test_main_basic():
         print(e)
 
     # Save matching results of b vector
+    output_file_path_b_match = os.path.join(output_dir, "b_match.txt")
     is_within_threshold_b = np.isclose(expected_b, generated_b, atol=threshold)
-    np.savetxt("b_match.txt", is_within_threshold_b, fmt='%d')
+    np.savetxt(output_file_path_b_match, is_within_threshold_b, fmt='%d')
     print("b vector matching results saved to b_match.txt")
 
     # 2.8801
