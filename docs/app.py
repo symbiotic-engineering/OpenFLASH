@@ -219,12 +219,13 @@ def plot_potential(field, R, Z, title):
     # Display the plot in Streamlit
     st.pyplot(fig)
 
+plot_potential(np.real(phi), R, Z, 'Total Potential')
+plot_potential(np.imag(phi), R, Z, 'Total Potential Imaginary')
 plot_potential(np.real(phiH), R, Z, 'Homogeneous Potential')
 plot_potential(np.imag(phiH), R, Z, 'Homogeneous Potential Imaginary')
 plot_potential(np.real(phiP), R, Z, 'Particular Potential')
 plot_potential(np.imag(phiP), R, Z, 'Particular Potential Imaginary')
-plot_potential(np.real(phi), R, Z, 'Total Potential')
-plot_potential(np.imag(phi), R, Z, 'Total Potential Imaginary')
+
 
 #  Velocity calculations and plots
 def v_r_inner_func(n, r, z):
