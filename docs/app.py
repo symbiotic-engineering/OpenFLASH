@@ -304,23 +304,23 @@ plot_potential(np.imag(vz), R, Z, 'Vertical Velocity - Imaginary')
 
 # Helper function to display the A matrix visualization
 # keep
-def visualize_A_matrix(A, title="Matrix Visualization"):
-    rows, cols = np.nonzero(A)
-    plt.figure(figsize=(6, 6))
-    plt.scatter(cols, rows, color='blue', marker='o', s=100)
-    plt.gca().invert_yaxis()
-    plt.xticks(range(A.shape[1]))
-    plt.yticks(range(A.shape[0]))
-    block_dividers = [N, N + M, N + 2 * M]
-    for val in block_dividers:
-        plt.axvline(val - 0.5, color='black', linestyle='-', linewidth=1)
-        plt.axhline(val - 0.5, color='black', linestyle='-', linewidth=1)
-    plt.grid(True)
-    plt.title(title)
-    plt.xlabel('Column Index')
-    plt.ylabel('Row Index')
-    st.pyplot(plt)
-    plt.close()
+# def visualize_A_matrix(A, title="Matrix Visualization"):
+#     rows, cols = np.nonzero(A)
+#     plt.figure(figsize=(6, 6))
+#     plt.scatter(cols, rows, color='blue', marker='o', s=100)
+#     plt.gca().invert_yaxis()
+#     plt.xticks(range(A.shape[1]))
+#     plt.yticks(range(A.shape[0]))
+#     block_dividers = [N, N + M, N + 2 * M]
+#     for val in block_dividers:
+#         plt.axvline(val - 0.5, color='black', linestyle='-', linewidth=1)
+#         plt.axhline(val - 0.5, color='black', linestyle='-', linewidth=1)
+#     plt.grid(True)
+#     plt.title(title)
+#     plt.xlabel('Column Index')
+#     plt.ylabel('Row Index')
+#     st.pyplot(plt)
+#     plt.close()
 
 # Helper function to plot the potential field
 def plot_potential_field(R, Z, phi, title="Potential Field"):
