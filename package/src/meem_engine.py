@@ -1,3 +1,4 @@
+#meem_engine.py
 from typing import List, Dict
 import numpy as np
 from scipy.integrate import quad
@@ -316,59 +317,79 @@ class MEEMEngine:
 
         return b
 
-    def linear_solve_Axb(self, A: np.ndarray, b: np.ndarray) -> np.ndarray:
+    def compute_hydrodynamic_coefficients(self, problem: MEEMProblem, X: np.ndarray) -> Dict[str, any]:
         """
-        Solve the linear system A x = b.
+        Compute the hydrodynamic coefficients for a given problem and solution X.
 
-        :param A: Coefficient matrix A.
-        :param b: Right-hand side vector b.
-        :return: Solution vector x.
+        :param problem: MEEMProblem instance.
+        :param X: Solution vector X from solving A x = b.
+        :return: Dictionary containing hydrodynamic coefficients and related values.
         """
-        try:
-            x = np.linalg.solve(A, b)
-            return x
-        except np.linalg.LinAlgError as e:
-            print(f"Error solving linear system: {e}")
-            return None
+        from multi_equations import int_R_1n, int_R_2n, z_n_d, int_phi_p_i_no_coef
+        from multi_constants import rho, omega
+        from math import pi
 
-    def visualize_A(self, A: np.ndarray):
-        """
-        Visualize non-zero entries of matrix A.
+        domain_list = problem.domain_list
+        domain_keys = list(domain_list.keys())
+        boundary_count = len(domain_keys) - 1
 
-        :param A: Coefficient matrix A.
-        """
-        rows, cols = np.nonzero(A)
-        plt.figure(figsize=(6, 6))
-        plt.scatter(cols, rows, color='blue', marker='o', s=100)
-        plt.gca().invert_yaxis()
-        plt.xticks(range(A.shape[1]))
-        plt.yticks(range(A.shape[0]))
+        # Collect number of harmonics for each domain
+        NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
+        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:-1])
 
-        # Add separation lines for different blocks
-        N = self.problem_list[0].domain_list[0].number_harmonics
-        M = self.problem_list[0].domain_list[1].number_harmonics
-        K = self.problem_list[0].domain_list[2].number_harmonics
-        block_cols = [N, N + M, N + 2 * M]
-        for val in block_cols:
-            plt.axvline(val - 0.5, color='black', linestyle='-', linewidth=1)
-            plt.axhline(val - 0.5, color='black', linestyle='-', linewidth=1)
+        # Extract parameters
+        h = domain_list[0].h
+        d = [domain_list[idx].di for idx in domain_keys]
+        a = [domain_list[idx].a for idx in domain_keys]
+        heaving = [domain_list[idx].heaving for idx in domain_keys]
 
-        plt.grid(True)
-        plt.title('Non-Zero Entries of the Matrix A')
-        plt.xlabel('Column Index')
-        plt.ylabel('Row Index')
-        plt.show()
+        # Initialize c vector
+        c = np.zeros((size - NMK[-1]), dtype=complex)
+        col = 0
+        for n in range(NMK[0]):
+            c[n] = heaving[0] * int_R_1n(0, n) * z_n_d(n)
+        col += NMK[0]
 
-    def perform_matching(self, matching_info: Dict[int, Dict[str, bool]]) -> bool:
-        """
-        Perform matching for all problems based on matching information.
+        for i in range(1, boundary_count):
+            M = NMK[i]
+            for m in range(M):
+                c[col + m] = heaving[i] * int_R_1n(i, m) * z_n_d(m)
+                c[col + M + m] = heaving[i] * int_R_2n(i, m) * z_n_d(m)
+            col += 2 * M
+        print(c)
 
-        :param matching_info: Matching information between domains.
-        :return: True if all matchings are successful, False otherwise.
-        """
-        success = True
-        for problem in self.problem_list:
-            result = problem.perform_matching(matching_info)
-            if not result:
-                success = False
-        return success
+        # Compute hydro_p_terms
+        hydro_p_terms = np.zeros(boundary_count, dtype=complex)
+        for i in range(boundary_count):
+            hydro_p_terms[i] = heaving[i] * int_phi_p_i_no_coef(i)
+
+        print(hydro_p_terms)
+
+        # Compute hydrodynamic coefficient
+        hydro_coef = 2 * pi * (np.dot(c, X[:-NMK[-1]]) + np.sum(hydro_p_terms))
+
+        print(hydro_coef)
+
+        # Compute hydro_coef_real and hydro_coef_imag
+        # Ensure rho and omega are defined in your multi_constants module
+        hydro_coef_real = hydro_coef.real * h ** 3 * rho
+        hydro_coef_imag = hydro_coef.imag * omega * h ** 3 * rho
+        
+        print(hydro_coef_imag,hydro_coef.imag,omega,h,rho)
+
+        # Find maximum heaving radius
+        max_rad = a[0]
+        for i in range(boundary_count - 1, -1, -1):
+            if heaving[i]:
+                max_rad = a[i]
+                break
+
+        hydro_coef_nondim = h ** 3 / (max_rad ** 3 * pi) * hydro_coef
+
+        result = {
+            'hydro_coef': hydro_coef,
+            'hydro_coef_real': hydro_coef_real,
+            'hydro_coef_imag': hydro_coef_imag,
+            'hydro_coef_nondim': hydro_coef_nondim
+        }
+        return result
