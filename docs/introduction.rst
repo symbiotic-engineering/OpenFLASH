@@ -12,6 +12,7 @@ The MEEM framework is composed of several key components:
 - **Domain**: Represents individual physical regions, including their unique properties and boundary conditions.
 - **MEEMProblem**: Manages multiple domains, ensuring proper matching of boundary conditions between adjacent domains.
 - **MEEMEngine**: Executes core numerical computations, constructs necessary matrices, and provides visualization tools for analysis.
+- **Results**: Class to store results in an xarray format similar to Capytaine's conventions. Provides methods to store, access, and export results to a .nc file.
 
 Workflow
 --------
@@ -22,6 +23,7 @@ To use MEEM effectively, follow these steps:
 2. **Set Up Domains**: Create Domain objects for each region, detailing the physical characteristics and boundary conditions.
 3. **Initialize MEEMProblem**: Create an instance of MEEMProblem to manage the problem setup and perform boundary condition matching.
 4. **Run Computations**: Use MEEMEngine to execute numerical computations, assemble matrices, and visualize the results.
+5. **Store Results**: Use the Results class to store results in an xarray format similar to Capytaine's conventions. Provides methods to store, access, and export results to a .nc file.
 
 Refer to each class section for specific examples, parameter options, and code snippets.
 

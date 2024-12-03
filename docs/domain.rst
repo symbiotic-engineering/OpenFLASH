@@ -41,6 +41,7 @@ Attributes:
 - `bottom_BC`: float — Bottom boundary condition.
 - `category`: str — Category of the domain, indicating if it is 'inner', 'outer', or 'exterior'.
 - `params`: dict — Dictionary of parameters specific to the domain, such as `h`, `di`, `a1`, `a2`, `m0`.
+- `index` : int - Index of the domain in the multi-region setup.
 
 Methods:
 --------
@@ -64,36 +65,3 @@ Methods:
    :type category: str
    :param params: Dictionary containing parameters like `h`, `di`, `a1`, `a2`, `m0`.
    :type params: dict
-
-.. method:: radial_eigenfunctions(r: float, n: int)
-
-   Calculates radial eigenfunctions for a given radial coordinate.
-
-   :param r: Radial coordinate.
-   :type r: float
-   :param n: Mode number.
-   :type n: int
-   :returns: Tuple or list of eigenfunction values depending on the domain category.
-   :rtype: tuple or list
-
-.. method:: vertical_eigenfunctions(z: float, n: int)
-
-   Calculates vertical eigenfunctions for a given vertical coordinate.
-
-   :param z: Vertical coordinate.
-   :type z: float
-   :param n: Mode number.
-   :type n: int
-   :returns: Eigenfunction value or list of values, depending on the domain category.
-   :rtype: float or list
-
-.. method:: particular_potential(r: float, z: float)
-
-   Computes the particular solution of the potential at specified coordinates.
-
-   :param r: Radial coordinate.
-   :type r: float
-   :param z: Vertical coordinate.
-   :type z: float
-   :returns: Value of the particular potential at (r, z).
-   :rtype: float
