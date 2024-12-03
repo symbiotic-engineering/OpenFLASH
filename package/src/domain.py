@@ -3,7 +3,7 @@
 from typing import List
 import numpy as np
 from multi_equations import *
-from multi_constants import h, d, a, m0, heaving
+from multi_constants import *
 
 class Domain:
     """
@@ -41,59 +41,5 @@ class Domain:
         self.heaving = params.get('heaving', heaving[index] if index < len(heaving) else 0)
         self.slant = params.get('slant', False)
         self.m_k_vals = []  # For exterior domain eigenvalues
-
-    def radial_eigenfunctions(self, r: float, n: int):
-        """
-        Compute radial eigenfunctions at a given radial coordinate.
-
-        :param r: Radial coordinate.
-        :param n: Mode number.
-        :return: Value of the radial eigenfunctions at r.
-        """
-        if self.category in ['inner', 'multi']:
-            R1n_val = R_1n(n, r, self.index)
-            R2n_val = R_2n(n, r, self.index) if self.index > 0 else 0.0  # For i=0, R_2n is not defined
-            return R1n_val, R2n_val
-        elif self.category == 'exterior':
-            if not self.m_k_vals:
-                self.m_k_vals = [m_k(k + 1) for k in range(self.number_harmonics)]
-            Lambda_k_vals = [Lambda_k(k + 1, r) for k in range(self.number_harmonics)]
-            return Lambda_k_vals
-        else:
-            raise ValueError("Unknown domain category.")
-
-    def vertical_eigenfunctions(self, z: float, n: int):
-        """
-        Compute vertical eigenfunctions at a given vertical coordinate.
-
-        :param z: Vertical coordinate.
-        :param n: Mode number.
-        :return: Value of the vertical eigenfunction at z.
-        """
-        if self.category in ['inner', 'multi']:
-            Z_n_val = Z_n_i(n, z, self.index)
-            return Z_n_val
-        elif self.category == 'exterior':
-            if not self.m_k_vals:
-                self.m_k_vals = [m_k(k + 1) for k in range(self.number_harmonics)]
-            Z_k_vals = [Z_n_e(k + 1, z) for k in range(self.number_harmonics)]
-            return Z_k_vals
-        else:
-            raise ValueError("Unknown domain category.")
-
-    def particular_potential(self, r: float, z: float):
-        """
-        Compute the particular solution of the potential at given coordinates.
-
-        :param r: Radial coordinate.
-        :param z: Vertical coordinate.
-        :return: Value of the particular potential at (r, z).
-        """
-        if self.category in ['inner', 'multi']:
-            return phi_p_i(self.di, r, z)
-        elif self.category == 'exterior':
-            return 0.0  # No particular potential in the exterior domain
-        else:
-            raise ValueError("Unknown domain category.")
 
     

@@ -1,4 +1,3 @@
-# multi_equations.py
 import numpy as np
 from scipy.special import hankel1 as besselh
 from scipy.special import iv as besseli
@@ -12,6 +11,14 @@ import scipy as sp
 from multi_constants import *
 
 scale = np.mean(a)
+
+omega = sqrt(m0 * np.tanh(m0 * h) * g)
+
+def wavenumber(omega):
+    m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
+    return (root_scalar(m0_err, x0 = 2, method="newton")).root
+    
+    
 
 #############################################
 # some common computations
@@ -122,7 +129,7 @@ def b_potential_end_entry(n, i): # between i and e-type regions
 
 def b_velocity_entry(n, i): # for two i-type regions
     if n == 0:
-        return (heaving[i+1]-heaving[i])*(a[i]/2)
+        return (heaving[i+1] - heaving[i]) * (a[i]/2)
     if d[i] > d[i + 1]: #using i+1's vertical eigenvectors
         if heaving[i]:
             num = - sqrt(2) * a[i] * sin(lambda_ni(n, i+1) * (h-d[i]))
@@ -145,7 +152,7 @@ def b_velocity_end_entry(k, i): # between i and e-type regions
 
 
 #############################################
-# Equation 5
+# Phi particular and partial derivatives
 
 def phi_p_i(d, r, z): 
     return (1 / (2* (h - d))) * ((z + h) ** 2 - (r**2) / 2)
@@ -154,7 +161,7 @@ def diff_r_phi_p_i(d, r, z):
     return (- r / (2* (h - d)))
 
 def diff_z_phi_p_i(d, r, z): 
-    return ((z+h) / ((h - d)))
+    return ((z+h) / (h - d))
 
 #############################################
 # The "Bessel I" radial eigenfunction
@@ -195,7 +202,7 @@ def diff_R_2n(n, r, i):
 
 
 #############################################
-# Equation 9:
+# i-region vertical eigenfunctions
 def Z_n_i(n, z, i):
     if n == 0:
         return 1
@@ -239,7 +246,7 @@ def N_k(k):
 
 
 #############################################
-# Equation 14: (m_k is a function)
+# e-region vertical eigenfunctions
 def Z_n_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
