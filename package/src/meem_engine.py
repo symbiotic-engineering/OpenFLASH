@@ -46,8 +46,6 @@ class MEEMEngine:
         h, d1, d2 = inner_domain.h, inner_domain.di, outer_domain.di
         a1, a2 = inner_domain.a, outer_domain.a
 
-        print(h, d1, d2,a1, a2)
-
         # First row of block matrices (using d1)
         for i in range(N):
             A[i][i] = (h - d1) * equations.R_1n_1(i, a1)
@@ -356,7 +354,7 @@ class MEEMEngine:
                 c[col + m] = heaving[i] * int_R_1n(i, m) * z_n_d(m)
                 c[col + M + m] = heaving[i] * int_R_2n(i, m) * z_n_d(m)
             col += 2 * M
-        print(c)
+        #print(c)
 
         # Compute hydro_p_terms
         hydro_p_terms = np.zeros(boundary_count, dtype=complex)
@@ -368,14 +366,16 @@ class MEEMEngine:
         # Compute hydrodynamic coefficient
         hydro_coef = 2 * pi * (np.dot(c, X[:-NMK[-1]]) + np.sum(hydro_p_terms))
 
-        print(hydro_coef)
+        #print(X[:-NMK[-1]])
+        #print(np.sum(hydro_p_terms))
+        #print(hydro_coef)
 
         # Compute hydro_coef_real and hydro_coef_imag
         # Ensure rho and omega are defined in your multi_constants module
         hydro_coef_real = hydro_coef.real * h ** 3 * rho
         hydro_coef_imag = hydro_coef.imag * omega * h ** 3 * rho
         
-        print(hydro_coef_imag,hydro_coef.imag,omega,h,rho)
+        #print(hydro_coef_imag,hydro_coef.imag,omega,h,rho)
 
         # Find maximum heaving radius
         max_rad = a[0]
