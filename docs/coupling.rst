@@ -4,7 +4,7 @@ Coupling
 Overview
 --------
 
-The `coupling` module provides functions for calculating coupling integrals used in the **Matched Eigenfunctions Method (MEEM)**. The primary functions, such as `A_nm`, `A_nm2`, `A_nj`, and others, compute various integral transformations based on the indices provided. This module is essential for performing precise mathematical calculations required for coupled systems.
+The `coupling` module provides functions for calculating coupling integrals used in the **Matched Eigenfunctions Method (MEEM)**. The primary functions, such as `A_nm`, `A_nm2`, `A_nj`, and `A_nj2`, compute various integral transformations. These calculations are vital for accurately modeling coupled systems in the MEEM framework.
 
 Function Definitions
 --------------------
@@ -26,17 +26,15 @@ A_nm
    **Returns:**
 
    - (*float*): Result of the integral for the given indices `n` and `m`.
-   
+
    **Raises:**
 
-   - **ValueError**: Raised if `n` or `m` are out of the expected range.
+   - **ValueError**: Raised if invalid indices are provided.
 
 .. code-block:: python
 
    # Example usage
    result = A_nm(2, 3)
-
-   # Result will be a float representing the calculated integral
 
 
 .. _A_nm2:
@@ -44,19 +42,18 @@ A_nm
 A_nm2
 -----
 
-.. function:: A_nm2(n, m)
+.. function:: A_nm2(j, n)
    
-   Similar to `A_nm`, this function computes the integral `A_nm2`, with specific transformations applied to indices `n` and `m`.
+   Computes the integral `A_nm2`, applying specific transformations to indices `j` and `n`.
 
    **Parameters:**
 
-   - **n** (*int*): First index.
-   - **m** (*int*): Second index.
+   - **j** (*int*): First index.
+   - **n** (*int*): Second index.
 
    **Returns:**
 
    - (*float*): Result of the `A_nm2` integral calculation.
-
 
 .. _A_nj:
 
@@ -65,7 +62,7 @@ A_nj
 
 .. function:: A_nj(n, j)
    
-   Calculates the integral `A_nj`, which is essential in the coupling calculations.
+   Calculates the integral `A_nj`, essential for coupling calculations.
 
    **Parameters:**
 
@@ -76,6 +73,23 @@ A_nj
 
    - (*float*): Calculated integral for the given indices.
 
+.. _A_nj2:
+
+A_nj2
+-----
+
+.. function:: A_nj2(n, j)
+   
+   Computes the integral `A_nj2`, with additional transformations for `n` and `j`.
+
+   **Parameters:**
+
+   - **n** (*int*): First index.
+   - **j** (*int*): Second index.
+
+   **Returns:**
+
+   - (*float*): Calculated integral for the given indices.
 
 Helper Functions
 ----------------
@@ -101,7 +115,6 @@ sq
 
    # Example usage
    result = sq(5)
-   # result = 25
 
 
 .. _nk_sigma_helper:
@@ -109,29 +122,28 @@ sq
 nk_sigma_helper
 ---------------
 
-.. function:: nk_sigma_helper(n, k)
+.. function:: nk_sigma_helper(mk, k, m)
    
-   A helper function that aids in `A_nm` calculations by handling specific transformations for values of `n` and `k`.
+   A helper function for `A_nm` and related calculations, handling specific transformations for values of `mk`, `k`, and `m`.
 
    **Parameters:**
 
-   - **n** (*int*): First index.
-   - **k** (*int*): Second index.
+   - **mk** (*float*): Coupled variable derived from `m_k`.
+   - **k** (*int*): Index in the transformation.
+   - **m** (*int*): Index in the transformation.
 
    **Returns:**
 
-   - (*float*): Transformed result based on `n` and `k` inputs.
-
+   - (*tuple*): Transformed components used in further calculations.
 
 Examples
 --------
 
-The following example demonstrates a simple workflow using functions from the `coupling` module to perform a coupling integral calculation:
+The following example demonstrates a workflow using functions from the `coupling` module:
 
 .. code-block:: python
 
-   # Importing functions from the coupling module
-   from coupling import A_nm, A_nm2, A_nj
+   from coupling import A_nm, A_nm2, A_nj, sq
 
    # Calculating A_nm and A_nm2
    result_nm = A_nm(2, 3)
@@ -139,19 +151,16 @@ The following example demonstrates a simple workflow using functions from the `c
 
    # Using A_nj in further calculations
    result_nj = A_nj(3, 6)
-   
-   # Example results would be of type float based on input indices
 
 Dependencies
 ------------
 
 The following external libraries are required:
 
-- **NumPy**: Provides numerical operations essential for the calculations.
-- **SciPy**: Used for integral transformations and other mathematical operations.
+- **NumPy**: For numerical operations.
+- **SciPy**: For integral transformations and mathematical operations.
 
 Notes
 -----
 
-Ensure that inputs `n` and `m` fall within acceptable ranges to avoid `ValueError`. Some functions in this module assume integer indices for accurate calculations.
-
+Ensure all inputs fall within valid ranges to avoid `ValueError`. Index values are expected to be integers.
