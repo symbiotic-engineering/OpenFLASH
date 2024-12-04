@@ -21,13 +21,13 @@ Modules Overview
    meem_problem
    meem_engine
    results
-   tutorial
+   tutorial_walk
    constants
    multi_constants
    coupling
    equations
    multi_equations
-   app
+   app_walk
    citations
 
 Indices and Tables

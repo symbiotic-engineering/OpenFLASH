@@ -65,9 +65,9 @@ def main():
         return
     
     spatial_res = st.sidebar.slider("Spatial Resolution", min_value=10, max_value=100, value=50, step=5)
+    show_total = st.sidebar.checkbox("Show Total Potential Plots", value=True)
     show_homogeneous = st.sidebar.checkbox("Show Homogeneous Potential Plots", value=True)
     show_particular = st.sidebar.checkbox("Show Particular Potential Plots", value=True)
-    show_total = st.sidebar.checkbox("Show Total Potential Plots", value=True)
     show_radial = st.sidebar.checkbox("Show Radial Velocity Potential Plots", value=True)
     show_vertical = st.sidebar.checkbox("Show Vertical Velocity Potential Plots", value=True)
 
@@ -95,7 +95,7 @@ def main():
     with st.expander("View Domain Parameters"):
         st.write("Domain Parameters:")
         st.json(domain_params)
-        
+
     # Create Geometry object
     r_coordinates = {'a': a}
     z_coordinates = {'h': h}

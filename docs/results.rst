@@ -1,5 +1,5 @@
-Results Class Documentation
-===========================
+Results Class
+==============
 
 The `Results` class is designed to store results in an `xarray` format similar to Capytaine's conventions. It provides methods to store, access, and export results to a `.nc` file, with a focus on eigenfunction data (radial and vertical) across different frequencies and modes.
 

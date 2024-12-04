@@ -1,5 +1,5 @@
-Multi Equations Documentation
-=============================
+Multi Equations 
+================
 
 This module, `multi_equations.py`, contains a variety of functions for performing computations related to multi-region eigenfunctions, vertical eigenvector coupling, Bessel functions, and other related mathematical operations. It leverages libraries such as `numpy`, `scipy`, and `matplotlib` for efficient scientific computing.
 
