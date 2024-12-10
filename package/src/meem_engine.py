@@ -9,7 +9,6 @@ from coupling import A_nm, A_mk
 import equations
 import multi_equations
 from results import Results
-from geometry import Geometry
 
 
 class MEEMEngine:
@@ -18,14 +17,14 @@ class MEEMEngine:
     assembling matrices, and visualizing results.
     """
 
-    def __init__(self, geometry, problem_list: List[MEEMProblem]):
+    def __init__(self, problem_list: List[MEEMProblem]):
         """
         Initialize the MEEMEngine object.
 
+        
         :param problem_list: List of MEEMProblem instances.
         """
         self.problem_list = problem_list
-        self.geometry = geometry
 
     def assemble_A(self, problem: MEEMProblem) -> np.ndarray:
         """
@@ -417,7 +416,7 @@ def run_and_store_results(self, problem_index: int) -> Results:
         hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
 
         # Create a Results object
-        geometry = problem.geometry
+        geometry = problem.geometry #MEEMProblem contains a Geometry instance
         results = Results(geometry, self.frequencies, self.modes)
 
         # Store eigenfunction results
