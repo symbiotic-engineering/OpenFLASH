@@ -60,6 +60,35 @@ class Results:
                 else:
                     self.dataset[var] = xr.DataArray(values, dims=list(coords.keys()))
 
+    def store_potentials(self, potentials: dict):
+        """
+        Store potentials in the dataset.
+
+        :param potentials: Dictionary containing potential values and their coordinates.
+                        Example format: {'domain_name': {'potentials': ..., 'r': ..., 'z': ...}}
+        """
+        if self.dataset is None:
+            raise ValueError("Dataset not initialized. Store eigenfunctions first.")
+
+        for domain_name, data in potentials.items():
+            # Extract potential data and coordinates
+            domain_potentials = data['potentials']
+            r_coords = data['r']
+            z_coords = data['z']
+
+            # Add to dataset with domain-specific dimensions
+            self.dataset[f"{domain_name}_potentials"] = xr.DataArray(
+                domain_potentials,
+                dims=['frequencies', 'modes', 'harmonics'],
+                coords={'frequencies': self.frequencies, 'modes': self.modes, 'harmonics': np.arange(len(domain_potentials))}
+            )
+
+            # Optionally, store coordinates if not already present
+            if f"{domain_name}_r" not in self.dataset.coords:
+                self.dataset.coords[f"{domain_name}_r"] = ('harmonics', r_coords)
+            if f"{domain_name}_z" not in self.dataset.coords:
+                self.dataset.coords[f"{domain_name}_z"] = ('harmonics', z_coords)
+
     def export_to_netcdf(self, file_path: str):
         """
         Export the results to a NetCDF (.nc) file.
