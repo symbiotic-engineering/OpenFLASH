@@ -373,7 +373,7 @@ class MEEMEngine:
 
         ###########################################################################
         ###SEA Calculation: c-Matrix### 
-        # hydro coeff values are too high!!!!!!!!!!!
+        # NOTICE: hydro coeff values are too high!!!!!!!!!!!
         c = np.zeros((2*len(NMK)-2, max(NMK)), dtype=complex)
         X_matrix = np.zeros((2*len(NMK)-2, max(NMK)), dtype=complex)
         heaving_matrix = np.zeros((2*len(NMK)-2, len(NMK)-1), dtype=complex)
@@ -419,3 +419,69 @@ class MEEMEngine:
         )
         ###########################################################################
         return hydro_coeff_list
+
+    def calculate_potentials(self, problem: MEEMProblem, solution_vector: np.ndarray) -> Dict[str, dict]:
+        """
+        Calculate the potentials for the domains in the problem.
+        :param problem: MEEMProblem instance containing domain definitions.
+        :param solution_vector: Solution vector obtained from solving Ax = b.
+        :return: A dictionary with domain names as keys and their corresponding potentials and coordinates as values.
+        """
+        potentials = {}
+        domain_list = problem.domain_list
+        start_idx = 0
+        for domain_name, domain in domain_list.items():
+            # Get the number of harmonics for this domain
+            num_harmonics = domain.number_harmonics
+            # Extract the corresponding part of the solution vector
+            domain_potential = solution_vector[start_idx:start_idx + num_harmonics]
+            # Package the potential with domain-specific coordinates
+            potentials[domain_name] = {
+                'potentials': domain_potential,
+                'r': domain.r_coordinates,
+                'z': domain.z_coordinates
+            }
+            # Update the starting index for the next domain
+            start_idx += num_harmonics
+        return potentials
+    def visualize_potential(self, potentials: Dict[str, np.ndarray], domain_names: List[str] = None):
+        """
+        Visualize the potentials for the given domains.
+        :param potentials: Dictionary containing domain names and their corresponding potentials.
+        :param domain_names: List of domain names to visualize. If None, visualize all.
+        """
+        domain_names = domain_names or potentials.keys()
+        plt.figure(figsize=(10, 6))
+        for domain_name in domain_names:
+            potential = np.abs(potentials[domain_name])  # Magnitude of the potential
+            plt.plot(potential, label=f"{domain_name} Potential")
+        plt.title("Potential Magnitudes Across Domains")
+        plt.xlabel("Harmonic Index")
+        plt.ylabel("Magnitude")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+    
+    def run_and_store_results(self, problem_index: int) -> Results:
+        """
+        Perform the full MEEM computation and store results in the Results class.
+        :param problem_index: Index of the MEEMProblem instance to process.
+        :return: Results object containing the computed data.
+        """
+        problem = self.problem_list[problem_index]
+
+        # Assemble the system matrix A and right-hand side vector b
+        A = self.assemble_A(problem)
+        b = self.assemble_b(problem)
+
+        # Solve the linear system
+        X = np.linalg.solve(A, b)
+
+        # Compute hydrodynamic coefficients
+        hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
+
+        # Create a Results object
+        geometry = problem.geometry #MEEMProblem contains a Geometry instance
+        results = Results(geometry, self.frequencies, self.modes)
+
+        # Store eigenfunction results
