@@ -1,8 +1,8 @@
 # Constants
-h = 1.001
-d = [0.5, 0.25]
-a = [0.5, 1]
-heaving = [1, 1] 
+h = 1.5
+d = [1.1, 0.85, 0.75, 0.4, 0.15]
+a = [0.3, 0.5, 1, 1.2, 1.6]
+heaving = [1, 1, 1, 1, 1]
 # 0/false if not heaving, 1/true if yes heaving
 m0 = 1
 g = 9.81
