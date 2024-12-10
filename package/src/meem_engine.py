@@ -316,6 +316,34 @@ class MEEMEngine:
                     index += 1
 
         return b
+    
+    def solve_linear_system(self, problem: MEEMProblem) -> np.ndarray:
+        """
+        Solve the linear system A x = b for the given problem.
+
+        :param problem: MEEMProblem instance.
+        :return: Solution vector X.
+        """
+        from scipy import linalg
+
+        A = self.assemble_A(problem)
+        b = self.assemble_b(problem)
+        X = linalg.solve(A, b)
+        return X
+    
+    def solve_linear_system_multi(self, problem: MEEMProblem) -> np.ndarray:
+        """
+        Solve the linear system A x = b for the given problem.
+
+        :param problem: MEEMProblem instance.
+        :return: Solution vector X.
+        """
+        from scipy import linalg
+
+        A = self.assemble_A_multi(problem)
+        b = self.assemble_b_multi(problem)
+        X = linalg.solve(A, b)
+        return X
 
     def compute_hydrodynamic_coefficients(self, problem: MEEMProblem, X: np.ndarray) -> Dict[str, any]:
         """
@@ -343,146 +371,51 @@ class MEEMEngine:
         a = [domain_list[idx].a for idx in domain_keys]
         heaving = [domain_list[idx].heaving for idx in domain_keys]
 
-        # Initialize c vector
-        c = np.zeros((size - NMK[-1]), dtype=complex)
+        ###########################################################################
+        ###SEA Calculation: c-Matrix### 
+        # hydro coeff values are too high!!!!!!!!!!!
+        c = np.zeros((2*len(NMK)-2, max(NMK)), dtype=complex)
+        X_matrix = np.zeros((2*len(NMK)-2, max(NMK)), dtype=complex)
+        heaving_matrix = np.zeros((2*len(NMK)-2, len(NMK)-1), dtype=complex)
         col = 0
         for n in range(NMK[0]):
-            c[n] = heaving[0] * int_R_1n(0, n) * z_n_d(n)
+            c[0, n] = int_R_1n(0, n) * z_n_d(n)
+            X_matrix[0, n] = X[n]
         col += NMK[0]
-
         for i in range(1, boundary_count):
             M = NMK[i]
             for m in range(M):
-                c[col + m] = heaving[i] * int_R_1n(i, m) * z_n_d(m)
-                c[col + M + m] = heaving[i] * int_R_2n(i, m) * z_n_d(m)
-            col += 2 * M
-        #print(c)
-
-        # Compute hydro_p_terms
-        hydro_p_terms = np.zeros(boundary_count, dtype=complex)
+                c[i, m] = int_R_1n(i, m) * z_n_d(m)
+                c[i+boundary_count-1, m] = int_R_2n(i, m) * z_n_d(m)
+                X_matrix[i, m] = X[col + m]  # for first eigen-coeff in region M
+            col += M
+        for i in range(1, boundary_count):
+            M = NMK[i]
+            for m in range(M):
+                X_matrix[i+boundary_count-1, m] = X[col + m]  # for second eigen-coeff in region M
+            col += M
         for i in range(boundary_count):
-            hydro_p_terms[i] = heaving[i] * int_phi_p_i_no_coef(i)
+            for j in range(boundary_count):
+                heaving_matrix[i, j] = heaving[j] * (h-d[i]) / (h-d[j])
+                if i != 0:
+                    heaving_matrix[i+boundary_count-1, j] = heaving[j] * (h-d[i]) / (h-d[j])
+        cX_identity = np.diag(np.sum(c * X_matrix, axis=1))
+        hydro_h_terms = np.dot(cX_identity, heaving_matrix)
+        hydro_p_terms = np.zeros((boundary_count, boundary_count), dtype=complex)
+        for i in range(boundary_count):
+            for j in range(boundary_count):
+                hydro_p_terms[i, j] = heaving[j] * (h-d[i]) / (h-d[j]) * int_phi_p_i_no_coef(i)
+        indices_h = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 1), (5, 2), (6, 3)]
+        indices_p = [(0, 0), (1, 1), (2, 2), (3, 3)]
+        #hydro_coeff_list = 2 * pi * (sum(hydro_h_terms[i, j] for i, j in indices_h) + sum(hydro_p_terms[i, j] for i, j in indices_p))
+        # Ensure indices are within bounds
+        valid_indices_h = [(i, j) for i, j in indices_h if i < hydro_h_terms.shape[0] and j < hydro_h_terms.shape[1]]
+        valid_indices_p = [(i, j) for i, j in indices_p if i < hydro_p_terms.shape[0] and j < hydro_p_terms.shape[1]]
 
-        print(hydro_p_terms)
-
-        # Compute hydrodynamic coefficient
-        hydro_coef = 2 * pi * (np.dot(c, X[:-NMK[-1]]) + np.sum(hydro_p_terms))
-
-        #print(X[:-NMK[-1]])
-        #print(np.sum(hydro_p_terms))
-        #print(hydro_coef)
-
-        # Compute hydro_coef_real and hydro_coef_imag
-        # Ensure rho and omega are defined in your multi_constants module
-        hydro_coef_real = hydro_coef.real * h ** 3 * rho
-        hydro_coef_imag = hydro_coef.imag * omega * h ** 3 * rho
-        
-        #print(hydro_coef_imag,hydro_coef.imag,omega,h,rho)
-
-        # Find maximum heaving radius
-        max_rad = a[0]
-        for i in range(boundary_count - 1, -1, -1):
-            if heaving[i]:
-                max_rad = a[i]
-                break
-
-        hydro_coef_nondim = h ** 3 / (max_rad ** 3 * pi) * hydro_coef
-
-        result = {
-            'hydro_coef': hydro_coef,
-            'hydro_coef_real': hydro_coef_real,
-            'hydro_coef_imag': hydro_coef_imag,
-            'hydro_coef_nondim': hydro_coef_nondim
-        }
-        return result
-    
-def calculate_potentials(self, problem: MEEMProblem, solution_vector: np.ndarray) -> Dict[str, dict]:
-    """
-    Calculate the potentials for the domains in the problem.
-
-    :param problem: MEEMProblem instance containing domain definitions.
-    :param solution_vector: Solution vector obtained from solving Ax = b.
-    :return: A dictionary with domain names as keys and their corresponding potentials and coordinates as values.
-    """
-    potentials = {}
-    domain_list = problem.domain_list
-
-    start_idx = 0
-    for domain_name, domain in domain_list.items():
-        # Get the number of harmonics for this domain
-        num_harmonics = domain.number_harmonics
-
-        # Extract the corresponding part of the solution vector
-        domain_potential = solution_vector[start_idx:start_idx + num_harmonics]
-
-        # Package the potential with domain-specific coordinates
-        potentials[domain_name] = {
-            'potentials': domain_potential,
-            'r': domain.r_coordinates,
-            'z': domain.z_coordinates
-        }
-
-        # Update the starting index for the next domain
-        start_idx += num_harmonics
-
-    return potentials
-
-def visualize_potential(self, potentials: Dict[str, np.ndarray], domain_names: List[str] = None):
-        """
-        Visualize the potentials for the given domains.
-
-        :param potentials: Dictionary containing domain names and their corresponding potentials.
-        :param domain_names: List of domain names to visualize. If None, visualize all.
-        """
-        domain_names = domain_names or potentials.keys()
-
-        plt.figure(figsize=(10, 6))
-        for domain_name in domain_names:
-            potential = np.abs(potentials[domain_name])  # Magnitude of the potential
-            plt.plot(potential, label=f"{domain_name} Potential")
-
-        plt.title("Potential Magnitudes Across Domains")
-        plt.xlabel("Harmonic Index")
-        plt.ylabel("Magnitude")
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-    
-def run_and_store_results(self, problem_index: int) -> Results:
-        """
-        Perform the full MEEM computation and store results in the Results class.
-
-        :param problem_index: Index of the MEEMProblem instance to process.
-        :return: Results object containing the computed data.
-        """
-        problem = self.problem_list[problem_index]
-
-        # Assemble the system matrix A and right-hand side vector b
-        A = self.assemble_A(problem)
-        b = self.assemble_b(problem)
-
-        # Solve the linear system
-        X = np.linalg.solve(A, b)
-
-        # Compute hydrodynamic coefficients
-        hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
-
-        # Create a Results object
-        geometry = problem.geometry #MEEMProblem contains a Geometry instance
-        results = Results(geometry, self.frequencies, self.modes)
-
-        # Store eigenfunction results
-        for domain_index, domain in problem.domain_list.items():
-            radial_data = X[:domain.number_harmonics].reshape(
-                len(self.frequencies), len(self.modes), domain.number_harmonics
-            )
-            vertical_data = X[domain.number_harmonics:].reshape(
-                len(self.frequencies), len(self.modes), domain.number_harmonics
-            )
-            results.store_results(domain_index, radial_data, vertical_data)
-
-        # Add hydrodynamic coefficients to the results
-        for key, value in hydro_coeffs.items():
-            setattr(results, key, value)
-
-        return results
+        # Compute hydro_coeff_list using valid indices
+        hydro_coeff_list = 2 * pi * (
+            sum(hydro_h_terms[i, j] for i, j in valid_indices_h) +
+            sum(hydro_p_terms[i, j] for i, j in valid_indices_p)
+        )
+        ###########################################################################
+        return hydro_coeff_list
