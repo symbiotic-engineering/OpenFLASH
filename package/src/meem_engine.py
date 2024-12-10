@@ -8,6 +8,8 @@ from meem_problem import MEEMProblem
 from coupling import A_nm, A_mk
 import equations
 import multi_equations
+from results import Results
+from geometry import Geometry
 
 
 class MEEMEngine:
@@ -16,13 +18,14 @@ class MEEMEngine:
     assembling matrices, and visualizing results.
     """
 
-    def __init__(self, problem_list: List[MEEMProblem]):
+    def __init__(self, geometry, problem_list: List[MEEMProblem]):
         """
         Initialize the MEEMEngine object.
 
         :param problem_list: List of MEEMProblem instances.
         """
         self.problem_list = problem_list
+        self.geometry = geometry
 
     def assemble_A(self, problem: MEEMProblem) -> np.ndarray:
         """
@@ -393,3 +396,42 @@ class MEEMEngine:
             'hydro_coef_nondim': hydro_coef_nondim
         }
         return result
+    
+def run_and_store_results(self, problem_index: int) -> Results:
+        """
+        Perform the full MEEM computation and store results in the Results class.
+
+        :param problem_index: Index of the MEEMProblem instance to process.
+        :return: Results object containing the computed data.
+        """
+        problem = self.problem_list[problem_index]
+
+        # Assemble the system matrix A and right-hand side vector b
+        A = self.assemble_A(problem)
+        b = self.assemble_b(problem)
+
+        # Solve the linear system
+        X = np.linalg.solve(A, b)
+
+        # Compute hydrodynamic coefficients
+        hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
+
+        # Create a Results object
+        geometry = problem.geometry
+        results = Results(geometry, self.frequencies, self.modes)
+
+        # Store eigenfunction results
+        for domain_index, domain in problem.domain_list.items():
+            radial_data = X[:domain.number_harmonics].reshape(
+                len(self.frequencies), len(self.modes), domain.number_harmonics
+            )
+            vertical_data = X[domain.number_harmonics:].reshape(
+                len(self.frequencies), len(self.modes), domain.number_harmonics
+            )
+            results.store_results(domain_index, radial_data, vertical_data)
+
+        # Add hydrodynamic coefficients to the results
+        for key, value in hydro_coeffs.items():
+            setattr(results, key, value)
+
+        return results
