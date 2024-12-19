@@ -1,14 +1,14 @@
 # Constants
-h = 1.5
-d = [1.1, 0.85, 0.75, 0.4, 0.15]
-a = [0.3, 0.5, 1, 1.2, 1.6]
-heaving = [1, 1, 1, 1, 1]
+h = 100
+d = [29, 7, 4]
+a = [3, 5, 10]
+heaving = [0, 1, 1]
 # 0/false if not heaving, 1/true if yes heaving
 m0 = 1
 g = 9.81
 rho = 1023
-n = 3
-z = 6
+# n = 3 # These variables are just here but unused, inherited from the MEEM constants.py
+# z = 6 # Why are they here?
 # omega = 2 -> calculate omega from m0, g
 
 
