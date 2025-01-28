@@ -106,7 +106,7 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
             frac1 = sin((mk + lambda1)*(h-dj))/(mk + lambda1)
             frac2 = sin((mk - lambda1)*(h-dj))/(mk - lambda1)
             return sqrt(2)/2 * (1/sqrt(N_k(k))) * (frac1 + frac2)
-
+            
 #############################################
 # b-vector computation
 
@@ -247,13 +247,13 @@ def N_k(k):
 
 #############################################
 # e-region vertical eigenfunctions
-def Z_n_e(k, z):
+def Z_k_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
     else:
         return 1 / sqrt(N_k(k)) * cos(m_k(k) * (z + h))
 
-def diff_Z_n_e(k, z):
+def diff_Z_k_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
     else:
@@ -285,7 +285,7 @@ def int_R_1n(i, n):
 def int_R_2n(i, n):
     lambda0 = lambda_ni(n, i)
     if n == 0:
-        return (a[i-1]**2 * (2*np.log(a[i]) - 2*np.log(a[i-1]) + 1) - a[i]**2)/8
+        return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
     else:
         top = a[i] * besselk(1, lambda0 * a[i]) - a[i-1] * besselk(1, lambda0 * a[i-1])
         bottom = - lambda0 * besselk(0, lambda0 * scale)
