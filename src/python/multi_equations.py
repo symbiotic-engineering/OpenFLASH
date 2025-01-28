@@ -23,7 +23,7 @@ def wavenumber(omega):
 #############################################
 # some common computations
 
-# Defining m_k function that will be used later on
+# creating a m_k function that will be used later on
 def m_k(k):
     # m_k_mat = np.zeros((len(m0_vec), 1))
 
@@ -79,12 +79,12 @@ def I_nm(n, m, i): # coupling integral for two i-type regions
         else:
             return sqrt(2) * sin(lambda1 * (h - dj)) / lambda1
     else:
+        frac1 = sin((lambda1 + lambda2)*(h-dj))/(lambda1 + lambda2)
         if lambda1 == lambda2:
-            return (h - dj) + sin(lambda1 * 2 * (h - dj)) / (2 * lambda1)
+            frac2 = (h - dj)
         else:
-            frac1 = sin((lambda1 + lambda2)*(h-dj))/(lambda1 + lambda2)
             frac2 = sin((lambda1 - lambda2)*(h-dj))/(lambda1 - lambda2)
-            return frac1 + frac2
+        return frac1 + frac2
 
 def I_mk(m, k, i): # coupling integral for i and e-type regions
     dj = d[i]
@@ -185,7 +185,9 @@ def diff_R_1n(n, r, i):
 #############################################
 # The "Bessel K" radial eigenfunction
 def R_2n(n, r, i): # this shouldn't be called for i=0, innermost.
-    if n == 0:
+    if i == 0:
+        raise ValueError("i cannot be 0")
+    elif n == 0:
         return 0.5 * np.log(r / a[i])
     else:
         return besselk(0, lambda_ni(n, i) * r) / besselk(0, lambda_ni(n, i) * scale)
@@ -247,13 +249,13 @@ def N_k(k):
 
 #############################################
 # e-region vertical eigenfunctions
-def Z_n_e(k, z):
+def Z_k_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
     else:
         return 1 / sqrt(N_k(k)) * cos(m_k(k) * (z + h))
 
-def diff_Z_n_e(k, z):
+def diff_Z_k_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
     else:
@@ -285,7 +287,7 @@ def int_R_1n(i, n):
 def int_R_2n(i, n):
     lambda0 = lambda_ni(n, i)
     if n == 0:
-        return (a[i-1]**2 * (2*np.log(a[i]) - 2*np.log(a[i-1]) + 1) - a[i]**2)/8
+        return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
     else:
         top = a[i] * besselk(1, lambda0 * a[i]) - a[i-1] * besselk(1, lambda0 * a[i-1])
         bottom = - lambda0 * besselk(0, lambda0 * scale)
