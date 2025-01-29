@@ -18,13 +18,13 @@ def wavenumber(omega):
     m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
     return (root_scalar(m0_err, x0 = 2, method="newton")).root
     
-    
+
+def lambda_ni(n, i): # factor used often in calculations
+    return n * pi / (h - d[i])
 
 #############################################
-# some common computations
-
-# creating a m_k function that will be used later on
-def m_k(k):
+# creating a m_k function, used often in calculations
+def m_k_entry(k):
     # m_k_mat = np.zeros((len(m0_vec), 1))
 
     m_k_h_err = (
@@ -51,13 +51,12 @@ def m_k(k):
         # m_k_mat[freq_idx, :] = m_k_vec
     return m_k_val
 
+# create an array of m_k values for each k to avoid recomputation
+m_k = (np.vectorize(m_k_entry))(list(range(NMK[-1])))
 
 def m_k_newton(h):
     res = newton(lambda k: k * np.tanh(k * h) - m0**2 / 9.8, x0=1.0, tol=10 ** (-10))
     return res
-
-def lambda_ni(n, i):
-    return n * pi / (h - d[i])
 
 #############################################
 # vertical eigenvector coupling computation
@@ -91,20 +90,18 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
     if m == 0 and k == 0:
         return (1/sqrt(N_k(0))) * sinh(m0 * (h - dj)) / m0
     if m == 0 and k >= 1:
-        mk = m_k(k)
-        return (1/sqrt(N_k(k))) * sin(mk * (h - dj)) / mk
+        return (1/sqrt(N_k(k))) * sin(m_k[k] * (h - dj)) / m_k[k]
     if m >= 1 and k == 0:
         num = sqrt(2) * (1/sqrt(N_k(0))) * m0 * (-1)**m * sinh(m0 * (h - dj))
         denom = (m0**2 + lambda_ni(m, i) **2)
         return num/denom
     else:
         lambda1 = lambda_ni(m, i)
-        mk = m_k(k)
-        if abs(mk) == lambda1:
+        if abs(m_k[k]) == lambda1:
             return (h - dj)/2
         else:
-            frac1 = sin((mk + lambda1)*(h-dj))/(mk + lambda1)
-            frac2 = sin((mk - lambda1)*(h-dj))/(mk - lambda1)
+            frac1 = sin((m_k[k] + lambda1)*(h-dj))/(m_k[k] + lambda1)
+            frac2 = sin((m_k[k] - lambda1)*(h-dj))/(m_k[k] - lambda1)
             return sqrt(2)/2 * (1/sqrt(N_k(k))) * (frac1 + frac2)
             
 #############################################
@@ -148,7 +145,7 @@ def b_velocity_end_entry(k, i): # between i and e-type regions
     if k == 0:
         return constant * (1/sqrt(N_k(0))) * sinh(m0 * (h - d[i])) / m0
     else:
-        return constant * (1/sqrt(N_k(k))) * sin(m_k(k) * (h - d[i])) / m_k(k)
+        return constant * (1/sqrt(N_k(k))) * sin(m_k[k] * (h - d[i])) / m_k[k]
 
 
 #############################################
@@ -224,7 +221,7 @@ def Lambda_k(k, r):
     if k == 0:
         return besselh(0, m0 * r) / besselh(0, m0 * scale)
     else:
-        return besselk(0, m_k(k) * r) / besselk(0, m_k(k) * scale)
+        return besselk(0, m_k[k] * r) / besselk(0, m_k[k] * scale)
 
 # Differentiate wrt r
 def diff_Lambda_k(k, r):
@@ -232,9 +229,8 @@ def diff_Lambda_k(k, r):
         numerator = -(m0 * besselh(1, m0 * r))
         denominator = besselh(0, m0 * scale)
     else:
-        mk = m_k(k)
-        numerator = -(mk * besselk(1, mk * r))
-        denominator = besselk(0, mk * scale)
+        numerator = -(m_k[k] * besselk(1, m_k[k] * r))
+        denominator = besselk(0, m_k[k] * scale)
     return numerator / denominator
 
 
@@ -244,7 +240,7 @@ def N_k(k):
     if k == 0:
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
     else:
-        return 1 / 2 * (1 + sin(2 * m_k(k) * h) / (2 * m_k(k) * h))
+        return 1 / 2 * (1 + sin(2 * m_k[k] * h) / (2 * m_k[k] * h))
 
 
 #############################################
@@ -253,14 +249,13 @@ def Z_k_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
     else:
-        return 1 / sqrt(N_k(k)) * cos(m_k(k) * (z + h))
+        return 1 / sqrt(N_k(k)) * cos(m_k[k] * (z + h))
 
 def diff_Z_k_e(k, z):
     if k == 0:
         return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
     else:
-        mk = m_k(k)
-        return -1 / sqrt(N_k(k)) * mk * sin(mk * (z + h))
+        return -1 / sqrt(N_k(k)) * m_k[k] * sin(m_k[k] * (z + h))
 
 #############################################
 # To calculate hydrocoefficients
