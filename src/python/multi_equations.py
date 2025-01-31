@@ -26,6 +26,7 @@ def lambda_ni(n, i): # factor used often in calculations
 # creating a m_k function, used often in calculations
 def m_k_entry(k):
     # m_k_mat = np.zeros((len(m0_vec), 1))
+    if k == 0: return m0
 
     m_k_h_err = (
         lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
@@ -40,7 +41,6 @@ def m_k_entry(k):
     # result = minimize_scalar(
         # m_k_h_err, bounds=(m_k_h_lower, m_k_h_upper), method="bounded"
     # )
-    
 
     m_k_val = result.root / h
 
@@ -52,7 +52,7 @@ def m_k_entry(k):
     return m_k_val
 
 # create an array of m_k values for each k to avoid recomputation
-m_k = (np.vectorize(m_k_entry))(list(range(NMK[-1])))
+m_k = (np.vectorize(m_k_entry, otypes = [float]))(list(range(NMK[-1])))
 
 def m_k_newton(h):
     res = newton(lambda k: k * np.tanh(k * h) - m0**2 / 9.8, x0=1.0, tol=10 ** (-10))
@@ -263,23 +263,18 @@ def diff_Z_k_e(k, z):
 #integrating R_1n * r
 def int_R_1n(i, n):
     lambda0 = lambda_ni(n, i)
-    if i == 0:
-        if n == 0:
-            return a[i]**2/4
-        else:
-            top = a[i] * besseli(1, lambda0 * a[i])
-            bottom = lambda0 * besseli(0, lambda0 * scale)
-            return top/bottom
+    inner = (0 if i == 0 else a[i-1]) # sets inner radius value
+    if n == 0:
+        return a[i]**2/4 - inner**2/4
     else:
-        if n == 0:
-            return a[i]**2/4 - a[i-1]**2/4
-        else:
-            top = a[i] * besseli(1, lambda0 * a[i]) - a[i-1] * besseli(1, lambda0 * a[i-1])
-            bottom = lambda0 * besseli(0, lambda0 * scale)
-            return top / bottom
+        top = a[i] * besseli(1, lambda0 * a[i]) - inner * besseli(1, lambda0 * inner)
+        bottom = lambda0 * besseli(0, lambda0 * scale)
+        return top / bottom
 
 #integrating R_2n * r
 def int_R_2n(i, n):
+    if i == 0:
+        raise ValueError("i cannot be 0")
     lambda0 = lambda_ni(n, i)
     if n == 0:
         return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
@@ -289,7 +284,7 @@ def int_R_2n(i, n):
         return top / bottom
 
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
-def int_phi_p_i_no_coef(i):
+def int_phi_p_i(i):
     denom = 16 * (h - d[i])
     if i == 0:
         num = a[i]**2*(4*(h-d[i])**2-a[i]**2)
