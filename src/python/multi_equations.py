@@ -31,12 +31,18 @@ def m_k_entry(k):
         lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
     )
     k_idx = k
+
+    # # original version of bounds in python
     m_k_h_lower = pi * (k_idx - 1/2) + np.finfo(float).eps
     m_k_h_upper = pi * k_idx - np.finfo(float).eps
     # x_0 =  (m_k_upper - m_k_lower) / 2
     
+    # becca's version of bounds from MDOcean Matlab code
+    m_k_h_lower = pi * (k_idx - 1/2) + (pi/180)* np.finfo(float).eps * (2**(np.floor(np.log(180*(k_idx- 1/2)) / np.log(2))) + 1)
+    m_k_h_upper = pi * k_idx
+
     m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
-    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton")
+    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
     # result = minimize_scalar(
         # m_k_h_err, bounds=(m_k_h_lower, m_k_h_upper), method="bounded"
     # )
