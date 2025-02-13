@@ -5,7 +5,7 @@ from scipy.special import kv as besselk
 import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
-from numpy import sqrt, cosh, cos, sinh, sin, pi
+from numpy import sqrt, cosh, cos, sinh, sin, pi, exp
 from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 from multi_constants import *
@@ -149,10 +149,12 @@ def b_velocity_entry(n, i): # for two i-type regions
 def b_velocity_end_entry(k, i): # between i and e-type regions
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
-        return constant * (1/sqrt(N_k(0))) * sinh(m0 * (h - d[i])) / m0
+        if m0 * h < 14:
+            return constant * (1/sqrt(N_k(0))) * sinh(m0 * (h - d[i])) / m0
+        else: # high m0h approximation
+            return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
     else:
         return constant * (1/sqrt(N_k(k))) * sin(m_k[k] * (h - d[i])) / m_k[k]
-
 
 #############################################
 # Phi particular and partial derivatives
