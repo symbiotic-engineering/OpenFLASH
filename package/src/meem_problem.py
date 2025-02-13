@@ -15,6 +15,7 @@ class MEEMProblem:
         :param geometry: Geometry object containing domain information.
         """
         self.domain_list = geometry.domain_list
+        self.geometry = geometry
 
 
     # Add any additional methods required for multi-region computations

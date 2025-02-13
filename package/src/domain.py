@@ -41,5 +41,3 @@ class Domain:
         self.heaving = params.get('heaving', heaving[index] if index < len(heaving) else 0)
         self.slant = params.get('slant', False)
         self.m_k_vals = []  # For exterior domain eigenvalues
-
-    

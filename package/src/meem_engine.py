@@ -8,6 +8,7 @@ from meem_problem import MEEMProblem
 from coupling import A_nm, A_mk
 import equations
 import multi_equations
+import geometry
 from results import Results
 
 
@@ -438,6 +439,8 @@ class MEEMEngine:
             # Package the potential with domain-specific coordinates
             potentials[domain_name] = {
                 'potentials': domain_potential,
+                #error here
+                #AttributeError: 'Domain' object has no attribute 'r_coordinates'
                 'r': domain.r_coordinates,
                 'z': domain.z_coordinates
             }
