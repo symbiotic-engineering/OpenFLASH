@@ -10,14 +10,19 @@ from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 from multi_constants import *
 
-scale = np.mean(a)
-
 omega = sqrt(m0 * np.tanh(m0 * h) * g)
 
 def wavenumber(omega):
     m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
     return (root_scalar(m0_err, x0 = 2, method="newton")).root
-    
+
+def create_scale(lst): # averaging inner and outer radii of each region
+    out = [(0 + lst[0]) / 2]  # entry 0 = mean of 0 and a of first boundary
+    for i in range(1, len(lst)):
+        out.append((lst[i-1] + lst[i]) / 2)  # Mean of consecutive elements
+    return out
+
+scale = create_scale(a)
 
 def lambda_ni(n, i): # factor used often in calculations
     return n * pi / (h - d[i])
@@ -94,11 +99,17 @@ def I_nm(n, m, i): # coupling integral for two i-type regions
 def I_mk(m, k, i): # coupling integral for i and e-type regions
     dj = d[i]
     if m == 0 and k == 0:
-        return (1/sqrt(N_k(0))) * sinh(m0 * (h - dj)) / m0
+        if m0 * h < 14:
+            return (1/sqrt(N_k(0))) * sinh(m0 * (h - dj)) / m0
+        else: # high m0h approximation
+            return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
     if m == 0 and k >= 1:
         return (1/sqrt(N_k(k))) * sin(m_k[k] * (h - dj)) / m_k[k]
     if m >= 1 and k == 0:
-        num = sqrt(2) * (1/sqrt(N_k(0))) * m0 * (-1)**m * sinh(m0 * (h - dj))
+        if m0 * h < 14:
+            num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0))) * m0 * sinh(m0 * (h - dj))
+        else: # high m0h approximation
+            num = (-1)**m * 2 * sqrt(h * m0 ^ 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
         denom = (m0**2 + lambda_ni(m, i) **2)
         return num/denom
     else:
@@ -174,7 +185,7 @@ def R_1n(n, r, i):
     if n == 0:
         return 0.5
     elif n >= 1:
-        return besseli(0, lambda_ni(n, i) * r) / besseli(0, lambda_ni(n, i) * scale)
+        return besseli(0, lambda_ni(n, i) * r) / besseli(0, lambda_ni(n, i) * scale[i])
     else: 
         raise ValueError("Invalid value for n")
 
@@ -184,7 +195,7 @@ def diff_R_1n(n, r, i):
         return 0
     else:
         top = lambda_ni(n, i) * besseli(1, lambda_ni(n, i) * r)
-        bottom = besseli(0, lambda_ni(n, i) * scale)
+        bottom = besseli(0, lambda_ni(n, i) * scale[i])
         return top / bottom
 
 #############################################
@@ -195,7 +206,7 @@ def R_2n(n, r, i): # this shouldn't be called for i=0, innermost.
     elif n == 0:
         return 0.5 * np.log(r / a[i])
     else:
-        return besselk(0, lambda_ni(n, i) * r) / besselk(0, lambda_ni(n, i) * scale)
+        return besselk(0, lambda_ni(n, i) * r) / besselk(0, lambda_ni(n, i) * scale[i])
 
 
 # Differentiate wrt r
@@ -204,7 +215,7 @@ def diff_R_2n(n, r, i):
         return 1 / (2 * r)
     else:
         top = - lambda_ni(n, i) * besselk(1, lambda_ni(n, i) * r)
-        bottom = besselk(0, lambda_ni(n, i) * scale)
+        bottom = besselk(0, lambda_ni(n, i) * scale[i])
         return top / bottom
 
 
@@ -227,18 +238,18 @@ def diff_Z_n_i(n, z, i):
 # Region e radial eigenfunction
 def Lambda_k(k, r):
     if k == 0:
-        return besselh(0, m0 * r) / besselh(0, m0 * scale)
+        return besselh(0, m0 * r) / besselh(0, m0 * scale[-1])
     else:
-        return besselk(0, m_k[k] * r) / besselk(0, m_k[k] * scale)
+        return besselk(0, m_k[k] * r) / besselk(0, m_k[k] * scale[-1])
 
 # Differentiate wrt r
 def diff_Lambda_k(k, r):
     if k == 0:
         numerator = -(m0 * besselh(1, m0 * r))
-        denominator = besselh(0, m0 * scale)
+        denominator = besselh(0, m0 * scale[-1])
     else:
         numerator = -(m_k[k] * besselk(1, m_k[k] * r))
-        denominator = besselk(0, m_k[k] * scale)
+        denominator = besselk(0, m_k[k] * scale[-1])
     return numerator / denominator
 
 
@@ -276,7 +287,7 @@ def int_R_1n(i, n):
         return a[i]**2/4 - inner**2/4
     else:
         top = a[i] * besseli(1, lambda0 * a[i]) - inner * besseli(1, lambda0 * inner)
-        bottom = lambda0 * besseli(0, lambda0 * scale)
+        bottom = lambda0 * besseli(0, lambda0 * scale[i])
         return top / bottom
 
 #integrating R_2n * r
@@ -288,7 +299,7 @@ def int_R_2n(i, n):
         return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
     else:
         top = a[i] * besselk(1, lambda0 * a[i]) - a[i-1] * besselk(1, lambda0 * a[i-1])
-        bottom = - lambda0 * besselk(0, lambda0 * scale)
+        bottom = - lambda0 * besselk(0, lambda0 * scale[i])
         return top / bottom
 
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
