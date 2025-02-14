@@ -281,12 +281,13 @@ def diff_Z_k_e(k, z):
 
 #integrating R_1n * r
 def int_R_1n(i, n):
-    lambda0 = lambda_ni(n, i)
-    inner = (0 if i == 0 else a[i-1]) # sets inner radius value
     if n == 0:
+        inner = (0 if i == 0 else a[i-1]) # central region has inner radius 0
         return a[i]**2/4 - inner**2/4
     else:
-        top = a[i] * besseli(1, lambda0 * a[i]) - inner * besseli(1, lambda0 * inner)
+        lambda0 = lambda_ni(n, i)
+        inner_term = (0 if i == 0 else a[i-1] * besseli(1, lambda0 * a[i-1])) # central region has inner radius 0
+        top = a[i] * besseli(1, lambda0 * a[i]) - inner_term
         bottom = lambda0 * besseli(0, lambda0 * scale[i])
         return top / bottom
 
