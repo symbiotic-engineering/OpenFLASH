@@ -16,13 +16,7 @@ def wavenumber(omega):
     m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
     return (root_scalar(m0_err, x0 = 2, method="newton")).root
 
-def create_scale(lst): # averaging inner and outer radii of each region
-    out = [(0 + lst[0]) / 2]  # entry 0 = mean of 0 and a of first boundary
-    for i in range(1, len(lst)):
-        out.append((lst[i-1] + lst[i]) / 2)  # Mean of consecutive elements
-    return out
-
-scale = create_scale(a)
+scale = np.mean([[0]+a[0:-1], a], axis = 0)
 
 def lambda_ni(n, i): # factor used often in calculations
     return n * pi / (h - d[i])
@@ -200,9 +194,9 @@ def diff_R_1n(n, r, i):
 
 #############################################
 # The "Bessel K" radial eigenfunction
-def R_2n(n, r, i): # this shouldn't be called for i=0, innermost.
+def R_2n(n, r, i):
     if i == 0:
-        raise ValueError("i cannot be 0")
+        raise ValueError("i cannot be 0")  # this shouldn't be called for i=0, innermost region.
     elif n == 0:
         return 0.5 * np.log(r / a[i])
     else:
