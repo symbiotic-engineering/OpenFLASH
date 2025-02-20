@@ -22,43 +22,32 @@ class Results:
         self.dataset = None  # xarray Dataset to store the results
 
     def store_results(self, domain_index: int, radial_data: np.ndarray, vertical_data: np.ndarray):
-        """
-        Store radial and vertical eigenfunction results for a specific domain.
-
-        :param domain_index: Index of the domain. Must correspond to a key in domain_list.
-        :param radial_data: Array of radial eigenfunction values.
-        :param vertical_data: Array of vertical eigenfunction values.
-        """
-        # Retrieve the domain object using the index
+        """Store results."""
         domain = self.geometry.domain_list.get(domain_index)
         if domain is None:
-            raise ValueError(f"Domain index {domain_index} not found in domain_list.")
+            raise ValueError(f"Domain index {domain_index} not found.")
 
-        # Create a dictionary of coordinates and data variables for xarray
-        coords = {
-            'frequencies': self.frequencies,
-            'modes': self.modes,
-            'r': domain.r_coordinates,  # Coordinates specific to the Domain object
-            'z': domain.z_coordinates   # Coordinates specific to the Domain object
-        }
+        r_coords = np.array(list(domain.r_coordinates.values()))
+        z_coords = np.array(list(domain.z_coordinates.values()))
 
-        data_vars = {
-            'radial_eigenfunctions': (['frequencies', 'modes', 'r'], radial_data),
-            'vertical_eigenfunctions': (['frequencies', 'modes', 'z'], vertical_data),
-        }
+        # Use xr.DataArray to explicitly define dimensions
+        radial_da = xr.DataArray(
+            radial_data,
+            dims=['frequencies', 'modes', 'r'],  # Explicit dimensions!
+            coords={'frequencies': self.frequencies, 'modes': self.modes, 'r': r_coords.flatten()}
+        )
 
-        # Initialize or update the dataset
+        vertical_da = xr.DataArray(
+            vertical_data,
+            dims=['frequencies', 'modes', 'z'],  # Explicit dimensions!
+            coords={'frequencies': self.frequencies, 'modes': self.modes, 'z': z_coords.flatten()}
+        )
+
         if self.dataset is None:
-            self.dataset = xr.Dataset(data_vars=data_vars, coords=coords)
+            self.dataset = xr.Dataset({'radial_eigenfunctions': radial_da, 'vertical_eigenfunctions': vertical_da})
         else:
-            for var, values in data_vars.items():
-                if var in self.dataset:
-                    self.dataset[var] = xr.concat(
-                        [self.dataset[var], xr.DataArray(values, dims=list(coords.keys()))],
-                        dim='r'
-                    )
-                else:
-                    self.dataset[var] = xr.DataArray(values, dims=list(coords.keys()))
+            self.dataset['radial_eigenfunctions'] = xr.concat([self.dataset['radial_eigenfunctions'], radial_da], dim='r')
+            self.dataset['vertical_eigenfunctions'] = xr.concat([self.dataset['vertical_eigenfunctions'], vertical_da], dim='z')
 
     def store_potentials(self, potentials: dict):
         """
