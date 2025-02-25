@@ -260,13 +260,19 @@ def N_k(k):
 # e-region vertical eigenfunctions
 def Z_k_e(k, z):
     if k == 0:
-        return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
+        if m0 * h < 14:
+            return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
+        else: # high m0h approximation
+            return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
     else:
         return 1 / sqrt(N_k(k)) * cos(m_k[k] * (z + h))
 
 def diff_Z_k_e(k, z):
     if k == 0:
-        return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
+        if m0 * h < 14:
+            return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
+        else: # high m0h approximation
+            return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
     else:
         return -1 / sqrt(N_k(k)) * m_k[k] * sin(m_k[k] * (z + h))
 

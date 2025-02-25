@@ -9,8 +9,11 @@ from numpy import sqrt, cosh, cos, sinh, sin, pi
 from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 
-# This should be maintained as a copy of the components of multi-meem and its equations used to
-# calculate the appropriate values for the sake of testing, but being one callable function instead
+# This file needs to change or be scrapped, because code duplication is inefficient and error-prone.
+# Potentially defer outside-of-notebook testing all to the package.
+
+# This was previously a copy of the components of multi-meem and its equations used to
+# calculate the appropriate values. For the sake of testing, we need one callable function instead
 # of a jupyter notebook.
 
 # Requires: h, d, a, heaving, m0, g, rho, NMK
