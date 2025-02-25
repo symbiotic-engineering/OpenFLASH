@@ -207,3 +207,56 @@ def Z_n_e(k, z):
     else:
         return 1 / sqrt(N_k(k)) * cos(m_k(k) * (z + h))
 
+#############################################
+# To calculate hydrocoefficients
+
+#differentiate with respect to z
+def diff_phi_p_i1_dz(z):
+    return (h+z)/(h-d1)
+
+#differentiate with respect to z
+def diff_phi_p_i2_dz(z):
+    return (h+z)/(h-d2)
+
+
+#integrating R_1n_1
+def int_R_1n_1(n):
+    if n == 0:
+        return a1**2/4
+    else:
+        top = a1*besseli(1, lambda_n1(n)*a1)
+        bottom = lambda_n1(n)*besseli(0, lambda_n1(n)*a2)
+        return top/bottom
+
+#integrating R_1n_2
+def int_R_1n_2(n):
+    if n == 0:
+        return a2**2/4 - a1**2/4
+    else:
+        top = a2*besseli(1, lambda_n2(n)*a2)-a1*besseli(1, lambda_n2(n)*a1)
+        bottom = lambda_n2(n)*besseli(0, lambda_n2(n)*a2)
+        return top / bottom
+
+#integrating R_2n_2
+def int_R_2n_2(n):
+    if n == 0:
+        return (a1**2*(2*np.log(a2)-2*np.log(a1)+1)-a2**2)/8
+    else:
+        top = a2*besselk(1, lambda_n2(n)*a2)-a1*besselk(1, lambda_n2(n)*a1)
+        bottom = -lambda_n2(n)*besselk(0, lambda_n2(n)*a2)
+        return top / bottom
+    
+#integrating phi_p_i1 * d_phi_p_i1/dz * r *d_r at z=d1
+def int_phi_p_i1_no_coef():
+    return a1**2*(4*(h-d1)**2-a1**2) / (16*(h-d1))
+
+#integrating phi_p_i2 * d_phi_p_i2/dz * r *d_r at z=d1
+def int_phi_p_i2_no_coef():
+    return (a2**2*(4*(h-d2)**2-a2**2) - a1**2*(4*(h-d2)**2-a1**2)) / (16*(h-d2))
+
+
+def z_n_d1_d2(n, d):
+    if n ==0:
+        return 1
+    else:
+        return sqrt(2)*(-1)**n
