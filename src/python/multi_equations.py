@@ -5,18 +5,24 @@ from scipy.special import kv as besselk
 import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
-from numpy import sqrt, cosh, cos, sinh, sin, pi, exp
+from numpy import sqrt, cosh, cos, sinh, sin, pi, exp, inf
 from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 from multi_constants import *
 
-omega = sqrt(m0 * np.tanh(m0 * h) * g)
+def m0_to_omega(m0):
+    if m0 == inf:
+        return inf
+    else:
+        return sqrt(m0 * np.tanh(m0 * h) * g)
+
+omega = m0_to_omega(m0)
 
 def wavenumber(omega):
     m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
     return (root_scalar(m0_err, x0 = 2, method="newton")).root
 
-scale = np.mean([[0]+a[0:-1], a], axis = 0)
+scale = np.append((np.mean([[0]+a[0:-1], a], axis = 0)), a[-1])
 
 def lambda_ni(n, i): # factor used often in calculations
     return n * pi / (h - d[i])
@@ -26,6 +32,8 @@ def lambda_ni(n, i): # factor used often in calculations
 def m_k_entry(k):
     # m_k_mat = np.zeros((len(m0_vec), 1))
     if k == 0: return m0
+    elif m0 == inf:
+        return (k - 1/2) * pi
 
     m_k_h_err = (
         lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
@@ -93,14 +101,16 @@ def I_nm(n, m, i): # coupling integral for two i-type regions
 def I_mk(m, k, i): # coupling integral for i and e-type regions
     dj = d[i]
     if m == 0 and k == 0:
-        if m0 * h < 14:
+        if m0 == inf: return 0
+        elif m0 * h < 14:
             return (1/sqrt(N_k(0))) * sinh(m0 * (h - dj)) / m0
         else: # high m0h approximation
             return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
     if m == 0 and k >= 1:
         return (1/sqrt(N_k(k))) * sin(m_k[k] * (h - dj)) / m_k[k]
     if m >= 1 and k == 0:
-        if m0 * h < 14:
+        if m0 == inf: return 0
+        elif m0 * h < 14:
             num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0))) * m0 * sinh(m0 * (h - dj))
         else: # high m0h approximation
             num = (-1)**m * 2 * sqrt(h * m0 ^ 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -154,7 +164,8 @@ def b_velocity_entry(n, i): # for two i-type regions
 def b_velocity_end_entry(k, i): # between i and e-type regions
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
-        if m0 * h < 14:
+        if m0 == inf: return 0
+        elif m0 * h < 14:
             return constant * (1/sqrt(N_k(0))) * sinh(m0 * (h - d[i])) / m0
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
@@ -232,26 +243,57 @@ def diff_Z_n_i(n, z, i):
 # Region e radial eigenfunction
 def Lambda_k(k, r):
     if k == 0:
-        return besselh(0, m0 * r) / besselh(0, m0 * scale[-1])
+        if m0 == inf:
+        # the true limit is not well-defined, but whatever value this returns will be multiplied by zero
+            return 1
+        else:
+            return besselh(0, m0 * r) / besselh(0, m0 * scale[-1])
     else:
-        return besselk(0, m_k[k] * r) / besselk(0, m_k[k] * scale[-1])
+        if r == a[-1]:
+            return 1
+        else:
+            candidate = besselk(0, m_k[k] * r) / besselk(0, m_k[k] * scale[-1])
+            if np.isnan(candidate) or np.isinf(candidate):
+                return sqrt(scale[-1]/r) * exp(m_k[k]*(scale[-1]-r))
+            else:
+                return candidate
 
 # Differentiate wrt r
 def diff_Lambda_k(k, r):
     if k == 0:
-        numerator = -(m0 * besselh(1, m0 * r))
-        denominator = besselh(0, m0 * scale[-1])
+        if m0 == inf:
+        # the true limit is not well-defined, but this makes the assigned coefficient zero
+            return 1
+        else:
+            numerator = -(m0 * besselh(1, m0 * r))
+            denominator = besselh(0, m0 * scale[-1])
+            return numerator / denominator
     else:
-        numerator = -(m_k[k] * besselk(1, m_k[k] * r))
-        denominator = besselk(0, m_k[k] * scale[-1])
-    return numerator / denominator
+        if r == a[-1] and (r * m_k[k] > 300):
+            numerator = -(m_k[k] * besselk(1, m_k[k] * r))
+            denominator = besselk(0, m_k[k] * scale[-1])
+            candidate = numerator / denominator
+            if np.isnan(candidate) or np.isinf(candidate):
+                return - m_k[k] - 1/(2*r)
+            else:
+                return candidate
+        else:
+            numerator = -(m_k[k] * besselk(1, m_k[k] * r))
+            denominator = besselk(0, m_k[k] * scale[-1])
+            candidate = numerator / denominator
+            if np.isnan(candidate) or np.isinf(candidate):
+                return - m_k[k] * sqrt(scale[-1]/r) * exp(m_k[k]*(scale[-1]-r)) - 1/2 * sqrt(scale[-1]/r**3)*exp(m_k[k]*(scale[-1]-r))
+            else:
+                return candidate
 
 
 #############################################
 # Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
 def N_k(k):
     if k == 0:
-        return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
+        if m0 == inf: return 1/2
+        else:
+            return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
     else:
         return 1 / 2 * (1 + sin(2 * m_k[k] * h) / (2 * m_k[k] * h))
 
@@ -260,7 +302,8 @@ def N_k(k):
 # e-region vertical eigenfunctions
 def Z_k_e(k, z):
     if k == 0:
-        if m0 * h < 14:
+        if m0 == inf: return 0
+        elif m0 * h < 14:
             return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
         else: # high m0h approximation
             return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
@@ -269,7 +312,8 @@ def Z_k_e(k, z):
 
 def diff_Z_k_e(k, z):
     if k == 0:
-        if m0 * h < 14:
+        if m0 == inf: return 0
+        elif m0 * h < 14:
             return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
         else: # high m0h approximation
             return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
