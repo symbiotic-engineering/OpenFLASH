@@ -33,7 +33,7 @@ def m_k_entry(k):
     # m_k_mat = np.zeros((len(m0_vec), 1))
     if k == 0: return m0
     elif m0 == inf:
-        return (k - 1/2) * pi
+        return ((k - 1/2) * pi)/h
 
     m_k_h_err = (
         lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
@@ -113,7 +113,7 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
         elif m0 * h < 14:
             num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0))) * m0 * sinh(m0 * (h - dj))
         else: # high m0h approximation
-            num = (-1)**m * 2 * sqrt(h * m0 ^ 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+            num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
         denom = (m0**2 + lambda_ni(m, i) **2)
         return num/denom
     else:
@@ -190,7 +190,10 @@ def R_1n(n, r, i):
     if n == 0:
         return 0.5
     elif n >= 1:
-        return besseli(0, lambda_ni(n, i) * r) / besseli(0, lambda_ni(n, i) * scale[i])
+        if r == scale[i]:
+            return 1
+        else:
+            return besseli(0, lambda_ni(n, i) * r) / besseli(0, lambda_ni(n, i) * scale[i])
     else: 
         raise ValueError("Invalid value for n")
 
@@ -211,7 +214,10 @@ def R_2n(n, r, i):
     elif n == 0:
         return 0.5 * np.log(r / a[i])
     else:
-        return besselk(0, lambda_ni(n, i) * r) / besselk(0, lambda_ni(n, i) * scale[i])
+        if r == scale[i]:
+            return 1
+        else:
+            return besselk(0, lambda_ni(n, i) * r) / besselk(0, lambda_ni(n, i) * scale[i])
 
 
 # Differentiate wrt r
@@ -247,9 +253,12 @@ def Lambda_k(k, r):
         # the true limit is not well-defined, but whatever value this returns will be multiplied by zero
             return 1
         else:
-            return besselh(0, m0 * r) / besselh(0, m0 * scale[-1])
+            if r == scale[-1]:
+                return 1
+            else:
+                return besselh(0, m0 * r) / besselh(0, m0 * scale[-1])
     else:
-        if r == a[-1]:
+        if r == scale[-1]:
             return 1
         else:
             candidate = besselk(0, m_k[k] * r) / besselk(0, m_k[k] * scale[-1])
@@ -290,10 +299,9 @@ def diff_Lambda_k(k, r):
 #############################################
 # Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
 def N_k(k):
-    if k == 0:
-        if m0 == inf: return 1/2
-        else:
-            return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
+    if m0 == inf: return 1/2
+    elif k == 0:
+        return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
     else:
         return 1 / 2 * (1 + sin(2 * m_k[k] * h) / (2 * m_k[k] * h))
 
