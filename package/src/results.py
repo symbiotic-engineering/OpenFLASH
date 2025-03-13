@@ -19,32 +19,34 @@ class Results:
         self.geometry = geometry
         self.frequencies = frequencies
         self.modes = modes
-        self.dataset = None  # xarray Dataset to store the results
+        self.dataset = xr.Dataset()  # xarray Dataset to store the results
 
     def store_results(self, domain_index: int, radial_data: np.ndarray, vertical_data: np.ndarray):
         """Store results."""
         domain = self.geometry.domain_list.get(domain_index)
         if domain is None:
             raise ValueError(f"Domain index {domain_index} not found.")
+        
 
-        r_coords = np.array(list(domain.r_coordinates.values()))
-        z_coords = np.array(list(domain.z_coordinates.values()))
+        r_coords = np.array(list(self.geometry.r_coordinates.values()))
+        z_coords = np.array(list(self.geometry.z_coordinates.values()))
 
         # Use xr.DataArray to explicitly define dimensions
         radial_da = xr.DataArray(
             radial_data,
             dims=['frequencies', 'modes', 'r'],  # Explicit dimensions!
-            coords={'frequencies': self.frequencies, 'modes': self.modes, 'r': r_coords.flatten()}
+            coords={'frequencies': self.frequencies, 'modes': self.modes, 'r': r_coords}
         )
 
         vertical_da = xr.DataArray(
             vertical_data,
             dims=['frequencies', 'modes', 'z'],  # Explicit dimensions!
-            coords={'frequencies': self.frequencies, 'modes': self.modes, 'z': z_coords.flatten()}
+            coords={'frequencies': self.frequencies, 'modes': self.modes, 'z': z_coords}
         )
 
-        if self.dataset is None:
-            self.dataset = xr.Dataset({'radial_eigenfunctions': radial_da, 'vertical_eigenfunctions': vertical_da})
+        if 'radial_eigenfunctions' not in self.dataset: #check for existence of the DataArray
+            self.dataset['radial_eigenfunctions'] = radial_da
+            self.dataset['vertical_eigenfunctions'] = vertical_da
         else:
             self.dataset['radial_eigenfunctions'] = xr.concat([self.dataset['radial_eigenfunctions'], radial_da], dim='r')
             self.dataset['vertical_eigenfunctions'] = xr.concat([self.dataset['vertical_eigenfunctions'], vertical_da], dim='z')
@@ -59,24 +61,35 @@ class Results:
         if self.dataset is None:
             raise ValueError("Dataset not initialized. Store eigenfunctions first.")
 
-        for domain_name, data in potentials.items():
-            # Extract potential data and coordinates
+        domain_names = list(potentials.keys())
+        num_domains = len(domain_names)
+        max_harmonics = max(len(data['potentials']) for data in potentials.values())
+
+        r_coords_array = np.full((num_domains, max_harmonics), np.nan)  # Use NaN for padding
+        z_coords_array = np.full((num_domains, max_harmonics), np.nan)  # Use NaN for padding
+        potentials_array = np.full((num_domains, max_harmonics), np.nan)
+
+        for i, domain_name in enumerate(domain_names):
+            data = potentials[domain_name]
             domain_potentials = data['potentials']
             r_coords = data['r']
             z_coords = data['z']
 
-            # Add to dataset with domain-specific dimensions
-            self.dataset[f"{domain_name}_potentials"] = xr.DataArray(
-                domain_potentials,
-                dims=['frequencies', 'modes', 'harmonics'],
-                coords={'frequencies': self.frequencies, 'modes': self.modes, 'harmonics': np.arange(len(domain_potentials))}
-            )
+            r_coords_values = np.array(list(r_coords.values()))
+            z_coords_values = np.array(list(z_coords.values()))
 
-            # Optionally, store coordinates if not already present
-            if f"{domain_name}_r" not in self.dataset.coords:
-                self.dataset.coords[f"{domain_name}_r"] = ('harmonics', r_coords)
-            if f"{domain_name}_z" not in self.dataset.coords:
-                self.dataset.coords[f"{domain_name}_z"] = ('harmonics', z_coords)
+            # Debugging: Inspect coordinate data
+            print(f"Domain: {domain_name}, r_coords length: {len(r_coords)}, z_coords length: {len(z_coords)}, potential length: {len(domain_potentials)}")
+            print(f"Domain: {domain_name}, r_coords keys: {list(r_coords.keys())}, z_coords keys: {list(z_coords.keys())}")
+
+            r_coords_array[i, :len(r_coords_values)] = r_coords_values
+            z_coords_array[i, :len(z_coords_values)] = z_coords_values
+            potentials_array[i, :len(domain_potentials)] = domain_potentials
+
+        self.dataset.coords['domain_r'] = (['domain', 'harmonics'], r_coords_array)
+        self.dataset.coords['domain_z'] = (['domain', 'harmonics'], z_coords_array)
+        self.dataset.coords['domain'] = domain_names
+        self.dataset['domain_potentials'] = (['domain', 'harmonics'], potentials_array)
 
     def export_to_netcdf(self, file_path: str):
         """

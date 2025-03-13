@@ -14,6 +14,8 @@ class TestDomain(unittest.TestCase):
     def test_domain_initialization(self):
         """Tests the initialization of the Domain class."""
 
+        
+
         # Test case 1: Basic initialization (a is a single value)
         params1 = {'h': 1.0, 'di': 0.5, 'a': 1.0, 'm0': 2.0}
         domain1 = Domain(5, 1.0, 1.0, None, None, 'inner', params1, 0)
@@ -56,9 +58,10 @@ class TestDomain(unittest.TestCase):
         # Test case 4: Index out of range for d, a, heaving
         params4 = {}
         domain4 = Domain(5, 1.0, 1.0, None, None, 'inner', params4, 10)
-        self.assertEqual(domain4.di, 0.0)
-        self.assertEqual(domain4.a, a[-1]) # use a[-1]
-        self.assertEqual(domain4.heaving, 0)
+        self.assertEqual(domain4.di, 0.0) #should it return 0 or that it's not initialized in params
+        self.assertEqual(domain4.a, a[-1]) # why use a[-1], should we make it 0, or say a hasn't been initialized, but it's getting a from multi_constants.py
+        self.assertEqual(domain4.heaving, 0) #should it return 0 or that it's not there
+        # we return 0 for di and heaving, why not the same for a?
         # if the index is out of range then should we return that ?
 
 

@@ -10,6 +10,7 @@ import equations
 import multi_equations
 import geometry
 from results import Results
+import xarray as xr
 
 
 class MEEMEngine:
@@ -246,10 +247,11 @@ class MEEMEngine:
         h, d1, d2 = inner_domain.h, inner_domain.di, outer_domain.di
         a1, a2 = inner_domain.a, outer_domain.a
         
-        rhs_12 = np.array([(integrate.romberg(lambda z: equations.phi_p_i1_i2_a1(z) * equations.Z_n_i1(n, z),-h, -d1)) for n in range(N)])
-        rhs_2E =np.array ([-integrate.romberg(lambda z: equations.phi_p_a2(z) * equations.Z_n_i2(m, z), -h, -d2) for m in range(M)]) #at a2 phi_p_i2
-        rhs_velocity_12 = np.array([(integrate.romberg(lambda z: equations.diff_phi_i1(a1) * equations.Z_n_i2(m, z), -h, -d1)) - (integrate.romberg(lambda z: equations.diff_phi_i2(a1) * equations.Z_n_i2(m, z), -h, -d2)) for m in range(M)])
-        rhs_velocity_2E = np.array([integrate.romberg(lambda z: equations.diff_phi_i2(a2) * equations.Z_n_e(k, z), -h, -d2) for k in range(K)])
+        # Extract the integral result from the quad output
+        rhs_12 = np.array([integrate.quad(lambda z: equations.phi_p_i1_i2_a1(z) * equations.Z_n_i1(n, z), -h, -d1)[0] for n in range(N)])
+        rhs_2E = np.array([-integrate.quad(lambda z: equations.phi_p_a2(z) * equations.Z_n_i2(m, z), -h, -d2)[0] for m in range(M)])
+        rhs_velocity_12 = np.array([integrate.quad(lambda z: equations.diff_phi_i1(a1) * equations.Z_n_i2(m, z), -h, -d1)[0] - integrate.quad(lambda z: equations.diff_phi_i2(a1) * equations.Z_n_i2(m, z), -h, -d2)[0] for m in range(M)])
+        rhs_velocity_2E = np.array([integrate.quad(lambda z: equations.diff_phi_i2(a2) * equations.Z_n_e(k, z), -h, -d2)[0] for k in range(K)])
 
 
         b = np.concatenate((rhs_12, rhs_2E, rhs_velocity_12, rhs_velocity_2E))
@@ -285,16 +287,16 @@ class MEEMEngine:
         # Potential matching
         for boundary in range(boundary_count):
             if boundary == (boundary_count - 1):  # i-e boundary
-                for n in range(NMK[-2]):
+                for n in range(NMK[boundary]):
                     b[index] = multi_equations.b_potential_end_entry(n, boundary)
                     index += 1
             else:  # i-i boundary
                 # Iterate over eigenfunctions for smaller h - d
                 i = boundary
-                if d[i] < d[i + 1]:
-                    N = NMK[i + 1]
-                else:
+                if d[i] > d[i + 1]:
                     N = NMK[i]
+                else:
+                    N = NMK[i+1]
                 for n in range(N):
                     b[index] = multi_equations.b_potential_entry(n, boundary)
                     index += 1
@@ -307,11 +309,14 @@ class MEEMEngine:
                     index += 1
             else:  # i-i boundary
                 # Iterate over eigenfunctions for larger h - d
-                i = boundary
-                if d[i] > d[i + 1]:
-                    N = NMK[i]
+                #i = boundary
+                #if d[i] > d[i + 1]:
+                if d[boundary] < d[boundary + 1]:
+                    #N = NMK[i]
+                    N = NMK[boundary + 1]
                 else:
-                    N = NMK[i + 1]
+                    #N = NMK[i + 1]
+                    N = NMK[boundary]
                 for n in range(N):
                     b[index] = multi_equations.b_velocity_entry(n, boundary)
                     index += 1
@@ -405,7 +410,11 @@ class MEEMEngine:
         hydro_p_terms = np.zeros((boundary_count, boundary_count), dtype=complex)
         for i in range(boundary_count):
             for j in range(boundary_count):
-                hydro_p_terms[i, j] = heaving[j] * (h-d[i]) / (h-d[j]) * int_phi_p_i_no_coef(i)
+                #hydro_p_terms[i, j] = heaving[j] * (h-d[i]) / (h-d[j]) * int_phi_p_i_no_coef(i)
+                if (h-d[j]) != 0:
+                    hydro_p_terms[i, j] = heaving[j] * (h-d[i]) / (h-d[j]) * int_phi_p_i_no_coef(i)
+                else:
+                    hydro_p_terms[i,j] = 0 #handle divide by zero error.
         indices_h = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 1), (5, 2), (6, 3)]
         indices_p = [(0, 0), (1, 1), (2, 2), (3, 3)]
         #hydro_coeff_list = 2 * pi * (sum(hydro_h_terms[i, j] for i, j in indices_h) + sum(hydro_p_terms[i, j] for i, j in indices_p))
@@ -431,7 +440,10 @@ class MEEMEngine:
         potentials = {}
         domain_list = problem.domain_list
         start_idx = 0
-        for domain_name, domain in domain_list.items():
+        geometry_instance = problem.geometry
+        #for domain_name, domain in domain_list.items():
+        for domain_index, domain in domain_list.items():
+            domain_name = f"domain_{domain_index}"
             # Get the number of harmonics for this domain
             num_harmonics = domain.number_harmonics
             # Extract the corresponding part of the solution vector
@@ -441,8 +453,10 @@ class MEEMEngine:
                 'potentials': domain_potential,
                 #error here
                 #AttributeError: 'Domain' object has no attribute 'r_coordinates'
-                'r': domain.r_coordinates,
-                'z': domain.z_coordinates
+                #'r': domain.r_coordinates,
+                #'z': domain.z_coordinates
+                'r': geometry_instance.r_coordinates,
+                'z': geometry_instance.z_coordinates
             }
             # Update the starting index for the next domain
             start_idx += num_harmonics
@@ -474,8 +488,8 @@ class MEEMEngine:
         problem = self.problem_list[problem_index]
 
         # Assemble the system matrix A and right-hand side vector b
-        A = self.assemble_A(problem)
-        b = self.assemble_b(problem)
+        A = self.assemble_A_multi(problem)
+        b = self.assemble_b_multi(problem)
 
         # Solve the linear system
         X = np.linalg.solve(A, b)
@@ -485,6 +499,31 @@ class MEEMEngine:
 
         # Create a Results object
         geometry = problem.geometry #MEEMProblem contains a Geometry instance
-        results = Results(geometry, self.frequencies, self.modes)
+        results = Results(geometry, problem.frequencies, problem.modes)
+
+        # Let's say you have some dummy eigenfunction data:
+        dummy_radial_data = np.zeros((len(problem.frequencies), len(problem.modes), 2))  # Adjust shape as needed
+        dummy_vertical_data = np.zeros((len(problem.frequencies), len(problem.modes), 1))  # Adjust shape as needed
+        results.store_results(0, dummy_radial_data, dummy_vertical_data)
 
         # Store eigenfunction results
+
+        #store the results
+        potentials = self.calculate_potentials(problem, X)
+        results.store_potentials(potentials)
+
+        #store the hydrodynamic coefficients.
+        # Check if hydro_coeffs is a single value or an array
+        if isinstance(hydro_coeffs, (int, float, complex)):
+            # If it's a single value, store it as a scalar
+            results.dataset['hydrodynamic_coefficients'] = hydro_coeffs
+        else:
+            # If it's an array, create a DataArray
+            results.dataset['hydrodynamic_coefficients'] = xr.DataArray(
+                hydro_coeffs,
+                dims=['frequencies', 'modes'],
+                coords={'frequencies': problem.frequencies, 'modes': problem.modes}
+            )
+
+        
+        return results

@@ -32,6 +32,7 @@ class Domain:
         self.category = category  # 'inner', 'outer', 'exterior', 'multi'
         self.params = params
         self.index = index  # Index in the domain list
+        
 
         self.h = params.get('h', h)
         self.di = params.get('di', d[index] if index < len(d) else 0.0)

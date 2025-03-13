@@ -2,6 +2,7 @@
 
 from typing import Dict
 from geometry import Geometry
+import numpy as np
 
 class MEEMProblem:
     """
@@ -16,6 +17,15 @@ class MEEMProblem:
         """
         self.domain_list = geometry.domain_list
         self.geometry = geometry
+        self.frequencies = np.array([])  # Initialize with empty arrays
+        self.modes = np.array([])
+
+    def set_frequencies_modes(self, frequencies: np.ndarray, modes: np.ndarray):
+        """
+        Set the frequencies and modes for the problem.
+        """
+        self.frequencies = frequencies
+        self.modes = modes
 
 
     # Add any additional methods required for multi-region computations

@@ -45,6 +45,7 @@ class Geometry:
                 'heaving': params.get('heaving', heaving[idx] if idx < len(heaving) else 0),
                 'slant': params.get('slant', False)
             }
+            
             domain = Domain(
                 number_harmonics=params.get('number_harmonics', 0),
                 height=params.get('height', 0.0),
