@@ -428,7 +428,13 @@ class MEEMEngine:
             sum(hydro_p_terms[i, j] for i, j in valid_indices_p)
         )
         ###########################################################################
-        return hydro_coeff_list
+        # Convert the complex number to a dictionary
+        hydro_coeffs = {
+            "real": hydro_coeff_list.real,
+            "imag": hydro_coeff_list.imag
+        }
+        return hydro_coeffs
+
 
     def calculate_potentials(self, problem: MEEMProblem, solution_vector: np.ndarray) -> Dict[str, dict]:
         """
@@ -513,17 +519,10 @@ class MEEMEngine:
         results.store_potentials(potentials)
 
         #store the hydrodynamic coefficients.
-        # Check if hydro_coeffs is a single value or an array
-        if isinstance(hydro_coeffs, (int, float, complex)):
-            # If it's a single value, store it as a scalar
-            results.dataset['hydrodynamic_coefficients'] = hydro_coeffs
-        else:
-            # If it's an array, create a DataArray
-            results.dataset['hydrodynamic_coefficients'] = xr.DataArray(
-                hydro_coeffs,
-                dims=['frequencies', 'modes'],
-                coords={'frequencies': problem.frequencies, 'modes': problem.modes}
-            )
+
+        results.dataset['hydrodynamic_coefficients_real'] = hydro_coeffs['real']
+        results.dataset['hydrodynamic_coefficients_imag'] = hydro_coeffs['imag']
+
 
         
         return results

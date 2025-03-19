@@ -408,7 +408,7 @@ def test_main():
         domain_params.append(params)
 
     # Create Geometry object
-    r_coordinates = {'a': a}
+    r_coordinates = {'a1': a[0], 'a2': a[1], 'a3': a[2]}
     z_coordinates = {'h': h}
     geometry = Geometry(r_coordinates, z_coordinates, domain_params)
 

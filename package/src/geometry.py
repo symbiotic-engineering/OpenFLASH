@@ -38,11 +38,11 @@ class Geometry:
             # Prepare parameters to pass to Domain
             domain_params = {
                 'h': self.z_coordinates.get('h', h),
-                'di': params.get('di', d[idx] if idx < len(d) else 0.0),
-                'a': params.get('a', a[idx] if idx < len(a) else a[-1]),
+                'di': params.get('di', d[idx]),
+                'a': params.get('a', a[idx]),
                 'm0': params.get('m0', m0),
                 'scale': scale,
-                'heaving': params.get('heaving', heaving[idx] if idx < len(heaving) else 0),
+                'heaving': params.get('heaving', h),
                 'slant': params.get('slant', False)
             }
             
@@ -54,7 +54,8 @@ class Geometry:
                 bottom_BC=params.get('bottom_BC', None),
                 category=params.get('category', ''),
                 params=domain_params,
-                index=idx
+                index=idx,
+                geometry = self
             )
             domain_list[idx] = domain
         return domain_list

@@ -107,7 +107,10 @@ class TestMEEMEngine(unittest.TestCase):
         # Check if the results object is created and has the expected attributes
         self.assertIsInstance(results, Results)
         self.assertIsNotNone(results.dataset)
-        self.assertIn('hydrodynamic_coefficients', results.dataset)
+        self.assertTrue(
+            'hydrodynamic_coefficients_real' in results.dataset and
+            'hydrodynamic_coefficients_imag' in results.dataset
+        )
         self.assertIn('domain_potentials', results.dataset)
 
 
