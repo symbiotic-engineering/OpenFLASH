@@ -1,14 +1,14 @@
 from numpy import inf
 # Constants
-h = 1.001
-d = [0.5, 0.25]
-a = [0.5, 1]
-heaving = [1, 1]
+h = 100
+d = [29, 7, 4]
+a = [0.5, 1, 1.5]
+heaving = [1, 1, 1]
 # 0/false if not heaving, 1/true if yes heaving
-NMK = [50, 50, 50] # Number of terms in approximation of each region (including e).
+NMK = [1000, 1000, 1000, 1000] # Number of terms in approximation of each region (including e).
 # All computations assume at least 2 regions.
 
-m0 = inf
+m0 = 1000
 g = 9.81
 rho = 1023
 # n = 3 # These variables are just here but unused, inherited from the MEEM constants.py
