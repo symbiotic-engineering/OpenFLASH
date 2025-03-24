@@ -22,7 +22,7 @@ def wavenumber(omega):
     m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
     return (root_scalar(m0_err, x0 = 2, method="newton")).root
 
-scale = np.append((np.mean([[0]+a[0:-1], a], axis = 0)), a[-1])
+scale = a #np.append((np.mean([[0]+a[0:-1], a], axis = 0)), a[-1])
 
 def lambda_ni(n, i): # factor used often in calculations
     return n * pi / (h - d[i])
@@ -291,7 +291,7 @@ def diff_Lambda_k(k, r):
             denominator = besselk(0, m_k[k] * scale[-1])
             candidate = numerator / denominator
             if np.isnan(candidate) or np.isinf(candidate):
-                return - m_k[k] * sqrt(scale[-1]/r) * exp(m_k[k]*(scale[-1]-r)) - 1/2 * sqrt(scale[-1]/r**3)*exp(m_k[k]*(scale[-1]-r))
+                return - m_k[k] * sqrt(scale[-1]/r) * exp(m_k[k]*(scale[-1]-r)) - 1/2 * sqrt(scale[-1]/r**3) * exp(m_k[k]*(scale[-1]-r))
             else:
                 return candidate
 
