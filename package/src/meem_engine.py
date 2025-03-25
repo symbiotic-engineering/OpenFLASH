@@ -291,7 +291,6 @@ class MEEMEngine:
                     b[index] = multi_equations.b_potential_end_entry(n, boundary)
                     index += 1
             else:  # i-i boundary
-                # Iterate over eigenfunctions for smaller h - d
                 i = boundary
                 if d[i] > d[i + 1]:
                     N = NMK[i]
@@ -305,24 +304,21 @@ class MEEMEngine:
         for boundary in range(boundary_count):
             if boundary == (boundary_count - 1):  # i-e boundary
                 for k in range(NMK[-1]):
+                    assert index < size, f"Index {index} out of bounds for size {size}"  # Explicit check
                     b[index] = multi_equations.b_velocity_end_entry(k, boundary)
                     index += 1
             else:  # i-i boundary
-                # Iterate over eigenfunctions for larger h - d
-                #i = boundary
-                #if d[i] > d[i + 1]:
                 if d[boundary] < d[boundary + 1]:
-                    #N = NMK[i]
                     N = NMK[boundary + 1]
                 else:
-                    #N = NMK[i + 1]
                     N = NMK[boundary]
                 for n in range(N):
+                    assert index < size, f"Index {index} out of bounds for size {size}"  # Explicit check
                     b[index] = multi_equations.b_velocity_entry(n, boundary)
                     index += 1
 
         return b
-    
+        
     def solve_linear_system(self, problem: MEEMProblem) -> np.ndarray:
         """
         Solve the linear system A x = b for the given problem.

@@ -3,7 +3,6 @@
 from typing import Dict, List
 from domain import Domain
 import numpy as np
-from multi_constants import h, d, a, heaving, m0
 
 class Geometry:
     """
@@ -31,18 +30,38 @@ class Geometry:
         """
         domain_list = {}
         # Extract 'a' values from domain_params where 'a' exists
-        a_values = [params['a'] for params in self.domain_params if 'a' in params]
+        a_values = [params['a'] if params.get('a') is not None else 0.0 for params in self.domain_params if 'a' in params]
         scale = np.mean(a_values) if a_values else 1.0
 
+        h = self.z_coordinates.get('h')
+        if h is None:
+            raise ValueError("z_coordinates must contain 'h' key.")
+
         for idx, params in enumerate(self.domain_params):
+            di = params.get('di')
+            category = params.get('category')
+
+            # Allow 'di' to be None if category is 'exterior'
+            if di is None and category != 'exterior':
+                raise ValueError(f"domain_params[{idx}] must contain 'di' key unless category is 'exterior'.")
+
+            # Allow 'a' to be None if category is 'exterior'
+            a_val = params.get('a')
+            if a_val is None and category != 'exterior':
+                raise ValueError(f"domain_params[{idx}] must contain 'a' key unless category is 'exterior'.")
+
+            heaving = params.get('heaving')
+            if heaving is None:
+                raise ValueError(f"domain_params[{idx}] must contain 'heaving' key.")
+
             # Prepare parameters to pass to Domain
             domain_params = {
-                'h': self.z_coordinates.get('h', h),
-                'di': params.get('di', d[idx]),
-                'a': params.get('a', a[idx]),
-                'm0': params.get('m0', m0),
+                'h': h,
+                'di': di,
+                'a': a_val,
+                'm0': 0.0,  # You might need to calculate or pass 'm0' if necessary
                 'scale': scale,
-                'heaving': params.get('heaving', h),
+                'heaving': heaving,
                 'slant': params.get('slant', False)
             }
             
