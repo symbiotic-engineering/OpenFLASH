@@ -38,10 +38,10 @@ class TestGeometry(unittest.TestCase):
 
         # Test case 2: Using default values
         r_coordinates2 = {}  # Empty
-        z_coordinates2 = {}  # Empty
+        z_coordinates2 = {'h':h}  # Empty
         domain_params2 = [
-            {'number_harmonics': 3, 'height': 2.0, 'radial_width': 0.75, 'category': 'inner'},  # No di or a
-            {'number_harmonics': 6, 'height': 1.5, 'radial_width': 0.5, 'category': 'outer'},  # No di or a
+            {'number_harmonics': 3, 'height': 2.0, 'radial_width': 0.75, 'category': 'inner', 'di': d[0], 'a': a[0], 'heaving': 1},
+            {'number_harmonics': 6, 'height': 1.5, 'radial_width': 0.5, 'category': 'outer', 'di': d[1], 'a': a[1], 'heaving': 1},
         ]
         geometry2 = Geometry(r_coordinates2, z_coordinates2, domain_params2)
         self.assertEqual(len(geometry2.domain_list), 2)

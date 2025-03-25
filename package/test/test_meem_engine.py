@@ -23,9 +23,9 @@ class TestMEEMEngine(unittest.TestCase):
         r_coordinates = {'a1': 0.5, 'a2': 1.0}
         z_coordinates = {'h': 1.001}
         domain_params = [
-            {'number_harmonics': 3, 'height': 1.0, 'radial_width': 0.5, 'category': 'inner', 'di': 0.5, 'a': 0.5},
-            {'number_harmonics': 4, 'height': 1.0, 'radial_width': 1.0, 'category': 'outer', 'di': 0.25, 'a': 1.0},
-            {'number_harmonics': 5, 'height': 1.0, 'radial_width': 1.5, 'category': 'exterior'}
+            {'number_harmonics': 3, 'height': 1.0, 'radial_width': 0.5, 'category': 'inner', 'di': 0.5, 'a': 0.5, 'heaving': 1},
+            {'number_harmonics': 4, 'height': 1.0, 'radial_width': 1.0, 'category': 'outer', 'di': 0.25, 'a': 1.0, 'heaving': 1},
+            {'number_harmonics': 5, 'height': 1.0, 'radial_width': 1.5, 'category': 'exterior', 'heaving': 0}
         ]
         geometry = Geometry(r_coordinates, z_coordinates, domain_params)
         self.problem = MEEMProblem(geometry)
