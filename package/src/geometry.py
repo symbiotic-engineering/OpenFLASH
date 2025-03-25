@@ -51,8 +51,6 @@ class Geometry:
                 raise ValueError(f"domain_params[{idx}] must contain 'a' key unless category is 'exterior'.")
 
             heaving = params.get('heaving')
-            if heaving is None:
-                raise ValueError(f"domain_params[{idx}] must contain 'heaving' key.")
 
             # Prepare parameters to pass to Domain
             domain_params = {
