@@ -71,7 +71,7 @@ class Geometry:
                 radial_width=params.get('radial_width', 0.0),
                 top_BC=params.get('top_BC', None),
                 bottom_BC=params.get('bottom_BC', None),
-                category=params.get('category', ''),
+                category=category,
                 params=domain_params,
                 index=idx,
                 geometry = self
