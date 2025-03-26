@@ -103,7 +103,7 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
         if m0 * h < 14:
             num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0))) * m0 * sinh(m0 * (h - dj))
         else: # high m0h approximation
-            num = (-1)**m * 2 * sqrt(h * m0 ^ 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+            num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
         denom = (m0**2 + lambda_ni(m, i) **2)
         return num/denom
     else:
