@@ -3,10 +3,10 @@ name: CI Test
 on:
   push:
     branches:
-      - CS_group  # Listen for pushes to the CS_group branch
+      - main  # Listen for pushes to the main branch
   pull_request:
     branches:
-      - CS_group  # Listen for pull requests targeting the CS_group branch
+      - main  # Listen for pull requests targeting the main branch
 
 jobs:
   test:
