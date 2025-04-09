@@ -109,7 +109,9 @@ potentials = {
 results.store_potentials(potentials)
 
 # Export Results to NetCDF
-results.export_to_netcdf("example_results.nc")
+output_folder = "output/netcdf"
+os.makedirs(output_folder, exist_ok=True)  # Create the folder(s) if they don't exist
+results.export_to_netcdf(os.path.join(output_folder, "example_results.nc"))
 
 # Display Results
 print(results.display_results())

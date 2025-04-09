@@ -5,165 +5,208 @@ from scipy.special import kv as besselk
 import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
-from math import sqrt, cosh, cos, sinh, sin, pi
 from scipy.optimize import newton, minimize_scalar
 import scipy as sp
 from constants import *
 from equations import *
 
-
-
 #############################################
 # Coupling integrals: (m_k is a function)
-def sq(n): 
-    return n ** 2
+def sq(n):
+    return np.power(n, 2)
 
-# Order is flipped
 def A_nm(n, m):
-    if n == 0 and m == 0:
-        return h - d1
-    if m == 0 and 1 <= n:
-        return 0
-    sigma = sin((pi * m * (d1 - h)) / (d2 - h))
-    if 1 <= m and n == 0:
-        return (-sqrt(2) * sin(sigma) * (d2 - h)) / (m * pi)
-    if 1 <= m and 1 <= n:
-        top = -2 * ((-1) ** n) * m * sigma * sq(d1 - h) * (d2 - h)
-        bottom = pi * ((sq(d1) * sq(m)) - (2 * d1 * h * sq(m)) - (sq(d2) * sq(n)) + (2 * d2 * h * sq(n)) + (sq(h) * sq(m)) - (sq(h) * sq(n)))
-        return top / bottom     
-    else:
-        raise ValueError("Invalid values for j and n")
+    """Vectorized version of A_nm."""
+    n = np.asarray(n)
+    m = np.asarray(m)
+    result = np.zeros_like(n, dtype=float)
 
+    # Case 1: n == 0 and m == 0
+    mask1 = (n == 0) & (m == 0)
+    result[mask1] = h - d1
+
+    # Case 2: m == 0 and 1 <= n
+    mask2 = (m == 0) & (n >= 1)
+    result[mask2] = 0
+
+    # Case 3: 1 <= m and n == 0
+    mask3 = (m >= 1) & (n == 0)
+    sigma3 = np.sin((np.pi * m[mask3] * (d1 - h)) / (d2 - h))
+    result[mask3] = (-np.sqrt(2) * sigma3 * (d2 - h)) / (m[mask3] * np.pi)
+
+    # Case 4: 1 <= m and 1 <= n
+    mask4 = (m >= 1) & (n >= 1)
+    sigma4 = np.sin((np.pi * m[mask4] * (d1 - h)) / (d2 - h))
+    top4 = -2 * ((-1) ** n[mask4]) * m[mask4] * sigma4 * sq(d1 - h) * (d2 - h)
+    bottom4 = np.pi * ((sq(d1) * sq(m[mask4])) - (2 * d1 * h * sq(m[mask4])) - (sq(d2) * sq(n[mask4])) + (2 * d2 * h * sq(n[mask4])) + (sq(h) * sq(m[mask4])) - (sq(h) * sq(n[mask4])))
+    result[mask4] = top4 / bottom4
+
+    return result
 
 def A_nm2(j, n):
-    if j == 0 and n == 0:
-        return h - d2
-    sigma = (pi * n * (d2 - h)) / (d1 - h)
-    if j == 0 and 1 <= n:
-        return (-sqrt(2) * sin(sigma) * (d1 - h)) / (n * pi)
-    if 1 <= j and n == 0:
-        return (-sqrt(2) * sin(pi * j) * (d2 - h)) / (j * pi)
-    if 1 <= j and 1 <= n:
-        top = -2 * (j * (d1 - h) * (d2 - h) * (d1 * sin(pi * j) * cos(sigma) - h * sin(pi * j) * cos(sigma)) - n * (d1 - h) * (d2 - h) * (d2 * sin(sigma) * cos(pi * j) - h * sin(sigma) * cos(pi * j)))
-        bottom = pi * ((sq(d1) * sq(j)) - (2 * d1 * h * sq(j)) - (sq(d2) * sq(n)) + (2 * d2 * h * sq(n)) + (sq(h) * sq(j)) - (sq(h) * sq(n)))
-        return top / bottom     
-    else:
-        raise ValueError("Invalid values for j and n")
+    """Vectorized version of A_nm2."""
+    j = np.asarray(j)
+    n = np.asarray(n)
+    result = np.zeros_like(j, dtype=float)
+
+    # Case 1: j == 0 and n == 0
+    mask1 = (j == 0) & (n == 0)
+    result[mask1] = h - d2
+
+    # Case 2: j == 0 and 1 <= n
+    mask2 = (j == 0) & (n >= 1)
+    sigma2 = (np.pi * n[mask2] * (d2 - h)) / (d1 - h)
+    result[mask2] = (-np.sqrt(2) * np.sin(sigma2) * (d1 - h)) / (n[mask2] * np.pi)
+
+    # Case 3: 1 <= j and n == 0
+    mask3 = (j >= 1) & (n == 0)
+    result[mask3] = (-np.sqrt(2) * np.sin(np.pi * j[mask3]) * (d2 - h)) / (j[mask3] * np.pi)
+
+    # Case 4: 1 <= j and 1 <= n
+    mask4 = (j >= 1) & (n >= 1)
+    sigma4 = (np.pi * n[mask4] * (d2 - h)) / (d1 - h)
+    top4 = -2 * (j[mask4] * (d1 - h) * (d2 - h) * (d1 * np.sin(np.pi * j[mask4]) * np.cos(sigma4) - h * np.sin(np.pi * j[mask4]) * np.cos(sigma4)) -
+                  n[mask4] * (d1 - h) * (d2 - h) * (d2 * np.sin(sigma4) * np.cos(np.pi * j[mask4]) - h * np.sin(sigma4) * np.cos(np.pi * j[mask4])))
+    bottom4 = np.pi * ((sq(d1) * sq(j[mask4])) - (2 * d1 * h * sq(j[mask4])) - (sq(d2) * sq(n[mask4])) + (2 * d2 * h * sq(n[mask4])) + (sq(h) * sq(j[mask4])) - (sq(h) * sq(n[mask4])))
+    result[mask4] = top4 / bottom4
+
+    return result
 
 def A_nj(n, j):
-    if j == 0 and n == 0:
-        return h - d1
-    if 1 <= j and n == 0:
-        return (-sqrt(2) * sin(pi * j) * (d1 - h)) / (j * pi)
-    sigma = (pi * n * (d1 - h)) / (d2 - h)
-    if j == 0 and 1 <= n:
-        return (-sqrt(2) * sin(sigma) * (d2 - h)) / (n * pi)
-    if 1 <= j and 1 <= n:
-        top = (2 * (j * (d1 - h) * (d2 - h) * (d2 * sin(pi * j) * cos(sigma) - h * sin(pi * j) * cos(sigma)) - n * (d1 - h) * (d2 - h) * (d2 * sin(sigma) * cos(pi * j) - h * sin(sigma) * cos(pi * j))))
-        bottom = pi * ((-sq(d1) * sq(n)) + (2 * d1 * h * sq(n)) + (sq(d2) * sq(j)) - (2 * d2 * h * sq(j)) + (sq(h) * sq(j)) - (sq(h) * sq(n)))
-        return -(top / bottom)     
-    else:
-        raise ValueError("Invalid values for n and j")
+    """Vectorized version of A_nj."""
+    n = np.asarray(n)
+    j = np.asarray(j)
+    result = np.zeros_like(n, dtype=float)
+
+    # Case 1: j == 0 and n == 0
+    mask1 = (j == 0) & (n == 0)
+    result[mask1] = h - d1
+
+    # Case 2: 1 <= j and n == 0
+    mask2 = (j >= 1) & (n == 0)
+    result[mask2] = (-np.sqrt(2) * np.sin(np.pi * j[mask2]) * (d1 - h)) / (j[mask2] * np.pi)
+
+    # Case 3: j == 0 and 1 <= n
+    mask3 = (j == 0) & (n >= 1)
+    sigma3 = (np.pi * n[mask3] * (d1 - h)) / (d2 - h)
+    result[mask3] = (-np.sqrt(2) * np.sin(sigma3) * (d2 - h)) / (n[mask3] * np.pi)
+
+    # Case 4: 1 <= j and 1 <= n
+    mask4 = (j >= 1) & (n >= 1)
+    sigma4 = (np.pi * n[mask4] * (d1 - h)) / (d2 - h)
+    top4 = (2 * (j[mask4] * (d1 - h) * (d2 - h) * (d2 * np.sin(np.pi * j[mask4]) * np.cos(sigma4) - h * np.sin(np.pi * j[mask4]) * np.cos(sigma4)) -
+                  n[mask4] * (d1 - h) * (d2 - h) * (d2 * np.sin(sigma4) * np.cos(np.pi * j[mask4]) - h * np.sin(sigma4) * np.cos(np.pi * j[mask4]))))
+    bottom4 = np.pi * ((-sq(d1) * sq(n[mask4])) + (2 * d1 * h * sq(n[mask4])) + (sq(d2) * sq(j[mask4])) - (2 * d2 * h * sq(j[mask4])) + (sq(h) * sq(j[mask4])) - (sq(h) * sq(n[mask4])))
+    result[mask4] = -(top4 / bottom4)
+
+    return result
 
 def A_nj2(n, j):
-    if j == 0 and n == 0:
-        return h - d2
-    sigma = (pi * j * (d2 - h)) / (d1 - h)
-    if 1 <= j and n == 0:
-        return -(sqrt(2) * sin(sigma) * (d1 - h)) / (j * pi)
-    if j == 0 and 1 <= n:
-        return -(sqrt(2) * sin(pi * n) * (d2 - h)) / (n * pi)
-    if 1 <= j and 1 <= n:
-        top = -(2 * (j * (d1 - h) * (d2 - h) * (d2 * sin(sigma) * cos(pi * n) - h * sin(sigma) * cos(pi * n)) - n * (d1 - h) * (d2 - h) * (d1 * sin(pi * n) * cos(sigma) - h * sin(pi * n) * cos(sigma))))
-        bottom = pi * ((-sq(d1) * sq(n)) + (2 * d1 * h * sq(n)) + (sq(d2) * sq(j)) - (2 * d2 * h * sq(j)) + (sq(h) * sq(j)) - (sq(h) * sq(n)))
-        return top / bottom     
-    else:
-        raise ValueError("Invalid values for n and j")
+    """Vectorized version of A_nj2."""
+    n = np.asarray(n)
+    j = np.asarray(j)
+    result = np.zeros_like(n, dtype=float)
+
+    # Case 1: j == 0 and n == 0
+    mask1 = (j == 0) & (n == 0)
+    result[mask1] = h - d2
+
+    # Case 2: 1 <= j and n == 0
+    mask2 = (j >= 1) & (n == 0)
+    sigma2 = (np.pi * j[mask2] * (d2 - h)) / (d1 - h)
+    result[mask2] = -(np.sqrt(2) * np.sin(sigma2) * (d1 - h)) / (j[mask2] * np.pi)
+
+    # Case 3: j == 0 and 1 <= n
+    mask3 = (j == 0) & (n >= 1)
+    result[mask3] = -(np.sqrt(2) * np.sin(np.pi * n[mask3]) * (d2 - h)) / (n[mask3] * np.pi)
+
+    # Case 4: 1 <= j and 1 <= n
+    mask4 = (j >= 1) & (n >= 1)
+    sigma4 = (np.pi * j[mask4] * (d2 - h)) / (d1 - h)
+    top4 = -(2 * (j[mask4] * (d1 - h) * (d2 - h) * (d2 * np.sin(sigma4) * np.cos(np.pi * n[mask4]) - h * np.sin(sigma4) * np.cos(np.pi * n[mask4])) -
+                   n[mask4] * (d1 - h) * (d2 - h) * (d1 * np.sin(np.pi * n[mask4]) * np.cos(sigma4) - h * np.sin(np.pi * n[mask4]) * np.cos(sigma4))))
+    bottom4 = np.pi * ((-sq(d1) * sq(n[mask4])) + (2 * d1 * h * sq(n[mask4])) + (sq(d2) * sq(j[mask4])) - (2 * d2 * h * sq(j[mask4])) + (sq(h) * sq(j[mask4])) - (sq(h) * sq(n[mask4])))
+    result[mask4] = top4 / bottom4
+
+    return result
 
 def nk_sigma_helper(mk, k, m):
-    sigma1 = sqrt(sinh(2 * h * m0) + 2 * h * m0 / h)
-    sigma2 = sin(mk * (d2 - h))
-    sigma3 = pi ** 2 * m ** 2
-    sigma4 = sinh(m0 * (d2 - h))
+    sigma1 = np.sqrt(np.sinh(2 * h * m0) + 2 * h * m0 / h)
+    sigma2 = np.sin(mk * (d2 - h))
+    sigma3 = np.pi ** 2 * m ** 2
+    sigma4 = np.sinh(m0 * (d2 - h))
     sigma6 = 2 * h * mk
-    sigma5 = sqrt(sin(sigma6) / sigma6 + 1)
-    
+    sigma5 = np.sqrt(np.sin(sigma6) / sigma6 + 1)
     return sigma1, sigma2, sigma3, sigma4, sigma5
 
 def A_mk(m, k):
-    mk = m_k(k)
-    sigma1, sigma2, sigma3, sigma4, sigma5 = nk_sigma_helper(mk, k, m)
+    """Vectorized version of A_mk."""
+    m = np.asarray(m)
+    k = np.asarray(k)
+    result = np.zeros_like(m, dtype=float)
+    mk_val = np.array([m_k(ki) for ki in k])  # Calculate m_k for each k
 
-    if k == 0 and m == 0:
-        C_mk = -2 * sigma4 / (sqrt(m0) * sigma1)
-    elif 1 <= k and m == 0:
-        C_mk = -sqrt(2) * sigma2 / (mk * sigma5)
-    elif k == 0 and 1 <= m:
-        C_mk = -(2 * (-1)**m * sqrt(2) * m0**(3/2) * sigma4 * (d2 - h)**2) / \
-               (sigma1 * (d2**2 * m0**2 - 2 * d2 * h * m0**2 + h**2 * m0**2 + sigma3))
-    elif 1 <= k and 1 <= m:
-        C_mk = -(2 * (-1)**m * sigma2 * mk * (d2 - h)**2) / \
-               (sigma5 * (d2**2 * mk**2 - 2 * d2 * h * mk**2 + h**2 * mk**2 - sigma3))
-    else: 
-        raise ValueError("Invalid values for m and k")
-    
-    return C_mk
+    sigma1, sigma2, sigma3, sigma4, sigma5 = nk_sigma_helper(mk_val, k, m)
 
+    # Case 1: k == 0 and m == 0
+    mask1 = (k == 0) & (m == 0)
+    result[mask1] = -2 * sigma4[mask1] / (np.sqrt(m0) * sigma1[mask1])
 
-# def nk_sigma_helper(mk): 
-#     top = sin(2 * h * mk)
-#     bottom = 4 * h * mk
-#     sigma1 = sqrt(top/bottom + 1/2)
-#     sigma2 = sinh(m0 * (d2 - h)) 
-#     sigma3 = mk * (d2 - h)
-#     sigma4 = sq(pi) * sq(n)
-#     sigma5 = sinh(2 * h * m0)
-#     return sigma1, sigma2, sigma3, sigma4, sigma5
+    # Case 2: 1 <= k and m == 0
+    mask2 = (k >= 1) & (m == 0)
+    result[mask2] = -np.sqrt(2) * sigma2[mask2] / (mk_val[mask2] * sigma5[mask2])
 
-# def A_km(k, n):
-#     mk = m_k(k)
-#     sigma1, sigma2, sigma3, sigma4, sigma5 = nk_sigma_helper(mk)
-#     if k == 0 and n == 0:
-#         return (-2 * sqrt(h) * sigma2) / (sqrt(m0) * sqrt(sigma5 + 2 * h * m0))
-#     elif 1 <= k and n == 0:
-#         return -sin(sigma3) / (mk * sigma1)
-#     elif k == 0 and 1 <= n:
-#         top = -sqrt(2) * (m0 * (d2 * cos(pi * n) * sigma2 - h * cos(pi * n) * sigma2) * (d2 - h) + pi * n * sin(pi * n) * cosh(m0 * (d2 - h)) * (d2 - h))
-#         bottom = sqrt((sigma5 / (4 * h * m0)) + 1/2) * (sq(d2) * sq(m0) - 2 * d2 * h * sq(m0) + sq(h) * sq(m0) + sigma4)
-#         return top / bottom
-#     elif 1 <= k and 1 <= n:
-#         top = -sqrt(2) * (mk * (d2 * sin(sigma3) * cos(pi * n) - h * sin(sigma3) * cos(pi * n)) * (d2 - h) - pi * n * cos(sigma3) * sin(pi * n) * (d2 - h))
-#         bottom = sigma1 * (sq(d2) * sq(mk) - 2 * d2 * h * sq(mk) + sq(h) * sq(mk) - sigma4)
-#         return top / bottom
-#     else:
-#         raise ValueError("Invalid values for n and k")
+    # Case 3: k == 0 and 1 <= m
+    mask3 = (k == 0) & (m >= 1)
+    result[mask3] = -(2 * ((-1) ** m[mask3]) * m0**(3/2) * sigma4[mask3] * sq(d2 - h)) / \
+                   (sigma1[mask3] * (sq(d2) * sq(m0) - 2 * d2 * h * sq(m0) + sq(h) * sq(m0) + sigma3[mask3]))
 
-def nk2_sigma_helper(mk): 
-    top = sin(2 * h * mk)
+    # Case 4: 1 <= k and 1 <= m
+    mask4 = (k >= 1) & (m >= 1)
+    result[mask4] = -(2 * ((-1) ** m[mask4]) * sigma2[mask4] * mk_val[mask4] * sq(d2 - h)) / \
+                   (sigma5[mask4] * (sq(d2) * sq(mk_val[mask4]) - 2 * d2 * h * sq(mk_val[mask4]) + sq(h) * sq(mk_val[mask4]) - sigma3[mask4]))
+
+    return result
+
+def nk2_sigma_helper(mk, n):
+    top = np.sin(2 * h * mk)
     bottom = 4 * h * mk
-    sigma1 = sqrt(top/bottom + 1/2)
-    sigma2 = sin(h * mk) 
-    sigma3 = (pi * h * n) / (d2 - h)
-    sigma4 = sq(pi) * sq(n)
-    sigma5 = sinh(2 * h * m0)
+    sigma1 = np.sqrt(top / bottom + 0.5)
+    sigma2 = np.sin(h * mk)
+    sigma3 = (np.pi * h * n) / (d2 - h)
+    sigma4 = sq(np.pi) * sq(n)
+    sigma5 = np.sinh(2 * h * m0)
     return sigma1, sigma2, sigma3, sigma4, sigma5
 
-
 def A_km2(n, k):
-    mk = m_k(k)
-    sigma1, sigma2, sigma3, sigma4, sigma5 = nk2_sigma_helper(mk)
-    if k == 0 and n == 0:
-        return (-2 * sqrt(h) * sinh(h * m0)) / (sqrt(m0) * sqrt(sigma5 + 2 * h * m0))
-    elif 1 <= k and n == 0:
-        return sigma2 / (mk * sigma1)
-    elif k == 0 and 1 <= n:
-        top = sqrt(2) * (m0 * (d2 - h) * (d2 * sinh(h * m0) * cos(sigma3) - h * sinh(h * m0) * cos(sigma3)) + pi * n * cosh(h * m0) * sin(sigma3) * (d2 - h))
-        bottom = sqrt((sigma5 / (4 * h * m0)) + 1/2) * (sq(d2) * sq(m0) - 2 * d2 * h * sq(m0) + sq(h) * sq(m0) + sigma4)
-        return top / bottom
-    elif 1 <= k and 1 <= n:
-        top = sqrt(2) * (mk * (d2 - h) * (d2 * sigma2 * cos(sigma3) - h * sigma2 * cos(sigma3)) - pi * n * cos(h * mk) * sin(sigma3) * (d2 - h))
-        bottom = sigma1 * (sq(d2) * sq(mk) - 2 * d2 * h * sq(mk) + sq(h) * sq(mk) - sigma4)
-        return top / bottom
-    else:
-        raise ValueError("Invalid values for n and k")
-    
+    """Vectorized version of A_km2."""
+    n = np.asarray(n)
+    k = np.asarray(k)
+    result = np.zeros_like(n, dtype=float)
+    mk_val = np.array([m_k(ki) for ki in k])  # Calculate m_k for each k
+
+    sigma1, sigma2, sigma3, sigma4, sigma5 = nk2_sigma_helper(mk_val, n)
+
+    # Case 1: k == 0 and n == 0
+    mask1 = (k == 0) & (n == 0)
+    result[mask1] = (-2 * np.sqrt(h) * np.sinh(h * m0)) / (np.sqrt(m0) * np.sqrt(sigma5[mask1] + 2 * h * m0))
+
+    # Case 2: 1 <= k and n == 0
+    mask2 = (k >= 1) & (n == 0)
+    result[mask2] = sigma2[mask2] / (mk_val[mask2] * sigma1[mask2])
+
+    # Case 3: k == 0 and 1 <= n
+    mask3 = (k == 0) & (n >= 1)
+    top3 = np.sqrt(2) * (m0 * (d2 - h) * (d2 * np.sinh(h * m0) * np.cos(sigma3[mask3]) - h * np.sinh(h * m0) * np.cos(sigma3[mask3])) +
+                       np.pi * n[mask3] * np.cosh(h * m0) * np.sin(sigma3[mask3]) * (d2 - h))
+    bottom3 = np.sqrt((sigma5[mask3] / (4 * h * m0)) + 0.5) * (sq(d2) * sq(m0) - 2 * d2 * h * sq(m0) + sq(h) * sq(m0) + sigma4[mask3])
+    result[mask3] = top3 / bottom3
+
+    # Case 4: 1 <= k and 1 <= n
+    mask4 = (k >= 1) & (n >= 1)
+    top4 = np.sqrt(2) * (mk_val[mask4] * (d2 - h) * (d2 * sigma2[mask4] * np.cos(sigma3[mask4]) - h * sigma2[mask4] * np.cos(sigma3[mask4])) -
+                       np.pi * n[mask4] * np.cos(h * mk_val[mask4]) * np.sin(sigma3[mask4]) * (d2 - h))
+    bottom4 = sigma1[mask4] * (sq(d2) * sq(mk_val[mask4]) - 2 * d2 * h * sq(mk_val[mask4]) + sq(h) * sq(mk_val[mask4]) - sigma4[mask4])
+    result[mask4] = top4 / bottom4
+
+    return result
