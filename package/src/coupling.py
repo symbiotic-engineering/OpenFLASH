@@ -91,7 +91,7 @@ def nk_sigma_helper(mk, k, m):
     return sigma1, sigma2, sigma3, sigma4, sigma5
 
 def A_mk(m, k):
-    mk = m_k(k)
+    mk = m_k(k, m0, h)
     sigma1, sigma2, sigma3, sigma4, sigma5 = nk_sigma_helper(mk, k, m)
 
     if k == 0 and m == 0:
@@ -121,7 +121,7 @@ def nk2_sigma_helper(mk):
 
 
 def A_km2(n, k):
-    mk = m_k(k)
+    mk = m_k(k, m0, h)
     sigma1, sigma2, sigma3, sigma4, sigma5 = nk2_sigma_helper(mk)
     if k == 0 and n == 0:
         return (-2 * sqrt(h) * sinh(h * m0)) / (sqrt(m0) * sqrt(sigma5 + 2 * h * m0))

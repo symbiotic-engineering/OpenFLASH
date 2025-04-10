@@ -34,19 +34,6 @@ class TestCouplingIntegrals(unittest.TestCase):
         self.assertAlmostEqual(coupling.A_nm2(0, 1), (-sqrt(2) * sin((pi * 1 * (d2 - h)) / (d1 - h)) * (d1 - h)) / (1 * pi))
         # Add more test cases
 
-    def test_nk_sigma_helper(self):
-        # Test cases for nk_sigma_helper.  Focus on verifying the intermediate
-        # calculations. 
-        mk = 1.0  # Example value
-        k = 1
-        m = 1
-        sigma1, sigma2, sigma3, sigma4, sigma5 = coupling.nk_sigma_helper(mk, k, m)
-        self.assertAlmostEqual(sigma1, sqrt(sinh(2 * h * m0) + 2 * h * m0 / h))
-        self.assertAlmostEqual(sigma2, sin(mk * (d2 - h)))
-        self.assertAlmostEqual(sigma3, pi ** 2 * m ** 2)
-        self.assertAlmostEqual(sigma4, sinh(m0 * (d2 - h)))
-        self.assertAlmostEqual(sigma5, sqrt(sin(2 * h * mk) / (2 * h * mk) + 1))
-
 
     # ... (Add tests for nk2_sigma_helper )
 

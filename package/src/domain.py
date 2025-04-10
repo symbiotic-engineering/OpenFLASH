@@ -37,10 +37,10 @@ class Domain:
         self.geometry = geometry
         
 
-        self.h = params.get('h', geometry.z_coordinates.get('h', h))
+        self.h = params.get('h', geometry.z_coordinates.get('h'))
         self.di = self._get_di()
         self.a = self._get_a()
-        self.m0 = params.get('m0', m0)
+        self.m0 = params.get('m0')
 
         # Convert dict_values to NumPy array before calculating mean
         r_values = np.array(list(geometry.r_coordinates.values()))
@@ -55,9 +55,9 @@ class Domain:
     def _get_di(self) -> Union[float, None]:
         """Gets the di parameter based on category and index."""
         if self.category == 'inner':
-            return self.params.get('di', d[self.index])
+            return self.params.get('di')
         elif self.category == 'outer':
-            return self.params.get('di', d[self.index])
+            return self.params.get('di')
         elif self.category == 'exterior':
             return None # Exterior domain doesn't have di
         else:
@@ -76,7 +76,7 @@ class Domain:
 
     def _get_heaving(self) -> Union[int, None]:
         """Gets the heaving parameter based on index."""
-        return self.params.get('heaving', heaving[self.index] if self.index < len(heaving) else None)
+        return self.params.get('heaving')
 
     def _get_r_coords(self) -> Union[float, List[float], None]:
         """Gets the r coordinates based on category."""

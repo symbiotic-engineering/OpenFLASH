@@ -16,6 +16,8 @@ from meem_engine import MEEMEngine
 from meem_problem import MEEMProblem
 from geometry import Geometry
 
+
+
 # Set global numpy print options
 np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
 
@@ -49,6 +51,8 @@ def main():
     # Parse inputs
     d = list(map(float, d.split(',')))
     a = list(map(float, a.split(',')))
+    a_cleaned = [val for val in a if val is not None]
+    scale = np.mean(a_cleaned)
     heaving = list(map(int, heaving.split(',')))
     slants = [
         list(map(float, slant.split(','))) 
@@ -58,6 +62,8 @@ def main():
     # Sidebar inputs
     NMK = st.sidebar.text_input("Number of Harmonics (NMK)", "30,30,30")
     NMK = list(map(int, NMK.split(',')))  # Convert input to a list of integers
+    m0 = st.sidebar.number_input("Input value for m0", value=1)
+
 
     # Ensure slants align with the number of regions
     if len(slants) != len(NMK):
@@ -108,8 +114,8 @@ def main():
     engine = MEEMEngine([problem])
 
     # Solve linear system
-    A = engine.assemble_A_multi(problem)
-    b = engine.assemble_b_multi(problem)
+    A = engine.assemble_A_multi(problem, m0)
+    b = engine.assemble_b_multi(problem, m0)
 
     # Solve the linear system A x = b
     X = linalg.solve(A, b)
@@ -129,13 +135,13 @@ def main():
     Cs.append(X[row:])
 
     def phi_h_n_inner_func(n, r, z):
-        return (Cs[0][n] * R_1n(n, r, 0)) * Z_n_i(n, z, 0)
+        return (Cs[0][n] * R_1n(n, r, 0, scale, h, d)) * Z_n_i(n, z, 0, h, d)
 
     def phi_h_m_i_func(i, m, r, z):
-        return (Cs[i][m] * R_1n(m, r, i) + Cs[i][NMK[i] + m] * R_2n(m, r, i)) * Z_n_i(m, z, i)
+        return (Cs[i][m] * R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, scale, h, d)) * Z_n_i(m, z, i, h, d)
 
-    def phi_e_k_func(k, r, z):
-        return Cs[-1][k] * Lambda_k(k, r) * Z_n_e(k, z)
+    def phi_e_k_func(k, r, z, m0):
+        return Cs[-1][k] * Lambda_k(k, r, m0, scale, h) * Z_n_e(k, z, m0, h)
 
     # Visualization grid
     r_vec = np.linspace(2 * a[-1] / spatial_res, 2*a[-1], spatial_res)
@@ -174,35 +180,35 @@ def main():
             phiH[regions[i]] = temp_phiH if m == 0 else phiH[regions[i]] + temp_phiH
 
     for k in range(NMK[-1]):
-        temp_phiH = phi_e_k_func(k, R[regions[-1]], Z[regions[-1]])
+        temp_phiH = phi_e_k_func(k, R[regions[-1]], Z[regions[-1]], m0)
         phiH[regions[-1]] = temp_phiH if k == 0 else phiH[regions[-1]] + temp_phiH
 
     phi_p_i_vec = np.vectorize(phi_p_i)
 
-    phiP[regions[0]] = heaving[0] * phi_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
+    phiP[regions[0]] = heaving[0] * phi_p_i_vec(d[0], R[regions[0]], Z[regions[0]], h)
     for i in range(1, boundary_count):
-        phiP[regions[i]] = heaving[i] * phi_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
+        phiP[regions[i]] = heaving[i] * phi_p_i_vec(d[i], R[regions[i]], Z[regions[i]], h)
     phiP[regions[-1]] = 0
 
     phi = phiH + phiP
 
     def v_r_inner_func(n, r, z):
-        return (Cs[0][n] * diff_R_1n(n, r, 0)) * Z_n_i(n, z, 0)
+        return (Cs[0][n] * diff_R_1n(n, r, 0, scale, h, d)) * Z_n_i(n, z, 0, h, d)
 
     def v_r_m_i_func(i, m, r, z):
-        return (Cs[i][m] * diff_R_1n(m, r, i) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i)) * Z_n_i(m, z, i)
+        return (Cs[i][m] * diff_R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i, scale, h, d)) * Z_n_i(m, z, i, h, d)
 
-    def v_r_e_k_func(k, r, z):
-        return Cs[-1][k] * diff_Lambda_k(k, r) * Z_n_e(k, z)
+    def v_r_e_k_func(k, r, z, m0):
+        return Cs[-1][k] * diff_Lambda_k(k, r, m0, scale, h) * Z_n_e(k, z, m0, h)
 
     def v_z_inner_func(n, r, z):
-        return (Cs[0][n] * R_1n(n, r, 0)) * diff_Z_n_i(n, z, 0)
+        return (Cs[0][n] * R_1n(n, r, 0, scale, h, d)) * diff_Z_n_i(n, z, 0, h, d)
 
     def v_z_m_i_func(i, m, r, z):
-        return (Cs[i][m] * R_1n(m, r, i) + Cs[i][NMK[i] + m] * R_2n(m, r, i)) * diff_Z_n_i(m, z, i)
+        return (Cs[i][m] * R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, scale, h, d)) * diff_Z_n_i(m, z, i, h, d)
 
-    def v_z_e_k_func(k, r, z):
-        return Cs[-1][k] * Lambda_k(k, r) * diff_Z_n_e(k, z)
+    def v_z_e_k_func(k, r, z, m0):
+        return Cs[-1][k] * Lambda_k(k, r, m0, scale, h) * diff_Z_n_e(k, z, m0, h)
 
     vr = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
     vrH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
@@ -234,8 +240,8 @@ def main():
                 vzH[regions[i]] = vzH[regions[i]] + temp_vzH
 
     for k in range(NMK[-1]):
-        temp_vrH = v_r_e_k_func(k, R[regions[-1]], Z[regions[-1]])
-        temp_vzH = v_z_e_k_func(k, R[regions[-1]], Z[regions[-1]])
+        temp_vrH = v_r_e_k_func(k, R[regions[-1]], Z[regions[-1]], m0)
+        temp_vzH = v_z_e_k_func(k, R[regions[-1]], Z[regions[-1]], m0)
         if k == 0:
             vrH[regions[-1]] = temp_vrH
             vzH[regions[-1]] = temp_vzH

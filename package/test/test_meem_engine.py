@@ -15,6 +15,8 @@ from coupling import A_nm, A_mk
 import equations
 import multi_equations
 from results import Results
+from constants import *
+from multi_constants import *
 
 class TestMEEMEngine(unittest.TestCase):
 
@@ -33,35 +35,35 @@ class TestMEEMEngine(unittest.TestCase):
 
 
     def test_assemble_A(self):
-        A = self.engine.assemble_A(self.problem)
+        A = self.engine.assemble_A(self.problem, m0)
         self.assertTrue(np.all(np.isfinite(A)))  # No NaNs or Infs
 
 
     def test_assemble_A_multi(self):
-        A = self.engine.assemble_A_multi(self.problem)
+        A = self.engine.assemble_A_multi(self.problem, m0)
         self.assertTrue(np.all(np.isfinite(A)))  # No NaNs or Infs
 
 
     def test_assemble_b(self):
-        b = self.engine.assemble_b(self.problem)
+        b = self.engine.assemble_b(self.problem, m0)
         self.assertTrue(np.all(np.isfinite(b)))  # No NaNs or Infs
 
     def test_assemble_b_multi(self):
-        b = self.engine.assemble_b_multi(self.problem)
+        b = self.engine.assemble_b_multi(self.problem, m0)
         self.assertTrue(np.all(np.isfinite(b)))  # No NaNs or Infs
 
 
     @patch('scipy.linalg.solve')  # Mock the linear solver
     def test_solve_linear_system(self, mock_solve):
         mock_solve.return_value = np.ones(12, dtype=complex)  # Mock a solution
-        X = self.engine.solve_linear_system(self.problem)
+        X = self.engine.solve_linear_system(self.problem, m0)
         self.assertEqual(X.shape, (12,))
         mock_solve.assert_called_once()  # Check that solve was called
 
     @patch('scipy.linalg.solve')
     def test_solve_linear_system_multi(self, mock_solve):
         mock_solve.return_value = np.ones(12, dtype=complex)
-        X = self.engine.solve_linear_system_multi(self.problem)
+        X = self.engine.solve_linear_system_multi(self.problem, m0)
         self.assertEqual(X.shape, (12,))
         mock_solve.assert_called_once()
 
@@ -103,7 +105,7 @@ class TestMEEMEngine(unittest.TestCase):
         self.problem.frequencies = np.array([1.0, 2.0])
         self.problem.modes = np.array(['heave', 'surge'])
         # Run the computation and store results
-        results = self.engine.run_and_store_results(0)
+        results = self.engine.run_and_store_results(0, m0)
         # Check if the results object is created and has the expected attributes
         self.assertIsInstance(results, Results)
         self.assertIsNotNone(results.dataset)
