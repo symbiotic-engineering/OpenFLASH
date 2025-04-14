@@ -8,7 +8,7 @@ heaving = [1, 1, 1]
 NMK = [100, 100, 100, 100] # Number of terms in approximation of each region (including e).
 # All computations assume at least 2 regions.
 
-m0 = 1e6 + 3e5 + 5e4
+m0 = 1
 g = 9.81
 rho = 1023
 # n = 3 # These variables are just here but unused, inherited from the MEEM constants.py

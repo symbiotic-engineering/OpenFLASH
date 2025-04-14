@@ -2,6 +2,8 @@ import numpy as np
 from scipy.special import hankel1 as besselh
 from scipy.special import iv as besseli
 from scipy.special import kv as besselk
+from scipy.special import ive as besselie
+from scipy.special import kve as besselke
 import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
@@ -30,7 +32,6 @@ def lambda_ni(n, i): # factor used often in calculations
 #############################################
 # creating a m_k function, used often in calculations
 def m_k_entry(k):
-    # m_k_mat = np.zeros((len(m0_vec), 1))
     if k == 0: return m0
     elif m0 == inf:
         return ((k - 1/2) * pi)/h
@@ -119,11 +120,11 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
     else:
         lambda1 = lambda_ni(m, i)
         if abs(m_k[k]) == lambda1:
-            return (h - dj)/2
+            return sqrt(2/N_k(k)) * (h - dj)/2
         else:
             frac1 = sin((m_k[k] + lambda1)*(h-dj))/(m_k[k] + lambda1)
             frac2 = sin((m_k[k] - lambda1)*(h-dj))/(m_k[k] - lambda1)
-            return sqrt(2)/2 * (1/sqrt(N_k(k))) * (frac1 + frac2)
+            return sqrt(2/N_k(k)) * (frac1 + frac2)/2
             
 #############################################
 # b-vector computation
@@ -193,7 +194,7 @@ def R_1n(n, r, i):
         if r == scale[i]:
             return 1
         else:
-            return besseli(0, lambda_ni(n, i) * r) / besseli(0, lambda_ni(n, i) * scale[i])
+            return besselie(0, lambda_ni(n, i) * r) / besselie(0, lambda_ni(n, i) * scale[i]) * exp(lambda_ni(n, i) * (r - scale[i]))
     else: 
         raise ValueError("Invalid value for n")
 
@@ -202,9 +203,9 @@ def diff_R_1n(n, r, i):
     if n == 0:
         return 0
     else:
-        top = lambda_ni(n, i) * besseli(1, lambda_ni(n, i) * r)
-        bottom = besseli(0, lambda_ni(n, i) * scale[i])
-        return top / bottom
+        top = lambda_ni(n, i) * besselie(1, lambda_ni(n, i) * r)
+        bottom = besselie(0, lambda_ni(n, i) * scale[i])
+        return top / bottom * exp(lambda_ni(n, i) * (r - scale[i]))
 
 #############################################
 # The "Bessel K" radial eigenfunction
@@ -217,7 +218,7 @@ def R_2n(n, r, i):
         if r == scale[i]:
             return 1
         else:
-            return besselk(0, lambda_ni(n, i) * r) / besselk(0, lambda_ni(n, i) * scale[i])
+            return besselke(0, lambda_ni(n, i) * r) / besselke(0, lambda_ni(n, i) * scale[i]) * exp(lambda_ni(n, i) * (scale[i] - r))
 
 
 # Differentiate wrt r
@@ -225,9 +226,9 @@ def diff_R_2n(n, r, i):
     if n == 0:
         return 1 / (2 * r)
     else:
-        top = - lambda_ni(n, i) * besselk(1, lambda_ni(n, i) * r)
-        bottom = besselk(0, lambda_ni(n, i) * scale[i])
-        return top / bottom
+        top = - lambda_ni(n, i) * besselke(1, lambda_ni(n, i) * r)
+        bottom = besselke(0, lambda_ni(n, i) * scale[i])
+        return top / bottom * exp(lambda_ni(n, i) * (scale[i] - r))
 
 
 #############################################
@@ -261,11 +262,7 @@ def Lambda_k(k, r):
         if r == scale[-1]:
             return 1
         else:
-            candidate = besselk(0, m_k[k] * r) / besselk(0, m_k[k] * scale[-1])
-            if np.isnan(candidate) or np.isinf(candidate):
-                return sqrt(scale[-1]/r) * exp(m_k[k]*(scale[-1]-r))
-            else:
-                return candidate
+            return besselke(0, m_k[k] * r) / besselke(0, m_k[k] * scale[-1]) * exp(m_k[k] * (scale[-1] - r))
 
 # Differentiate wrt r
 def diff_Lambda_k(k, r):
@@ -278,22 +275,9 @@ def diff_Lambda_k(k, r):
             denominator = besselh(0, m0 * scale[-1])
             return numerator / denominator
     else:
-        if r == a[-1] and (r * m_k[k] > 300):
-            numerator = -(m_k[k] * besselk(1, m_k[k] * r))
-            denominator = besselk(0, m_k[k] * scale[-1])
-            candidate = numerator / denominator
-            if np.isnan(candidate) or np.isinf(candidate):
-                return - m_k[k] - 1/(2*r)
-            else:
-                return candidate
-        else:
-            numerator = -(m_k[k] * besselk(1, m_k[k] * r))
-            denominator = besselk(0, m_k[k] * scale[-1])
-            candidate = numerator / denominator
-            if np.isnan(candidate) or np.isinf(candidate):
-                return - m_k[k] * sqrt(scale[-1]/r) * exp(m_k[k]*(scale[-1]-r)) - 1/2 * sqrt(scale[-1]/r**3) * exp(m_k[k]*(scale[-1]-r))
-            else:
-                return candidate
+        numerator = -(m_k[k] * besselke(1, m_k[k] * r))
+        denominator = besselke(0, m_k[k] * scale[-1])
+        return numerator / denominator * exp(m_k[k] * (scale[-1] - r))
 
 
 #############################################
@@ -338,10 +322,11 @@ def int_R_1n(i, n):
         return a[i]**2/4 - inner**2/4
     else:
         lambda0 = lambda_ni(n, i)
-        inner_term = (0 if i == 0 else a[i-1] * besseli(1, lambda0 * a[i-1])) # central region has inner radius 0
-        top = a[i] * besseli(1, lambda0 * a[i]) - inner_term
-        bottom = lambda0 * besseli(0, lambda0 * scale[i])
-        return top / bottom
+        bottom = lambda0 * besselie(0, lambda0 * scale[i])
+        if i == 0: inner_term = 0
+        else: inner_term = (a[i-1] * besselie(1, lambda0 * a[i-1]) / bottom) * exp(lambda0 * (a[i-1] - scale[i]))
+        outer_term = (a[i] * besselie(1, lambda0 * a[i]) / bottom) * exp(lambda0 * (a[i] - scale[i]))
+        return outer_term - inner_term
 
 #integrating R_2n * r
 def int_R_2n(i, n):
@@ -351,9 +336,10 @@ def int_R_2n(i, n):
     if n == 0:
         return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
     else:
-        top = a[i] * besselk(1, lambda0 * a[i]) - a[i-1] * besselk(1, lambda0 * a[i-1])
-        bottom = - lambda0 * besselk(0, lambda0 * scale[i])
-        return top / bottom
+        outer_term = a[i] * besselke(1, lambda0 * a[i])
+        inner_term = a[i-1] * besselke(1, lambda0 * a[i-1])
+        bottom = - lambda0 * besselke(0, lambda0 * scale[i])
+        return (outer_term / bottom) * exp(lambda0 * (scale[i] - a[i])) - (inner_term/bottom)* exp(lambda0 * (scale[i] - a[i-1]))
 
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
 def int_phi_p_i(i):
