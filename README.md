@@ -18,3 +18,14 @@ State the license type
 Describe the file structure and how to run the code
 
 Include a funding acknowledgement (this is required for most grants, ie NSF has specific template text that must go here)
+
+## Installation
+
+You can install the `meem` package in our github:
+
+### Install from the `CS_group` Branch
+
+package is only available in the `CS_group` branch for now, use the following command to install it directly from that branch:
+
+```bash
+pip install git+https://github.com/symbiotic-engineering/semi-analytical-hydro.git@CS_group
