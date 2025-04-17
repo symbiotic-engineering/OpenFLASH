@@ -17,7 +17,6 @@ def scale(a):
     return result
 
 def lambda_ni(n, i, h, d): # factor used often in calculations
-    print(f"Inside lambda_ni: i = {i}, type(i) = {type(i)}")
     return n * pi / (h - d[i])
 
 #############################################
@@ -184,7 +183,6 @@ def diff_z_phi_p_i(d, z, h):
 #############################################
 # The "Bessel I" radial eigenfunction
 def R_1n(n, r, i, h, d, a):
-    print(f"Inside R_1n: d = {d}, type(d) = {type(d)}, i = {i}")
 
     local_scale = scale(a)
     if n == 0:

@@ -134,8 +134,6 @@ def main():
     Cs.append(X[row:])
 
     def phi_h_n_inner_func(n, r, z):
-        print(f"Value of d: {d}, type of d: {type(d)}")
-        print("i: ", i)
         return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * Z_n_i(n, z, 0, h, d)
 
     def phi_h_m_i_func(i, m, r, z):
