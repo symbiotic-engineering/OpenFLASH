@@ -5,39 +5,48 @@ from scipy.special import kv as besselk
 import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
-from numpy import sqrt, cosh, cos, sinh, sin, pi
+from numpy import sqrt, cosh, cos, sinh, sin, pi, exp
 from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 
+def omega(m0,h,g):
+    sqrt(m0 * np.tanh(m0 * h) * g)
 
+def scale(a): 
+    result = np.mean([[0]+a[0:-1], a], axis = 0)
+    return result
 
-def wavenumber(omega, g, h):
-    m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
-    return (root_scalar(m0_err, x0 = 2, method="newton")).root
-    
-    
+def lambda_ni(n, i, h, d): # factor used often in calculations
+    print(f"Inside lambda_ni: i = {i}, type(i) = {type(i)}")
+    return n * pi / (h - d[i])
 
 #############################################
 # some common computations
 
-# Defining m_k function that will be used later on
-def m_k(k, m0, h):
+# creating a m_k function, used often in calculations
+def m_k_entry(k, m0, h):
     # m_k_mat = np.zeros((len(m0_vec), 1))
+    if k == 0: return m0
 
     m_k_h_err = (
         lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
     )
     k_idx = k
+
+    # # original version of bounds in python
     m_k_h_lower = pi * (k_idx - 1/2) + np.finfo(float).eps
     m_k_h_upper = pi * k_idx - np.finfo(float).eps
     # x_0 =  (m_k_upper - m_k_lower) / 2
     
+    # becca's version of bounds from MDOcean Matlab code
+    m_k_h_lower = pi * (k_idx - 1/2) + (pi/180)* np.finfo(float).eps * (2**(np.floor(np.log(180*(k_idx- 1/2)) / np.log(2))) + 1)
+    m_k_h_upper = pi * k_idx
+
     m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
-    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton")
+    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
     # result = minimize_scalar(
         # m_k_h_err, bounds=(m_k_h_lower, m_k_h_upper), method="bounded"
     # )
-    
 
     m_k_val = result.root / h
 
@@ -48,8 +57,16 @@ def m_k(k, m0, h):
         # m_k_mat[freq_idx, :] = m_k_vec
     return m_k_val
 
-def lambda_ni(n, i, h, d):
-    return n * pi / (h - d[i])
+# create an array of m_k values for each k to avoid recomputation
+def m_k(NMK, m0, h):
+    vectorized_m_k_entry = np.vectorize(m_k_entry, otypes=[float])
+    return vectorized_m_k_entry(list(range(NMK[-1])), m0, h)
+
+def m_k_newton(h, m0):
+    res = newton(lambda k: k * np.tanh(k * h) - m0**2 / 9.8, x0=1.0, tol=10 ** (-10))
+    return res
+
+
 
 #############################################
 # vertical eigenvector coupling computation
@@ -71,33 +88,38 @@ def I_nm(n, m, i, d, h): # coupling integral for two i-type regions
         else:
             return sqrt(2) * sin(lambda1 * (h - dj)) / lambda1
     else:
+        frac1 = sin((lambda1 + lambda2)*(h-dj))/(lambda1 + lambda2)
         if lambda1 == lambda2:
-            return (h - dj) + sin(lambda1 * 2 * (h - dj)) / (2 * lambda1)
+            frac2 = (h - dj)
         else:
-            frac1 = sin((lambda1 + lambda2)*(h-dj))/(lambda1 + lambda2)
             frac2 = sin((lambda1 - lambda2)*(h-dj))/(lambda1 - lambda2)
-            return frac1 + frac2
+        return frac1 + frac2
 
-def I_mk(m, k, i, d, m0, h): # coupling integral for i and e-type regions
+def I_mk(m, k, i, d, m0, h, NMK): # coupling integral for i and e-type regions
+    local_m_k = m_k(NMK, m0, h)
     dj = d[i]
     if m == 0 and k == 0:
-        return (1/sqrt(N_k(0,m0, h))) * sinh(m0 * (h - dj)) / m0
+        if m0 * h < 14:
+            return (1/sqrt(N_k(0, m0, h, NMK))) * sinh(m0 * (h - dj)) / m0
+        else: # high m0h approximation
+            return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
     if m == 0 and k >= 1:
-        mk = m_k(k, m0, h)
-        return (1/sqrt(N_k(k, m0, h))) * sin(mk * (h - dj)) / mk
+        return (1/sqrt(N_k(k, m0, h, NMK))) * sin(local_m_k[k] * (h - dj)) / local_m_k[k]
     if m >= 1 and k == 0:
-        num = sqrt(2) * (1/sqrt(N_k(0, m0, h))) * m0 * (-1)**m * sinh(m0 * (h - dj))
+        if m0 * h < 14:
+            num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0, m0, h, NMK))) * m0 * sinh(m0 * (h - dj))
+        else: # high m0h approximation
+            num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
         denom = (m0**2 + lambda_ni(m, i, h, d) **2)
         return num/denom
     else:
         lambda1 = lambda_ni(m, i, h, d)
-        mk = m_k(k, m0, h)
-        if abs(mk) == lambda1:
+        if abs(local_m_k[k]) == lambda1:
             return (h - dj)/2
         else:
-            frac1 = sin((mk + lambda1)*(h-dj))/(mk + lambda1)
-            frac2 = sin((mk - lambda1)*(h-dj))/(mk - lambda1)
-            return sqrt(2)/2 * (1/sqrt(N_k(k, m0, h))) * (frac1 + frac2)
+            frac1 = sin((local_m_k[k] + lambda1)*(h-dj))/(local_m_k[k] + lambda1)
+            frac2 = sin((local_m_k[k] - lambda1)*(h-dj))/(local_m_k[k] - lambda1)
+            return sqrt(2)/2 * (1/sqrt(N_k(k, m0, h, NMK))) * (frac1 + frac2)
 
 #############################################
 # b-vector computation
@@ -135,12 +157,16 @@ def b_velocity_entry(n, i, heaving, a, h, d): # for two i-type regions
             return num/denom
         else: return 0
 
-def b_velocity_end_entry(k, i, heaving, a, h, d, m0): # between i and e-type regions
+def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK): # between i and e-type regions
+    local_m_k = m_k(NMK, m0, h)
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
-        return constant * (1/sqrt(N_k(0, m0, h))) * sinh(m0 * (h - d[i])) / m0
+        if m0 * h < 14:
+            return constant * (1/sqrt(N_k(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
+        else: # high m0h approximation
+            return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
     else:
-        return constant * (1/sqrt(N_k(k, m0, h))) * sin(m_k(k, m0, h) * (h - d[i])) / m_k(k, m0, h)
+        return constant * (1/sqrt(N_k(k, m0, h, NMK))) * sin(local_m_k[k] * (h - d[i])) / local_m_k[k]
 
 
 #############################################
@@ -157,39 +183,46 @@ def diff_z_phi_p_i(d, z, h):
 
 #############################################
 # The "Bessel I" radial eigenfunction
-def R_1n(n, r, i, scale, h, d):
+def R_1n(n, r, i, h, d, a):
+    print(f"Inside R_1n: d = {d}, type(d) = {type(d)}, i = {i}")
+
+    local_scale = scale(a)
     if n == 0:
         return 0.5
     elif n >= 1:
-        return besseli(0, lambda_ni(n, i, h, d) * r) / besseli(0, lambda_ni(n, i, h, d) * scale)
+        return besseli(0, lambda_ni(n, i, h, d) * r) / besseli(0, lambda_ni(n, i, h, d) * local_scale[i])
     else: 
         raise ValueError("Invalid value for n")
 
 # Differentiate wrt r
-def diff_R_1n(n, r, i, scale, h, d):
+def diff_R_1n(n, r, i, h, d, a):
+    local_scale = scale(a)
     if n == 0:
         return 0
     else:
         top = lambda_ni(n, i, h, d) * besseli(1, lambda_ni(n, i, h, d) * r)
-        bottom = besseli(0, lambda_ni(n, i, h, d) * scale)
+        bottom = besseli(0, lambda_ni(n, i, h, d) * local_scale[i])
         return top / bottom
 
 #############################################
 # The "Bessel K" radial eigenfunction
-def R_2n(n, r, i, a, scale, h, d): # this shouldn't be called for i=0, innermost.
-    if n == 0:
+def R_2n(n, r, i, a, h, d): # this shouldn't be called for i=0, innermost.
+    local_scale = scale(a)
+    if i == 0:
+        raise ValueError("i cannot be 0")  # this shouldn't be called for i=0, innermost region.
+    elif n == 0:
         return 0.5 * np.log(r / a[i])
     else:
-        return besselk(0, lambda_ni(n, i, h, d) * r) / besselk(0, lambda_ni(n, i, h, d) * scale)
-
+        return besselk(0, lambda_ni(n, i, h, d) * r) / besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
 
 # Differentiate wrt r
-def diff_R_2n(n, r, i, scale, h, d):
+def diff_R_2n(n, r, i, h, d, a):
+    local_scale = scale(a)
     if n == 0:
         return 1 / (2 * r)
     else:
         top = - lambda_ni(n, i, h, d) * besselk(1, lambda_ni(n, i, h, d) * r)
-        bottom = besselk(0, lambda_ni(n, i, h, d) * scale)
+        bottom = besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
         return top / bottom
 
 
@@ -210,77 +243,86 @@ def diff_Z_n_i(n, z, i, h, d):
 
 #############################################
 # Region e radial eigenfunction
-def Lambda_k(k, r, m0, scale, h):
+def Lambda_k(k, r, m0, a, NMK, h):
+    local_scale = scale(a)
+    local_m_k = m_k(NMK, m0, h)
     if k == 0:
-        return besselh(0, m0 * r) / besselh(0, m0 * scale)
+        return besselh(0, m0 * r) / besselh(0, m0 * local_scale[-1])
     else:
-        return besselk(0, m_k(k, m0, h) * r) / besselk(0, m_k(k, m0, h) * scale)
+        return besselk(0, local_m_k[k] * r) / besselk(0, local_m_k[k] * local_scale[-1])
 
 # Differentiate wrt r
-def diff_Lambda_k(k, r, m0, scale, h):
+def diff_Lambda_k(k, r, m0, NMK, h, a):
+    local_m_k = m_k(NMK, m0, h)
+    local_scale = scale(a)
     if k == 0:
         numerator = -(m0 * besselh(1, m0 * r))
-        denominator = besselh(0, m0 * scale)
+        denominator = besselh(0, m0 * local_scale[-1])
     else:
-        mk = m_k(k, m0, h)
-        numerator = -(mk * besselk(1, mk * r))
-        denominator = besselk(0, mk * scale)
+        numerator = -(local_m_k[k] * besselk(1, local_m_k[k] * r))
+        denominator = besselk(0, local_m_k[k] * local_scale[-1])
     return numerator / denominator
 
 
 #############################################
 # Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
-def N_k(k, m0, h):
+def N_k(k, m0, h, NMK):
+    local_m_k = m_k(NMK, m0, h)
     if k == 0:
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
     else:
-        return 1 / 2 * (1 + sin(2 * m_k(k, m0, h) * h) / (2 * m_k(k, m0, h) * h))
+        return 1 / 2 * (1 + sin(2 * local_m_k[k] * h) / (2 * local_m_k[k] * h))
 
 
 #############################################
 # e-region vertical eigenfunctions
-def Z_n_e(k, z, m0, h):
+def Z_k_e(k, z, m0, h, NMK):
+    local_m_k = m_k(NMK, m0, h)
     if k == 0:
-        return 1 / sqrt(N_k(k, m0, h)) * cosh(m0 * (z + h))
+        if m0 * h < 14:
+            return 1 / sqrt(N_k(k, m0, h, NMK)) * cosh(m0 * (z + h))
+        else: # high m0h approximation
+            return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
     else:
-        return 1 / sqrt(N_k(k, m0, h)) * cos(m_k(k, m0, h) * (z + h))
+        return 1 / sqrt(N_k(k, m0, h, NMK)) * cos(local_m_k[k] * (z + h))
 
-def diff_Z_n_e(k, z, m0, h):
+def diff_Z_k_e(k, z, m0, h, NMK):
+    local_m_k = m_k(NMK, m0, h)
     if k == 0:
-        return 1 / sqrt(N_k(k, m0, h)) * m0 * sinh(m0 * (z + h))
+        if m0 * h < 14:
+            return 1 / sqrt(N_k(k, m0, h, NMK)) * m0 * sinh(m0 * (z + h))
+        else: # high m0h approximation
+            return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
     else:
-        mk = m_k(k, m0, h)
-        return -1 / sqrt(N_k(k, m0, h)) * mk * sin(mk * (z + h))
+        return -1 / sqrt(N_k(k, m0, h, NMK)) * local_m_k[k] * sin(local_m_k[k] * (z + h))
 
 #############################################
 # To calculate hydrocoefficients
 
 #integrating R_1n * r
-def int_R_1n(i, n, a, scale, h, d):
-    lambda0 = lambda_ni(n, i, h, d)
-    if i == 0:
-        if n == 0:
-            return a[i]**2/4
-        else:
-            top = a[i] * besseli(1, lambda0 * a[i])
-            bottom = lambda0 * besseli(0, lambda0 * scale)
-            return top/bottom
+def int_R_1n(i, n, a, h, d):
+    local_scale = scale(a)
+    if n == 0:
+        inner = (0 if i == 0 else a[i-1]) # central region has inner radius 0
+        return a[i]**2/4 - inner**2/4
     else:
-        if n == 0:
-            return a[i]**2/4 - a[i-1]**2/4
-        else:
-            top = a[i] * besseli(1, lambda0 * a[i]) - a[i-1] * besseli(1, lambda0 * a[i-1])
-            bottom = lambda0 * besseli(0, lambda0 * scale)
-            return top / bottom
+        lambda0 = lambda_ni(n, i, h, d)
+        inner_term = (0 if i == 0 else a[i-1] * besseli(1, lambda0 * a[i-1])) # central region has inner radius 0
+        top = a[i] * besseli(1, lambda0 * a[i]) - inner_term
+        bottom = lambda0 * besseli(0, lambda0 * local_scale[i])
+        return top / bottom
 
 #integrating R_2n * r
-def int_R_2n(i, n, a, scale, h, d):
+def int_R_2n(i, n, a, h, d):
+    local_scale = scale(a)
+    if i == 0:
+        raise ValueError("i cannot be 0")
     lambda0 = lambda_ni(n, i, h, d)
     if n == 0:
-        return (a[i-1]**2 * (2*np.log(a[i]) - 2*np.log(a[i-1]) + 1) - a[i]**2)/8
+        return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
     else:
         top = a[i] * besselk(1, lambda0 * a[i]) - a[i-1] * besselk(1, lambda0 * a[i-1])
-        bottom = - lambda0 * besselk(0, lambda0 * scale)
+        bottom = - lambda0 * besselk(0, lambda0 * local_scale[i])
         return top / bottom
 
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]

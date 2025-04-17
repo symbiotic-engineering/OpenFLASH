@@ -106,8 +106,8 @@ class MEEMEngine:
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys]
         a = [domain_list[idx].a for idx in domain_keys]
-        a_cleaned = [val for val in a if val is not None]
-        scale = np.mean(a_cleaned)
+        a = [val for val in a if val is not None]
+
 
         ###########################################################################
         # Potential Matching
@@ -120,51 +120,54 @@ class MEEMEngine:
             if bd == (boundary_count - 1):  # i-e boundary
                 if bd == 0:  # one cylinder
                     for n in range(N):
-                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, scale, h, d)
+                        # In meem_engine.py, before the call to R_1n
+                        print(f"Value of a[bd]: {a[bd]}")
+                        print(f"Type of a: {type(a)}")
+                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
                         for m in range(M):
-                            A[row + n][col + N + m] = - I_mk(n, m, bd, d, m0, h) * Lambda_k(m, a[bd], m0, scale, h)
+                            A[row + n][col + N + m] = - I_mk(n, m, bd, d, m0, h, NMK) * Lambda_k(m, a[bd], m0, a, NMK, h)
                     row += N
                 else:
                     for n in range(N):
-                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, scale, h, d)
-                        A[row + n][col + N + n] = (h - d[bd]) * R_2n(n, a[bd], bd, a, scale, h, d)
+                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
+                        A[row + n][col + N + n] = (h - d[bd]) * R_2n(n, a[bd], bd, a, h, d)
                         for m in range(M):
-                            A[row + n][col + 2*N + m] = - I_mk(n, m, bd, d, m0, h) * Lambda_k(m, a[bd], m0, scale, h)
+                            A[row + n][col + 2*N + m] = - I_mk(n, m, bd, d, m0, h, NMK) * Lambda_k(m, a[bd], m0, a, NMK, h)
                     row += N
             elif bd == 0:
                 left_diag = d[bd] > d[bd + 1]  # which of the two regions gets diagonal entries
                 if left_diag:
                     for n in range(N):
-                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, scale, h, d)
+                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
                         for m in range(M):
-                            A[row + n][col + N + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a[bd], bd + 1, scale, h, d)
-                            A[row + n][col + N + M + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a[bd], bd + 1, a, scale, h, d)
+                            A[row + n][col + N + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a[bd], bd + 1, h, d, a)
+                            A[row + n][col + N + M + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a[bd], bd + 1, a, h, d)
                     row += N
                 else:
                     for m in range(M):
                         for n in range(N):
-                            A[row + m][col + n] = I_nm(n, m, bd, d, h) * R_1n(n, a[bd], bd, scale, h, d)
-                        A[row + m][col + N + m] = - (h - d[bd + 1]) * R_1n(m, a[bd], bd + 1, scale, h, d)
-                        A[row + m][col + N + M + m] = - (h - d[bd + 1]) * R_2n(m, a[bd], bd + 1, a, scale, h, d)
+                            A[row + m][col + n] = I_nm(n, m, bd, d, h) * R_1n(n, a[bd], bd, h, d, a)
+                        A[row + m][col + N + m] = - (h - d[bd + 1]) * R_1n(m, a[bd], bd + 1, h, d, a)
+                        A[row + m][col + N + M + m] = - (h - d[bd + 1]) * R_2n(m, a[bd], bd + 1, a, h, d)
                     row += M
                 col += N
             else:  # i-i boundary
                 left_diag = d[bd] > d[bd + 1]  # which of the two regions gets diagonal entries
                 if left_diag:
                     for n in range(N):
-                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, scale, h, d)
+                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
                         A[row + n][col + N + n] = (h - d[bd]) * R_2n(n, a[bd], bd, h, d)
                         for m in range(M):
-                            A[row + n][col + 2*N + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a[bd], bd + 1, scale, h, d)
-                            A[row + n][col + 2*N + M + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a[bd], bd + 1, a, scale, h, d)
+                            A[row + n][col + 2*N + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a[bd], bd + 1, h, d, a)
+                            A[row + n][col + 2*N + M + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a[bd], bd + 1, a, h, d)
                     row += N
                 else:
                     for m in range(M):
                         for n in range(N):
-                            A[row + m][col + n] = I_nm(n, m, bd, d, h) * R_1n(n, a[bd], bd, scale, h, d)
-                            A[row + m][col + N + n] = I_nm(n, m, bd, d, h) * R_2n(n, a[bd], bd, a, scale, h, d)
-                        A[row + m][col + 2*N + m] = - (h - d[bd + 1]) * R_1n(m, a[bd], bd + 1, scale, h, d)
-                        A[row + m][col + 2*N + M + m] = - (h - d[bd + 1]) * R_2n(m, a[bd], bd + 1, a, scale, h, d)
+                            A[row + m][col + n] = I_nm(n, m, bd, d, h) * R_1n(n, a[bd], bd, h, d, a)
+                            A[row + m][col + N + n] = I_nm(n, m, bd, d, h) * R_2n(n, a[bd], bd, a, h, d)
+                        A[row + m][col + 2*N + m] = - (h - d[bd + 1]) * R_1n(m, a[bd], bd + 1, h, d, a)
+                        A[row + m][col + 2*N + M + m] = - (h - d[bd + 1]) * R_2n(m, a[bd], bd + 1, a, h, d)
                     row += M
                 col += 2 * N
 
@@ -179,50 +182,50 @@ class MEEMEngine:
                 if bd == 0:  # one cylinder
                     for m in range(M):
                         for n in range(N):
-                            A[row + m][col + n] = - I_mk(n, m, bd, d, m0, h) * diff_R_1n(n, a[bd], bd, scale, h, d)
-                        A[row + m][col + N + m] = h * diff_Lambda_k(m, a[bd], m0, scale, h)
+                            A[row + m][col + n] = - I_mk(n, m, bd, d, m0, h, NMK) * diff_R_1n(n, a[bd], bd, h, d, a)
+                        A[row + m][col + N + m] = h * diff_Lambda_k(m, a[bd], m0, NMK, h, a)
                     row += N
                 else:
                     for m in range(M):
                         for n in range(N):
-                            A[row + m][col + n] = - I_mk(n, m, bd, d, m0, h) * diff_R_1n(n, a[bd], bd, scale, h, d)
-                            A[row + m][col + N + n] = - I_mk(n, m, bd, d, m0, h) * diff_R_2n(n, a[bd], bd, scale, h, d)
-                        A[row + m][col + 2*N + m] = h * diff_Lambda_k(m, a[bd], m0, scale, h)
+                            A[row + m][col + n] = - I_mk(n, m, bd, d, m0, h, NMK) * diff_R_1n(n, a[bd], bd, h, d, a)
+                            A[row + m][col + N + n] = - I_mk(n, m, bd, d, m0, h, NMK) * diff_R_2n(n, a[bd], bd, h, d, a)
+                        A[row + m][col + 2*N + m] = h * diff_Lambda_k(m, a[bd], m0, NMK, h, a)
                     row += N
             elif bd == 0:
                 left_diag = d[bd] < d[bd + 1]  # which of the two regions gets diagonal entries
                 if left_diag:
                     for n in range(N):
-                        A[row + n][col + n] = - (h - d[bd]) * diff_R_1n(n, a[bd], bd, scale, h, d)
+                        A[row + n][col + n] = - (h - d[bd]) * diff_R_1n(n, a[bd], bd, h, d, a)
                         for m in range(M):
-                            A[row + n][col + N + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a[bd], bd + 1, scale, h, d)
-                            A[row + n][col + N + M + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a[bd], bd + 1, scale, h, d)
+                            A[row + n][col + N + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
+                            A[row + n][col + N + M + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
                     row += N
                 else:
                     for m in range(M):
                         for n in range(N):
-                            A[row + m][col + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a[bd], bd, scale, h, d)
-                        A[row + m][col + N + m] = (h - d[bd + 1]) * diff_R_1n(m, a[bd], bd + 1, scale, h, d)
-                        A[row + m][col + N + M + m] = (h - d[bd + 1]) * diff_R_2n(m, a[bd], bd + 1, scale, h, d)
+                            A[row + m][col + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a[bd], bd, h, d, a)
+                        A[row + m][col + N + m] = (h - d[bd + 1]) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
+                        A[row + m][col + N + M + m] = (h - d[bd + 1]) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
                     row += M
                 col += N
             else:  # i-i boundary
                 left_diag = d[bd] < d[bd + 1]  # which of the two regions gets diagonal entries
                 if left_diag:
                     for n in range(N):
-                        A[row + n][col + n] = - (h - d[bd]) * diff_R_1n(n, a[bd], bd, scale, h, d)
-                        A[row + n][col + N + n] = - (h - d[bd]) * diff_R_2n(n, a[bd], bd, scale, h, d)
+                        A[row + n][col + n] = - (h - d[bd]) * diff_R_1n(n, a[bd], bd, h, d, a)
+                        A[row + n][col + N + n] = - (h - d[bd]) * diff_R_2n(n, a[bd], bd, h, d, a)
                         for m in range(M):
-                            A[row + n][col + 2*N + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a[bd], bd + 1, scale, h, d)
-                            A[row + n][col + 2*N + M + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a[bd], bd + 1, scale, h, d)
+                            A[row + n][col + 2*N + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
+                            A[row + n][col + 2*N + M + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
                     row += N
                 else:
                     for m in range(M):
                         for n in range(N):
-                            A[row + m][col + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a[bd], bd, scale, h, d)
-                            A[row + m][col + N + n] = - I_nm(n, m, bd, d, h) * diff_R_2n(n, a[bd], bd, scale, h, d)
-                        A[row + m][col + 2*N + m] = (h - d[bd + 1]) * diff_R_1n(m, a[bd], bd + 1, scale, h, d)
-                        A[row + m][col + 2*N + M + m] = (h - d[bd + 1]) * diff_R_2n(m, a[bd], bd + 1, scale, h, d)
+                            A[row + m][col + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a[bd], bd, h, d, a)
+                            A[row + m][col + N + n] = - I_nm(n, m, bd, d, h) * diff_R_2n(n, a[bd], bd, h, d, a)
+                        A[row + m][col + 2*N + m] = (h - d[bd + 1]) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
+                        A[row + m][col + 2*N + M + m] = (h - d[bd + 1]) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
                     row += M
                 col += 2 * N
 
@@ -283,6 +286,8 @@ class MEEMEngine:
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys]
         a = [domain_list[idx].a for idx in domain_keys]
+        a = [val for val in a if val is not None]
+
         heaving = [domain_list[idx].heaving for idx in domain_keys]
 
         index = 0
@@ -308,7 +313,7 @@ class MEEMEngine:
             if boundary == (boundary_count - 1):  # i-e boundary
                 for k in range(NMK[-1]):
                     assert index < size, f"Index {index} out of bounds for size {size}"  # Explicit check
-                    b[index] = b_velocity_end_entry(k, boundary, heaving, a, h, d, m0)
+                    b[index] = b_velocity_end_entry(k, boundary, heaving, a, h, d, m0, NMK)
                     index += 1
             else:  # i-i boundary
                 if d[boundary] < d[boundary + 1]:
@@ -345,6 +350,7 @@ class MEEMEngine:
         """
         from scipy import linalg
 
+        
         A = self.assemble_A_multi(problem, m0)
         b = self.assemble_b_multi(problem, m0)
         X = linalg.solve(A, b)
@@ -374,9 +380,8 @@ class MEEMEngine:
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys]
         a = [domain_list[idx].a for idx in domain_keys]
+        a = [val for val in a if val is not None]
         heaving = [domain_list[idx].heaving for idx in domain_keys]
-        a_cleaned = [val for val in a if val is not None]
-        scale = np.mean(a_cleaned)
 
         ###########################################################################
         ###SEA Calculation: c-Matrix### 
@@ -386,14 +391,14 @@ class MEEMEngine:
         heaving_matrix = np.zeros((2*len(NMK)-2, len(NMK)-1), dtype=complex)
         col = 0
         for n in range(NMK[0]):
-            c[0, n] = int_R_1n(0, n, a, scale, h, d) * z_n_d(n)
+            c[0, n] = int_R_1n(0, n, a, h, d) * z_n_d(n)
             X_matrix[0, n] = X[n]
         col += NMK[0]
         for i in range(1, boundary_count):
             M = NMK[i]
             for m in range(M):
-                c[i, m] = int_R_1n(i, m, a, scale, h, d) * z_n_d(m)
-                c[i+boundary_count-1, m] = int_R_2n(i, m, a, scale, h, d) * z_n_d(m)
+                c[i, m] = int_R_1n(i, m, a, h, d) * z_n_d(m)
+                c[i+boundary_count-1, m] = int_R_2n(i, m, a, h, d) * z_n_d(m)
                 X_matrix[i, m] = X[col + m]  # for first eigen-coeff in region M
             col += M
         for i in range(1, boundary_count):

@@ -26,8 +26,6 @@ from multi_constants import *
 from multi_equations import *
 from constants import *
 
-scale = np.mean(a)
-
 np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
 
 def test_main():
@@ -84,13 +82,13 @@ def test_main():
     Cs.append(X[row:])
 
     def phi_h_n_inner_func(n, r, z):
-        return (Cs[0][n] * R_1n(n, r, 0, scale, h, d)) * Z_n_i(n, z, 0, h, d)
+        return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * Z_n_i(n, z, 0, h, d)
 
     def phi_h_m_i_func(i, m, r, z):
-        return (Cs[i][m] * R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, scale, h, d)) * Z_n_i(m, z, i, h, d)
+        return (Cs[i][m] * R_1n(m, r, i, h, d, a) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, h, d)) * Z_n_i(m, z, i, h, d)
 
     def phi_e_k_func(k, r, z):
-        return Cs[-1][k] * Lambda_k(k, r, m0, scale, h) * Z_n_e(k, z, m0, h)
+        return Cs[-1][k] * Lambda_k(k, r, m0, a, NMK, h) * Z_n_e(k, z, m0, h)
 
     #phi_h_n_i1s = np.vectorize(phi_h_n_i1_func, excluded=['n'], signature='(),(),()->()')
     #phi_h_m_i2s = np.vectorize(phi_h_m_i2_func, excluded=['m'], signature='(),(),()->()')
@@ -168,22 +166,22 @@ def test_main():
     plot_potential(np.imag(phi), R, Z, 'Total Potential Imaginary')
 
     def v_r_inner_func(n, r, z):
-        return (Cs[0][n] * diff_R_1n(n, r, 0, scale, h, d)) * Z_n_i(n, z, 0, h, d)
+        return (Cs[0][n] * diff_R_1n(n, r, 0, h, d, a)) * Z_n_i(n, z, 0, h, d)
 
     def v_r_m_i_func(i, m, r, z):
-        return (Cs[i][m] * diff_R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i, scale, h, d)) * Z_n_i(m, z, i, h, d)
+        return (Cs[i][m] * diff_R_1n(m, r, i, h, d, a) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i, h, d, a)) * Z_n_i(m, z, i, h, d)
 
     def v_r_e_k_func(k, r, z):
-        return Cs[-1][k] * diff_Lambda_k(k, r, m0, scale, h) * Z_n_e(k, z, m0, h)
+        return Cs[-1][k] * diff_Lambda_k(k, r, m0, NMK, h, a) * Z_n_e(k, z, m0, h)
 
     def v_z_inner_func(n, r, z):
-        return (Cs[0][n] * R_1n(n, r, 0, scale, h, d)) * diff_Z_n_i(n, z, 0, h, d)
+        return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * diff_Z_n_i(n, z, 0, h, d)
 
     def v_z_m_i_func(i, m, r, z):
-        return (Cs[i][m] * R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, scale, h, d)) * diff_Z_n_i(m, z, i, h, d)
+        return (Cs[i][m] * R_1n(m, r, i, h, d, a) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, h, d)) * diff_Z_n_i(m, z, i, h, d)
 
     def v_z_e_k_func(k, r, z):
-        return Cs[-1][k] * Lambda_k(k, r, m0, scale, h) * diff_Z_n_e(k, z, m0, h)
+        return Cs[-1][k] * Lambda_k(k, r, m0, a, NMK, h) * diff_Z_k_e(k, z, m0, h, NMK)
 
     vr = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
     vrH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 

@@ -194,9 +194,9 @@ def N_k(k, m0, h):
 # Equation 14: (m_k is a function)
 def Z_n_e(k, z, m0, h):
     if k == 0:
-        return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
+        return 1 / sqrt(N_k(k, m0, h)) * cosh(m0 * (z + h))
     else:
-        return 1 / sqrt(N_k(k)) * cos(m_k(k, m0, h) * (z + h))
+        return 1 / sqrt(N_k(k, m0, h)) * cos(m_k(k, m0, h) * (z + h))
 
 #############################################
 # To calculate hydrocoefficients

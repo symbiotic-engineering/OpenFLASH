@@ -39,8 +39,8 @@ def main():
 
     # User inputs for customization
     h = st.sidebar.slider("Height (h)", 0.5, 2.0, 1.001, step=0.001)
-    d = st.sidebar.text_input("(d)", "0.5,0.25")
-    a = st.sidebar.text_input("(a)", "0.5,1")
+    d = st.sidebar.text_input("(d)", "0.5,0.25,0.25")
+    a = st.sidebar.text_input("(a)", "0.5,1,1")
     heaving = st.sidebar.text_input("Heaving States (1=True, 0=False)", "1,1")
     # Sidebar input for slant customization
     slant_input = st.sidebar.text_input(
@@ -51,8 +51,7 @@ def main():
     # Parse inputs
     d = list(map(float, d.split(',')))
     a = list(map(float, a.split(',')))
-    a_cleaned = [val for val in a if val is not None]
-    scale = np.mean(a_cleaned)
+    a = [val for val in a if val is not None]
     heaving = list(map(int, heaving.split(',')))
     slants = [
         list(map(float, slant.split(','))) 
@@ -135,13 +134,15 @@ def main():
     Cs.append(X[row:])
 
     def phi_h_n_inner_func(n, r, z):
-        return (Cs[0][n] * R_1n(n, r, 0, scale, h, d)) * Z_n_i(n, z, 0, h, d)
+        print(f"Value of d: {d}, type of d: {type(d)}")
+        print("i: ", i)
+        return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * Z_n_i(n, z, 0, h, d)
 
     def phi_h_m_i_func(i, m, r, z):
-        return (Cs[i][m] * R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, scale, h, d)) * Z_n_i(m, z, i, h, d)
+        return (Cs[i][m] * R_1n(m, r, i, h, d, a) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, h, d)) * Z_n_i(m, z, i, h, d)
 
     def phi_e_k_func(k, r, z, m0):
-        return Cs[-1][k] * Lambda_k(k, r, m0, scale, h) * Z_n_e(k, z, m0, h)
+        return Cs[-1][k] * Lambda_k(k, r, m0, a, NMK, h) * Z_n_e(k, z, m0, h)
 
     # Visualization grid
     r_vec = np.linspace(2 * a[-1] / spatial_res, 2*a[-1], spatial_res)
@@ -193,22 +194,22 @@ def main():
     phi = phiH + phiP
 
     def v_r_inner_func(n, r, z):
-        return (Cs[0][n] * diff_R_1n(n, r, 0, scale, h, d)) * Z_n_i(n, z, 0, h, d)
+        return (Cs[0][n] * diff_R_1n(n, r, 0, h, d, a)) * Z_n_i(n, z, 0, h, d)
 
     def v_r_m_i_func(i, m, r, z):
-        return (Cs[i][m] * diff_R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i, scale, h, d)) * Z_n_i(m, z, i, h, d)
+        return (Cs[i][m] * diff_R_1n(m, r, i, h, d, a) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i, h, d, a)) * Z_n_i(m, z, i, h, d)
 
     def v_r_e_k_func(k, r, z, m0):
-        return Cs[-1][k] * diff_Lambda_k(k, r, m0, scale, h) * Z_n_e(k, z, m0, h)
+        return Cs[-1][k] * diff_Lambda_k(k, r, m0, NMK, h, a) * Z_n_e(k, z, m0, h)
 
     def v_z_inner_func(n, r, z):
-        return (Cs[0][n] * R_1n(n, r, 0, scale, h, d)) * diff_Z_n_i(n, z, 0, h, d)
+        return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * diff_Z_n_i(n, z, 0, h, d)
 
     def v_z_m_i_func(i, m, r, z):
-        return (Cs[i][m] * R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, scale, h, d)) * diff_Z_n_i(m, z, i, h, d)
+        return (Cs[i][m] * R_1n(m, r, i, h, d, a) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, h, d)) * diff_Z_n_i(m, z, i, h, d)
 
     def v_z_e_k_func(k, r, z, m0):
-        return Cs[-1][k] * Lambda_k(k, r, m0, scale, h) * diff_Z_n_e(k, z, m0, h)
+        return Cs[-1][k] * Lambda_k(k, r, m0, a, NMK, h) * diff_Z_k_e(k, z, m0, h, NMK)
 
     vr = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
     vrH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
