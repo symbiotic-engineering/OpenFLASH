@@ -168,19 +168,19 @@ def test_main():
     plot_potential(np.imag(phi), R, Z, 'Total Potential Imaginary')
 
     def v_r_inner_func(n, r, z):
-        return (Cs[0][n] * diff_R_1n(n, r, 0, scale)) * Z_n_i(n, z, 0, h, d)
+        return (Cs[0][n] * diff_R_1n(n, r, 0, scale, h, d)) * Z_n_i(n, z, 0, h, d)
 
     def v_r_m_i_func(i, m, r, z):
-        return (Cs[i][m] * diff_R_1n(m, r, i, scale) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i)) * Z_n_i(m, z, i, h, d)
+        return (Cs[i][m] * diff_R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * diff_R_2n(m, r, i, scale, h, d)) * Z_n_i(m, z, i, h, d)
 
     def v_r_e_k_func(k, r, z):
-        return Cs[-1][k] * diff_Lambda_k(k, r, m0, scale) * Z_n_e(k, z, m0, h)
+        return Cs[-1][k] * diff_Lambda_k(k, r, m0, scale, h) * Z_n_e(k, z, m0, h)
 
     def v_z_inner_func(n, r, z):
-        return (Cs[0][n] * R_1n(n, r, 0, scale, h, d)) * diff_Z_n_i(n, z, 0, h)
+        return (Cs[0][n] * R_1n(n, r, 0, scale, h, d)) * diff_Z_n_i(n, z, 0, h, d)
 
     def v_z_m_i_func(i, m, r, z):
-        return (Cs[i][m] * R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, scale, h, d)) * diff_Z_n_i(m, z, i, h)
+        return (Cs[i][m] * R_1n(m, r, i, scale, h, d) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, scale, h, d)) * diff_Z_n_i(m, z, i, h, d)
 
     def v_z_e_k_func(k, r, z):
         return Cs[-1][k] * Lambda_k(k, r, m0, scale, h) * diff_Z_n_e(k, z, m0, h)
