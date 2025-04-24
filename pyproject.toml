@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "meem"
-version = "0.1.1"
+version = "0.1.2"
 authors = [
   {name = "SEA LAB"} 
 ]
@@ -33,7 +33,7 @@ dependencies = [
     "executing==2.1.0",
     "fonttools==4.54.1",
     "ipykernel==6.29.5",
-    "ipython==8.27.0",
+    "ipython==8.18.1",
     "jedi==0.19.1",
     "jupyter_client==8.6.3",
     "jupyter_core==5.7.2",
@@ -41,7 +41,7 @@ dependencies = [
     "matplotlib==3.9.2",
     "matplotlib-inline==0.1.7",
     "nest-asyncio==1.6.0",
-    "numpy==2.1.1",
+    "numpy==2.0.2",
     "packaging==24.1",
     "pandas==2.2.3",
     "parso==0.8.4",
@@ -57,7 +57,7 @@ dependencies = [
     "python-dateutil==2.9.0.post0",
     "pytz==2024.2",
     "pyzmq==26.2.0",
-    "scipy==1.14.1",
+    "scipy== 1.13.1",
     "six==1.16.0",
     "stack-data==0.6.3",
     "tornado==6.4.1",
