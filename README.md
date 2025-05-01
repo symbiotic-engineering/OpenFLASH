@@ -8,7 +8,7 @@ python: see `package/src/` for some helper functions.
 
 ## About The Open-Flash Project
 
-The Open-Flash project is a Python package designed for solving boundary value problems using eigenfunction expansion methods. It provides a modular framework for defining complex geometries, setting up multi-domain problems, performing numerical computations, and analyzing results, particularly in fields like fluid dynamics and acoustics.
+The Open-Flash project is a Python package designed for solving boundary value problems using eigenfunction expansion methods. It provides a modular framework for defining complex geometries, setting up multi-domain problems, performing numerical computations, and analyzing results, particularly in fields like fluid dynamics.
 
 When referencing this work, please reference our `docs/citations.rst`
 
