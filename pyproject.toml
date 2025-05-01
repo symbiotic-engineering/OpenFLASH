@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open_flash"
-version = "0.1.5"
+version = "0.1.6"
 authors = [
   {name = "SEA LAB"} 
 ]
-description = "A Python package for matched eigenfunctions methods"
+description = "A Python package for semi-analytical hydrodynamics modeling including matched eigenfunction expansion method"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
