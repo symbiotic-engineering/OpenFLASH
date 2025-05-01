@@ -1,5 +1,5 @@
 ---
-title: open_flash: A Python Package for Matched Eigenfunctions Methods
+title: "open_flash: A Python Package for Matched Eigenfunctions Methods"
 tags:
   - matched eigenfunctions
   - hydrodynamics
