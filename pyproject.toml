@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "meem"
-version = "0.1.2"
+name = "open_flash"
+version = "0.1.4"
 authors = [
   {name = "SEA LAB"} 
 ]
@@ -84,7 +84,7 @@ hydro = [
 where = ["package/src"]
 
 [tool.setuptools.package-data]
-"meem" = [] # Explicitly state no package data
+"open_flash" = [] # Explicitly state no package data
 
 [tool.setuptools]
 license-files = []
