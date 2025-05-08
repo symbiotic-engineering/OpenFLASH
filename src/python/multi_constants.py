@@ -3,7 +3,7 @@ from numpy import inf
 h = 100
 d = [29, 7, 4]
 a = [3, 5, 10]
-heaving = [1, 1, 1]
+heaving = [0, 1, 1]
 # 0/false if not heaving, 1/true if yes heaving
 NMK = [100, 100, 100, 100] # Number of terms in approximation of each region (including e).
 # All computations assume at least 2 regions.

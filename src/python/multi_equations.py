@@ -356,3 +356,8 @@ def z_n_d(n):
         return 1
     else:
         return sqrt(2)*(-1)**n
+
+#############################################
+def excitation_phase(coeff): # first coefficient of e-region expansion
+    return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * scale[-1]))
+    

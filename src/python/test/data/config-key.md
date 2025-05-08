@@ -1,7 +1,7 @@
 Match is the number of matching potential points for (real, imag), with rtol = 0.01, real/imag atol = 0.01 (2500 max).<br> 
 t_densities and face_units determined the number of panels in the Capytaine mesh.  <br>
-Capytaine added_mass and radiation_damping are listed first.<br>
-MEEM added_mass and radiation_damping with 100 coefficients per region, converted to the capytaine convention, are listed second. <br>
+Capytaine added_mass, radiation_damping, and excitation_phase are listed first.<br>
+MEEM added_mass, radiation_damping and excitation_phase with 100 coefficients per region, converted to the capytaine convention, are listed second. <br>
 (Capytaine convention does not multiply hydro coefficients by a factor of h^3).<br>
 
 config0:<br>
@@ -15,8 +15,8 @@ panels = 6750 <br>
 m0 = 1 <br>
 rho = 1023 <br>
 g = 9.81 <br>
-CPT: added_mass = 1586.35, radiation_damping = 3188.92 <br>
-MEEM: added_mass = 1600.79, radiation_damping = 3222.35 <br>
+CPT: added_mass = 1585.87, radiation_damping = 3187.09, excitation_phase = -0.519 <br>
+MEEM: added_mass = 1600.79, radiation_damping = 3222.35, excitation_phase = -0.521 <br>
 Match: (2500, 2500)
 
 config1: <br>
@@ -30,8 +30,8 @@ panels = 8930 <br>
 m0 = 1 <br>
 rho = 1023 <br>
 g = 9.81 <br>
-CPT: added_mass = 4746.05, radiation_damping = 11688.44 <br>
-MEEM: added_mass = 4792.01, radiation_damping = 11683.90 <br>
+CPT: added_mass = 4740.37, radiation_damping = 11657.30, excitation_phase = -1.063 <br>
+MEEM: added_mass = 4792.01, radiation_damping = 11683.90, excitation_phase =  -1.068<br>
 Match: (2500, 2500)
 
 config2:<br>
@@ -45,9 +45,9 @@ panels = 5330 <br>
 m0 = 1 <br>
 rho = 1023 <br>
 g = 9.81 <br>
-CPT: added_mass = 1340420.77, radiation_damping = 207.74 <br>
-MEEM: added_mass = 1367585.23, radiation_damping = 210.62 <br>
-Match: (2378, 2500)
+CPT: added_mass = 1341617.60, radiation_damping = 200.79, excitation_phase = -2.965 <br>
+MEEM: added_mass = 1367585.14, radiation_damping = 204.74, excitation_phase = -2.969 <br>
+Match: (2399, 2500)
 
 config3:<br>
 h = 1.9<br>
@@ -60,9 +60,9 @@ panels = 11660 <br>
 m0 = 1 <br>
 rho = 1023 <br>
 g = 9.81 <br>
-CPT: added_mass = 5869.05, radiation_damping = 6875.46 <br>
-MEEM: added_mass = 6057.48, radiation_damping = 6886.69 <br>
-Match: (2341, 2429)
+CPT: added_mass = 5881.40, radiation_damping = 6869.47, excitation_phase = -1.044 <br>
+MEEM: added_mass = 6057.48, radiation_damping = 6886.69, excitation_phase = -1.052 <br>
+Match: (2372, 2462)
 
 config4:<br>
 h = 1.001 <br>
@@ -75,8 +75,8 @@ panels = 6750 <br>
 m0 = 1 <br>
 rho = 1023 <br>
 g = 9.81 <br>
-CPT: added_mass = 924.69, radiation_damping = 1836.75 <br>
-MEEM: added_mass = 931.66, radiation_damping = 1852.36 <br>
+CPT: added_mass = 924.62, radiation_damping = 1836.05, excitation_phase = -0.519 <br>
+MEEM: added_mass = 931.66, radiation_damping = 1852.36, excitation_phase = -0.521 <br>
 Match: (2500, 2500)
 
 config5:<br>
@@ -90,8 +90,8 @@ panels = 6750 <br>
 m0 = 1 <br>
 rho = 1023 <br>
 g = 9.81 <br>
-CPT: added_mass = 286.31, radiation_damping = 185.42 <br>
-MEEM: added_mass = 288.36, radiation_damping = 188.42 <br>
+CPT: added_mass = 286.15, radiation_damping = 185.21, excitation_phase = -0.519 <br>
+MEEM: added_mass = 288.36, radiation_damping = 188.42, excitation_phase = -0.521 <br>
 Match: (2500, 2500)
 
 config6:<br>
@@ -105,6 +105,6 @@ panels = 5330 <br>
 m0 = 1 <br>
 rho = 1023 <br>
 g = 9.81 <br>
-CPT: added_mass = 1264061.71, radiation_damping = 205.57 <br>
-MEEM: added_mass = 1290352.23, radiation_damping = 208.55 <br>
-Match: (2417, 2500)
+CPT: added_mass = 1265164.44, radiation_damping = 198.74, excitation_phase = -2.965 <br>
+MEEM: added_mass = 1290352.14, radiation_damping = 202.71, excitation_phase = -2.969 <br>
+Match: (2427, 2500)
