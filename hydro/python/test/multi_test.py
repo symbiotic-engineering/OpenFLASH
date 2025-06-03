@@ -1,8 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import pytest
+# import pytest
 from multi_test_functions import MultiEvaluator
+import sys
+import os
+sys.path.append(os.path.relpath('../'))
+from multi_condensed import Problem
 
 def interpret_capytaine_file(filename, omega):
     file_path = "test/data/" + filename + "-imag.csv"
@@ -16,11 +20,11 @@ def interpret_capytaine_file(filename, omega):
     return(real_array, imag_array)
 
 def interpret_matlab_file(filename):
-    file_path = "test/data/" + filename + "-imag - matlab.csv"
+    file_path = "data/" + filename + "-imag-matlab.csv"
     df = (pd.read_csv(file_path, header=None))
     imag_array = df.to_numpy()
         
-    file_path = "test/data/" + filename + "-real - matlab.csv"
+    file_path = "data/" + filename + "-real-matlab.csv"
     df = (pd.read_csv(file_path, header=None))
     real_array = df.to_numpy()
     return(real_array, imag_array)
@@ -64,19 +68,19 @@ def potential_comparison(filename, filetype, arr, rtol, atol, R, Z, omega, nan_m
     return (match_r, match_i, is_within_threshold_r, is_within_threshold_i)
 
 def test_config1():
-    # Requires: h, d, a, heaving, m0, g, rho, NMK
-    config = MultiEvaluator(h = 1.001, d = [0.5, 0.25], a = [0.5, 1], heaving = [1, 1], m0 = 1, g = 9.81, rho = 1023, NMK = [50, 50, 50])
-    A = config.A_matrix()
-    b = config.b_vector()
-    coeffs = config.Ab_coefficients(A,b)
-    hydrocs = config.hydro_coefficients(coeffs)
-    R, Z, phi, nanregions = config.potential_matrix()
+    # Requires: h, d, a, heaving, m0, rho, NMK
+    prob = Problem(h = 1.001, d = [0.5, 0.25], a = [0.5, 1], heaving = [1, 1], NMK = [50, 50, 50], m0 = 1, rho = 1023 )
+    a0 = prob.a_matrix()
+    b0 = prob.b_vector()
+    x = prob.get_unknown_coeffs(a0, b0)
+    hydrocs = prob.hydro_coeffs(x, "nondimensional")
+    
+    assert fractional_diff(hydrocs[0], 0.4995) <= 0.001
+    assert fractional_diff(hydrocs[1], 0.3679) <= 0.001
 
+    R, Z, phi, nanregions = prob.config_potential_array(prob.reformat_coeffs(x))
     
-    assert fractional_diff(hydrocs[2], 0.4995) <= 0.001
-    assert fractional_diff(hydrocs[3], 0.3679) <= 0.001
-    
-    sum1, sum2, thres1, thres2 = potential_comparison("Total Potential", "matlab", phi, 0.01, 0.01, R, Z, config.omega, nanregions)
+    sum1, sum2, thres1, thres2 = potential_comparison("Total-Potential", "matlab", phi, 0.01, 0.01, R, Z, prob.angular_freq(1), nanregions)
     assert sum1 == 2500
     assert sum2 == 2500
 

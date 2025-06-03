@@ -132,7 +132,7 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
 def b_potential_entry(n, i): # for two i-type regions
     #(integrate over shorter fluid, use shorter fluid eigenfunction)
     
-    j = i + (d[i] < d[i+1]) # index of shorter fluid
+    j = i + (d[i] <= d[i+1]) # index of shorter fluid
     constant = (heaving[i+1] / (h - d[i+1]) - heaving[i] / (h - d[i]))
     if n == 0:
         return constant * 1/2 * ((h - d[j])**3/3 - (h-d[j]) * a[i]**2/2)

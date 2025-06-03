@@ -203,3 +203,6 @@ html/
 
 # mat data files
 *.mat
+
+# vscode configuration files
+.vscode/
