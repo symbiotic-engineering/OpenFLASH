@@ -4,14 +4,21 @@ import numpy as np
 from scipy.integrate import quad
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
-from equations import *
 from meem_problem import MEEMProblem
+from problem_cache import ProblemCache
 from coupling import A_nm, A_mk
-from multi_equations import *
+from multi_equations import (
+    m_k_entry as original_m_k_entry, # Ensure this is correctly imported
+    I_nm, I_mk, I_mk_og, Lambda_k, Lambda_k_og, diff_Lambda_k, diff_Lambda_k_og, N_k_multi,
+    R_1n, diff_R_1n, R_2n, diff_R_2n,
+    b_potential_entry, b_potential_end_entry, b_velocity_entry, b_velocity_end_entry, b_velocity_end_entry_og,
+    scale
+)
 import geometry
 from results import Results
 import xarray as xr
-
+from equations import *
+import inspect
 
 class MEEMEngine:
     """
@@ -27,6 +34,11 @@ class MEEMEngine:
         :param problem_list: List of MEEMProblem instances.
         """
         self.problem_list = problem_list
+        self.cache_list = {} # Stores ProblemCache objects keyed by problem ID
+
+        # Build caches for all problems during engine initialization
+        for problem in problem_list:
+            self.cache_list[problem] = self._build_problem_cache(problem)
 
     def assemble_A(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
@@ -84,18 +96,16 @@ class MEEMEngine:
 
         return A
     
-    def assemble_A_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
+    # Renaming current assemble_A_multi to indicate it's the full assembly
+    def _full_assemble_A_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
-        Assemble the system matrix A for a given problem.
-
-        :param problem: MEEMProblem instance.
-        :return: Assembled matrix A.
+        Assemble the system matrix A for a given problem (full re-calculation).
+        This is essentially the original assemble_A_multi.
         """
         domain_list = problem.domain_list
         domain_keys = list(domain_list.keys())
         boundary_count = len(domain_keys) - 1
         
-
         # Collect number of harmonics for each domain
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
         size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:-1])
@@ -108,130 +118,154 @@ class MEEMEngine:
         a = [domain_list[idx].a for idx in domain_keys]
         a = [val for val in a if val is not None]
 
-
         ###########################################################################
         # Potential Matching
 
-        col = 0
-        row = 0
+        col_offset = 0 # Tracks the start column for the current block
+        row_offset = 0 # Tracks the start row for the current block
+
         for bd in range(boundary_count):
-            N = NMK[bd]
-            M = NMK[bd + 1]
-            if bd == (boundary_count - 1):  # i-e boundary
-                if bd == 0:  # one cylinder
-                    for n in range(N):
-                        # In meem_engine.py, before the call to R_1n
-                        print(f"Value of a[bd]: {a[bd]}")
-                        print(f"Type of a: {type(a)}")
-                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
-                        for m in range(M):
-                            A[row + n][col + N + m] = - I_mk(n, m, bd, d, m0, h, NMK) * Lambda_k(m, a[bd], m0, a, NMK, h)
-                    row += N
+            N_left = NMK[bd] # Number of harmonics for the left domain in this boundary
+            M_right = NMK[bd + 1] # Number of harmonics for the right domain in this boundary
+
+            if bd == (boundary_count - 1):  # i-e boundary (Inner-Exterior)
+                if bd == 0:  # One cylinder case (Inner-Exterior directly)
+                    for n in range(N_left): # Inner harmonics (N)
+                        A[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
+                        for m in range(M_right): # Exterior harmonics (K)
+                            # This term is m0-dependent via Lambda_k and I_mk
+                            A[row_offset + n][col_offset + N_left + m] = - I_mk_og(n, m, bd, d, m0, h, NMK) * Lambda_k_og(m, a[bd], m0, a, NMK, h)
+                    row_offset += N_left
+                else: # Intermediate-Exterior boundary (e.g., in a 3+ domain setup)
+                    for n in range(N_left): # Left domain harmonics (M_i)
+                        A[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
+                        A[row_offset + n][col_offset + N_left + n] = (h - d[bd]) * R_2n(n, a[bd], bd, a, h, d)
+                        for m in range(M_right): # Exterior harmonics (K)
+                            # This term is m0-dependent via Lambda_k and I_mk
+                            A[row_offset + n][col_offset + 2*N_left + m] = - I_mk_og(n, m, bd, d, m0, h, NMK) * Lambda_k_og(m, a[bd], m0, a, NMK, h)
+                    row_offset += N_left
+            elif bd == 0: # i-i boundary (Inner-Intermediate)
+                left_diag_is_active = d[bd] > d[bd + 1] # Based on which region has the deeper draft
+                if left_diag_is_active: # Left domain (Inner) gets diagonal entries
+                    for n in range(N_left): # Inner harmonics (N)
+                        A[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
+                        for m in range(M_right): # Intermediate harmonics (M)
+                            A[row_offset + n][col_offset + N_left + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a[bd], bd + 1, h, d, a)
+                            A[row_offset + n][col_offset + N_left + M_right + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a[bd], bd + 1, a, h, d)
+                    row_offset += N_left
+                else: # Right domain (Intermediate) gets diagonal entries
+                    for m in range(M_right): # Intermediate harmonics (M)
+                        for n in range(N_left): # Inner harmonics (N)
+                            A[row_offset + m][col_offset + n] = I_nm(n, m, bd, d, h) * R_1n(n, a[bd], bd, h, d, a)
+                        A[row_offset + m][col_offset + N_left + m] = - (h - d[bd + 1]) * R_1n(m, a[bd], bd + 1, h, d, a)
+                        A[row_offset + m][col_offset + N_left + M_right + m] = - (h - d[bd + 1]) * R_2n(m, a[bd], bd + 1, a, h, d)
+                    row_offset += M_right
+                col_offset += N_left
+            else:  # i-i boundary (Intermediate-Intermediate)
+                left_diag_is_active = d[bd] > d[bd + 1]
+                if left_diag_is_active:
+                    for n in range(N_left):
+                        A[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
+                        A[row_offset + n][col_offset + N_left + n] = (h - d[bd]) * R_2n(n, a[bd], bd, h, d)
+                        for m in range(M_right):
+                            A[row_offset + n][col_offset + 2*N_left + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a[bd], bd + 1, h, d, a)
+                            A[row_offset + n][col_offset + 2*N_left + M_right + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a[bd], bd + 1, a, h, d)
+                    row_offset += N_left
                 else:
-                    for n in range(N):
-                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
-                        A[row + n][col + N + n] = (h - d[bd]) * R_2n(n, a[bd], bd, a, h, d)
-                        for m in range(M):
-                            A[row + n][col + 2*N + m] = - I_mk(n, m, bd, d, m0, h, NMK) * Lambda_k(m, a[bd], m0, a, NMK, h)
-                    row += N
-            elif bd == 0:
-                left_diag = d[bd] > d[bd + 1]  # which of the two regions gets diagonal entries
-                if left_diag:
-                    for n in range(N):
-                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
-                        for m in range(M):
-                            A[row + n][col + N + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a[bd], bd + 1, h, d, a)
-                            A[row + n][col + N + M + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a[bd], bd + 1, a, h, d)
-                    row += N
-                else:
-                    for m in range(M):
-                        for n in range(N):
-                            A[row + m][col + n] = I_nm(n, m, bd, d, h) * R_1n(n, a[bd], bd, h, d, a)
-                        A[row + m][col + N + m] = - (h - d[bd + 1]) * R_1n(m, a[bd], bd + 1, h, d, a)
-                        A[row + m][col + N + M + m] = - (h - d[bd + 1]) * R_2n(m, a[bd], bd + 1, a, h, d)
-                    row += M
-                col += N
-            else:  # i-i boundary
-                left_diag = d[bd] > d[bd + 1]  # which of the two regions gets diagonal entries
-                if left_diag:
-                    for n in range(N):
-                        A[row + n][col + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
-                        A[row + n][col + N + n] = (h - d[bd]) * R_2n(n, a[bd], bd, h, d)
-                        for m in range(M):
-                            A[row + n][col + 2*N + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a[bd], bd + 1, h, d, a)
-                            A[row + n][col + 2*N + M + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a[bd], bd + 1, a, h, d)
-                    row += N
-                else:
-                    for m in range(M):
-                        for n in range(N):
-                            A[row + m][col + n] = I_nm(n, m, bd, d, h) * R_1n(n, a[bd], bd, h, d, a)
-                            A[row + m][col + N + n] = I_nm(n, m, bd, d, h) * R_2n(n, a[bd], bd, a, h, d)
-                        A[row + m][col + 2*N + m] = - (h - d[bd + 1]) * R_1n(m, a[bd], bd + 1, h, d, a)
-                        A[row + m][col + 2*N + M + m] = - (h - d[bd + 1]) * R_2n(m, a[bd], bd + 1, a, h, d)
-                    row += M
-                col += 2 * N
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            A[row_offset + m][col_offset + n] = I_nm(n, m, bd, d, h) * R_1n(n, a[bd], bd, h, d, a)
+                            A[row_offset + m][col_offset + N_left + n] = I_nm(n, m, bd, d, h) * R_2n(n, a[bd], bd, a, h, d)
+                        A[row_offset + m][col_offset + 2*N_left + m] = - (h - d[bd + 1]) * R_1n(m, a[bd], bd + 1, h, d, a)
+                        A[row_offset + m][col_offset + 2*N_left + M_right + m] = - (h - d[bd + 1]) * R_2n(m, a[bd], bd + 1, a, h, d)
+                    row_offset += M_right
+                col_offset += 2 * N_left
 
         ###########################################################################
         # Velocity Matching 
 
-        col = 0
+        col_offset = 0 # Reset column offset for velocity matching section
         for bd in range(boundary_count):
-            N = NMK[bd]
-            M = NMK[bd + 1]
+            N_left = NMK[bd]
+            M_right = NMK[bd + 1]
+
             if bd == (boundary_count - 1):  # i-e boundary
                 if bd == 0:  # one cylinder
-                    for m in range(M):
-                        for n in range(N):
-                            A[row + m][col + n] = - I_mk(n, m, bd, d, m0, h, NMK) * diff_R_1n(n, a[bd], bd, h, d, a)
-                        A[row + m][col + N + m] = h * diff_Lambda_k(m, a[bd], m0, NMK, h, a)
-                    row += N
-                else:
-                    for m in range(M):
-                        for n in range(N):
-                            A[row + m][col + n] = - I_mk(n, m, bd, d, m0, h, NMK) * diff_R_1n(n, a[bd], bd, h, d, a)
-                            A[row + m][col + N + n] = - I_mk(n, m, bd, d, m0, h, NMK) * diff_R_2n(n, a[bd], bd, h, d, a)
-                        A[row + m][col + 2*N + m] = h * diff_Lambda_k(m, a[bd], m0, NMK, h, a)
-                    row += N
+                    for m in range(M_right): # Exterior harmonics (K)
+                        for n in range(N_left): # Inner harmonics (N)
+                            A[row_offset + m][col_offset + n] = - I_mk_og(n, m, bd, d, m0, h, NMK) * diff_R_1n(n, a[bd], bd, h, d, a)
+                        # This term is m0-dependent via diff_Lambda_k
+                        A[row_offset + m][col_offset + N_left + m] = h * diff_Lambda_k_og(m, a[bd], m0, NMK, h, a)
+                    row_offset += M_right # Number of rows added here is M_right (K for exterior)
+                else: # Intermediate-Exterior boundary
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            A[row_offset + m][col_offset + n] = - I_mk_og(n, m, bd, d, m0, h, NMK) * diff_R_1n(n, a[bd], bd, h, d, a)
+                            A[row_offset + m][col_offset + N_left + n] = - I_mk_og(n, m, bd, d, m0, h, NMK) * diff_R_2n(n, a[bd], bd, h, d, a)
+                        # This term is m0-dependent via diff_Lambda_k
+                        A[row_offset + m][col_offset + 2*N_left + m] = h * diff_Lambda_k_og(m, a[bd], m0, NMK, h, a)
+                    row_offset += M_right
             elif bd == 0:
-                left_diag = d[bd] < d[bd + 1]  # which of the two regions gets diagonal entries
-                if left_diag:
-                    for n in range(N):
-                        A[row + n][col + n] = - (h - d[bd]) * diff_R_1n(n, a[bd], bd, h, d, a)
-                        for m in range(M):
-                            A[row + n][col + N + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
-                            A[row + n][col + N + M + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
-                    row += N
+                left_diag_is_active = d[bd] < d[bd + 1]
+                if left_diag_is_active:
+                    for n in range(N_left):
+                        A[row_offset + n][col_offset + n] = - (h - d[bd]) * diff_R_1n(n, a[bd], bd, h, d, a)
+                        for m in range(M_right):
+                            A[row_offset + n][col_offset + N_left + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
+                            A[row_offset + n][col_offset + N_left + M_right + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
+                    row_offset += N_left
                 else:
-                    for m in range(M):
-                        for n in range(N):
-                            A[row + m][col + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a[bd], bd, h, d, a)
-                        A[row + m][col + N + m] = (h - d[bd + 1]) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
-                        A[row + m][col + N + M + m] = (h - d[bd + 1]) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
-                    row += M
-                col += N
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            A[row_offset + m][col_offset + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a[bd], bd, h, d, a)
+                        A[row_offset + m][col_offset + N_left + m] = (h - d[bd + 1]) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
+                        A[row_offset + m][col_offset + N_left + M_right + m] = (h - d[bd + 1]) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
+                    row_offset += M_right
+                col_offset += N_left
             else:  # i-i boundary
-                left_diag = d[bd] < d[bd + 1]  # which of the two regions gets diagonal entries
-                if left_diag:
-                    for n in range(N):
-                        A[row + n][col + n] = - (h - d[bd]) * diff_R_1n(n, a[bd], bd, h, d, a)
-                        A[row + n][col + N + n] = - (h - d[bd]) * diff_R_2n(n, a[bd], bd, h, d, a)
-                        for m in range(M):
-                            A[row + n][col + 2*N + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
-                            A[row + n][col + 2*N + M + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
-                    row += N
+                left_diag_is_active = d[bd] < d[bd + 1]
+                if left_diag_is_active:
+                    for n in range(N_left):
+                        A[row_offset + n][col_offset + n] = - (h - d[bd]) * diff_R_1n(n, a[bd], bd, h, d, a)
+                        A[row_offset + n][col_offset + N_left + n] = - (h - d[bd]) * diff_R_2n(n, a[bd], bd, h, d, a)
+                        for m in range(M_right):
+                            A[row_offset + n][col_offset + 2*N_left + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
+                            A[row_offset + n][col_offset + 2*N_left + M_right + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
+                    row_offset += N_left
                 else:
-                    for m in range(M):
-                        for n in range(N):
-                            A[row + m][col + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a[bd], bd, h, d, a)
-                            A[row + m][col + N + n] = - I_nm(n, m, bd, d, h) * diff_R_2n(n, a[bd], bd, h, d, a)
-                        A[row + m][col + 2*N + m] = (h - d[bd + 1]) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
-                        A[row + m][col + 2*N + M + m] = (h - d[bd + 1]) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
-                    row += M
-                col += 2 * N
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            A[row_offset + m][col_offset + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a[bd], bd, h, d, a)
+                            A[row_offset + m][col_offset + N_left + n] = - I_nm(n, m, bd, d, h) * diff_R_2n(n, a[bd], bd, a, h, d)
+                        A[row_offset + m][col_offset + 2*N_left + m] = (h - d[bd + 1]) * diff_R_1n(m, a[bd], bd + 1, h, d, a)
+                        A[row_offset + m][col_offset + 2*N_left + M_right + m] = (h - d[bd + 1]) * diff_R_2n(m, a[bd], bd + 1, h, d, a)
+                    row_offset += M_right
+                col_offset += 2 * N_left
 
         return A
 
+    # Now, the optimized assemble_A_multi method that uses the cache
+    def assemble_A_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
+        """
+        Assemble the system matrix A for a given problem, leveraging pre-computed
+        m0-independent parts and updating only m0-dependent entries.
+        """
 
+        cache = self.cache_list[problem]
+        A = cache.get_A_template().copy() # Start with the template
+
+        # Pre-compute m_k and N_k arrays ONCE for this m0
+        NMK_last = problem.domain_list[list(problem.domain_list.keys())[-1]].number_harmonics
+
+        m_k_arr = np.array([cache.m_k_entry_func(k, m0, problem.domain_list[0].h) for k in range(NMK_last)])
+        N_k_arr = np.array([cache.N_k_func(k, m0, problem.domain_list[0].h, NMK_last, m_k_arr) for k in range(NMK_last)])
+
+
+        for row, col, calc_func in cache.m0_dependent_A_indices:
+            # Pass the pre-computed arrays to the lambda
+            A[row, col] = calc_func(problem, m0, m_k_arr, N_k_arr)
+        return A
+    
     def assemble_b(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
         Assemble the right-hand side vector b for a given problem.
@@ -265,12 +299,11 @@ class MEEMEngine:
 
         return b
     
-    def assemble_b_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
+    # Renaming current assemble_b_multi to indicate it's the full assembly
+    def _full_assemble_b_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
-        Assemble the right-hand side vector b for a given problem (multi-region).
-
-        :param problem: MEEMProblem instance.
-        :return: Assembled vector b.
+        Assemble the right-hand side vector b for a given problem (multi-region, full re-calculation).
+        This is essentially the original assemble_b_multi.
         """
         domain_list = problem.domain_list
         domain_keys = list(domain_list.keys())
@@ -292,7 +325,7 @@ class MEEMEngine:
 
         index = 0
 
-        # Potential matching
+        # Potential matching (m0-independent)
         for boundary in range(boundary_count):
             if boundary == (boundary_count - 1):  # i-e boundary
                 for n in range(NMK[boundary]):
@@ -308,14 +341,14 @@ class MEEMEngine:
                     b[index] = b_potential_entry(n, boundary, d, heaving, h, a)
                     index += 1
 
-        # Velocity matching
+        # Velocity matching (m0-dependent via b_velocity_end_entry)
         for boundary in range(boundary_count):
             if boundary == (boundary_count - 1):  # i-e boundary
                 for k in range(NMK[-1]):
                     assert index < size, f"Index {index} out of bounds for size {size}"  # Explicit check
-                    b[index] = b_velocity_end_entry(k, boundary, heaving, a, h, d, m0, NMK)
+                    b[index] = b_velocity_end_entry_og(k, boundary, heaving, a, h, d, m0, NMK)
                     index += 1
-            else:  # i-i boundary
+            else:  # i-i boundary (m0-independent)
                 if d[boundary] < d[boundary + 1]:
                     N = NMK[boundary + 1]
                 else:
@@ -324,35 +357,290 @@ class MEEMEngine:
                     assert index < size, f"Index {index} out of bounds for size {size}"  # Explicit check
                     b[index] = b_velocity_entry(n, boundary, heaving, a, h, d)
                     index += 1
-
         return b
+
+    # Now, the optimized assemble_b_multi method that uses the cache
+    def assemble_b_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
+        """
+        Assemble the right-hand side vector b for a given problem, leveraging pre-computed
+        m0-independent parts and updating only m0-dependent entries.
+        """
+        cache = self.cache_list[problem]
+        b = cache.get_b_template().copy() # Start with the template
+
+        # Pre-compute m_k and N_k arrays ONCE for this m0
+        NMK_last = problem.domain_list[list(problem.domain_list.keys())[-1]].number_harmonics
+        m_k_arr = np.array([cache.m_k_entry_func(k, m0, problem.domain_list[0].h) for k in range(NMK_last)])
+        N_k_arr = np.array([cache.N_k_func(k, m0, problem.domain_list[0].h, NMK_last, m_k_arr) for k in range(NMK_last)])
+
+
+        for row, calc_func in cache.m0_dependent_b_indices:
+            # Pass the pre-computed arrays to the lambda
+            b[row] = calc_func(problem, m0, m_k_arr, N_k_arr)
+        return b
+
+    # New method to build the ProblemCache
+    def _build_problem_cache(self, problem: MEEMProblem) -> ProblemCache:
+        """
+        Analyzes the problem and pre-computes m0-independent parts of A and b,
+        and identifies indices for m0-dependent parts.
+        """
+        cache = ProblemCache(problem)
+
+        domain_list = problem.domain_list
+        domain_keys = list(domain_list.keys())
+        boundary_count = len(domain_keys) - 1
         
+        NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
+        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:-1])
+
+        # --- Common parameters extracted once ---
+        h = domain_list[0].h
+        d = [domain_list[idx].di for idx in domain_keys]
+        a = [domain_list[idx].a for idx in domain_keys]
+        a_filtered = [val for val in a if val is not None]
+
+        # Store references to the actual functions needed for m_k and N_k calculation
+        # These are the *functions* themselves, not their results.
+        print("Setting m_k and N_k functions in cache.")
+        cache.set_m_k_and_N_k_funcs(original_m_k_entry, N_k_multi) # Original m_k_entry and N_k from multi_equations
+
+        # --- A Matrix Template ---
+        A_template = np.zeros((size, size), dtype=complex)
+        
+        col_offset = 0
+        row_offset = 0
+
+        # Potential Matching (mostly m0-independent)
+        for bd in range(boundary_count):
+            N_left = NMK[bd]
+            M_right = NMK[bd + 1]
+
+            if bd == (boundary_count - 1): # i-e boundary
+                if bd == 0: # one cylinder
+                    for n in range(N_left):
+                        # m0-independent part directly assigned
+                        A_template[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        for m in range(M_right):
+                            current_row = row_offset + n
+                            current_col = col_offset + N_left + m
+                            
+                            # IMPORTANT: Now the lambda takes m_k_arr and N_k_arr
+                            # It uses *m_k_entry* from multi_equations.py to calculate m_k_arr
+                            # and *N_k* from multi_equations.py to calculate N_k_arr
+                            # But these arrays are computed *once* per m0 in assemble_A_multi,
+                            # NOT per element here.
+                            cache.add_m0_dependent_A_entry(current_row, current_col,
+                                # Here, the lambda will expect pre-calculated m_k_arr and N_k_arr
+                                lambda problem_local, m0_local, m_k_arr, N_k_arr, n_local=n, m_local=m, bd_local=bd, d_local=d, h_local=h, NMK_local=NMK, a_local=a_filtered, a_bd_local=a_filtered[bd]:
+                                    - I_mk(n_local, m_local, bd_local, d_local, m0_local, h_local, NMK_local, m_k_arr, N_k_arr) # Pass m_k_arr, N_k_arr
+                                    * Lambda_k(m_local, a_bd_local, m0_local, a_local, NMK_local, h_local, m_k_arr, N_k_arr) # Pass m_k_arr, N_k_arr
+                            )
+                    row_offset += N_left
+                else: # Intermediate-Exterior boundary (e.g., in a 3+ domain setup)
+                    for n in range(N_left):
+                        A_template[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        A_template[row_offset + n][col_offset + N_left + n] = (h - d[bd]) * R_2n(n, a_filtered[bd], bd, a_filtered, h, d)
+                        for m in range(M_right):
+                            current_row = row_offset + n
+                            current_col = col_offset + 2*N_left + m
+                            cache.add_m0_dependent_A_entry(current_row, current_col,
+                                lambda problem_local, m0_local, m_k_arr, N_k_arr, n_local=n, m_local=m, bd_local=bd, d_local=d, h_local=h, NMK_local=NMK, a_local=a_filtered, a_bd_local=a_filtered[bd]:
+                                    - I_mk(n_local, m_local, bd_local, d_local, m0_local, h_local, NMK_local, m_k_arr, N_k_arr) # Pass m_k_arr, N_k_arr
+                                    * Lambda_k(m_local, a_bd_local, m0_local, a_local, NMK_local, h_local, m_k_arr, N_k_arr) # Pass m_k_arr, N_k_arr
+                            )
+                    row_offset += N_left
+            # ... (rest of A_template building, ensuring m0-independent terms are directly assigned) ...
+            # For the cases where m0-dependent terms occur:
+            elif bd == 0: # i-i boundary (Inner-Intermediate)
+                left_diag_is_active = d[bd] > d[bd + 1]
+                if left_diag_is_active:
+                    for n in range(N_left):
+                        A_template[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        for m in range(M_right):
+                            A_template[row_offset + n][col_offset + N_left + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                            A_template[row_offset + n][col_offset + N_left + M_right + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d)
+                    row_offset += N_left
+                else:
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            A_template[row_offset + m][col_offset + n] = I_nm(n, m, bd, d, h) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        A_template[row_offset + m][col_offset + N_left + m] = - (h - d[bd + 1]) * R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                        A_template[row_offset + m][col_offset + N_left + M_right + m] = - (h - d[bd + 1]) * R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d)
+                    row_offset += M_right
+                col_offset += N_left
+            else:  # i-i boundary (Intermediate-Intermediate)
+                left_diag_is_active = d[bd] > d[bd + 1]
+                if left_diag_is_active:
+                    for n in range(N_left):
+                        A_template[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        A_template[row_offset + n][col_offset + N_left + n] = (h - d[bd]) * R_2n(n, a_filtered[bd], bd, h, d)
+                        for m in range(M_right):
+                            A_template[row_offset + n][col_offset + 2*N_left + m] = - I_nm(n, m, bd, d, h) * R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                            A_template[row_offset + n][col_offset + 2*N_left + M_right + m] = - I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d)
+                    row_offset += N_left
+                else:
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            A_template[row_offset + m][col_offset + n] = I_nm(n, m, bd, d, h) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                            A_template[row_offset + m][col_offset + N_left + n] = I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd, a_filtered, h, d)
+                        A_template[row_offset + m][col_offset + 2*N_left + m] = - (h - d[bd + 1]) * R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                        A_template[row_offset + m][col_offset + 2*N_left + M_right + m] = - (h - d[bd + 1]) * R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d)
+                    row_offset += M_right
+                col_offset += 2 * N_left
+
+        # Velocity Matching (some m0-dependent terms)
+        col_offset = 0 # Reset column offset for velocity matching section
+        for bd in range(boundary_count):
+            N_left = NMK[bd]
+            M_right = NMK[bd + 1]
+
+            if bd == (boundary_count - 1): # i-e boundary
+                if bd == 0: # one cylinder
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            current_row = row_offset + m
+                            current_col = col_offset + n
+                            diff_R_1n_val = diff_R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                            cache.add_m0_dependent_A_entry(current_row, current_col,
+                                # Pass m_k_arr, N_k_arr
+                                lambda problem_local, m0_local, m_k_arr, N_k_arr, n_local=n, m_local=m, bd_local=bd, d_local=d, h_local=h, NMK_local=NMK, diff_R_1n_val=diff_R_1n_val:
+                                    - I_mk(n_local, m_local, bd_local, d_local, m0_local, h_local, NMK_local, m_k_arr, N_k_arr) * diff_R_1n_val
+                            )
+                        # This term is m0-dependent via diff_Lambda_k
+                        current_row = row_offset + m
+                        current_col = col_offset + N_left + m
+                        cache.add_m0_dependent_A_entry(current_row, current_col,
+                            # Pass m_k_arr, N_k_arr
+                            lambda problem_local, m0_local, m_k_arr, N_k_arr, m_local=m, bd_local=bd, h_local=h, NMK_local=NMK, a_local=a_filtered, a_bd_local=a_filtered[bd]:
+                                h_local * diff_Lambda_k(m_local, a_bd_local, m0_local, NMK_local, h_local, a_local, m_k_arr, N_k_arr)
+                        )
+                    row_offset += M_right
+                else: # Intermediate-Exterior boundary
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            current_row = row_offset + m
+                            current_col = col_offset + n
+                            diff_R_1n_val = diff_R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                            cache.add_m0_dependent_A_entry(current_row, current_col,
+                                lambda problem_local, m0_local, m_k_arr, N_k_arr, n_local=n, m_local=m, bd_local=bd, d_local=d, h_local=h, NMK_local=NMK, diff_R_1n_val=diff_R_1n_val:
+                                    - I_mk(n_local, m_local, bd_local, d_local, m0_local, h_local, NMK_local, m_k_arr, N_k_arr) * diff_R_1n_val
+                            )
+                            current_col = col_offset + N_left + n
+                            diff_R_2n_val = diff_R_2n(n, a_filtered[bd], bd, h, d, a_filtered)
+                            cache.add_m0_dependent_A_entry(current_row, current_col,
+                                lambda problem_local, m0_local, m_k_arr, N_k_arr, n_local=n, m_local=m, bd_local=bd, d_local=d, h_local=h, NMK_local=NMK, diff_R_2n_val=diff_R_2n_val:
+                                    - I_mk(n_local, m_local, bd_local, d_local, m0_local, h_local, NMK_local, m_k_arr, N_k_arr) * diff_R_2n_val
+                            )
+                        current_row = row_offset + m
+                        current_col = col_offset + 2*N_left + m
+                        cache.add_m0_dependent_A_entry(current_row, current_col,
+                            lambda problem_local, m0_local, m_k_arr, N_k_arr, m_local=m, bd_local=bd, h_local=h, NMK_local=NMK, a_local=a_filtered, a_bd_local=a_filtered[bd]:
+                                h_local * diff_Lambda_k(m_local, a_bd_local, m0_local, NMK_local, h_local, a_local, m_k_arr, N_k_arr)
+                        )
+                    row_offset += M_right
+            elif bd == 0:
+                left_diag_is_active = d[bd] < d[bd + 1]
+                if left_diag_is_active:
+                    for n in range(N_left):
+                        A_template[row_offset + n][col_offset + n] = - (h - d[bd]) * diff_R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        for m in range(M_right):
+                            A_template[row_offset + n][col_offset + N_left + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                            A_template[row_offset + n][col_offset + N_left + M_right + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                    row_offset += N_left
+                else:
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            A_template[row_offset + m][col_offset + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        A_template[row_offset + m][col_offset + N_left + m] = (h - d[bd + 1]) * diff_R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                        A_template[row_offset + m][col_offset + N_left + M_right + m] = (h - d[bd + 1]) * diff_R_2n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                    row_offset += M_right
+                col_offset += N_left
+            else: # i-i boundary
+                left_diag_is_active = d[bd] < d[bd + 1]
+                if left_diag_is_active:
+                    for n in range(N_left):
+                        A_template[row_offset + n][col_offset + n] = - (h - d[bd]) * diff_R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        A_template[row_offset + n][col_offset + N_left + n] = - (h - d[bd]) * diff_R_2n(n, a_filtered[bd], bd, h, d, a_filtered)
+                        for m in range(M_right):
+                            A_template[row_offset + n][col_offset + 2*N_left + m] = I_nm(n, m, bd, d, h) * diff_R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                            A_template[row_offset + n][col_offset + 2*N_left + M_right + m] = I_nm(n, m, bd, d, h) * diff_R_2n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                    row_offset += N_left
+                else:
+                    for m in range(M_right):
+                        for n in range(N_left):
+                            A_template[row_offset + m][col_offset + n] = - I_nm(n, m, bd, d, h) * diff_R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                            A_template[row_offset + m][col_offset + N_left + n] = - I_nm(n, m, bd, d, h) * diff_R_2n(n, a_filtered[bd], bd, a_filtered, h, d)
+                        A_template[row_offset + m][col_offset + 2*N_left + m] = (h - d[bd + 1]) * diff_R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                        A_template[row_offset + m][col_offset + 2*N_left + M_right + m] = (h - d[bd + 1]) * diff_R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d)
+                    row_offset += M_right
+                col_offset += 2 * N_left
+
+        cache.set_A_template(A_template)
+
+        # --- b Vector Template ---
+        b_template = np.zeros(size, dtype=complex)
+        
+        heaving = [domain_list[idx].heaving for idx in domain_keys]
+        index = 0
+
+        # Potential matching (m0-independent)
+        for boundary in range(boundary_count):
+            if boundary == (boundary_count - 1): # i-e boundary
+                for n in range(NMK[boundary]):
+                    b_template[index] = b_potential_end_entry(n, boundary, heaving, h, d, a_filtered)
+                    index += 1
+            else: # i-i boundary
+                i = boundary
+                if d[i] > d[i + 1]:
+                    N = NMK[i]
+                else:
+                    N = NMK[i+1]
+                for n in range(N):
+                    b_template[index] = b_potential_entry(n, boundary, d, heaving, h, a_filtered)
+                    index += 1
+
+        # Velocity matching (m0-dependent via b_velocity_end_entry)
+        for boundary in range(boundary_count):
+            if boundary == (boundary_count - 1): # i-e boundary
+                for k in range(NMK[-1]):
+                    current_row = index + k
+                    cache.add_m0_dependent_b_entry(current_row,
+                        # Pass m_k_arr, N_k_arr
+                        lambda problem_local, m0_local, m_k_arr, N_k_arr, k_local=k, boundary_local=boundary, heaving_local=heaving, a_local=a_filtered, h_local=h, d_local=d, NMK_local=NMK:
+                            b_velocity_end_entry(k_local, boundary_local, heaving_local, a_local, h_local, d_local, m0_local, NMK_local, m_k_arr, N_k_arr)
+                    )
+                index += NMK[-1]
+            else: # i-i boundary (m0-independent)
+                if d[boundary] < d[boundary + 1]:
+                    N = NMK[boundary + 1]
+                else:
+                    N = NMK[boundary]
+                for n in range(N):
+                    b_template[index] = b_velocity_entry(n, boundary, heaving, a_filtered, h, d)
+                    index += 1
+        
+        cache.set_b_template(b_template)
+        return cache
+
+    # The solve_linear_system methods will now call the optimized assemble_A_multi/assemble_b_multi
     def solve_linear_system(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
-        Solve the linear system A x = b for the given problem.
-
-        :param problem: MEEMProblem instance.
-        :return: Solution vector X.
+        Solve the linear system A x = b for the given problem (for single cylinder).
         """
         from scipy import linalg
-
-        A = self.assemble_A(problem, m0)
-        b = self.assemble_b(problem, m0)
+        A = self.assemble_A(problem, m0) # This is your old single-cylinder assemble_A
+        b = self.assemble_b(problem, m0) # This is your old single-cylinder assemble_b
         X = linalg.solve(A, b)
         return X
     
     def solve_linear_system_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
-        Solve the linear system A x = b for the given problem.
-
-        :param problem: MEEMProblem instance.
-        :return: Solution vector X.
+        Solve the linear system A x = b for the given problem (multi-region, optimized).
         """
         from scipy import linalg
-
-        
-        A = self.assemble_A_multi(problem, m0)
-        b = self.assemble_b_multi(problem, m0)
+        A = self.assemble_A_multi(problem, m0) # Now calls the optimized A assembly
+        b = self.assemble_b_multi(problem, m0) # Now calls the optimized B assembly
         X = linalg.solve(A, b)
         return X
 
@@ -480,26 +768,37 @@ class MEEMEngine:
         :param domain_names: List of domain names to visualize. If None, visualize all.
         """
         domain_names = domain_names or potentials.keys()
-        plt.figure(figsize=(10, 6))
+
+        # Create one figure and one set of axes explicitly
+        fig, ax = plt.subplots(figsize=(10, 6))
+
         for domain_name in domain_names:
-            potential = np.abs(potentials[domain_name])  # Magnitude of the potential
-            plt.plot(potential, label=f"{domain_name} Potential")
-        plt.title("Potential Magnitudes Across Domains")
-        plt.xlabel("Harmonic Index")
-        plt.ylabel("Magnitude")
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+            potential_array = np.abs(potentials[domain_name]['potentials']) # Magnitude of the potential
+            # Plot on the specific axes object 'ax'
+            ax.plot(potential_array, label=f"{domain_name} Potential")
+
+        # Set properties on the axes object 'ax', not directly on 'plt'
+        ax.set_title("Potential Magnitudes Across Domains")
+        ax.set_xlabel("Harmonic Index")
+        ax.set_ylabel("Magnitude")
+        ax.legend()
+        ax.grid(True)
+
+        # Use fig.tight_layout() as it's a figure-level adjustment
+        fig.tight_layout()
+
+        plt.show() # This remains as it's the final display command
     
     def run_and_store_results(self, problem_index: int, m0) -> Results:
         """
         Perform the full MEEM computation and store results in the Results class.
+        This method will now benefit from the optimized assemble_A_multi/assemble_b_multi.
         :param problem_index: Index of the MEEMProblem instance to process.
         :return: Results object containing the computed data.
         """
         problem = self.problem_list[problem_index]
 
-        # Assemble the system matrix A and right-hand side vector b
+        # Assemble the system matrix A and right-hand side vector b (calls optimized methods)
         A = self.assemble_A_multi(problem, m0)
         b = self.assemble_b_multi(problem, m0)
 
@@ -510,25 +809,34 @@ class MEEMEngine:
         hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
 
         # Create a Results object
-        geometry = problem.geometry #MEEMProblem contains a Geometry instance
+        geometry = problem.geometry # MEEMProblem contains a Geometry instance
         results = Results(geometry, problem.frequencies, problem.modes)
 
-        # Let's say you have some dummy eigenfunction data:
-        dummy_radial_data = np.zeros((len(problem.frequencies), len(problem.modes), 2))  # Adjust shape as needed
-        dummy_vertical_data = np.zeros((len(problem.frequencies), len(problem.modes), 1))  # Adjust shape as needed
-        results.store_results(0, dummy_radial_data, dummy_vertical_data)
+        # --- FIX for dummy_radial_data and dummy_vertical_data shapes ---
+        # Determine the correct sizes for the 'r' and 'z' dimensions
+        # based on the geometry's coordinates, which is what Results.store_results expects.
+        num_r_coords = len(problem.geometry.r_coordinates) # Your r_coordinates has 2 values (a1, a2)
+        num_z_coords = len(problem.geometry.z_coordinates) # Your z_coordinates has 3 values (h, d1, d2)
 
-        # Store eigenfunction results
+        # Now, create the dummy data with the correct shapes
+        dummy_radial_data = np.zeros(
+            (len(problem.frequencies), len(problem.modes), num_r_coords),
+            dtype=complex # Assuming your data might be complex
+        )
+        dummy_vertical_data = np.zeros(
+            (len(problem.frequencies), len(problem.modes), num_z_coords),
+            dtype=complex # Assuming your data might be complex
+        )
+        # --- END FIX ---
 
-        #store the results
+        results.store_results(0, dummy_radial_data, dummy_vertical_data) # Using domain_index 0 as in your test
+
+        # Store the potentials (this part was already correct based on previous fixes)
         potentials = self.calculate_potentials(problem, X)
         results.store_potentials(potentials)
 
-        #store the hydrodynamic coefficients.
-
+        # Store the hydrodynamic coefficients.
         results.dataset['hydrodynamic_coefficients_real'] = hydro_coeffs['real']
         results.dataset['hydrodynamic_coefficients_imag'] = hydro_coeffs['imag']
 
-
-        
         return results

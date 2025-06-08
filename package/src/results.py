@@ -67,7 +67,7 @@ class Results:
 
         r_coords_array = np.full((num_domains, max_harmonics), np.nan)  # Use NaN for padding
         z_coords_array = np.full((num_domains, max_harmonics), np.nan)  # Use NaN for padding
-        potentials_array = np.full((num_domains, max_harmonics), np.nan)
+        potentials_array = np.full((num_domains, max_harmonics), np.nan, dtype=complex)
 
         for i, domain_name in enumerate(domain_names):
             data = potentials[domain_name]

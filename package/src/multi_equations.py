@@ -10,10 +10,15 @@ from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 
 def omega(m0,h,g):
-    sqrt(m0 * np.tanh(m0 * h) * g)
+    return sqrt(m0 * np.tanh(m0 * h) * g)
 
-def scale(a): 
-    result = np.mean([[0]+a[0:-1], a], axis = 0)
+def scale(a):
+    # Pad 'a' with a zero at the beginning to align for the average calculation
+    # For a = [5, 10, 15], this would make padded_a = [0, 5, 10]
+    padded_a_prev = np.concatenate(([0.0], a[:-1])) # Ensure 0.0 for float type consistency
+    
+    # Now, element-wise average: (previous_a + current_a) / 2
+    result = (padded_a_prev + a) / 2
     return result
 
 def lambda_ni(n, i, h, d): # factor used often in calculations
@@ -94,19 +99,49 @@ def I_nm(n, m, i, d, h): # coupling integral for two i-type regions
             frac2 = sin((lambda1 - lambda2)*(h-dj))/(lambda1 - lambda2)
         return frac1 + frac2
 
-def I_mk(m, k, i, d, m0, h, NMK): # coupling integral for i and e-type regions
+# REVISED I_mk to accept m_k_arr and N_k_arr
+def I_mk(m, k, i, d, m0, h, NMK, m_k_arr, N_k_arr): # coupling integral for i and e-type regions
+    # Use the pre-computed array
+    # local_m_k = m_k(NMK, m0, h) # NO LONGER CALL THIS
+    local_m_k_k = m_k_arr[k] # Access directly from array
+    
+    dj = d[i]
+    if m == 0 and k == 0:
+        if m0 * h < 14:
+            return (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - dj)) / m0 # Use N_k_arr[0]
+        else: # high m0h approximation
+            return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+    if m == 0 and k >= 1:
+        return (1/sqrt(N_k_arr[k])) * sin(local_m_k_k * (h - dj)) / local_m_k_k # Use N_k_arr[k]
+    if m >= 1 and k == 0:
+        if m0 * h < 14:
+            num = (-1)**m * sqrt(2) * (1/sqrt(N_k_arr[0])) * m0 * sinh(m0 * (h - dj)) # Use N_k_arr[0]
+        else: # high m0h approximation
+            num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+        denom = (m0**2 + lambda_ni(m, i, h, d) **2)
+        return num/denom
+    else:
+        lambda1 = lambda_ni(m, i, h, d)
+        if abs(local_m_k_k) == lambda1:
+            return (h - dj)/2
+        else:
+            frac1 = sin((local_m_k_k + lambda1)*(h-dj))/(local_m_k_k + lambda1)
+            frac2 = sin((local_m_k_k - lambda1)*(h-dj))/(local_m_k_k - lambda1)
+            return sqrt(2)/2 * (1/sqrt(N_k_arr[k])) * (frac1 + frac2) # Use N_k_arr[k]
+        
+def I_mk_og(m, k, i, d, m0, h, NMK): # coupling integral for i and e-type regions
     local_m_k = m_k(NMK, m0, h)
     dj = d[i]
     if m == 0 and k == 0:
         if m0 * h < 14:
-            return (1/sqrt(N_k(0, m0, h, NMK))) * sinh(m0 * (h - dj)) / m0
+            return (1/sqrt(N_k_og(0, m0, h, NMK))) * sinh(m0 * (h - dj)) / m0
         else: # high m0h approximation
             return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
     if m == 0 and k >= 1:
-        return (1/sqrt(N_k(k, m0, h, NMK))) * sin(local_m_k[k] * (h - dj)) / local_m_k[k]
+        return (1/sqrt(N_k_og(k, m0, h, NMK))) * sin(local_m_k[k] * (h - dj)) / local_m_k[k]
     if m >= 1 and k == 0:
         if m0 * h < 14:
-            num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0, m0, h, NMK))) * m0 * sinh(m0 * (h - dj))
+            num = (-1)**m * sqrt(2) * (1/sqrt(N_k_og(0, m0, h, NMK))) * m0 * sinh(m0 * (h - dj))
         else: # high m0h approximation
             num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
         denom = (m0**2 + lambda_ni(m, i, h, d) **2)
@@ -118,7 +153,7 @@ def I_mk(m, k, i, d, m0, h, NMK): # coupling integral for i and e-type regions
         else:
             frac1 = sin((local_m_k[k] + lambda1)*(h-dj))/(local_m_k[k] + lambda1)
             frac2 = sin((local_m_k[k] - lambda1)*(h-dj))/(local_m_k[k] - lambda1)
-            return sqrt(2)/2 * (1/sqrt(N_k(k, m0, h, NMK))) * (frac1 + frac2)
+            return sqrt(2)/2 * (1/sqrt(N_k_og(k, m0, h, NMK))) * (frac1 + frac2)
 
 #############################################
 # b-vector computation
@@ -156,17 +191,31 @@ def b_velocity_entry(n, i, heaving, a, h, d): # for two i-type regions
             return num/denom
         else: return 0
 
-def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK): # between i and e-type regions
+# REVISED b_velocity_end_entry to accept m_k_arr and N_k_arr
+# ADDED m_k_arr, N_k_arr
+def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # between i and e-type regions
+    # local_m_k = m_k(NMK, m0, h) # NO LONGER CALL THIS
+    local_m_k_k = m_k_arr[k] # Access directly from array
+
+    constant = - heaving[i] * a[i]/(2 * (h - d[i]))
+    if k == 0:
+        if m0 * h < 14:
+            return constant * (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - d[i])) / m0 # Use N_k_arr[0]
+        else: # high m0h approximation
+            return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
+    else:
+        return constant * (1/sqrt(N_k_arr[k])) * sin(local_m_k_k * (h - d[i])) / local_m_k_k # Use N_k_arr[k]
+
+def b_velocity_end_entry_og(k, i, heaving, a, h, d, m0, NMK): # between i and e-type regions
     local_m_k = m_k(NMK, m0, h)
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
         if m0 * h < 14:
-            return constant * (1/sqrt(N_k(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
+            return constant * (1/sqrt(N_k_og(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
     else:
-        return constant * (1/sqrt(N_k(k, m0, h, NMK))) * sin(local_m_k[k] * (h - d[i])) / local_m_k[k]
-
+        return constant * (1/sqrt(N_k_og(k, m0, h, NMK))) * sin(local_m_k[k] * (h - d[i])) / local_m_k[k]
 
 #############################################
 # Phi particular and partial derivatives
@@ -241,7 +290,18 @@ def diff_Z_n_i(n, z, i, h, d):
 
 #############################################
 # Region e radial eigenfunction
-def Lambda_k(k, r, m0, a, NMK, h):
+# REVISED Lambda_k to accept m_k_arr and N_k_arr
+def Lambda_k(k, r, m0, a, NMK, h, m_k_arr, N_k_arr): # ADDED m_k_arr, N_k_arr
+    local_scale = scale(a)
+    # local_m_k = m_k(NMK, m0, h) # NO LONGER CALL THIS
+    local_m_k_k = m_k_arr[k] # Access directly from array
+    
+    if k == 0:
+        return besselh(0, m0 * r) / besselh(0, m0 * local_scale[-1])
+    else:
+        return besselk(0, local_m_k_k * r) / besselk(0, local_m_k_k * local_scale[-1])
+    
+def Lambda_k_og(k, r, m0, a, NMK, h):
     local_scale = scale(a)
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
@@ -249,8 +309,21 @@ def Lambda_k(k, r, m0, a, NMK, h):
     else:
         return besselk(0, local_m_k[k] * r) / besselk(0, local_m_k[k] * local_scale[-1])
 
-# Differentiate wrt r
-def diff_Lambda_k(k, r, m0, NMK, h, a):
+# Differentiate wrt r 
+# REVISED diff_Lambda_k to accept m_k_arr and N_k_arr
+def diff_Lambda_k(k, r, m0, NMK, h, a, m_k_arr, N_k_arr): # ADDED m_k_arr, N_k_arr
+    # local_m_k = m_k(NMK, m0, h) # NO LONGER CALL THIS
+    local_m_k_k = m_k_arr[k] # Access directly from array
+    local_scale = scale(a)
+    if k == 0:
+        numerator = -(m0 * besselh(1, m0 * r))
+        denominator = besselh(0, m0 * local_scale[-1])
+    else:
+        numerator = -(local_m_k_k * besselk(1, local_m_k_k * r))
+        denominator = besselk(0, local_m_k_k * local_scale[-1])
+    return numerator / denominator
+
+def diff_Lambda_k_og(k, r, m0, NMK, h, a):
     local_m_k = m_k(NMK, m0, h)
     local_scale = scale(a)
     if k == 0:
@@ -264,7 +337,22 @@ def diff_Lambda_k(k, r, m0, NMK, h, a):
 
 #############################################
 # Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
-def N_k(k, m0, h, NMK):
+# REVISED N_k to accept m_k_arr (as it previously called m_k itself)
+
+def N_k_multi(k, m0, h, NMK, m_k_arr): # Added m_k_arr as optional argument
+    # If m_k_arr is provided, use it; otherwise, calculate via m_k_entry (for external calls or _full_assemble)
+    if m_k_arr is not None:
+        local_m_k_k = m_k_arr[k]
+    else:
+        # Fallback for compatibility or unoptimized calls (e.g., in _full_assemble_A_multi if you didn't pass array)
+        local_m_k_k = m_k_entry(k, m0, h) # Call the single entry function
+
+    if k == 0:
+        return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
+    else:
+        return 1 / 2 * (1 + sin(2 * local_m_k_k * h) / (2 * local_m_k_k * h))
+    
+def N_k_og(k, m0, h, NMK):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
@@ -278,21 +366,21 @@ def Z_k_e(k, z, m0, h, NMK):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
         if m0 * h < 14:
-            return 1 / sqrt(N_k(k, m0, h, NMK)) * cosh(m0 * (z + h))
+            return 1 / sqrt(N_k_multi(k, m0, h, NMK)) * cosh(m0 * (z + h))
         else: # high m0h approximation
             return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
     else:
-        return 1 / sqrt(N_k(k, m0, h, NMK)) * cos(local_m_k[k] * (z + h))
+        return 1 / sqrt(N_k_multi(k, m0, h, NMK)) * cos(local_m_k[k] * (z + h))
 
 def diff_Z_k_e(k, z, m0, h, NMK):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
         if m0 * h < 14:
-            return 1 / sqrt(N_k(k, m0, h, NMK)) * m0 * sinh(m0 * (z + h))
+            return 1 / sqrt(N_k_multi(k, m0, h, NMK)) * m0 * sinh(m0 * (z + h))
         else: # high m0h approximation
             return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
     else:
-        return -1 / sqrt(N_k(k, m0, h, NMK)) * local_m_k[k] * sin(local_m_k[k] * (z + h))
+        return -1 / sqrt(N_k_multi(k, m0, h, NMK)) * local_m_k[k] * sin(local_m_k[k] * (z + h))
 
 #############################################
 # To calculate hydrocoefficients
@@ -340,5 +428,6 @@ def z_n_d(n):
         return sqrt(2)*(-1)**n
     
 #############################################
-def excitation_phase(coeff, m0): # first coefficient of e-region expansion
-    return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * scale[-1]))
+def excitation_phase(coeff, m0, a): # first coefficient of e-region expansion
+    local_scale_last = scale(a)[-1]
+    return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale_last))
