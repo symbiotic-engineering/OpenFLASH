@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath(src_dir))
 # Import the class to be tested and its dependencies
 from meem_problem import MEEMProblem
 from geometry import Geometry
-from domain import Domain # Assuming Domain is needed to build Geometry
+from domain import Domain 
 
 # --- Fixtures ---
 
@@ -134,5 +134,5 @@ def test_meem_problem_with_real_geometry(real_geometry):
     np.testing.assert_array_equal(problem.frequencies, test_frequencies)
     np.testing.assert_array_equal(problem.modes, test_modes)
 
-# You can add more specific tests if MEEMProblem gains more logic in the future,
+#  can add more specific tests if MEEMProblem gains more logic in the future,
 # such as validation for frequencies/modes, or interactions with the geometry's data.

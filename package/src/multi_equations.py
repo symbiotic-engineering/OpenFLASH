@@ -240,6 +240,15 @@ def R_1n(n, r, i, h, d, a):
         return besseli(0, lambda_ni(n, i, h, d) * r) / besseli(0, lambda_ni(n, i, h, d) * local_scale[i])
     else: 
         raise ValueError("Invalid value for n")
+    
+def R_1n_vectorized(n, r_array, i, h, d, a):
+    local_scale = scale(a)
+    if n == 0:
+        return 0.5 * np.ones_like(r_array)
+    elif n >= 1:
+        return besseli(0, lambda_ni(n, i, h, d) * r_array) / besseli(0, lambda_ni(n, i, h, d) * local_scale[i])
+    else:
+        raise ValueError("Invalid value for n")
 
 # Differentiate wrt r
 def diff_R_1n(n, r, i, h, d, a):
@@ -261,6 +270,17 @@ def R_2n(n, r, i, a, h, d): # this shouldn't be called for i=0, innermost.
         return 0.5 * np.log(r / a[i])
     else:
         return besselk(0, lambda_ni(n, i, h, d) * r) / besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
+    
+def R_2n_vectorized(n, r_array, i, a, h, d): # Changed 'r' to 'r_array'
+    local_scale = scale(a)
+    if i == 0:
+        raise ValueError("i cannot be 0")
+    elif n == 0:
+        # This needs to handle division by zero if r_array contains 0
+        # For now, it will raise a RuntimeWarning, but ensure r_array doesn't contain 0 if R_2n is called for r=0
+        return 0.5 * np.log(r_array / a[i])
+    else:
+        return besselk(0, lambda_ni(n, i, h, d) * r_array) / besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
 
 # Differentiate wrt r
 def diff_R_2n(n, r, i, h, d, a):
@@ -280,6 +300,12 @@ def Z_n_i(n, z, i, h, d):
         return 1
     else:
         return np.sqrt(2) * np.cos(lambda_ni(n, i, h, d) * (z + h))
+    
+def Z_n_i_vectorized(n, z_array, i, h, d):
+    if n == 0:
+        return np.ones_like(z_array) # Return array of ones if z_array is passed
+    else:
+        return np.sqrt(2) * np.cos(lambda_ni(n, i, h, d) * (z_array + h))
 
 def diff_Z_n_i(n, z, i, h, d):
     if n == 0:
@@ -300,6 +326,15 @@ def Lambda_k(k, r, m0, a, NMK, h, m_k_arr, N_k_arr): # ADDED m_k_arr, N_k_arr
         return besselh(0, m0 * r) / besselh(0, m0 * local_scale[-1])
     else:
         return besselk(0, local_m_k_k * r) / besselk(0, local_m_k_k * local_scale[-1])
+    
+def Lambda_k_vectoized(k, r_array, m0, a, NMK, h, m_k_arr, N_k_arr): # Changed 'r' to 'r_array'
+    local_scale = scale(a)
+    local_m_k_k = m_k_arr[k]
+
+    if k == 0:
+        return besselh(0, m0 * r_array) / besselh(0, m0 * local_scale[-1])
+    else:
+        return besselk(0, local_m_k_k * r_array) / besselk(0, local_m_k_k * local_scale[-1])
     
 def Lambda_k_og(k, r, m0, a, NMK, h):
     local_scale = scale(a)
@@ -362,25 +397,35 @@ def N_k_og(k, m0, h, NMK):
 
 #############################################
 # e-region vertical eigenfunctions
-def Z_k_e(k, z, m0, h, NMK):
+def Z_k_e(k, z, m0, h, NMK, m_k_arr):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
         if m0 * h < 14:
-            return 1 / sqrt(N_k_multi(k, m0, h, NMK)) * cosh(m0 * (z + h))
+            return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * cosh(m0 * (z + h))
         else: # high m0h approximation
             return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
     else:
-        return 1 / sqrt(N_k_multi(k, m0, h, NMK)) * cos(local_m_k[k] * (z + h))
+        return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * cos(local_m_k[k] * (z + h))
+    
+def Z_k_e_vectorized(k, z_array, m0, h, NMK, m_k_arr): # Changed 'z' to 'z_array'
+    local_m_k = m_k(NMK, m0, h) # You might still want to pass m_k_arr directly here
+    if k == 0:
+        if m0 * h < 14:
+            return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * cosh(m0 * (z_array + h))
+        else: # high m0h approximation
+            return sqrt(2 * m0 * h) * (exp(m0 * z_array) + exp(-m0 * (z_array + 2*h)))
+    else:
+        return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * cos(local_m_k[k] * (z_array + h))
 
-def diff_Z_k_e(k, z, m0, h, NMK):
+def diff_Z_k_e(k, z, m0, h, NMK, m_k_arr):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
         if m0 * h < 14:
-            return 1 / sqrt(N_k_multi(k, m0, h, NMK)) * m0 * sinh(m0 * (z + h))
+            return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * m0 * sinh(m0 * (z + h))
         else: # high m0h approximation
             return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
     else:
-        return -1 / sqrt(N_k_multi(k, m0, h, NMK)) * local_m_k[k] * sin(local_m_k[k] * (z + h))
+        return -1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * local_m_k[k] * sin(local_m_k[k] * (z + h))
 
 #############################################
 # To calculate hydrocoefficients

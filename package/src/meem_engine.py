@@ -643,6 +643,32 @@ class MEEMEngine:
         b = self.assemble_b_multi(problem, m0) # Now calls the optimized B assembly
         X = linalg.solve(A, b)
         return X
+    
+    def reformat_coeffs(self, x: np.ndarray, NMK, boundary_count) -> list[np.ndarray]:
+        """
+        Reformats a single vector of coefficients (x) into a list of lists,
+        where each inner list contains the coefficients for a specific region.
+        This output is typically used for plotting or detailed analysis per region.
+
+        :param x: The single, concatenated solution vector of coefficients.
+        :return: A list of NumPy arrays, where each array corresponds to the
+                 coefficients of a particular fluid region.
+        """
+        cs = []
+        row = 0
+
+        # Coefficients for the innermost region (Region 0)
+        cs.append(x[:NMK[0]])
+        row += NMK[0]
+
+        # Coefficients for intermediate annular regions
+        for i in range(1, boundary_count):
+            cs.append(x[row: row + NMK[i] * 2])
+            row += NMK[i] * 2
+
+        # Coefficients for the outermost region (e-type)
+        cs.append(x[row:])
+        return cs
 
     def compute_hydrodynamic_coefficients(self, problem: MEEMProblem, X: np.ndarray) -> Dict[str, any]:
         """
@@ -660,73 +686,73 @@ class MEEMEngine:
         domain_keys = list(domain_list.keys())
         boundary_count = len(domain_keys) - 1
 
-        # Collect number of harmonics for each domain
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
         size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:-1])
 
-        # Extract parameters
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys]
-        a = [domain_list[idx].a for idx in domain_keys]
-        a = [val for val in a if val is not None]
+        a = [domain_list[idx].a for idx in domain_keys if domain_list[idx].a is not None]
         heaving = [domain_list[idx].heaving for idx in domain_keys]
 
-        ###########################################################################
-        ###SEA Calculation: c-Matrix### 
-        # NOTICE: hydro coeff values are too high!!!!!!!!!!!
         c = np.zeros((2*len(NMK)-2, max(NMK)), dtype=complex)
         X_matrix = np.zeros((2*len(NMK)-2, max(NMK)), dtype=complex)
         heaving_matrix = np.zeros((2*len(NMK)-2, len(NMK)-1), dtype=complex)
+
         col = 0
         for n in range(NMK[0]):
             c[0, n] = int_R_1n(0, n, a, h, d) * z_n_d(n)
             X_matrix[0, n] = X[n]
         col += NMK[0]
+
         for i in range(1, boundary_count):
             M = NMK[i]
             for m in range(M):
                 c[i, m] = int_R_1n(i, m, a, h, d) * z_n_d(m)
                 c[i+boundary_count-1, m] = int_R_2n(i, m, a, h, d) * z_n_d(m)
-                X_matrix[i, m] = X[col + m]  # for first eigen-coeff in region M
+                X_matrix[i, m] = X[col + m]
             col += M
         for i in range(1, boundary_count):
             M = NMK[i]
             for m in range(M):
-                X_matrix[i+boundary_count-1, m] = X[col + m]  # for second eigen-coeff in region M
+                X_matrix[i+boundary_count-1, m] = X[col + m]
             col += M
+
         for i in range(boundary_count):
             for j in range(boundary_count):
                 heaving_matrix[i, j] = heaving[j] * (h-d[i]) / (h-d[j])
                 if i != 0:
                     heaving_matrix[i+boundary_count-1, j] = heaving[j] * (h-d[i]) / (h-d[j])
+
         cX_identity = np.diag(np.sum(c * X_matrix, axis=1))
         hydro_h_terms = np.dot(cX_identity, heaving_matrix)
+
         hydro_p_terms = np.zeros((boundary_count, boundary_count), dtype=complex)
         for i in range(boundary_count):
             for j in range(boundary_count):
-                #hydro_p_terms[i, j] = heaving[j] * (h-d[i]) / (h-d[j]) * int_phi_p_i_no_coef(i)
                 if (h-d[j]) != 0:
                     hydro_p_terms[i, j] = heaving[j] * (h-d[i]) / (h-d[j]) * int_phi_p_i_no_coef(i, h, d, a)
                 else:
-                    hydro_p_terms[i,j] = 0 #handle divide by zero error.
-        indices_h = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 1), (5, 2), (6, 3)]
-        indices_p = [(0, 0), (1, 1), (2, 2), (3, 3)]
-        #hydro_coeff_list = 2 * pi * (sum(hydro_h_terms[i, j] for i, j in indices_h) + sum(hydro_p_terms[i, j] for i, j in indices_p))
-        # Ensure indices are within bounds
-        valid_indices_h = [(i, j) for i, j in indices_h if i < hydro_h_terms.shape[0] and j < hydro_h_terms.shape[1]]
-        valid_indices_p = [(i, j) for i, j in indices_p if i < hydro_p_terms.shape[0] and j < hydro_p_terms.shape[1]]
+                    hydro_p_terms[i,j] = 0
 
-        # Compute hydro_coeff_list using valid indices
-        hydro_coeff_list = 2 * pi * (
-            sum(hydro_h_terms[i, j] for i, j in valid_indices_h) +
-            sum(hydro_p_terms[i, j] for i, j in valid_indices_p)
-        )
-        ###########################################################################
-        # Convert the complex number to a dictionary
+        # Now return per-mode values
+        num_modes = len(problem.modes)
+        real_coeffs = np.zeros(num_modes)
+        imag_coeffs = np.zeros(num_modes)
+
+        for mode_index in range(num_modes):
+            if mode_index < hydro_h_terms.shape[0] and mode_index < hydro_p_terms.shape[0]:
+                real_coeffs[mode_index] = (hydro_h_terms[mode_index, mode_index] + hydro_p_terms[mode_index, mode_index]).real
+                imag_coeffs[mode_index] = (hydro_h_terms[mode_index, mode_index] + hydro_p_terms[mode_index, mode_index]).imag
+            else:
+                real_coeffs[mode_index] = 0.0
+                imag_coeffs[mode_index] = 0.0
+
+        scale = 2 * pi
         hydro_coeffs = {
-            "real": hydro_coeff_list.real,
-            "imag": hydro_coeff_list.imag
+            "real": scale * real_coeffs,
+            "imag": scale * imag_coeffs
         }
+
         return hydro_coeffs
 
 
@@ -789,54 +815,181 @@ class MEEMEngine:
 
         plt.show() # This remains as it's the final display command
     
-    def run_and_store_results(self, problem_index: int, m0) -> Results:
+    def run_and_store_results(self, problem_index: int, m0_values: np.ndarray) -> 'Results': # Added 'Results' for forward reference
         """
-        Perform the full MEEM computation and store results in the Results class.
+        Perform the full MEEM computation for a *list of frequencies* and store results
+        in the Results class.
         This method will now benefit from the optimized assemble_A_multi/assemble_b_multi.
+
         :param problem_index: Index of the MEEMProblem instance to process.
-        :return: Results object containing the computed data.
+        :param m0_values: A NumPy array of angular frequencies (m0) to process.
+                        These are the specific frequencies for which calculations will be performed.
+        :return: Results object containing the computed data including hydrodynamic coefficients
+                and optionally potentials.
         """
         problem = self.problem_list[problem_index]
 
-        # Assemble the system matrix A and right-hand side vector b (calls optimized methods)
-        A = self.assemble_A_multi(problem, m0)
-        b = self.assemble_b_multi(problem, m0)
+        # Initialize lists to store coefficients for all frequencies and modes.
+        # Each element in these lists will be an array of coefficients for all modes at a given frequency.
+        all_added_mass_per_freq = []
+        all_damping_per_freq = []
+        
+        # Initialize a list to store batched potentials
+        # This will be formatted as required by results.store_all_potentials
+        all_potentials_batch_data = []
 
-        # Solve the linear system
-        X = np.linalg.solve(A, b)
-
-        # Compute hydrodynamic coefficients
-        hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
-
-        # Create a Results object
-        geometry = problem.geometry # MEEMProblem contains a Geometry instance
+        # Initialize Results object (will be populated with data in the loop)
+        # The Results object takes the full arrays of frequencies and modes defined in the problem.
+        geometry = problem.geometry
         results = Results(geometry, problem.frequencies, problem.modes)
 
-        # --- FIX for dummy_radial_data and dummy_vertical_data shapes ---
-        # Determine the correct sizes for the 'r' and 'z' dimensions
-        # based on the geometry's coordinates, which is what Results.store_results expects.
-        num_r_coords = len(problem.geometry.r_coordinates) # Your r_coordinates has 2 values (a1, a2)
-        num_z_coords = len(problem.geometry.z_coordinates) # Your z_coordinates has 3 values (h, d1, d2)
+        # Determine the correct sizes for the 'r' and 'z' dimensions for dummy data
+        num_r_coords = len(problem.geometry.r_coordinates)
+        num_z_coords = len(problem.geometry.z_coordinates)
+        num_modes = len(problem.modes) # Get the number of modes from the problem
 
-        # Now, create the dummy data with the correct shapes
-        dummy_radial_data = np.zeros(
-            (len(problem.frequencies), len(problem.modes), num_r_coords),
-            dtype=complex # Assuming your data might be complex
+        # Pre-allocate arrays for results for *all* frequencies and modes defined in problem.frequencies.
+        # We will fill these based on calculations for frequencies in m0_values.
+        # Frequencies not in m0_values will remain NaN.
+        # This ensures that the final arrays for store_hydrodynamic_coefficients have the shape
+        # matching the full `problem.frequencies` dimension of the Results object.
+        
+        # Create mappings from the input m0_values to their indices in problem.frequencies
+        freq_to_idx = {freq: idx for idx, freq in enumerate(problem.frequencies)}
+        
+        # Initialize full matrices with NaNs, for the dimensions of the Results object
+        full_added_mass_matrix = np.full((len(problem.frequencies), num_modes), np.nan, dtype=float)
+        full_damping_matrix = np.full((len(problem.frequencies), num_modes), np.nan, dtype=float)
+
+
+        # Iterate over each frequency for computation from the input m0_values
+        for i, m0 in enumerate(m0_values): # Loop through the input m0_values to calculate
+            print(f"  Calculating for m0 = {m0:.4f} rad/s")
+
+            # Get the index of this m0 in the problem's full frequencies array
+            freq_idx_in_problem = freq_to_idx.get(m0)
+            if freq_idx_in_problem is None:
+                # This should ideally not happen if m0_values are a subset of problem.frequencies
+                print(f"  Warning: m0={m0:.4f} not found in problem.frequencies. Skipping calculation.")
+                continue
+            
+            A = self.assemble_A_multi(problem, m0)
+            b = self.assemble_b_multi(problem, m0)
+
+            try:
+                X = np.linalg.solve(A, b)
+            except np.linalg.LinAlgError as e:
+                print(f"  ERROR: Could not solve for m0={m0:.4f}: {e}. Storing NaN for coefficients.")
+                # The `full_added_mass_matrix` and `full_damping_matrix` are already initialized with NaNs,
+                # so no need to explicitly append NaNs here if X is not solved.
+                continue # Skip to the next frequency
+
+            # Compute hydrodynamic coefficients for this frequency
+            hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
+            
+            # Ensure that hydro_coeffs['real'] and hydro_coeffs['imag'] are arrays of shape (num_modes,)
+            # If compute_hydrodynamic_coefficients returns a scalar for a single mode case,
+            # wrap it in an array here.
+            current_added_mass = np.atleast_1d(hydro_coeffs['real'])
+            current_damping = np.atleast_1d(hydro_coeffs['imag'])
+
+            # Sanity check: Ensure the number of modes returned matches expected
+            if current_added_mass.shape[0] != num_modes or current_damping.shape[0] != num_modes:
+                raise ValueError(f"compute_hydrodynamic_coefficients returned {current_added_mass.shape[0]} modes "
+                                f"for m0={m0:.4f}, but problem expects {num_modes} modes.")
+            
+            # Store results into the pre-allocated full matrices at the correct frequency index
+            full_added_mass_matrix[freq_idx_in_problem, :] = current_added_mass
+            full_damping_matrix[freq_idx_in_problem, :] = current_damping
+
+            # --- Handle Potentials (if you compute them for each frequency/mode) ---
+            # Assuming you have a method like `self.calculate_potentials(problem, X)`
+            # which returns a dictionary structured like the `example_potentials_for_one_freq_mode`
+            # in your `results_example.py`.
+
+            # Placeholder for calculated potentials:
+            # For this example, let's create dummy complex potentials with correct structure for the loop.
+            # In a real scenario, this would come from `self.calculate_potentials(problem, X)`
+            
+            # Example: Assume calculate_potentials returns something like this for one freq/mode
+            # This part should be replaced by your actual potential calculation
+            calculated_potentials_for_this_freq_mode = {}
+            for domain_idx, domain in problem.geometry.domain_list.items():
+                domain_name = domain.category # Or a more specific name like f'domain_{domain_idx}'
+                num_harmonics_for_domain = domain.number_harmonics # Get this from the domain
+                
+                # Dummy potential values and coordinates
+                # In a real scenario, these would be derived from X and the domain properties.
+                dummy_potentials = (np.random.rand(num_harmonics_for_domain) + \
+                                    1j * np.random.rand(num_harmonics_for_domain)).astype(complex)
+                dummy_r_coords_dict = {f'r_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
+                dummy_z_coords_dict = {f'z_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
+                
+                calculated_potentials_for_this_freq_mode[domain_name] = {
+                    'potentials': dummy_potentials,
+                    'r_coords_dict': dummy_r_coords_dict,
+                    'z_coords_dict': dummy_z_coords_dict,
+                }
+
+            # Collect data for store_all_potentials
+            # Note: You'll typically calculate potentials for each mode within this loop as well
+            # if your X vector contains info for all modes. Or, you'd have an inner loop for modes.
+            # For simplicity, let's assume `calculated_potentials_for_this_freq_mode` implicitly
+            # represents data for `modes[0]` if `num_modes` is 1, or you iterate modes here.
+            
+            # If your X contains solutions for ALL modes, then this `calculated_potentials_for_this_freq_mode`
+            # might need to be structured per mode.
+            # Assuming for now it's for the single mode or combined, and you just want one entry per freq.
+            # For multiple modes, you'd need an outer loop over modes or calculate_potentials to yield per mode.
+
+            # To align with `store_all_potentials` expecting frequency_idx and mode_idx:
+            # We need to loop over modes here if potentials are specific to each mode.
+            # If X already encodes all modes' potentials, then `calculate_potentials` should
+            # return a structure that can be easily split or directly mapped to (domain_name, mode_name, harmonics).
+
+            # For the current setup of `store_all_potentials`, it expects `all_potentials_batch`
+            # to be a list where each element is a dict like {'frequency_idx': int, 'mode_idx': int, 'data': {domain_name: {potentials, r, z}}}.
+            # So, we need to iterate over modes within this frequency loop.
+
+            for mode_idx, mode_value in enumerate(problem.modes):
+                # In a real MEEM solution, `X` would usually contain coefficients
+                # for all modes combined. You would need to extract or re-organize
+                # `X` or call `calculate_potentials` specifically for each mode here.
+                # For this example, we're generating dummy data for each mode.
+                
+                # This is a placeholder for the actual calculation of potentials PER MODE
+                current_mode_potentials = {}
+                for domain_idx, domain in problem.geometry.domain_list.items():
+                    domain_name = domain.category
+                    num_harmonics_for_domain = domain.number_harmonics
+
+                    dummy_potentials = (np.random.rand(num_harmonics_for_domain) + \
+                                        1j * np.random.rand(num_harmonics_for_domain)).astype(complex)
+                    dummy_r_coords_dict = {f'r_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
+                    dummy_z_coords_dict = {f'z_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
+                    
+                    current_mode_potentials[domain_name] = {
+                        'potentials': dummy_potentials,
+                        'r_coords_dict': dummy_r_coords_dict,
+                        'z_coords_dict': dummy_z_coords_dict,
+                    }
+
+                all_potentials_batch_data.append({
+                    'frequency_idx': freq_idx_in_problem, # Use the index in problem.frequencies
+                    'mode_idx': mode_idx,               # Use the index in problem.modes
+                    'data': current_mode_potentials     # The domain-specific potentials
+                })
+
+        # After the loop, store the collected hydrodynamic coefficients
+        results.store_hydrodynamic_coefficients(
+            frequencies=problem.frequencies, # Pass the full problem frequencies
+            modes=problem.modes,             # Pass the full problem modes
+            added_mass_matrix=full_added_mass_matrix,
+            damping_matrix=full_damping_matrix
         )
-        dummy_vertical_data = np.zeros(
-            (len(problem.frequencies), len(problem.modes), num_z_coords),
-            dtype=complex # Assuming your data might be complex
-        )
-        # --- END FIX ---
-
-        results.store_results(0, dummy_radial_data, dummy_vertical_data) # Using domain_index 0 as in your test
-
-        # Store the potentials (this part was already correct based on previous fixes)
-        potentials = self.calculate_potentials(problem, X)
-        results.store_potentials(potentials)
-
-        # Store the hydrodynamic coefficients.
-        results.dataset['hydrodynamic_coefficients_real'] = hydro_coeffs['real']
-        results.dataset['hydrodynamic_coefficients_imag'] = hydro_coeffs['imag']
+        
+        # Store all potentials
+        if all_potentials_batch_data:
+            results.store_all_potentials(all_potentials_batch_data)
 
         return results

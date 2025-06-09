@@ -12,7 +12,7 @@ package_base_dir = os.path.join(current_dir, '..')
 src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
-# Import classes from your package
+# Import classes from  package
 from meem_engine import MEEMEngine
 from meem_problem import MEEMProblem
 from geometry import Geometry
@@ -46,7 +46,7 @@ def sample_problem_params():
         'heaving_values': [0, 1, 1], # Inner, Outer, Exterior (heaving status)
         'frequencies': np.array([1.0]),
         'modes': np.array([0, 1]),
-        'm0_test': 0.5 # A specific m0 value to use for tests
+        'm0_test': 1.0 # A specific m0 value to use for tests
     }
 
 @pytest.fixture
@@ -79,8 +79,8 @@ def meem_engine_with_problem(single_meem_problem):
 def expected_system_size(sample_problem_params):
     NMK = sample_problem_params['NMK_values']
     # size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:-1]) (for multi-region)
-    # Your current sample problem has 3 domains: inner (NMK[0]), outer (NMK[1]), exterior (NMK[2])
-    # The size calculation in MEEMEngine currently assumes: N + 2*M + K for a 3-domain system.
+    #  current sample problem has 3 domains: inner (NMK[0]), outer (NMK[1]), exterior (NMK[2])
+    # The size calculation in MEEMEngine currently : N + 2*M + K for a 3-domain system.
     # Where N = NMK[0], M = NMK[1], K = NMK[2]
     # So, N + 2*M + K = NMK[0] + 2*NMK[1] + NMK[2]
     return NMK[0] + 2 * NMK[1] + NMK[2]
@@ -239,9 +239,12 @@ def test_compute_hydrodynamic_coefficients_structure(meem_engine_with_problem, s
     assert isinstance(hydro_coeffs['real'], (float, np.ndarray)) # Can be float if scalar, or array
     assert isinstance(hydro_coeffs['imag'], (float, np.ndarray)) # Can be float if scalar, or array
 
-    # computes `hydro_coeff_list` as a single complex scalar.
-    assert np.isscalar(hydro_coeffs['real'])
-    assert np.isscalar(hydro_coeffs['imag'])
+    assert isinstance(hydro_coeffs['real'], np.ndarray)
+    assert hydro_coeffs['real'].shape[0] == len(problem.modes)
+
+    assert isinstance(hydro_coeffs['imag'], np.ndarray)
+    assert hydro_coeffs['imag'].shape[0] == len(problem.modes)
+
 
 def test_calculate_potentials(meem_engine_with_problem, single_meem_problem, sample_problem_params, expected_system_size):
     """
@@ -329,15 +332,19 @@ def test_run_and_store_results(meem_engine_with_problem, single_meem_problem, sa
     """
     engine = meem_engine_with_problem
     problem = single_meem_problem
-    m0 = sample_problem_params['m0_test']
+        
+    # Ensure m0_test is treated as an array of frequencies
+    m0_single_value = sample_problem_params['m0_test']
+    # Convert it to a NumPy array, even if it's a single value
+    m0_values_for_engine = np.array([m0_single_value]) # Make it an array containing the single frequency
 
     # We'll run it for problem_index 0 (since we only have one problem in problem_list)
-    results_obj = engine.run_and_store_results(0, m0)
+    results_obj = engine.run_and_store_results(0, m0_values_for_engine) # Pass the array
 
     assert isinstance(results_obj, Results)
 
-    assert 'domain_potentials' in results_obj.dataset.data_vars
-    assert 'domain' in results_obj.dataset.coords # Check if domain names are coords
+    assert 'potentials' in results_obj.dataset.data_vars
+    assert 'domain_name' in results_obj.dataset.coords # Check if domain names are coords
 
 @pytest.fixture
 def decreasing_depth_problem_params(sample_problem_params):
@@ -404,7 +411,7 @@ def test_assemble_A_template_d_decreasing(meem_engine_decreasing_depth, decreasi
     # 'gold standard' comparisons are available.
     A_matrix = engine.assemble_A_multi(problem, m0)
 
-    # You could add assertions here if you have a known expected matrix for this configuration.
+    #  could add assertions here if there is a known expected matrix for this configuration.
     # For coverage alone, simply executing it is enough.
     assert A_matrix is not None # At least ensure it returns something
 

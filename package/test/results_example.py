@@ -75,38 +75,56 @@ modes = np.array([1, 2])
 results = Results(geometry, frequencies, modes)
 
 # Example Eigenfunction Data
+# Ensure radial_data and vertical_data shapes match (frequencies, modes, spatial_coords)
+# spatial_coords for r is len(r_coordinates), for z is len(z_coordinates)
 radial_data = np.random.rand(len(frequencies), len(modes), len(r_coordinates))
 vertical_data = np.random.rand(len(frequencies), len(modes), len(z_coordinates))
 
-# Store Eigenfunction Results
+# Store Eigenfunction Results for domain 0
 results.store_results(0, radial_data, vertical_data)
 
-# Example Potential Data
-potentials = {
+# Example Potential Data (corrected format for store_all_potentials)
+example_potentials_for_one_freq_mode = {
     'domain_0': {
-        'potentials': np.random.rand(3),
-        'r': r_coordinates,
-        'z': z_coordinates
+        'potentials': (np.random.rand(3) + 1j * np.random.rand(3)).astype(complex), # Ensure complex
+        'r_coords_dict': {'r_h1': 0.1, 'r_h2': 0.2, 'r_h3': 0.3}, # <--- CHANGED KEY
+        'z_coords_dict': {'z_h1': 0.1, 'z_h2': 0.2, 'z_h3': 0.3}  # <--- CHANGED KEY
     },
     'domain_1': {
-        'potentials': np.random.rand(4),
-        'r': r_coordinates,
-        'z': z_coordinates
+        'potentials': (np.random.rand(4) + 1j * np.random.rand(4)).astype(complex), # Ensure complex
+        'r_coords_dict': {'r_h1': 0.4, 'r_h2': 0.5, 'r_h3': 0.6, 'r_h4': 0.7}, # <--- CHANGED KEY
+        'z_coords_dict': {'z_h1': 0.4, 'z_h2': 0.5, 'z_h3': 0.6, 'z_h4': 0.7}  # <--- CHANGED KEY
     },
     'domain_2': {
-        'potentials': np.random.rand(5),
-        'r': r_coordinates,
-        'z': z_coordinates
+        'potentials': (np.random.rand(5) + 1j * np.random.rand(5)).astype(complex), # Ensure complex
+        'r_coords_dict': {'r_h1': 0.8, 'r_h2': 0.9, 'r_h3': 1.0, 'r_h4': 1.1, 'r_h5': 1.2}, # <--- CHANGED KEY
+        'z_coords_dict': {'z_h1': 0.8, 'z_h2': 0.9, 'z_h3': 1.0, 'z_h4': 1.1, 'z_h5': 1.2}  # <--- CHANGED KEY
     },
     'domain_3': {
-        'potentials': np.random.rand(6),
-        'r': r_coordinates,
-        'z': z_coordinates
+        'potentials': (np.random.rand(6) + 1j * np.random.rand(6)).astype(complex), # Ensure complex
+        'r_coords_dict': {'r_h1': 1.3, 'r_h2': 1.4, 'r_h3': 1.5, 'r_h4': 1.6, 'r_h5': 1.7, 'r_h6': 1.8}, # <--- CHANGED KEY
+        'z_coords_dict': {'z_h1': 1.3, 'z_h2': 1.4, 'z_h3': 1.5, 'z_h4': 1.6, 'z_h5': 1.7, 'z_h6': 1.8}  # <--- CHANGED KEY
     }
 }
 
+# The `store_all_potentials` method expects a LIST of dictionaries,
+# where each dictionary has 'frequency_idx', 'mode_idx', and 'data'.
+# So, we need to wrap the 'example_potentials_for_one_freq_mode' like this:
+all_potentials_batch = [
+    {
+        'frequency_idx': 0, # Corresponds to frequencies[0]
+        'mode_idx': 0,      # Corresponds to modes[0]
+        'data': example_potentials_for_one_freq_mode
+    },
+    {
+        'frequency_idx': 1, # Corresponds to frequencies[1]
+        'mode_idx': 1,      # Corresponds to modes[1]
+        'data': example_potentials_for_one_freq_mode # Using same data for simplicity, but it would vary
+    }
+]
+
 # Store Potential Results
-results.store_potentials(potentials)
+results.store_all_potentials(all_potentials_batch)
 
 # Export Results to NetCDF
 output_folder = "output/netcdf"

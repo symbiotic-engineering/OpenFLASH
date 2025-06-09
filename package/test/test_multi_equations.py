@@ -200,7 +200,6 @@ def test_I_nm_n0m_positive(h, d):
     # And "dj = max(d[i], d[i+1])". This suggests d[i] and d[i+1] are depths from surface.
     # Region 'i' is between a[i-1] and a[i], and extends from -h to -d[i].
     # Then I_nm is for "two i-type regions".
-    # Let's assume `d` stores depths from surface.
     # If d[i] is shallower than d[i+1], then d[i+1] is deeper, so dj = d[i+1].
     # (h-dj) means (h - deeper_depth_boundary).
     # If dj == d[i+1], it means d[i+1] is the deeper one.
@@ -218,7 +217,6 @@ def test_I_nm_n0m_positive(h, d):
     # dj != d[i+1] (50 != 50) is false, so it should be zero. This logic is confusing.
     # Re-reading: dj is the *lower* integration limit (closer to h).
     # The original MATLAB code or documentation is needed for precise interpretation of `dj`.
-    # Assuming `d[i]` and `d[i+1]` are the depths of the fluid regions.
     # Let's pick a case where the `if dj == d[i+1]: return 0` is false.
     # This implies d[i] > d[i+1] (meaning d[i] is deeper), and `dj = d[i]`.
     # In `d = [0, 20, 50]`, d[0] < d[1] < d[2]. This always makes `dj = d[i+1]`.
@@ -415,7 +413,6 @@ def test_b_velocity_entry_n_positive_di_greater(test_n, heaving, a, h, d):
     # Custom d to make d[i] > d[i+1]
     custom_d = np.array([0.0, 50.0, 20.0]) # d[1]=50, d[2]=20
     i = 1
-    # Assuming heaving[i] is True (non-zero)
     num = - sqrt(2) * a[i] * sin(lambda_ni(test_n, i+1, h, custom_d) * (h-custom_d[i]))
     denom = (2 * (h - custom_d[i]) * lambda_ni(test_n, i+1, h, custom_d))
     expected = num/denom
@@ -424,7 +421,6 @@ def test_b_velocity_entry_n_positive_di_greater(test_n, heaving, a, h, d):
 def test_b_velocity_entry_n_positive_di_smaller(test_n, heaving, a, h, d):
     if test_n == 0: pytest.skip("Test for n>0")
     i = 0 # d[0]=0, d[1]=20. d[i] < d[i+1]
-    # Assuming heaving[i+1] is True (non-zero)
     num = sqrt(2) * a[i] * sin(lambda_ni(test_n, i, h, d) * (h-d[i+1]))
     denom = (2 * (h - d[i+1]) * lambda_ni(test_n, i, h, d))
     expected = num/denom
@@ -593,12 +589,12 @@ def test_Z_k_e_k0_small_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
     # Patch N_k_multi to return a known value for this test
     with patch('multi_equations.N_k_multi', return_value=0.5): # Mock N_k_multi for simplicity
         expected = 1 / sqrt(0.5) * cosh(m0_local * (test_z + h))
-        assert np.isclose(Z_k_e(0, test_z, m0_local, h, NMK), expected)
+        assert np.isclose(Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
 
 def test_Z_k_e_k0_large_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
     m0_local = 0.2
     expected = sqrt(2 * m0_local * h) * (exp(m0_local * test_z) + exp(-m0_local * (test_z + 2*h)))
-    assert np.isclose(Z_k_e(0, test_z, m0_local, h, NMK), expected)
+    assert np.isclose(Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
 
 def test_Z_k_e_k_positive(test_k, test_z, m0, h, NMK, precomputed_m_k_arr):
     if test_k == 0: pytest.skip("Test for k>0")
@@ -609,18 +605,18 @@ def test_Z_k_e_k_positive(test_k, test_z, m0, h, NMK, precomputed_m_k_arr):
          patch('multi_equations.m_k', return_value=precomputed_m_k_arr) as mock_m_k: # Mock m_k to return the whole array
         expected = 1 / sqrt(0.8) * cos(local_m_k_k_from_precomputed * (test_z + h))
         print(f"DEBUG TEST Z_k_e: Expected calculated in test: {expected}") # Add this print
-        assert np.isclose(Z_k_e(test_k, test_z, m0, h, NMK), expected)
+        assert np.isclose(Z_k_e(test_k, test_z, m0, h, NMK, precomputed_m_k_arr), expected)
 
 def test_diff_Z_k_e_k0_small_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
     m0_local = 0.01
     with patch('multi_equations.N_k_multi', return_value=0.5):
         expected = 1 / sqrt(0.5) * m0_local * sinh(m0_local * (test_z + h))
-        assert np.isclose(diff_Z_k_e(0, test_z, m0_local, h, NMK), expected)
+        assert np.isclose(diff_Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
 
 def test_diff_Z_k_e_k0_large_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
     m0_local = 0.2
     expected = m0_local * sqrt(2 * h * m0_local) * (exp(m0_local * test_z) - exp(-m0_local * (test_z + 2*h)))
-    assert np.isclose(diff_Z_k_e(0, test_z, m0_local, h, NMK), expected)
+    assert np.isclose(diff_Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
 
 def test_diff_Z_k_e_k_positive(test_k, test_z, m0, h, NMK, precomputed_m_k_arr):
     if test_k == 0: pytest.skip("Test for k>0")
@@ -631,7 +627,7 @@ def test_diff_Z_k_e_k_positive(test_k, test_z, m0, h, NMK, precomputed_m_k_arr):
          patch('multi_equations.m_k', return_value=precomputed_m_k_arr) as mock_m_k: # Mock m_k to return the whole array
         expected = -1 / sqrt(0.8) * local_m_k_k_from_precomputed * sin(local_m_k_k_from_precomputed * (test_z + h))
         print(f"DEBUG TEST diff_Z_k_e: Expected calculated in test: {expected}") # Add this print
-        assert np.isclose(diff_Z_k_e(test_k, test_z, m0, h, NMK), expected)
+        assert np.isclose(diff_Z_k_e(test_k, test_z, m0, h, NMK, precomputed_m_k_arr), expected)
 
 # --- To calculate hydrocoefficients ---
 def test_int_R_1n_n0_i0(a, h, d):

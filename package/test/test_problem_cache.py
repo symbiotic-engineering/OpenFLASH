@@ -26,7 +26,6 @@ def mock_problem():
     mock = Mock()
     # Add any attributes or methods that ProblemCache might try to access on 'problem'
     # For now, ProblemCache only stores it, but if other methods access problem.frequencies, etc.
-    # you'd add them here.
     return mock
 
 @pytest.fixture
