@@ -32,7 +32,7 @@ pyparsing==3.1.4
 python-dateutil==2.9.0.post0
 pytz==2024.2
 pyzmq==26.2.0
-scipy== 1.13.1
+scipy==1.13.1
 six==1.16.0
 stack-data==0.6.3
 tornado==6.4.1
@@ -42,3 +42,4 @@ wcwidth==0.2.13
 pytest==7.4.2
 pytest-cov
 capytaine==2.2.1
+h5netcdf
