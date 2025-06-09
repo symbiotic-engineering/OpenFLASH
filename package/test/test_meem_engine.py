@@ -426,3 +426,132 @@ def test_assemble_A_template_d_increasing(meem_engine_increasing_depth, increasi
 
     A_matrix = engine.assemble_A_multi(problem, m0)
     assert A_matrix is not None
+
+# --- Tests for reformat_coeffs ---
+
+def test_reformat_coeffs_basic_3_regions(meem_engine_with_problem, sample_problem_params):
+    """
+    Tests reformat_coeffs with a standard 3-region problem (inner, outer, exterior).
+    """
+    engine = meem_engine_with_problem
+    NMK = sample_problem_params['NMK_values']
+    boundary_count = len(engine.problem_list[0].domain_list) - 1 # Should be 2 for 3 domains
+
+    # Calculate expected total size
+    expected_size = NMK[0] + (NMK[1] * 2) + NMK[2]
+    
+    # Create a dummy solution vector
+    # Use distinct values for easy verification
+    x_dummy = np.arange(expected_size, dtype=complex) + 1j * np.arange(expected_size, dtype=complex)
+    
+    reformatted_coeffs = engine.reformat_coeffs(x_dummy, NMK, boundary_count)
+
+    assert isinstance(reformatted_coeffs, list)
+    assert len(reformatted_coeffs) == 3 # Should be 3 regions
+
+    # Verify coefficients for Region 0 (inner)
+    np.testing.assert_array_equal(reformatted_coeffs[0], x_dummy[:NMK[0]])
+
+    # Verify coefficients for intermediate annular regions (Region 1, 'outer' in this case)
+    # This loop runs from i=1 to boundary_count-1. For boundary_count=2, i will be 1.
+    start_idx_region1 = NMK[0]
+    end_idx_region1 = start_idx_region1 + (NMK[1] * 2)
+    np.testing.assert_array_equal(reformatted_coeffs[1], x_dummy[start_idx_region1 : end_idx_region1])
+
+    # Verify coefficients for the outermost region (exterior)
+    start_idx_region2 = end_idx_region1 # The starting point for the last region
+    np.testing.assert_array_equal(reformatted_coeffs[2], x_dummy[start_idx_region2:])
+
+
+def test_reformat_coeffs_single_region_exterior_only(meem_engine_with_problem):
+    """
+    Tests reformat_coeffs for a hypothetical single-region problem (only exterior).
+    This implies NMK_values has only one element and boundary_count is 0.
+    """
+    engine = meem_engine_with_problem
+    # Simulate a problem with only an exterior domain
+    NMK_single_region = [7] # Only K harmonics
+    boundary_count_single_region = 0 # No inner or intermediate boundaries
+
+    expected_size = NMK_single_region[0]
+    x_dummy = np.arange(expected_size, dtype=complex) + 1j * np.arange(expected_size, dtype=complex)
+
+    reformatted_coeffs = engine.reformat_coeffs(x_dummy, NMK_single_region, boundary_count_single_region)
+
+    assert isinstance(reformatted_coeffs, list)
+    assert len(reformatted_coeffs) == 2 # First region and "outermost" region (which is the same here)
+
+    # The first append should take NMK[0] (which is the only NMK value)
+    np.testing.assert_array_equal(reformatted_coeffs[0], x_dummy[:NMK_single_region[0]])
+
+    # The loop for intermediate regions should not run (range(1, 0) is empty)
+    # The last append should take the rest, which is also NMK[0]
+    np.testing.assert_array_equal(reformatted_coeffs[1], x_dummy[NMK_single_region[0]:])
+
+
+def test_reformat_coeffs_multiple_annuli(meem_engine_with_problem):
+    """
+    Tests reformat_coeffs with multiple intermediate annular regions.
+    e.g., Inner, Annular1, Annular2, Exterior (4 regions total, 3 boundaries).
+    """
+    engine = meem_engine_with_problem
+    # Simulate NMK for 4 regions: N, M1, M2, K
+    NMK_multiple_annuli = [4, 3, 5, 6] # N=4, M1=3, M2=5, K=6
+    boundary_count_multiple_annuli = 3 # 4 regions means 3 boundaries (0, 1, 2)
+
+    # Calculate expected total size: N + 2*M1 + 2*M2 + K
+    expected_size = NMK_multiple_annuli[0] + \
+                    (NMK_multiple_annuli[1] * 2) + \
+                    (NMK_multiple_annuli[2] * 2) + \
+                    NMK_multiple_annuli[3]
+    
+    x_dummy = np.arange(expected_size, dtype=complex) + 1j * np.arange(expected_size, dtype=complex)
+
+    reformatted_coeffs = engine.reformat_coeffs(x_dummy, NMK_multiple_annuli, boundary_count_multiple_annuli)
+
+    assert isinstance(reformatted_coeffs, list)
+    assert len(reformatted_coeffs) == 4 # Should be 4 regions
+
+    # Region 0 (inner)
+    np.testing.assert_array_equal(reformatted_coeffs[0], x_dummy[:NMK_multiple_annuli[0]])
+    current_row = NMK_multiple_annuli[0]
+
+    # Region 1 (first annulus)
+    np.testing.assert_array_equal(
+        reformatted_coeffs[1], 
+        x_dummy[current_row : current_row + (NMK_multiple_annuli[1] * 2)]
+    )
+    current_row += (NMK_multiple_annuli[1] * 2)
+
+    # Region 2 (second annulus)
+    np.testing.assert_array_equal(
+        reformatted_coeffs[2], 
+        x_dummy[current_row : current_row + (NMK_multiple_annuli[2] * 2)]
+    )
+    current_row += (NMK_multiple_annuli[2] * 2)
+
+    # Region 3 (outermost/exterior)
+    np.testing.assert_array_equal(reformatted_coeffs[3], x_dummy[current_row:])
+    assert current_row == expected_size - NMK_multiple_annuli[3] # Ensure current_row is correct before last slice
+
+
+def test_reformat_coeffs_empty_x(meem_engine_with_problem):
+    """
+    Tests reformat_coeffs with an empty input vector x.
+    This should return a list of empty arrays.
+    """
+    engine = meem_engine_with_problem
+    NMK = [0, 0, 0] # No harmonics in any region
+    boundary_count = 2 # Still 3 regions (inner, outer, exterior) but empty
+    x_empty = np.array([], dtype=complex)
+
+    reformatted_coeffs = engine.reformat_coeffs(x_empty, NMK, boundary_count)
+
+    assert isinstance(reformatted_coeffs, list)
+    assert len(reformatted_coeffs) == 3 # Still 3 regions
+
+    # All should be empty arrays
+    for coeffs_array in reformatted_coeffs:
+        assert isinstance(coeffs_array, np.ndarray)
+        assert coeffs_array.size == 0
+        assert coeffs_array.dtype == complex # Ensure dtype is preserved
