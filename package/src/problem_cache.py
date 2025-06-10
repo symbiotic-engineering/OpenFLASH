@@ -1,4 +1,4 @@
-# package/src/problem_cache.py
+# package/src/problem_cache.py (NO CHANGES NEEDED HERE, this is just for context)
 import numpy as np
 from typing import List, Tuple, Callable
 from multi_equations import *
@@ -18,6 +18,10 @@ class ProblemCache:
         # These will be set by the MEEMEngine's _build_problem_cache method.
         self.m_k_entry_func: Callable = None
         self.N_k_func: Callable = None
+        # NEW: Store the pre-computed arrays themselves
+        self.m_k_arr: np.ndarray = None
+        self.N_k_arr: np.ndarray = None
+
 
     def set_A_template(self, A_template: np.ndarray):
         self.A_template = A_template
@@ -51,6 +55,12 @@ class ProblemCache:
         """
         self.m_k_entry_func = m_k_entry_func
         self.N_k_func = N_k_func
+
+    # NEW: Method to set the pre-computed arrays
+    def set_precomputed_m_k_N_k(self, m_k_arr: np.ndarray, N_k_arr: np.ndarray):
+        self.m_k_arr = m_k_arr
+        self.N_k_arr = N_k_arr
+
 
     def get_A_template(self) -> np.ndarray:
         if self.A_template is None:
