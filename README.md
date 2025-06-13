@@ -1,4 +1,5 @@
-# open-flash
+# OpenFLASH
+Open-source Flexible Library for Analytical and Semi-analytical Hydrodynamics 
 
 matlab: see `hydro/matlab/run_MEEM.m` for the symbolic and numeric code, see `test/matlab/` for some scripts to get results.
 
