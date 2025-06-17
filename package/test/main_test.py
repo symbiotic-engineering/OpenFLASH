@@ -117,9 +117,8 @@ def main(): # Renamed from test_main
                 Z_n_i(m, z, i_region_idx, h, d)
 
     def phi_e_k_func(k, r, z, m_k_arr, N_k_arr):
-        # *** FIX: Pass m_k_arr and N_k_arr to Lambda_k and Z_n_e ***
         return Cs[-1][k] * Lambda_k(k, r, m0, a, NMK, h, m_k_arr, N_k_arr) * \
-               Z_n_e(k, z, m0, h) # Z_n_e also needs these
+               Z_n_e(k, z, m0, h)
     
     spatial_res = 50
     r_vec = np.linspace(2 * a[-1] / spatial_res, 2*a[-1], spatial_res)
