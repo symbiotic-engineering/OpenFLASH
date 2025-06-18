@@ -57,7 +57,7 @@ class Geometry:
                 'h': h,
                 'di': di,
                 'a': a_val,
-                'm0': 0.0,  # You might need to calculate or pass 'm0' if necessary
+                'm0': 0.0,  
                 'scale': scale,
                 'heaving': heaving,
                 'slant': params.get('slant', False)
