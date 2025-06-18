@@ -177,11 +177,12 @@ def test_store_all_potentials(results_instance, mock_geometry, sample_frequencie
     
     results_instance.store_all_potentials(all_potentials_batch)
 
-    assert 'potentials' in results_instance.dataset.data_vars
     assert 'potential_r_coords' in results_instance.dataset.data_vars
     assert 'potential_z_coords' in results_instance.dataset.data_vars
 
-    potentials_da = results_instance.dataset['potentials']
+    real_da = results_instance.dataset['potentials_real']
+    imag_da = results_instance.dataset['potentials_imag']
+    potentials_da = real_da + 1j * imag_da
     r_coords_da = results_instance.dataset['potential_r_coords']
     z_coords_da = results_instance.dataset['potential_z_coords']
 
@@ -199,7 +200,8 @@ def test_store_all_potentials(results_instance, mock_geometry, sample_frequencie
     np.testing.assert_array_equal(potentials_da.coords['domain_name'].values, expected_domain_names)
     np.testing.assert_array_equal(potentials_da.coords['harmonics'].values, np.arange(max_harmonics_in_geom))
 
-    assert potentials_da.dtype == complex
+    assert real_da.dtype == float
+    assert imag_da.dtype == float
     assert r_coords_da.dtype == float
     assert z_coords_da.dtype == float
 
@@ -307,7 +309,6 @@ def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mo
     assert 'damping' in loaded_dataset.data_vars
     assert f'radial_eigenfunctions_{domain_name_ef}' in loaded_dataset.data_vars
     assert f'vertical_eigenfunctions_{domain_name_ef}' in loaded_dataset.data_vars
-    assert 'potentials' in loaded_dataset.data_vars
     assert 'potential_r_coords' in loaded_dataset.data_vars
     assert 'potential_z_coords' in loaded_dataset.data_vars
 
@@ -323,15 +324,22 @@ def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mo
     
     # Assert that the data is numerically correct (this covers the main concern)
     # The dtype assertion can be more specific if you absolutely need to check the exact structured dtype.
-    assert loaded_dataset['potentials'].dtype.kind == 'V' or loaded_dataset['potentials'].dtype == complex # 'V' for void/structured dtype
     assert loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].dtype.kind == 'V' or loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].dtype == complex
 
     # Verify data integrity (e.g., potentials) - this is the most important part
-    loaded_potentials = loaded_dataset['potentials'].sel(
+    loaded_real = loaded_dataset['potentials_real'].sel(
         frequencies=sample_frequencies[f_idx],
         modes=sample_modes[m_idx],
         domain_name=domain_pot.category
     ).values[:len(potentials_val)]
+
+    loaded_imag = loaded_dataset['potentials_imag'].sel(
+        frequencies=sample_frequencies[f_idx],
+        modes=sample_modes[m_idx],
+        domain_name=domain_pot.category
+    ).values[:len(potentials_val)]
+
+    loaded_potentials = loaded_real + 1j * loaded_imag
 
     # If it's a structured array, you might need to combine 'r' and 'i' fields
     if loaded_potentials.dtype.names is not None and 'r' in loaded_potentials.dtype.names and 'i' in loaded_potentials.dtype.names:

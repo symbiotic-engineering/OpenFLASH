@@ -76,7 +76,7 @@ class Results:
         print(f"Eigenfunctions for domain {domain_index} stored in dataset.")
 
 
-    # --- NEW METHOD TO STORE BATCHED POTENTIALS ---
+    # --- METHOD TO STORE BATCHED POTENTIALS ---
     def store_all_potentials(self, all_potentials_batch: list[dict]):
         """
         Store potentials for all frequencies and modes in a structured xarray DataArray.
@@ -123,9 +123,10 @@ class Results:
             for domain_name, data in item['data'].items():
                 domain_idx = domain_names.index(domain_name)
                 domain_potentials = data['potentials']
-                domain_r_coords = np.array(list(data['r_coords_dict'].values()))
-                domain_z_coords = np.array(list(data['z_coords_dict'].values()))
+                domain_r_coords = np.concatenate([np.atleast_1d(v) for _, v in sorted(data['r_coords_dict'].items())])
+                domain_z_coords = np.concatenate([np.atleast_1d(v) for _, v in sorted(data['z_coords_dict'].items())])
 
+                
                 # Ensure domain_potentials are complex before assigning
                 if domain_potentials.dtype != complex:
                     domain_potentials = domain_potentials.astype(complex)
@@ -140,9 +141,8 @@ class Results:
         if 'domain_name' not in self.dataset.coords:
             self.dataset.coords['domain_name'] = domain_names
 
-
-        self.dataset['potentials'] = xr.DataArray(
-            potentials_array,
+        self.dataset['potentials_real'] = xr.DataArray(
+            potentials_array.real,
             dims=['frequencies', 'modes', 'domain_name', 'harmonics'],
             coords={
                 'frequencies': self.frequencies,
@@ -151,6 +151,18 @@ class Results:
                 'harmonics': np.arange(max_harmonics)
             }
         )
+
+        self.dataset['potentials_imag'] = xr.DataArray(
+            potentials_array.imag,
+            dims=['frequencies', 'modes', 'domain_name', 'harmonics'],
+            coords={
+                'frequencies': self.frequencies,
+                'modes': self.modes,
+                'domain_name': domain_names,
+                'harmonics': np.arange(max_harmonics)
+            }
+        )
+
         
         # Store r and z coordinates specific to each domain/harmonic
         # No complex numbers here, so no specific encoding needed beyond default
@@ -202,23 +214,16 @@ class Results:
         :param file_path: Path where the .nc file will be saved.
         """
         if self.dataset is not None:
-            # We explicitly define encoding for 'potentials' variable only.
-            # xarray/netCDF4 should handle the splitting of complex numbers automatically
-            # when `engine='netcdf4'` is used, provided the variable itself has complex dtype.
-            # The _FillValue must match the complex dtype.
-            encoding = {
-                'potentials': {
-                    '_FillValue': np.nan + 1j * np.nan, # Crucial: complex NaN
-                    'dtype': 'complex128' # Tell it the original dtype is complex128
-                },
-                # Other variables like added_mass, damping, r_coords, z_coords are float/int
-                # and xarray's default handling for those is typically fine.
-            }
+            # Ensure no incompatible complex variable exists
+            if 'potentials' in self.dataset.data_vars:
+                self.dataset = self.dataset.drop_vars('potentials')
 
+            # Export only the real/imag split (standard-compliant NetCDF)
             self.dataset.to_netcdf(file_path, engine='h5netcdf')
             print(f"Results successfully exported to {file_path} (h5netcdf format).")
         else:
             print("No results to export!")
+
 
     def get_results(self):
         """

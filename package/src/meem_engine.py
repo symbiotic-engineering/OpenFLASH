@@ -256,8 +256,6 @@ class MEEMEngine:
 
         # Pre-compute m_k and N_k arrays ONCE for this m0
         NMK_last = problem.domain_list[list(problem.domain_list.keys())[-1]].number_harmonics
-        print(f"DEBUG: In assemble_A_multi for problem {id(problem)}, m0={m0}")
-        print(f"DEBUG: NMK_last = {NMK_last}")
 
         # Check if m_k_arr and N_k_arr are already computed for this m0
         # (Optional but good for efficiency if assemble_A_multi/b_multi can be called multiple times for the same m0)
@@ -265,14 +263,9 @@ class MEEMEngine:
         
         m_k_arr_computed = np.array([cache.m_k_entry_func(k, m0, problem.domain_list[0].h) for k in range(NMK_last)])
         N_k_arr_computed = np.array([cache.N_k_func(k, m0, problem.domain_list[0].h, NMK_last, m_k_arr_computed) for k in range(NMK_last)])
-        print(f"DEBUG: m_k_arr_computed shape: {m_k_arr_computed.shape if m_k_arr_computed is not None else 'None'}")
-        print(f"DEBUG: N_k_arr_computed shape: {N_k_arr_computed.shape if N_k_arr_computed is not None else 'None'}")
 
         # Store the computed arrays in the cache for later retrieval (e.g., by main_test.py for plotting)
         cache.set_precomputed_m_k_N_k(m_k_arr_computed, N_k_arr_computed)
-        print(f"DEBUG: After set_precomputed_m_k_N_k in assemble_A_multi:")
-        print(f"DEBUG: cache.m_k_arr shape: {cache.m_k_arr.shape if cache.m_k_arr is not None else 'None'}")
-        print(f"DEBUG: cache.N_k_arr shape: {cache.N_k_arr.shape if cache.N_k_arr is not None else 'None'}")
 
         for row, col, calc_func in cache.m0_dependent_A_indices:
             # Pass the pre-computed arrays (now directly from cache attributes or local computed ones) to the lambda
@@ -382,11 +375,7 @@ class MEEMEngine:
         cache = self.cache_list[problem]
         b = cache.get_b_template().copy() # Start with the template
 
-        print(f"DEBUG: In assemble_b_multi for problem {id(problem)}, m0={m0}")
-        print(f"DEBUG: Before using cache.m_k_arr in assemble_b_multi:")
-        print(f"DEBUG: cache.m_k_arr shape: {cache.m_k_arr.shape if cache.m_k_arr is not None else 'None'}")
-        print(f"DEBUG: cache.N_k_arr shape: {cache.N_k_arr.shape if cache.N_k_arr is not None else 'None'}")
-
+       
         # Retrieve m_k_arr and N_k_arr from the cache, assuming assemble_A_multi already computed and stored them.
         # If assemble_b_multi could be called *before* assemble_A_multi, you might need to re-add the computation logic here,
         # but for typical workflows (assemble A then b), it's redundant.
@@ -400,9 +389,6 @@ class MEEMEngine:
             m_k_arr_computed = np.array([cache.m_k_entry_func(k, m0, problem.domain_list[0].h) for k in range(NMK_last)])
             N_k_arr_computed = np.array([cache.N_k_func(k, m0, problem.domain_list[0].h, NMK_last, m_k_arr_computed) for k in range(NMK_last)])
             cache.set_precomputed_m_k_N_k(m_k_arr_computed, N_k_arr_computed)
-            print(f"DEBUG: Re-computed and stored in assemble_b_multi.")
-            print(f"DEBUG: cache.m_k_arr shape: {cache.m_k_arr.shape if cache.m_k_arr is not None else 'None'}")
-            print(f"DEBUG: cache.N_k_arr shape: {cache.N_k_arr.shape if cache.N_k_arr is not None else 'None'}")
 
 
         for row, calc_func in cache.m0_dependent_b_indices:

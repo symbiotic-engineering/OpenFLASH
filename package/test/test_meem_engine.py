@@ -343,7 +343,8 @@ def test_run_and_store_results(meem_engine_with_problem, single_meem_problem, sa
 
     assert isinstance(results_obj, Results)
 
-    assert 'potentials' in results_obj.dataset.data_vars
+    assert 'added_mass' in results_obj.dataset.data_vars
+    assert 'damping' in results_obj.dataset.data_vars
     assert 'domain_name' in results_obj.dataset.coords # Check if domain names are coords
 
 @pytest.fixture
