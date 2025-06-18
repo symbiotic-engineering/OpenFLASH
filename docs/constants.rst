@@ -1,38 +1,80 @@
-.. currentmodule:: package.constants
+.. _constants-module:
 
-Constants
-==========
+===================
+Constants Module
+===================
 
-This module defines several physical and mathematical constants used throughout the project.
+.. automodule:: constants
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-Constants
-----------
+.. _constants-overview:
 
-- **g**: Acceleration due to gravity (m/s²) — \(9.81\)
-- **pi**: The mathematical constant π — \( \pi \)
-- **h**: A project-specific constant related to the problem’s domain. 
-- **a1**: A project-specific constant that parameterizes aspects of the geometry or conditions in the problem.
-- **a2**: A project-specific constant that parameterizes aspects of the geometry or conditions in the problem.
-- **d1**: Additional constant used in defining boundary conditions or specific points in the domain.
-- **d2**: Additional constants used in defining boundary conditions or specific points in the domain.
-- **m0**: Represents a base or initial parameter, often used as a reference value in the calculations. 
-- **n**: A constant representing a fixed integer value, often used for indexing or defining specific scenarios in the model. 
-- **z**: A placeholder constant, often representing a vertical or depth-related dimension within the domain.
-- **omega**: Represents a frequency or angular velocity, typically associated with wave or rotational phenomena.
+Overview
+========
 
-Usage Example
--------------
+This module (`constants.py`) defines various physical and mathematical constants used throughout the MEEM (Multiple Expansion Eigenfunction Method) simulation project. These values serve as default or fundamental parameters for the calculations.
 
-You can import and use these constants in your calculations as follows:
+.. _constants-details:
 
-```python
-from constants import g, pi
-```
+Defined Constants
+=================
 
-# Example of using the gravitational constant
+Below are the constants defined in this module:
 
-mass = 5.0  # Example mass in kg
+.. autodata:: g
+   :annotation: = 9.81
 
-force = mass * g
+   Acceleration due to gravity in meters per second squared ($m/s^2$).
 
-print("Force:", force)
+.. autodata:: pi
+   :annotation: = numpy.pi
+
+   The mathematical constant pi, sourced from NumPy for high precision.
+
+.. autodata:: h
+   :annotation: = 1.001
+
+   Total water depth in meters.
+
+.. autodata:: a1
+   :annotation: = 0.5
+
+   Radius of the first (innermost) cylinder in meters.
+
+.. autodata:: a2
+   :annotation: = 1.0
+
+   Radius of the second cylinder in meters.
+
+.. autodata:: d1
+   :annotation: = 0.5
+
+   Submerged depth of the first (innermost) cylinder in meters.
+
+.. autodata:: d2
+   :annotation: = 0.25
+
+   Submerged depth of the second cylinder in meters.
+
+
+.. autodata:: m0
+   :annotation: = 1
+
+   Radial wave number.
+
+.. autodata:: n
+   :annotation: = 3
+
+   Related to a mode or term index.
+
+.. autodata:: z
+   :annotation: = 6
+
+   Related to a vertical coordinate or an integer value.
+
+.. autodata:: omega
+   :annotation: = 2
+
+   Angular frequency of the incident wave in radians per second.
