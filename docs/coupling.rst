@@ -1,166 +1,142 @@
-Coupling
-========
+.. _coupling-module:
+
+==================
+Coupling Module
+==================
+
+.. automodule:: coupling
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. _coupling-overview:
 
 Overview
---------
+========
 
-The `coupling` module provides functions for calculating coupling integrals used in the **Matched Eigenfunctions Method (MEEM)**. The primary functions, such as `A_nm`, `A_nm2`, `A_nj`, and `A_nj2`, compute various integral transformations. These calculations are vital for accurately modeling coupled systems in the MEEM framework.
+This module (`coupling.py`) defines various coupling integrals and helper functions critical for solving the multi-domain problem using the MEEM (Multi-Domain Eigenfunction Expansion Method). These functions represent the integrals over the fluid boundaries, connecting different regions of the solution domain. They are fundamental in constructing the system of linear equations that determines the unknown coefficients of the potential solutions.
 
-Function Definitions
---------------------
+.. _coupling-functions:
 
-.. _A_nm:
+Functions
+=========
 
-A_nm
-----
+.. autofunction:: sq
+   :noindex:
 
-.. function:: A_nm(n, m)
+   Calculates the square of an input number.
    
-   Computes the integral `A_nm`, representing coupling integrals between indices `n` and `m`.
+   :param n: The number to be squared.
+   :type n: float or int
+   :returns: The square of `n`.
+   :rtype: float or int
 
-   **Parameters:**
+.. autofunction:: A_nm
+   :noindex:
 
-   - **n** (*int*): First index in the coupling integral calculation.
-   - **m** (*int*): Second index in the coupling integral calculation.
+   Calculates the coupling integral :math:`A_{nm}`. This integral relates the inner and middle domains
+   across a common boundary. The specific formula depends on the values of `n` and `m`.
 
-   **Returns:**
+   :param n: Integer index for one series term.
+   :type n: int
+   :param m: Integer index for another series term.
+   :type m: int
+   :raises ValueError: If `n` or `m` are invalid (e.g., negative).
+   :returns: The calculated coupling integral value.
+   :rtype: float or complex
 
-   - (*float*): Result of the integral for the given indices `n` and `m`.
+.. autofunction:: A_nm2
+   :noindex:
 
-   **Raises:**
+   Calculates the coupling integral :math:`A_{nm}` (alternative formulation).
+   The specific formula depends on the values of `j` and `n`.
 
-   - **ValueError**: Raised if invalid indices are provided.
+   :param j: Integer index for one series term.
+   :type j: int
+   :param n: Integer index for another series term.
+   :type n: int
+   :raises ValueError: If `j` or `n` are invalid.
+   :returns: The calculated coupling integral value.
+   :rtype: float or complex
 
-.. code-block:: python
+.. autofunction:: A_nj
+   :noindex:
 
-   # Example usage
-   result = A_nm(2, 3)
+   Calculates the coupling integral :math:`A_{nj}`. This integral often relates different domains or
+   series expansions at an interface.
 
+   :param n: Integer index for one series term.
+   :type n: int
+   :param j: Integer index for another series term.
+   :type j: int
+   :raises ValueError: If `n` or `j` are invalid.
+   :returns: The calculated coupling integral value.
+   :rtype: float or complex
 
-.. _A_nm2:
+.. autofunction:: A_nj2
+   :noindex:
 
-A_nm2
------
+   Calculates the coupling integral :math:`A_{nj}` (alternative formulation).
+   The specific formula depends on the values of `n` and `j`.
 
-.. function:: A_nm2(j, n)
-   
-   Computes the integral `A_nm2`, applying specific transformations to indices `j` and `n`.
+   :param n: Integer index for one series term.
+   :type n: int
+   :param j: Integer index for another series term.
+   :type j: int
+   :raises ValueError: If `n` or `j` are invalid.
+   :returns: The calculated coupling integral value.
+   :rtype: float or complex
 
-   **Parameters:**
+.. autofunction:: nk_sigma_helper
+   :noindex:
 
-   - **j** (*int*): First index.
-   - **n** (*int*): Second index.
+   A helper function that computes several intermediate sigma values used in the `A_mk` integral
+   calculations.
 
-   **Returns:**
+   :param mk: A derived wave number, often from `m_k`.
+   :type mk: float
+   :param k: Integer index for a series term.
+   :type k: int
+   :param m: Integer index for another series term.
+   :type m: int
+   :returns: A tuple containing various precomputed sigma values (sigma1, sigma2, sigma3, sigma4, sigma5).
+   :rtype: tuple[float, float, float, float, float]
 
-   - (*float*): Result of the `A_nm2` integral calculation.
+.. autofunction:: A_mk
+   :noindex:
 
-.. _A_nj:
+   Calculates the coupling integral :math:`A_{mk}`. This integral is likely used to couple the
+   outermost domain (exterior region) to an inner domain.
 
-A_nj
-----
+   :param m: Integer index for a series term.
+   :type m: int
+   :param k: Integer index for another series term.
+   :type k: int
+   :raises ValueError: If `m` or `k` are invalid.
+   :returns: The calculated coupling integral value.
+   :rtype: float or complex
 
-.. function:: A_nj(n, j)
-   
-   Calculates the integral `A_nj`, essential for coupling calculations.
+.. autofunction:: nk2_sigma_helper
+   :noindex:
 
-   **Parameters:**
+   A helper function that computes several intermediate sigma values used in the `A_km2` integral
+   calculations.
 
-   - **n** (*int*): First index in the coupling integral.
-   - **j** (*int*): Second index in the coupling integral.
+   :param mk: A derived wave number, often from `m_k`.
+   :type mk: float
+   :returns: A tuple containing various precomputed sigma values (sigma1, sigma2, sigma3, sigma4, sigma5).
+   :rtype: tuple[float, float, float, float, float]
 
-   **Returns:**
+.. autofunction:: A_km2
+   :noindex:
 
-   - (*float*): Calculated integral for the given indices.
+   Calculates the coupling integral :math:`A_{km}` (alternative formulation, possibly from exterior to interior).
+   The specific formula depends on the values of `n` and `k`.
 
-.. _A_nj2:
-
-A_nj2
------
-
-.. function:: A_nj2(n, j)
-   
-   Computes the integral `A_nj2`, with additional transformations for `n` and `j`.
-
-   **Parameters:**
-
-   - **n** (*int*): First index.
-   - **j** (*int*): Second index.
-
-   **Returns:**
-
-   - (*float*): Calculated integral for the given indices.
-
-Helper Functions
-----------------
-
-.. _sq:
-
-sq
---
-
-.. function:: sq(x)
-   
-   Squares the input number `x`.
-
-   **Parameters:**
-
-   - **x** (*float*): Number to be squared.
-
-   **Returns:**
-
-   - (*float*): Result of squaring `x`.
-
-.. code-block:: python
-
-   # Example usage
-   result = sq(5)
-
-
-.. _nk_sigma_helper:
-
-nk_sigma_helper
----------------
-
-.. function:: nk_sigma_helper(mk, k, m)
-   
-   A helper function for `A_nm` and related calculations, handling specific transformations for values of `mk`, `k`, and `m`.
-
-   **Parameters:**
-
-   - **mk** (*float*): Coupled variable derived from `m_k`.
-   - **k** (*int*): Index in the transformation.
-   - **m** (*int*): Index in the transformation.
-
-   **Returns:**
-
-   - (*tuple*): Transformed components used in further calculations.
-
-Examples
---------
-
-The following example demonstrates a workflow using functions from the `coupling` module:
-
-.. code-block:: python
-
-   from coupling import A_nm, A_nm2, A_nj, sq
-
-   # Calculating A_nm and A_nm2
-   result_nm = A_nm(2, 3)
-   result_nm2 = A_nm2(4, 5)
-
-   # Using A_nj in further calculations
-   result_nj = A_nj(3, 6)
-
-Dependencies
-------------
-
-The following external libraries are required:
-
-- **NumPy**: For numerical operations.
-- **SciPy**: For integral transformations and mathematical operations.
-
-Notes
------
-
-Ensure all inputs fall within valid ranges to avoid `ValueError`. Index values are expected to be integers.
+   :param n: Integer index for a series term.
+   :type n: int
+   :param k: Integer index for another series term.
+   :type k: int
+   :raises ValueError: If `n` or `k` are invalid.
+   :returns: The calculated coupling integral value.
+   :rtype: float or complex
