@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to MEEM's Documentation!
-================================
+Welcome to openFlASH's Documentation!
+======================================
 
-This documentation provides an overview of the **Multiple Expansion Eigenfunction Method (MEEM)** package, which is designed to solve mathematical problems related to eigenfunctions and domain matching. The package is structured to allow for efficient geometry management, boundary condition matching, and problem-solving functionalities.
+This documentation provides an overview of the **openFlASH** package, which is designed to solve mathematical problems related to eigenfunctions and domain matching. The package is structured to allow for efficient geometry management, boundary condition matching, and problem-solving functionalities.
 
 Modules Overview
 ================
@@ -21,6 +21,7 @@ Modules Overview
    meem_problem
    meem_engine
    results
+   problem_cache
    tutorial_walk
    constants
    multi_constants

@@ -18,7 +18,6 @@ class ProblemCache:
         # These will be set by the MEEMEngine's _build_problem_cache method.
         self.m_k_entry_func: Callable = None
         self.N_k_func: Callable = None
-        # NEW: Store the pre-computed arrays themselves
         self.m_k_arr: np.ndarray = None
         self.N_k_arr: np.ndarray = None
 
@@ -34,8 +33,7 @@ class ProblemCache:
         Add an m0-dependent A matrix entry.
         :param row: Row index of the entry.
         :param col: Column index of the entry.
-        :param calc_func: A callable that takes (problem, m0, m_k_arr, N_k_arr) and returns the complex value for A[row, col].
-                          It now expects the pre-computed m_k_arr and N_k_arr.
+        :param calc_func: A callable that takes (problem, m0, m_k_arr, N_k_arr) and returns the complex value for A[row, col].It now expects the pre-computed m_k_arr and N_k_arr.
         """
         self.m0_dependent_A_indices.append((row, col, calc_func))
 
@@ -43,8 +41,7 @@ class ProblemCache:
         """
         Add an m0-dependent b vector entry.
         :param row: Row index of the entry.
-        :param calc_func: A callable that takes (problem, m0, m_k_arr, N_k_arr) and returns the complex value for b[row].
-                          It now expects the pre-computed m_k_arr and N_k_arr.
+        :param calc_func: A callable that takes (problem, m0, m_k_arr, N_k_arr) and returns the complex value for b[row]. It now expects the pre-computed m_k_arr and N_k_arr.
         """
         self.m0_dependent_b_indices.append((row, calc_func))
 
@@ -56,7 +53,7 @@ class ProblemCache:
         self.m_k_entry_func = m_k_entry_func
         self.N_k_func = N_k_func
 
-    # NEW: Method to set the pre-computed arrays
+    # Method to set the pre-computed arrays
     def set_precomputed_m_k_N_k(self, m_k_arr: np.ndarray, N_k_arr: np.ndarray):
         self.m_k_arr = m_k_arr
         self.N_k_arr = N_k_arr
