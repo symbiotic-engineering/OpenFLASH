@@ -82,9 +82,9 @@ class Results:
         Store potentials for all frequencies and modes in a structured xarray DataArray.
 
         :param all_potentials_batch: A list where each element corresponds to a frequency-mode calculation.
-                                     Each element is a dictionary:
-                                     {'frequency_idx': int, 'mode_idx': int,
-                                      'data': {'domain_name': {'potentials': np.ndarray, 'r_coords_dict': dict, 'z_coords_dict': dict}}}
+                                    Each element is a dictionary:
+                                    {'frequency_idx': int, 'mode_idx': int,
+                                    'data': {'domain_name': {'potentials': np.ndarray, 'r_coords_dict': dict, 'z_coords_dict': dict}}}
         """
         if not all_potentials_batch:
             print("No potentials data to store.")
