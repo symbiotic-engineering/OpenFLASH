@@ -1,7 +1,15 @@
-.. currentmodule:: package.domain
+.. _domain-module:
 
+==============
 Domain Module
-=============
+==============
+
+.. automodule:: domain
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. _domain-overview:
 
 .. figure:: _static/domain_table.png
    :alt: Table of domains
@@ -19,49 +27,29 @@ Domain Module
 
 This module defines the `Domain` class, which represents the characteristics of a physical domain.
 
-.. automodule:: domain
-   :members:
-   :undoc-members:
+Overview
+========
 
-Class:
---------
+The `domain.py` module defines the :class:`Domain` class, which represents a discrete sub-region within the overall fluid geometry. In multi-domain problems, the total computational space is divided into these individual domains, each with its own characteristics, boundary conditions, and parameters. The :class:`Domain` class manages these properties and provides methods to access relevant geometric and physical attributes.
 
-.. autoclass:: domain.Domain
+
+The Domain Class
+================
+
+.. autoclass:: Domain
    :members:
-   :noindex:
-   :undoc-members:
+   :undoc-members: 
    :show-inheritance:
-
-Attributes:
------------
-- `number_harmonics`: int — Number of harmonics in the domain.
-- `height`: float — Height of the domain.
-- `radial_width`: float — Radial width of the domain.
-- `top_BC`: float — Top boundary condition.
-- `bottom_BC`: float — Bottom boundary condition.
-- `category`: str — Category of the domain, indicating if it is 'inner', 'outer', or 'exterior'.
-- `params`: dict — Dictionary of parameters specific to the domain, such as `h`, `di`, `a1`, `a2`, `m0`.
-- `index` : int - Index of the domain in the multi-region setup.
-
-Methods:
---------
-
-.. method:: __init__(number_harmonics, height, radial_width, top_BC, bottom_BC, category, params)
    :noindex:
 
-   Initializes the Domain class with specified parameters.
+   .. automethod:: __init__
 
-   :param number_harmonics: The number of harmonics.
-   :type number_harmonics: int
-   :param height: Height of the domain.
-   :type height: float
-   :param radial_width: Radial width of the domain.
-   :type radial_width: float
-   :param top_BC: Top boundary condition.
-   :type top_BC: float
-   :param bottom_BC: Bottom boundary condition.
-   :type bottom_BC: float
-   :param category: Type of the domain (e.g., 'inner', 'outer', 'exterior').
-   :type category: str
-   :param params: Dictionary containing parameters like `h`, `di`, `a1`, `a2`, `m0`.
-   :type params: dict
+   .. automethod:: _get_di
+
+   .. automethod:: _get_a
+
+   .. automethod:: _get_heaving
+
+   .. automethod:: _get_r_coords
+
+   .. automethod:: _get_z_coords
