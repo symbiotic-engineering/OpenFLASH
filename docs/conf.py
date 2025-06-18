@@ -31,7 +31,7 @@ release = '0.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'nbsphinx', 'sphinx.ext.mathjax', 'sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'nbsphinx', 'sphinx.ext.mathjax', 'sphinx_design', 'sphinx.ext.viewcode', 'sphinx_tabs.tabs']
 
 # Ensure Jupyter notebooks are copied as part of the build process
 nbsphinx_allow_errors = True

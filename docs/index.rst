@@ -16,6 +16,7 @@ Modules Overview
    :caption: Contents:
 
    introduction
+   installation
    geometry
    domain
    meem_problem
