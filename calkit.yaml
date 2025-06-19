@@ -1,0 +1,26 @@
+environments:
+  tex:
+    kind: docker
+    image: texlive/texlive:latest-full
+    description: TeXlive via Docker.
+publications:
+  - path: pubs/JFM/figs.pdf
+    title: Numerics of the matched eigenfunction method for computing 
+      wave forces on concentric bodies
+    description:
+    kind: journal-article
+    stage: build-pubs-jfm
+    overleaf:
+      project_id: 685318d5f36d3cd58760e69b
+      wdir: pubs/JFM
+      sync_paths:
+        - figs
+        - FLMguide.tex
+        - JFM-FLM_Au.cls
+        - jfm.bib
+        - jfm.bst
+        - lineno-FLM.sty
+        - zotero-meem-refs.bib
+      push_paths:
+        - figs
+      last_sync_commit:
