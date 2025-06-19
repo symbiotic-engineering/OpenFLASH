@@ -4,7 +4,7 @@ environments:
     image: texlive/texlive:latest-full
     description: TeXlive via Docker.
 publications:
-  - path: pubs/JFM/figs.pdf
+  - path: pubs/JFM/FLMguide.pdf
     title: Numerics of the matched eigenfunction method for computing 
       wave forces on concentric bodies
     description:
@@ -14,8 +14,8 @@ publications:
       project_id: 685318d5f36d3cd58760e69b
       wdir: pubs/JFM
       sync_paths:
-        - figs
         - FLMguide.tex
+        - figs
         - JFM-FLM_Au.cls
         - jfm.bib
         - jfm.bst
