@@ -206,3 +206,5 @@ html/
 *.mat
 
 .vscode/settings.json
+
+.calkit\overleaf
