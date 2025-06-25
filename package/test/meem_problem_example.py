@@ -30,9 +30,8 @@ def main():
     NMK_vals = [50, 50, 50] # Number of harmonics for inner, outer, and exterior domains
 
     # Frequencies and modes relevant to the MEEMProblem itself
-    # For a simple heaving case,  might have one frequency and one mode of oscillation.
     analysis_frequencies = np.array([1.0, 1.5, 2.0]) # Example: analyze at 3 different frequencies
-    analysis_modes = np.array([1]) # Example: only considering heaving mode (mode 1)
+    analysis_modes = np.array([1]) 
 
     print(f"\nProblem Parameters for Setup:")
     print(f"  Water Depth (h): {h_val}")

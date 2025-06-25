@@ -16,7 +16,6 @@ try:
     from meem_engine import MEEMEngine
     from meem_problem import MEEMProblem
     from geometry import Geometry
-    # Rely on global constants and functions from multi_constants and multi_equations
     # Note: For Streamlit, these values will primarily come from user inputs,
     # but the functions themselves are still needed.
     from multi_equations import (
@@ -246,7 +245,7 @@ def main():
         st.warning("Hydrodynamic coefficients could not be calculated. `real` or `imag` keys are missing or None.")
 
     # --- Reformat coefficients using the dedicated MEEMEngine method ---
-    reformat_boundary_count = len(a_list) # This is the number of interfaces/cylinders
+    reformat_boundary_count = len(a_list) # This is the number of regions
     Cs = engine.reformat_coeffs(X, NMK, reformat_boundary_count)
     st.write(f"Coefficients reformatted into {len(Cs)} regions.")
     for i, c_region in enumerate(Cs):

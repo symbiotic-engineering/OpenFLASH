@@ -51,11 +51,10 @@ m0s = [0.1, 0.2, 0.3] # Reduce for quick testing
 # Helper function to set up a MEEMProblem and MEEMEngine
 def setup_problem_and_engine(m0_val):
     # Define r_coordinates and z_coordinates for Geometry
-    # Assuming 'a1' for inner boundary, 'a2' for outer boundary
     r_coordinates = {'a1': a_values[0], 'a2': a_values[1]}
     z_coordinates = {'h': h, 'd1': d_values[0], 'd2': d_values[1]}
 
-    # Define domain_params based on your example (inner, outer, exterior)
+    # Define domain_params
     # The 'di' and 'a' for the exterior domain are None as per Domain._get_di and _get_a
     domain_params = [
         {'number_harmonics': NMK_values[0], 'height': h, 'radial_width': a_values[0], 'category': 'inner', 'di': d_values[0], 'a': a_values[0], 'heaving': heaving_values[0], 'slant': False},
@@ -91,15 +90,6 @@ def scenario_modify_and_solve(prob, engine, m0):
 def scenario_create_and_solve(m0):
     print(f"Recreating problem for m0={m0} (full new setup each time)...")
     prob, engine = setup_problem_and_engine(m0)
-    # This will implicitly call _full_assemble_A_multi and _full_assemble_b_multi
-    # through the normal assemble_A_multi and assemble_b_multi paths unless we explicitly route them.
-    # For now, assemble_A_multi and assemble_b_multi are optimized, so if we want the "recreate"
-    # to be genuinely non-optimized, we need to call the internal _full_assemble_ methods.
-    
-    # To truly simulate "recreate" as slower, we need to bypass the caching for this scenario.
-    # This means temporarily routing to the full assembly methods.
-    # THIS IS A CRITICAL CHANGE FOR THE 'RECREATE' SCENARIO TO BE SLOWER
-    # It assumes _full_assemble_A_multi and _full_assemble_b_multi exist.
     A = engine._full_assemble_A_multi(prob, m0) # <--- Using the full, unoptimized assembly
     b = engine._full_assemble_b_multi(prob, m0) # <--- Using the full, unoptimized assembly
     

@@ -34,7 +34,7 @@ class MEEMEngine:
         :param problem_list: List of MEEMProblem instances.
         """
         self.problem_list = problem_list
-        self.cache_list = {} # Stores ProblemCache objects keyed by problem ID
+        self.cache_list = {} # Stores ProblemCache objects
 
         # Build caches for all problems during engine initialization
         for problem in problem_list:
@@ -145,7 +145,7 @@ class MEEMEngine:
                             A[row_offset + n][col_offset + 2*N_left + m] = - I_mk_og(n, m, bd, d, m0, h, NMK) * Lambda_k_og(m, a[bd], m0, a, NMK, h)
                     row_offset += N_left
             elif bd == 0: # i-i boundary (Inner-Intermediate)
-                left_diag_is_active = d[bd] > d[bd + 1] # Based on which region has the deeper draft
+                left_diag_is_active = d[bd] > d[bd + 1] # Based on which region has the deeper depth
                 if left_diag_is_active: # Left domain (Inner) gets diagonal entries
                     for n in range(N_left): # Inner harmonics (N)
                         A[row_offset + n][col_offset + n] = (h - d[bd]) * R_1n(n, a[bd], bd, h, d, a)
@@ -258,13 +258,11 @@ class MEEMEngine:
         NMK_last = problem.domain_list[list(problem.domain_list.keys())[-1]].number_harmonics
 
         # Check if m_k_arr and N_k_arr are already computed for this m0
-        # (Optional but good for efficiency if assemble_A_multi/b_multi can be called multiple times for the same m0)
-        # However, for now, we'll just recompute and store, assuming it's called once per m0 for A/b.
         
         m_k_arr_computed = np.array([cache.m_k_entry_func(k, m0, problem.domain_list[0].h) for k in range(NMK_last)])
         N_k_arr_computed = np.array([cache.N_k_func(k, m0, problem.domain_list[0].h, NMK_last, m_k_arr_computed) for k in range(NMK_last)])
 
-        # Store the computed arrays in the cache for later retrieval (e.g., by main_test.py for plotting)
+        # Store the computed arrays in the cache for later retrieval
         cache.set_precomputed_m_k_N_k(m_k_arr_computed, N_k_arr_computed)
 
         for row, col, calc_func in cache.m0_dependent_A_indices:
@@ -376,15 +374,10 @@ class MEEMEngine:
         b = cache.get_b_template().copy() # Start with the template
 
        
-        # Retrieve m_k_arr and N_k_arr from the cache, assuming assemble_A_multi already computed and stored them.
-        # If assemble_b_multi could be called *before* assemble_A_multi, you might need to re-add the computation logic here,
-        # but for typical workflows (assemble A then b), it's redundant.
+        # Retrieve m_k_arr and N_k_arr from the cache
         if cache.m_k_arr is None or cache.N_k_arr is None:
             print("WARNING: m_k_arr or N_k_arr were None in assemble_b_multi, re-computing.")
 
-            # Fallback or error: m_k_arr and N_k_arr should have been pre-computed by assemble_A_multi
-            # For robustness, you could re-compute them here if assemble_A_multi isn't guaranteed to run first.
-            # For now, let's assume assemble_A_multi sets them first.
             NMK_last = problem.domain_list[list(problem.domain_list.keys())[-1]].number_harmonics
             m_k_arr_computed = np.array([cache.m_k_entry_func(k, m0, problem.domain_list[0].h) for k in range(NMK_last)])
             N_k_arr_computed = np.array([cache.N_k_func(k, m0, problem.domain_list[0].h, NMK_last, m_k_arr_computed) for k in range(NMK_last)])
@@ -467,7 +460,6 @@ class MEEMEngine:
                                     * Lambda_k(m_local, a_bd_local, m0_local, a_local, NMK_local, h_local, m_k_arr, N_k_arr) # Pass m_k_arr, N_k_arr
                             )
                     row_offset += N_left
-            # ... (rest of A_template building, ensuring m0-independent terms are directly assigned) ...
             # For the cases where m0-dependent terms occur:
             elif bd == 0: # i-i boundary (Inner-Intermediate)
                 left_diag_is_active = d[bd] > d[bd + 1]
@@ -646,8 +638,8 @@ class MEEMEngine:
         Solve the linear system A x = b for the given problem (for single cylinder).
         """
         from scipy import linalg
-        A = self.assemble_A(problem, m0) # This is your old single-cylinder assemble_A
-        b = self.assemble_b(problem, m0) # This is your old single-cylinder assemble_b
+        A = self.assemble_A(problem, m0) # This is old single-cylinder assemble_A
+        b = self.assemble_b(problem, m0) # This is old single-cylinder assemble_b
         X = linalg.solve(A, b)
         return X
     
@@ -678,7 +670,7 @@ class MEEMEngine:
         cs.append(x[:NMK[0]])
         row += NMK[0]
 
-        # Coefficients for intermediate annular regions
+        # Coefficients for intermediate regions
         for i in range(1, boundary_count):
             cs.append(x[row: row + NMK[i] * 2])
             row += NMK[i] * 2
@@ -784,7 +776,6 @@ class MEEMEngine:
         domain_list = problem.domain_list
         start_idx = 0
         geometry_instance = problem.geometry
-        #for domain_name, domain in domain_list.items():
         for domain_index, domain in domain_list.items():
             domain_name = f"domain_{domain_index}"
             # Get the number of harmonics for this domain
@@ -794,10 +785,6 @@ class MEEMEngine:
             # Package the potential with domain-specific coordinates
             potentials[domain_name] = {
                 'potentials': domain_potential,
-                #error here
-                #AttributeError: 'Domain' object has no attribute 'r_coordinates'
-                #'r': domain.r_coordinates,
-                #'z': domain.z_coordinates
                 'r': geometry_instance.r_coordinates,
                 'z': geometry_instance.z_coordinates
             }
@@ -830,9 +817,9 @@ class MEEMEngine:
         # Use fig.tight_layout() as it's a figure-level adjustment
         fig.tight_layout()
 
-        plt.show() # This remains as it's the final display command
+        plt.show() # final display command
     
-    def run_and_store_results(self, problem_index: int, m0_values: np.ndarray) -> 'Results': # Added 'Results' for forward reference
+    def run_and_store_results(self, problem_index: int, m0_values: np.ndarray) -> 'Results': 
         """
         Perform the full MEEM computation for a *list of frequencies* and store results
         in the Results class.
@@ -845,11 +832,6 @@ class MEEMEngine:
                 and optionally potentials.
         """
         problem = self.problem_list[problem_index]
-
-        # Initialize lists to store coefficients for all frequencies and modes.
-        # Each element in these lists will be an array of coefficients for all modes at a given frequency.
-        all_added_mass_per_freq = []
-        all_damping_per_freq = []
         
         # Initialize a list to store batched potentials
         # This will be formatted as required by results.store_all_potentials
@@ -860,16 +842,7 @@ class MEEMEngine:
         geometry = problem.geometry
         results = Results(geometry, problem.frequencies, problem.modes)
 
-        # Determine the correct sizes for the 'r' and 'z' dimensions for dummy data
-        num_r_coords = len(problem.geometry.r_coordinates)
-        num_z_coords = len(problem.geometry.z_coordinates)
         num_modes = len(problem.modes) # Get the number of modes from the problem
-
-        # Pre-allocate arrays for results for *all* frequencies and modes defined in problem.frequencies.
-        # We will fill these based on calculations for frequencies in m0_values.
-        # Frequencies not in m0_values will remain NaN.
-        # This ensures that the final arrays for store_hydrodynamic_coefficients have the shape
-        # matching the full `problem.frequencies` dimension of the Results object.
         
         # Create mappings from the input m0_values to their indices in problem.frequencies
         freq_to_idx = {freq: idx for idx, freq in enumerate(problem.frequencies)}
@@ -877,7 +850,6 @@ class MEEMEngine:
         # Initialize full matrices with NaNs, for the dimensions of the Results object
         full_added_mass_matrix = np.full((len(problem.frequencies), num_modes), np.nan, dtype=float)
         full_damping_matrix = np.full((len(problem.frequencies), num_modes), np.nan, dtype=float)
-
 
         # Iterate over each frequency for computation from the input m0_values
         for i, m0 in enumerate(m0_values): # Loop through the input m0_values to calculate
@@ -919,24 +891,13 @@ class MEEMEngine:
             full_added_mass_matrix[freq_idx_in_problem, :] = current_added_mass
             full_damping_matrix[freq_idx_in_problem, :] = current_damping
 
-            # --- Handle Potentials (if you compute them for each frequency/mode) ---
-            # Assuming you have a method like `self.calculate_potentials(problem, X)`
-            # which returns a dictionary structured like the `example_potentials_for_one_freq_mode`
-            # in your `results_example.py`.
-
-            # Placeholder for calculated potentials:
-            # For this example, let's create dummy complex potentials with correct structure for the loop.
-            # In a real scenario, this would come from `self.calculate_potentials(problem, X)`
-            
-            # Example: Assume calculate_potentials returns something like this for one freq/mode
-            # This part should be replaced by your actual potential calculation
+            # --- Handle Potentials  ---
             calculated_potentials_for_this_freq_mode = {}
-            for domain_idx, domain in problem.geometry.domain_list.items():
+            for domain in problem.geometry.domain_list.items():
                 domain_name = domain.category # Or a more specific name like f'domain_{domain_idx}'
                 num_harmonics_for_domain = domain.number_harmonics # Get this from the domain
                 
                 # Dummy potential values and coordinates
-                # In a real scenario, these would be derived from X and the domain properties.
                 dummy_potentials = (np.random.rand(num_harmonics_for_domain) + \
                                     1j * np.random.rand(num_harmonics_for_domain)).astype(complex)
                 dummy_r_coords_dict = {f'r_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
@@ -948,31 +909,7 @@ class MEEMEngine:
                     'z_coords_dict': dummy_z_coords_dict,
                 }
 
-            # Collect data for store_all_potentials
-            # Note: You'll typically calculate potentials for each mode within this loop as well
-            # if your X vector contains info for all modes. Or, you'd have an inner loop for modes.
-            # For simplicity, let's assume `calculated_potentials_for_this_freq_mode` implicitly
-            # represents data for `modes[0]` if `num_modes` is 1, or you iterate modes here.
-            
-            # If your X contains solutions for ALL modes, then this `calculated_potentials_for_this_freq_mode`
-            # might need to be structured per mode.
-            # Assuming for now it's for the single mode or combined, and you just want one entry per freq.
-            # For multiple modes, you'd need an outer loop over modes or calculate_potentials to yield per mode.
-
-            # To align with `store_all_potentials` expecting frequency_idx and mode_idx:
-            # We need to loop over modes here if potentials are specific to each mode.
-            # If X already encodes all modes' potentials, then `calculate_potentials` should
-            # return a structure that can be easily split or directly mapped to (domain_name, mode_name, harmonics).
-
-            # For the current setup of `store_all_potentials`, it expects `all_potentials_batch`
-            # to be a list where each element is a dict like {'frequency_idx': int, 'mode_idx': int, 'data': {domain_name: {potentials, r, z}}}.
-            # So, we need to iterate over modes within this frequency loop.
-
             for mode_idx, mode_value in enumerate(problem.modes):
-                # In a real MEEM solution, `X` would usually contain coefficients
-                # for all modes combined. You would need to extract or re-organize
-                # `X` or call `calculate_potentials` specifically for each mode here.
-                # For this example, we're generating dummy data for each mode.
                 
                 # This is a placeholder for the actual calculation of potentials PER MODE
                 current_mode_potentials = {}

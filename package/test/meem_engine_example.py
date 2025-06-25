@@ -23,7 +23,7 @@ def main():
     """
     print("--- Starting MEEMEngine Batch Processing, Plotting, and Data Saving Example ---")
 
-    # --- 1. Define Problem Parameters (Example: config1) ---
+    # --- 1. Define Problem Parameters ---
     h_val = 1.001
     d_vals = [0.5, 0.25]
     a_vals = [0.5, 1]
@@ -32,7 +32,7 @@ def main():
     rho_val = 1023.0
 
     analysis_frequencies = np.linspace(0.1, 3.0, 50)
-    analysis_modes = np.array([1]) # Heaving mode
+    analysis_modes = np.array([1]) 
 
     print(f"\nProblem Parameters:")
     print(f"  Water Depth (h): {h_val}")
@@ -78,7 +78,6 @@ def main():
     for i, current_m0_val in enumerate(meem_problem.frequencies):
         #  only one mode for now (mode_idx = 0 as analysis_modes is [1])
         mode_idx = 0
-        current_mode = meem_problem.modes[mode_idx]
 
         if (i + 1) % 10 == 0 or i == 0 or i == len(meem_problem.frequencies) - 1:
             print(f"Processing frequency {i+1}/{len(meem_problem.frequencies)}: m0 = {current_m0_val:.4f} rad/s")
@@ -93,12 +92,10 @@ def main():
             collected_added_mass.append(hydro_coeffs.get('real', np.nan))
             collected_damping.append(hydro_coeffs.get('imag', np.nan))
 
-            # <--- NEW: Calculate Potentials for the current frequency/mode --->
+            # <--- Calculate Potentials for the current frequency/mode --->
             current_potentials_data = engine.calculate_potentials(meem_problem, x_coeffs)
             
             # Store potentials with their corresponding frequency/mode indices
-            # Need to reformat current_potentials_data to include r_coords_dict and z_coords_dict explicitly
-            # based on how store_all_potentials expects it.
             formatted_potentials_for_batch = {}
             for domain_name, domain_data in current_potentials_data.items():
                 formatted_potentials_for_batch[domain_name] = {
@@ -117,10 +114,6 @@ def main():
             print(f"  ERROR: Could not solve for m0={current_m0_val:.4f}: {e}. Recording NaN for coefficients and skipping potentials.")
             collected_added_mass.append(np.nan)
             collected_damping.append(np.nan)
-            # For potentials, we might need to append empty data or NaNs if every cell must be filled
-            # For simplicity for now, we just skip appending a valid data entry for this frequency.
-            # This means `store_all_potentials` must handle potentially missing (freq,mode) entries.
-            # The current store_all_potentials fills with NaNs if no data is explicitly assigned, which is good.
             continue
 
     print("\n--- Batch Processing Complete ---")
@@ -146,11 +139,11 @@ def main():
         damping_matrix=damping_matrix
     )
     
-    # <--- NEW: Store ALL collected Potentials --->
+    # <--- Store ALL collected Potentials --->
     results_obj.store_all_potentials(all_potentials_batch_data)
 
     # --- 8. Export Results to NetCDF ---
-    output_netcdf_file = "meem_hydro_results_full.nc" # Changed filename to distinguish
+    output_netcdf_file = "meem_hydro_results_full.nc" 
     results_obj.export_to_netcdf(output_netcdf_file)
     print(f"\nResults successfully exported to {output_netcdf_file}")
 

@@ -194,9 +194,8 @@ def test_I_nm_n0m_positive(h, d):
     m = 1
     i = 0 # region 0 (from 0 to d[1])
     dj = max(d[i], d[i+1]) # d[0]=0, d[1]=20 -> dj=20
-    # dj == d[i+1] (20 == 20), so it should return 0 if d[i+1] was the larger depth.
-    # Oh, wait. d[i] is the *upper* boundary, d[i+1] is the *lower* boundary.
-    # The comment says "integration bounds at -h and -d".
+    # d[i] is the *upper* boundary, d[i+1] is the *lower* boundary.
+    # "integration bounds at -h and -d".
     # And "dj = max(d[i], d[i+1])". This suggests d[i] and d[i+1] are depths from surface.
     # Region 'i' is between a[i-1] and a[i], and extends from -h to -d[i].
     # Then I_nm is for "two i-type regions".
@@ -213,14 +212,12 @@ def test_I_nm_n0m_positive(h, d):
     n = 0
     m = 1
     i = 1 # Region between d[1]=20 and d[2]=50
-    # dj = max(d[1], d[2]) = max(20, 50) = 50
-    # dj != d[i+1] (50 != 50) is false, so it should be zero. This logic is confusing.
-    # Re-reading: dj is the *lower* integration limit (closer to h).
+    # dj is the *lower* integration limit (closer to h).
     # The original MATLAB code or documentation is needed for precise interpretation of `dj`.
     # Let's pick a case where the `if dj == d[i+1]: return 0` is false.
     # This implies d[i] > d[i+1] (meaning d[i] is deeper), and `dj = d[i]`.
     # In `d = [0, 20, 50]`, d[0] < d[1] < d[2]. This always makes `dj = d[i+1]`.
-    # To test the `else` branch, I need different `d` values. Let's make a custom d.
+    # To test the `else` branch, Let's make a custom d.
     custom_d = np.array([0.0, 50.0, 20.0]) # d[1]=50, d[2]=20.
     i = 1 # region between 50 and 20
     dj = max(custom_d[i], custom_d[i+1]) # max(50, 20) = 50
@@ -377,7 +374,6 @@ def test_I_mk_k_positive_m_positive(test_n, test_k, test_i, d, m0, h, NMK, preco
 
 # Testing _og versions implicitly relies on m_k and N_k_og being correct.
 # We skip these for brevity since the main ones are tested with precomputed arrays.
-# If full coverage is needed, uncomment and ensure m_k/N_k_og are robustly tested.
 
 # --- b-vector computation ---
 def test_b_potential_entry_n0(test_i, d, heaving, h, a):
@@ -604,7 +600,7 @@ def test_Z_k_e_k_positive(test_k, test_z, m0, h, NMK, precomputed_m_k_arr):
     with patch('multi_equations.N_k_multi', return_value=0.8), \
          patch('multi_equations.m_k', return_value=precomputed_m_k_arr) as mock_m_k: # Mock m_k to return the whole array
         expected = 1 / sqrt(0.8) * cos(local_m_k_k_from_precomputed * (test_z + h))
-        print(f"DEBUG TEST Z_k_e: Expected calculated in test: {expected}") # Add this print
+        print(f"DEBUG TEST Z_k_e: Expected calculated in test: {expected}") 
         assert np.isclose(Z_k_e(test_k, test_z, m0, h, NMK, precomputed_m_k_arr), expected)
 
 def test_diff_Z_k_e_k0_small_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
@@ -626,7 +622,7 @@ def test_diff_Z_k_e_k_positive(test_k, test_z, m0, h, NMK, precomputed_m_k_arr):
     with patch('multi_equations.N_k_multi', return_value=0.8), \
          patch('multi_equations.m_k', return_value=precomputed_m_k_arr) as mock_m_k: # Mock m_k to return the whole array
         expected = -1 / sqrt(0.8) * local_m_k_k_from_precomputed * sin(local_m_k_k_from_precomputed * (test_z + h))
-        print(f"DEBUG TEST diff_Z_k_e: Expected calculated in test: {expected}") # Add this print
+        print(f"DEBUG TEST diff_Z_k_e: Expected calculated in test: {expected}")
         assert np.isclose(diff_Z_k_e(test_k, test_z, m0, h, NMK, precomputed_m_k_arr), expected)
 
 # --- To calculate hydrocoefficients ---
@@ -691,7 +687,7 @@ def test_z_n_d_n_positive(test_n):
     expected = sqrt(2) * (-1)**test_n
     assert np.isclose(z_n_d(test_n), expected)
 
-def test_excitation_phase(coeff, m0, a): # <-- 'a' is now present
-    local_scale_last = scale(a)[-1] # Now 'a' is the actual array
+def test_excitation_phase(coeff, m0, a): # <-- 'a' is present
+    local_scale_last = scale(a)[-1] # 'a' is the actual array
     expected = -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale_last))
-    assert np.isclose(excitation_phase(coeff, m0, a), expected) # And excitation_phase probably needs 'a' too now
+    assert np.isclose(excitation_phase(coeff, m0, a), expected) # excitation_phase needs 'a' too

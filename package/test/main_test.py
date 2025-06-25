@@ -23,7 +23,7 @@ from multi_equations import (
     diff_R_1n, diff_R_2n, diff_Lambda_k, diff_Z_n_i, diff_Z_k_e
 )
 from equations import (
-    Z_n_e # You imported this from equations, confirming it's Z_n_e, not Z_k_e.
+    Z_n_e 
 )
 
 # Set print options for better visibility in console
@@ -51,7 +51,7 @@ def main(): # Renamed from test_main
             'di': d[idx] if idx < len(d) else 0,
             'a': a[idx] if idx < len(a) else a[-1]*1.5,
             'heaving': heaving[idx] if idx < len(heaving) else False,
-            'slant': [0, 0, 1]  # Set True if the region is slanted
+            'slant': [0, 0, 1]  # 1 means region is slanted
         }
         domain_params.append(params)
 
@@ -107,11 +107,9 @@ def main(): # Renamed from test_main
 
     # Define potential calculation functions, now passing m_k_arr and N_k_arr
     def phi_h_n_inner_func(n, r, z):
-        # Assuming R_1n and Z_n_i don't need m_k_arr/N_k_arr from multi_equations
         return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * Z_n_i(n, z, 0, h, d)
 
     def phi_h_m_i_func(i_region_idx, m, r, z):
-        # Assuming R_1n, R_2n, Z_n_i don't need m_k_arr/N_k_arr from multi_equations
         return (Cs[i_region_idx][m] * R_1n(m, r, i_region_idx, h, d, a) +
                 Cs[i_region_idx][NMK[i_region_idx] + m] * R_2n(m, r, i_region_idx, a, h, d)) * \
                 Z_n_i(m, z, i_region_idx, h, d)
@@ -141,7 +139,7 @@ def main(): # Renamed from test_main
     regions.append((R <= a[0]) & (Z < -d[0])) # Region 0
     for i in range(1, boundary_count):
         regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i])) # Middle regions
-    regions.append(R > a[-1]) # Last (exterior) region, but without Z condition
+    regions.append(R > a[-1]) # Last (exterior) region
 
     phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex)
     phiH = np.full_like(R, np.nan + np.nan*1j, dtype=complex)
@@ -172,7 +170,7 @@ def main(): # Renamed from test_main
     phi = phiH + phiP
 
     # --- Plotting Function ---
-    def plot_field(field, R, Z, title): # Removed field_type as it's not used
+    def plot_field(field, R, Z, title): 
         plt.figure(figsize=(10, 8))
         
         plt.subplot(1, 2, 1)

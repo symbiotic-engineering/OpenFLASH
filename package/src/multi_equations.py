@@ -102,7 +102,6 @@ def I_nm(n, m, i, d, h): # coupling integral for two i-type regions
 # REVISED I_mk to accept m_k_arr and N_k_arr
 def I_mk(m, k, i, d, m0, h, NMK, m_k_arr, N_k_arr): # coupling integral for i and e-type regions
     # Use the pre-computed array
-    # local_m_k = m_k(NMK, m0, h) # NO LONGER CALL THIS
     local_m_k_k = m_k_arr[k] # Access directly from array
     
     dj = d[i]
@@ -194,7 +193,6 @@ def b_velocity_entry(n, i, heaving, a, h, d): # for two i-type regions
 # REVISED b_velocity_end_entry to accept m_k_arr and N_k_arr
 # ADDED m_k_arr, N_k_arr
 def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # between i and e-type regions
-    # local_m_k = m_k(NMK, m0, h) # NO LONGER CALL THIS
     local_m_k_k = m_k_arr[k] # Access directly from array
 
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
@@ -277,7 +275,7 @@ def R_2n_vectorized(n, r_array, i, a, h, d): # Changed 'r' to 'r_array'
         raise ValueError("i cannot be 0")
     elif n == 0:
         # This needs to handle division by zero if r_array contains 0
-        # For now, it will raise a RuntimeWarning, but ensure r_array doesn't contain 0 if R_2n is called for r=0
+        # ensure r_array doesn't contain 0 if R_2n is called for r=0
         return 0.5 * np.log(r_array / a[i])
     else:
         return besselk(0, lambda_ni(n, i, h, d) * r_array) / besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
@@ -319,7 +317,6 @@ def diff_Z_n_i(n, z, i, h, d):
 # REVISED Lambda_k to accept m_k_arr and N_k_arr
 def Lambda_k(k, r, m0, a, NMK, h, m_k_arr, N_k_arr): # ADDED m_k_arr, N_k_arr
     local_scale = scale(a)
-    # local_m_k = m_k(NMK, m0, h) # NO LONGER CALL THIS
     local_m_k_k = m_k_arr[k] # Access directly from array
     
     if k == 0:
@@ -347,7 +344,6 @@ def Lambda_k_og(k, r, m0, a, NMK, h):
 # Differentiate wrt r 
 # REVISED diff_Lambda_k to accept m_k_arr and N_k_arr
 def diff_Lambda_k(k, r, m0, NMK, h, a, m_k_arr, N_k_arr): # ADDED m_k_arr, N_k_arr
-    # local_m_k = m_k(NMK, m0, h) # NO LONGER CALL THIS
     local_m_k_k = m_k_arr[k] # Access directly from array
     local_scale = scale(a)
     if k == 0:
@@ -375,7 +371,6 @@ def diff_Lambda_k_og(k, r, m0, NMK, h, a):
 # REVISED N_k to accept m_k_arr (as it previously called m_k itself)
 
 def N_k_multi(k, m0, h, NMK, m_k_arr): # Added m_k_arr as optional argument
-    # If m_k_arr is provided, use it; otherwise, calculate via m_k_entry (for external calls or _full_assemble)
     if m_k_arr is not None:
         local_m_k_k = m_k_arr[k]
     else:
@@ -408,7 +403,7 @@ def Z_k_e(k, z, m0, h, NMK, m_k_arr):
         return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * cos(local_m_k[k] * (z + h))
     
 def Z_k_e_vectorized(k, z_array, m0, h, NMK, m_k_arr): # Changed 'z' to 'z_array'
-    local_m_k = m_k(NMK, m0, h) # You might still want to pass m_k_arr directly here
+    local_m_k = m_k(NMK, m0, h) 
     if k == 0:
         if m0 * h < 14:
             return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * cosh(m0 * (z_array + h))

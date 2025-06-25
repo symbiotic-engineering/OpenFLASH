@@ -191,11 +191,6 @@ def test_solve_linear_system(meem_engine_with_problem, single_meem_problem, samp
     # Solve using the "old" method
     X_old = engine.solve_linear_system(problem, m0)
 
-    # Solve using the full multi-region method for comparison
-    A_full = engine._full_assemble_A_multi(problem, m0)
-    b_full = engine._full_assemble_b_multi(problem, m0)
-    X_compare = np.linalg.solve(A_full, b_full)
-
     assert X_old.shape == (expected_system_size,)
 
 def test_solve_linear_system_multi(meem_engine_with_problem, single_meem_problem, sample_problem_params, expected_system_size):
@@ -453,7 +448,7 @@ def test_reformat_coeffs_basic_3_regions(meem_engine_with_problem, sample_proble
     # Verify coefficients for Region 0 (inner)
     np.testing.assert_array_equal(reformatted_coeffs[0], x_dummy[:NMK[0]])
 
-    # Verify coefficients for intermediate annular regions (Region 1, 'outer' in this case)
+    # Verify coefficients for intermediate regions (Region 1, 'outer' in this case)
     # This loop runs from i=1 to boundary_count-1. For boundary_count=2, i will be 1.
     start_idx_region1 = NMK[0]
     end_idx_region1 = start_idx_region1 + (NMK[1] * 2)
@@ -492,8 +487,8 @@ def test_reformat_coeffs_single_region_exterior_only(meem_engine_with_problem):
 
 def test_reformat_coeffs_multiple_annuli(meem_engine_with_problem):
     """
-    Tests reformat_coeffs with multiple intermediate annular regions.
-    e.g., Inner, Annular1, Annular2, Exterior (4 regions total, 3 boundaries).
+    Tests reformat_coeffs with multiple intermediate regions.
+    e.g., (4 regions total, 3 boundaries).
     """
     engine = meem_engine_with_problem
     # Simulate NMK for 4 regions: N, M1, M2, K
@@ -517,14 +512,14 @@ def test_reformat_coeffs_multiple_annuli(meem_engine_with_problem):
     np.testing.assert_array_equal(reformatted_coeffs[0], x_dummy[:NMK_multiple_annuli[0]])
     current_row = NMK_multiple_annuli[0]
 
-    # Region 1 (first annulus)
+    # Region 1 (first region)
     np.testing.assert_array_equal(
         reformatted_coeffs[1], 
         x_dummy[current_row : current_row + (NMK_multiple_annuli[1] * 2)]
     )
     current_row += (NMK_multiple_annuli[1] * 2)
 
-    # Region 2 (second annulus)
+    # Region 2 (second region)
     np.testing.assert_array_equal(
         reformatted_coeffs[2], 
         x_dummy[current_row : current_row + (NMK_multiple_annuli[2] * 2)]

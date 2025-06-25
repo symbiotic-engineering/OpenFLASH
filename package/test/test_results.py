@@ -210,8 +210,6 @@ def test_store_all_potentials(results_instance, mock_geometry, sample_frequencie
         f_idx = item['frequency_idx']
         m_idx = item['mode_idx']
         for domain_name, data in item['data'].items():
-            # Get the domain index for xarray's internal ordering (alphabetical)
-            domain_idx_in_xarray = potentials_da.coords['domain_name'].to_numpy().tolist().index(domain_name)
 
             original_potentials = data['potentials']
             
@@ -311,19 +309,9 @@ def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mo
     assert f'vertical_eigenfunctions_{domain_name_ef}' in loaded_dataset.data_vars
     assert 'potential_r_coords' in loaded_dataset.data_vars
     assert 'potential_z_coords' in loaded_dataset.data_vars
-
-    # Check complex data types after loading
-    # The actual dtype might be a structured array like [('r', '<f8'), ('i', '<f8')]
-    # Instead of `== complex`, check if it's a structured dtype with 'r' and 'i' fields
-    # or just check if the data can be correctly interpreted as complex values.
-    
-    # A robust way to check is to verify the values after conversion if needed,
-    # or check the structure of the dtype for 'r' and 'i' fields.
-    # For now, let's just make sure the numerical values are correct, which implicitly
-    # checks the complex data integrity.
     
     # Assert that the data is numerically correct (this covers the main concern)
-    # The dtype assertion can be more specific if you absolutely need to check the exact structured dtype.
+    # The dtype assertion can be more specific
     assert loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].dtype.kind == 'V' or loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].dtype == complex
 
     # Verify data integrity (e.g., potentials) - this is the most important part
@@ -341,7 +329,6 @@ def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mo
 
     loaded_potentials = loaded_real + 1j * loaded_imag
 
-    # If it's a structured array, you might need to combine 'r' and 'i' fields
     if loaded_potentials.dtype.names is not None and 'r' in loaded_potentials.dtype.names and 'i' in loaded_potentials.dtype.names:
         loaded_potentials_combined = loaded_potentials['r'] + 1j * loaded_potentials['i']
     else:
@@ -355,15 +342,6 @@ def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mo
         modes=sample_modes[0],
         r=mock_geometry.r_coordinates[0] # Select a specific r-coordinate for check
     ).values
-
-    # Assuming you might want to compare against a specific slice of the original data.
-    # For simplicity, let's just check the values that were actually stored.
-    # You might need to adjust slicing based on how you want to verify
-    # all dimensions for eigenfunctions if you didn't extract a simple 1D array.
-    
-    # For this test, let's just assert that the `loaded_dataset` contains the complex values correctly.
-    # The previous test_store_results_eigenfunctions already verifies the full array.
-    # The main concern for export is *if complex numbers are preserved*.
 
     # Cleanup
     os.remove(file_path)

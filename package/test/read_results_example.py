@@ -25,12 +25,11 @@ def read_and_plot_hydro_results(file_path="meem_hydro_results.nc"):
 
         # 2. Access the stored data variables
         frequencies = ds['frequencies'].values
-        modes = ds['modes'].values # In our case, this should just be [1]
         added_mass = ds['added_mass'].values
         damping = ds['damping'].values
 
-        # Since 'modes' dimension has size 1 (for heaving), we can squeeze it
-        # to get 1D arrays for plotting if that's what we want.
+        # Since 'modes' dimension has size 1, we can squeeze it
+        # to get 1D arrays for plotting
         added_mass_squeezed = added_mass.squeeze()
         damping_squeezed = damping.squeeze()
 

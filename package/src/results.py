@@ -1,6 +1,6 @@
 import xarray as xr
 import numpy as np
-from geometry import Geometry # Assuming Geometry class is imported correctly
+from geometry import Geometry
 
 class Results:
     """
@@ -34,16 +34,9 @@ class Results:
         if domain is None:
             raise ValueError(f"Domain index {domain_index} not found.")
 
-        # NOTE: The original store_results with xr.concat on 'r'/'z' implies
-        # it's meant for adding *more* spatial coordinates over time for a given domain.
-        # For batch processing across frequencies/modes, you'd typically want to store
-        # the full (frequencies, modes, spatial_coords) array once.
-        # For now, let's assume radial_data and vertical_data are pre-batched.
-
         r_coords = np.array(list(self.geometry.r_coordinates.values()))
         z_coords = np.array(list(self.geometry.z_coordinates.values()))
 
-        # Ensure that passed data matches expected dimensions (frequencies, modes, spatial)
         if radial_data.shape != (len(self.frequencies), len(self.modes), len(r_coords)):
             raise ValueError(f"radial_data shape {radial_data.shape} does not match expected "
                              f"({len(self.frequencies)}, {len(self.modes)}, {len(r_coords)})")
@@ -51,9 +44,7 @@ class Results:
             raise ValueError(f"vertical_data shape {vertical_data.shape} does not match expected "
                              f"({len(self.frequencies)}, {len(self.modes)}, {len(z_coords)})")
 
-        # Assuming r_coords and z_coords are fixed for all frequencies/modes for this domain
-        # If 'r' and 'z' coords vary per domain, this would need more complexity.
-        domain_name = domain.category # or a more specific identifier
+        domain_name = domain.category if domain.category else f"domain_{domain_index}"
 
         self.dataset[f'radial_eigenfunctions_{domain_name}'] = xr.DataArray(
             radial_data,
@@ -110,8 +101,7 @@ class Results:
             dtype=complex # Explicitly define complex dtype
         )
 
-        # Create coordinate arrays for r and z (assuming they are consistent across frequencies/modes
-        # but can vary by domain and harmonic within a domain)
+        # Create coordinate arrays for r and z
         r_coord_values = np.full((len(domain_names), max_harmonics), np.nan, dtype=float) # These should be real floats
         z_coord_values = np.full((len(domain_names), max_harmonics), np.nan, dtype=float) # These should be real floats
 
