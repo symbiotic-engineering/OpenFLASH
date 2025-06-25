@@ -893,7 +893,8 @@ class MEEMEngine:
 
             # --- Handle Potentials  ---
             calculated_potentials_for_this_freq_mode = {}
-            for domain in problem.geometry.domain_list.items():
+            for domain_name, domain in problem.geometry.domain_list.items():
+                print(domain_name, domain.category)
                 domain_name = domain.category # Or a more specific name like f'domain_{domain_idx}'
                 num_harmonics_for_domain = domain.number_harmonics # Get this from the domain
                 
