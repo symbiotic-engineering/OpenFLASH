@@ -11,8 +11,6 @@ import scipy as sp
 from constants import *
 from equations import *
 
-
-
 #############################################
 # Coupling integrals: (m_k is a function)
 def sq(n): 

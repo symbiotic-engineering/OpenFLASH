@@ -10,7 +10,6 @@ from numpy import sqrt, cosh, cos, sinh, sin, pi
 from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 
-
 # Defining m_k function that will be used later on
 def m_k(k, m0, h):
     # m_k_mat = np.zeros((len(m0_vec), 1))

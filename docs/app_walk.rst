@@ -1,85 +1,112 @@
-MEEM Simulation Streamlit App
-=============================
+.. _app-module:
 
-Introduction
-------------
-The MEEM Simulation app allows users to perform simulations for solving a multi-region problem with custom parameters. The app uses the MEEM (Multi-Region Eigenfunction Expansion Method) engine to compute hydrodynamic coefficients and visualize the results.
+============
+App Module
+============
 
-Features
---------
-1. **Hydrodynamic Coefficients Calculation:** The app calculates the coefficients based on user-defined domain parameters.
-2. **Visualization:** The app provides visualizations of the radial, vertical, and total velocity potentials.
-3. **Interactive Sidebar:** Users can interactively adjust simulation parameters like height, slant vectors, spatial resolution, and harmonic values.
+.. automodule:: app
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-How to Use
------------
-1. **Run the Streamlit App:**
-   Ensure that you have Streamlit installed. You can install it using:
-   
-   .. code-block:: bash
-      pip install streamlit
+.. _app-overview:
 
-   To launch the app, run the following command in the docs folder:
-   
-   .. code-block:: bash
-      streamlit run app.py
+Application Overview
+====================
 
-2. **Adjust Simulation Parameters:**
-   The app features a sidebar where you can input different parameters for your simulation:
+This Streamlit application (`app.py`) provides an interactive interface for simulating the hydrodynamic behavior of multiple cylinders using MEEM. Users can adjust various parameters to visualize potential and velocity fields, and compute hydrodynamic coefficients (added mass and damping).
 
-   - **Water Height (h):** Adjust the height parameter. The default is set to 1.001 meters.
-   - **Body Height (d):** Enter a list of body heights separated by commas (e.g., "0.5,0.25").
-   - **Diameter (a):** Enter a list of diameters separated by commas (e.g., "0.5,1").
-   - **Heaving States:** Define whether each region is heaving (1 for True, 0 for False) by entering a comma-separated list (e.g., "1,1").
-   - **Slant Vectors:** Enter slant vectors for each region (e.g., "0,0,1;0,0,1;0,0,1").
-   - **Number of Harmonics (NMK):** Define the number of harmonics for each region, separated by commas (e.g., "30,30,30").
-   - **Spatial Resolution:** Choose the spatial resolution for the mesh grid. The range is between 10 and 100.
-   - **Checkboxes:** Select whether to display different potential plots, such as homogeneous, particular, total, radial velocity, and vertical velocity.
+ **Run the Streamlit App:**
+ Ensure that you have Streamlit installed. You can install it using:
 
-3. **View Domain Parameters:**
-   After configuring the parameters, the app displays the domain parameters, including the number of harmonics, radial widths, and slant vectors, which are used in the simulation.
+ .. code-block:: bash
 
-4. **Run the Simulation:**
-   Once you've configured the parameters, the app automatically runs the simulation and computes the hydrodynamic coefficients.
+   pip install streamlit
 
-5. **Visualization:**
-   The app provides visualizations of different potential fields. These include:
-   - **Homogeneous Potential Plots**
-   - **Particular Potential Plots**
-   - **Total Potential Plots**
-   - **Radial Velocity Potential Plots**
-   - **Vertical Velocity Potential Plots**
+ To launch the app, run the following command in the docs folder:
 
-   You can interact with the plots and explore the results. The plots are generated using the Matplotlib library, with contour plots showing the variation of potential across the radial and axial distances.
+ .. code-block:: bash
 
-6. **Understanding the Results:**
-   The hydrodynamic coefficients and the potential fields are computed based on the user-defined inputs. These results are displayed in the app in a format that helps you understand the spatial variations in the velocity potentials.
+   streamlit run app.py
 
-Code Explanation
-----------------
-The main components of the code include:
+**Key Features:**
 
-1. **User Input:**
-   The app uses `st.sidebar` for user inputs, where users can adjust various parameters for the simulation.
+* **Interactive Parameters:** Adjust water depth, cylinder radii, heaving states, number of harmonics, wave number, angular frequency, and spatial resolution.
+* **Dynamic Domain Configuration:** Supports multi-region calculations.
+* **Slant Support:** Allows specification of slanted cylinder walls.
+* **Hydrodynamic Coefficients:** Calculates and displays added mass and damping for each heaving mode.
+* **Potential and Velocity Field Visualization:** Plots homogeneous, particular, and total potential fields, as well as radial and vertical velocity components.
 
-2. **Geometry and Engine Setup:**
-   The `Geometry` and `MEEMEngine` classes are used to configure the simulation domain and run the solver. The problem is set up using these objects, and the linear system is solved using SciPy's `linalg.solve()` function.
+.. _app-functions:
 
-3. **Potential and Velocity Calculations:**
-   The code calculates different potentials (e.g., homogeneous, particular, total) and velocities (e.g., radial, vertical) using predefined functions like `phi_h_n_inner_func`, `phi_h_m_i_func`, and others.
+Functions
+=========
 
-4. **Visualization:**
-   The `plot_potential()` function creates visual representations of the computed potential fields using Matplotlib and Streamlit's `st.pyplot()`.
+.. autofunction:: plot_field
+   :noindex:
 
-Troubleshooting
----------------
-- Ensure that all necessary Python packages are installed, including `streamlit`, `numpy`, `pandas`, `scipy`, and `matplotlib`.
-- If the app does not load, check the browser console for any error messages.
-- Ensure that the correct versions of packages are being used to avoid compatibility issues.
-- If slant vectors or other inputs are misconfigured, the app will show an error and prompt you to adjust the inputs.
+   Plots the real and imaginary parts of a field using Matplotlib.
+   The function returns a Matplotlib figure object.
 
-Conclusion
-----------
-This Streamlit app provides an easy-to-use interface for running complex MEEM simulations. It allows users to customize the parameters, run simulations, and visualize the results interactively. By adjusting parameters in the sidebar, users can explore different configurations and see how they affect the hydrodynamic coefficients and velocity potentials.
+   :param field: A 2D NumPy array representing the complex field data.
+   :type field: numpy.ndarray
+   :param R: A 2D NumPy array of radial coordinates.
+   :type R: numpy.ndarray
+   :param Z: A 2D NumPy array of axial coordinates.
+   :type Z: numpy.ndarray
+   :param title: The title for the plot.
+   :type title: str
+   :param a_list: A list of cylinder radii used for plotting vertical boundary lines.
+   :type a_list: list[float]
+   :param d_list: A list of cylinder depths used for plotting horizontal boundary lines.
+   :type d_list: list[float]
+   :param plot_imaginary: If True, plots both real and imaginary parts. If False, only plots the real part. Defaults to True.
+   :type plot_imaginary: bool
+   :returns: A Matplotlib Figure object.
+   :rtype: matplotlib.figure.Figure
 
-For more information, refer to the documentation of the `MEEMEngine`, `Geometry`, and other classes used in the app.
+.. autofunction:: main
+   :noindex:
+
+   The main function that sets up and runs the Streamlit application.
+
+   It configures the sidebar for user inputs, parses and validates these inputs,
+   sets up the `MEEMProblem` and `MEEMEngine`, solves the hydrodynamic problem,
+   computes coefficients, calculates potential and velocity fields, and
+   visualizes the results using Matplotlib plots within the Streamlit interface.
+
+   **User Inputs (Sidebar):**
+
+   * **Water Depth (h):** Overall depth of the water. (Slider)
+   * **Cylinder Depths (d):** Comma-separated list of depths for each cylinder. (Text Input)
+   * **Cylinder Radii (a):** Comma-separated list of radii for each cylinder. (Text Input)
+   * **Heaving States:** Comma-separated binary (1=True, 0=False) list indicating if each domain is heaving. (Text Input)
+   * **Slanted States:** Comma-separated binary (1=True, 0=False) list indicating if each domain's outer wall is slanted. (Text Input)
+   * **Number of Harmonics (NMK):** Comma-separated list specifying the number of terms in the approximation for each domain (inner, middle, exterior). (Text Input)
+   * **Wave Number (m0):** The radial wave number. (Number Input)
+   * **Angular Frequency (omega):** The angular frequency of the wave system. (Number Input)
+   * **Spatial Resolution:** Controls the density of the grid for plotting potential/velocity fields. (Slider)
+
+   **Plot Options (Sidebar Checkboxes):**
+
+   * Show Homogeneous Potential Plots
+   * Show Particular Potential Plots
+   * Show Total Potential Plots
+   * Show Radial Velocity Plots
+   * Show Vertical Velocity Plots
+
+   **Simulation Steps:**
+
+   1.  **Input Parsing & Validation:** Converts string inputs to lists of numbers and performs basic validation on their lengths.
+   2.  **Domain Parameter Construction:** Builds a list of dictionaries, each describing a domain's properties based on user inputs.
+   3.  **Geometry and Problem Setup:** Initializes `Geometry` and `MEEMProblem` objects with the defined parameters, frequencies, and modes.
+   4.  **MEEM Engine Initialization:** Creates an `MEEMEngine` instance.
+   5.  **Linear System Solving:** Solves the core linear system to find the unknown coefficients (`X`).
+   6.  **Hydrodynamic Coefficients Calculation:** Computes and displays added mass and damping coefficients for each heaving mode.
+   7.  **Coefficient Reformatting:** Reformats the solution vector `X` into a more usable structure (`Cs`) per region.
+   8.  **Cache Access:** Retrieves precomputed arrays (`m_k_arr`, `N_k_arr`) from the engine's cache.
+   9.  **Potential Field Calculation:** Iterates through spatial regions to calculate homogeneous and particular potentials based on the computed coefficients.
+   10. **Potential Field Plotting:** Generates and displays Matplotlib plots for the selected potential fields.
+   11. **Velocity Field Calculation:** Computes radial and vertical velocity components across the domain.
+   12. **Velocity Field Plotting:** Generates and displays Matplotlib plots for the velocity fields.
+   13. **Completion Message:** Displays a success message upon simulation completion.

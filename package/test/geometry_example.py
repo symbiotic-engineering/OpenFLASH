@@ -8,7 +8,7 @@ from geometry import Geometry
 from domain import Domain 
 import numpy as np
 
-# Sample data (replace with your actual data)
+# Sample data 
 r_coordinates = {
     'a1': 2.0,  # Radius of the inner domain
     'a2': 4.0   # Radius of the outer domain
