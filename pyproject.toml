@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "openflash"
-version = "0.1.6"
+name = "open-flash"
+version = "0.1.9"
 authors = [
   {name = "SEA LAB"} 
 ]
