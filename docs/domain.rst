@@ -16,14 +16,14 @@ Domain Module
    :align: center
    :width: 100%
 
-   **Figure 1**: This table illustrates the domain characteristics.
+   **Figure 1**: This table illustrates the characteristics of the domains, including exterior and an arbitrary number of concentric cylindrical interior domains.
 
 .. figure:: _static/domain_drawing.png
    :alt: Example of how domains would look
    :align: center
    :width: 100%
 
-   **Figure 2**: This image illustrates the domain characteristics.
+   **Figure 2**: The package can model any number of concentric cylindrical domains i₁, ..., iₙ between exterior domains e.
 
 This module defines the `Domain` class, which represents the characteristics of a physical domain.
 
