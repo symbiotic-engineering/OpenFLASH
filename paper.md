@@ -1,6 +1,6 @@
 # OpenFLASH: A Python Package for Matched Eigenfunctions Methods
 
-Kapil Khanal, Rebecca McCabe, Hope Best, Ruiyang Jiang, Maha Haji
+Hope Best, Rebecca McCabe, Kapil Khanal, Yinghu Bimali, En Lo, Collin Treacy, Ruiyang Jiang, Maha Haji
 
 ## Summary
 
