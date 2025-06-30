@@ -1,5 +1,5 @@
 # OpenFLASH ⚡️
-Open-source Flexible Library for Analytical and Semi-analytical Hydrodynamics 
+Open-source Flexible Library for Analytical and Semi-analytical Hydrodynamics
 
 matlab: see `hydro/matlab/run_MEEM.m` for the symbolic and numeric code, see `test/matlab/` for some scripts to get results.
 
@@ -20,6 +20,11 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 **How to Run the Python Code:**
 
 1.  **Install the package:**
+    You can install the `open-flash` package directly from PyPI:
+    ```bash
+    pip install open-flash
+    ```
+    Alternatively, you can install the latest development version directly from the GitHub repository:
     ```bash
     pip install git+[https://github.com/symbiotic-engineering/semi-analytical-hydro.git](https://github.com/symbiotic-engineering/semi-analytical-hydro.git)
     ```
