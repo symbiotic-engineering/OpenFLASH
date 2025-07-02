@@ -213,39 +213,6 @@ class MEEMEngine:
             A[row, col] = calc_func(problem, m0, m_k_arr_computed, N_k_arr_computed)
         return A
     
-    def assemble_b(self, problem: MEEMProblem, m0) -> np.ndarray:
-        """
-        Assemble the right-hand side vector b for a given problem.
-
-        :param problem: MEEMProblem instance.
-        :return: Assembled vector b.
-        """
-        inner_domain = problem.domain_list[0]
-        outer_domain = problem.domain_list[1]
-        exterior_domain = problem.domain_list[2]
-
-        N = inner_domain.number_harmonics
-        M = outer_domain.number_harmonics
-        K = exterior_domain.number_harmonics
-
-        size = N + 2 * M + K
-        b = np.zeros(size, dtype=complex)
-
-        h, d1, d2 = inner_domain.h, inner_domain.di, outer_domain.di
-        a1, a2 = inner_domain.a, outer_domain.a
-        
-        # Extract the integral result from the quad output
-        rhs_12 = np.array([integrate.quad(lambda z: phi_p_i1_i2_a1(z, h, a1, d1, d2) * Z_n_i1(n, z, h, d1), -h, -d1)[0] for n in range(N)])
-        rhs_2E = np.array([-integrate.quad(lambda z: phi_p_a2(z, a2, h, d2) * Z_n_i2(m, z, h, d2), -h, -d2)[0] for m in range(M)])
-        rhs_velocity_12 = np.array([integrate.quad(lambda z: diff_phi_i1(a1, d1, h) * Z_n_i2(m, z, h, d2), -h, -d1)[0] - integrate.quad(lambda z: diff_phi_i2(a1, d2, h) * Z_n_i2(m, z, h, d2), -h, -d2)[0] for m in range(M)])
-        rhs_velocity_2E = np.array([integrate.quad(lambda z: diff_phi_i2(a2, d2, h) * Z_n_e(k, z, m0, h), -h, -d2)[0] for k in range(K)])
-
-
-        b = np.concatenate((rhs_12, rhs_2E, rhs_velocity_12, rhs_velocity_2E))
-
-
-        return b
-    
     # Renaming current assemble_b_multi to indicate it's the full assembly
     def _full_assemble_b_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
         """

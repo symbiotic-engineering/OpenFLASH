@@ -23,7 +23,7 @@ Domain Module
    :align: center
    :width: 100%
 
-   **Figure 2**: The package can model any number of concentric cylindrical domains i₁, ..., iₙ between exterior domains e.
+   **Figure 2**: The package can model any number of concentric cylindrical domains :math:`i_1, \ldots, i_M` between exterior domains :math:`e`.
 
 This module defines the `Domain` class, which represents the characteristics of a physical domain.
 
