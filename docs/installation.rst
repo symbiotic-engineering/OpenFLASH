@@ -10,7 +10,7 @@ Prerequisites
 -------------
 Before you begin, ensure you have the following software installed on your system:
 
-* **Python**: Version 3 or higher. You can download the latest version from `python.org <https://www.python.org/downloads/>`_.
+* **Python**: Version 3.9 or higher. You can download the latest version from `python.org <https://www.python.org/downloads/>`_.
 * **pip**: The Python package installer, which typically comes bundled with Python installations.
 * **Git**: A version control system required for cloning the project repository. Download Git from `git-scm.com <https://git-scm.com/downloads>`_.
 * **(Highly Recommended) Anaconda**: Popular Python distribution for scientific computing that simplifies environment management.
