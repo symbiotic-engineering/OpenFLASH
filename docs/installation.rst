@@ -95,6 +95,20 @@ Once your chosen virtual environment is active:
 
         pip install -r requirements.txt
 
+Installing via Conda
+---------------------
+
+You can install **OpenFLASH** directly from the `hopeonthestack` channel on Anaconda.org by running:
+
+.. code-block:: bash
+
+    conda install hopeonthestack::open-flash
+
+This will install **OpenFLASH** and all necessary dependencies into your current conda environment.
+
+.. note::
+
+   Ensure your conda environment is activated before running the command.
 
 Verification (Optional)
 -----------------------

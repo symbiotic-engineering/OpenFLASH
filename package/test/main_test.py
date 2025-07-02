@@ -20,10 +20,7 @@ from geometry import Geometry
 from multi_constants import h, d, a, heaving, m0, rho, omega
 from multi_equations import (
     Z_n_i, R_1n, R_2n, Lambda_k, phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i,
-    diff_R_1n, diff_R_2n, diff_Lambda_k, diff_Z_n_i, diff_Z_k_e
-)
-from equations import (
-    Z_n_e 
+    diff_R_1n, diff_R_2n, diff_Lambda_k, diff_Z_n_i, diff_Z_k_e, Z_k_e,
 )
 
 # Set print options for better visibility in console
@@ -116,7 +113,7 @@ def main(): # Renamed from test_main
 
     def phi_e_k_func(k, r, z, m_k_arr, N_k_arr):
         return Cs[-1][k] * Lambda_k(k, r, m0, a, NMK, h, m_k_arr, N_k_arr) * \
-               Z_n_e(k, z, m0, h)
+               Z_k_e(k, z, m0, h, NMK, m_k_arr)
     
     spatial_res = 50
     r_vec = np.linspace(2 * a[-1] / spatial_res, 2*a[-1], spatial_res)
@@ -216,7 +213,7 @@ def main(): # Renamed from test_main
     def v_r_e_k_func(k, r, z, m_k_arr, N_k_arr):
         # *** FIX: Pass m_k_arr and N_k_arr to diff_Lambda_k and Z_n_e ***
         return Cs[-1][k] * diff_Lambda_k(k, r, m0, NMK, h, a, m_k_arr, N_k_arr) * \
-               Z_n_e(k, z, m0, h)
+               Z_k_e(k, z, m0, h, NMK, m_k_arr)
 
     def v_z_inner_func(n, r, z):
         return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * diff_Z_n_i(n, z, 0, h, d)

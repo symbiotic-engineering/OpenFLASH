@@ -115,7 +115,7 @@ def test_assemble_A_for_fixed_3_domains(meem_engine_with_problem, single_meem_pr
     m0 = sample_problem_params['m0_test']
 
     A_full = engine._full_assemble_A_multi(problem, m0)
-    actual_A = engine.assemble_A(problem, m0)
+    actual_A = engine.assemble_A_multi(problem, m0)
 
     assert actual_A.shape == A_full.shape, "Shape of assemble_A output does not match _full_assemble_A_multi."
 
@@ -144,7 +144,7 @@ def test_assemble_b_for_fixed_3_domains(meem_engine_with_problem, single_meem_pr
     m0 = sample_problem_params['m0_test']
 
     b_full = engine._full_assemble_b_multi(problem, m0)
-    actual_b = engine.assemble_b(problem, m0)
+    actual_b = engine.assemble_b_multi(problem, m0)
 
     assert actual_b.shape == b_full.shape, "Shape of assemble_b output does not match _full_assemble_b_multi."
 
@@ -178,20 +178,6 @@ def test_problem_cache_contents(meem_engine_with_problem, single_meem_problem, s
     assert cache.N_k_func is N_k_multi
     assert len(cache.m0_dependent_A_indices) > 0
     assert len(cache.m0_dependent_b_indices) > 0
-
-def test_solve_linear_system(meem_engine_with_problem, single_meem_problem, sample_problem_params, expected_system_size):
-    """
-    Tests the solve_linear_system (old, single-cylinder) method.
-    Compares its solution to the solution from the multi-region full assembly.
-    """
-    engine = meem_engine_with_problem
-    problem = single_meem_problem
-    m0 = sample_problem_params['m0_test']
-
-    # Solve using the "old" method
-    X_old = engine.solve_linear_system(problem, m0)
-
-    assert X_old.shape == (expected_system_size,)
 
 def test_solve_linear_system_multi(meem_engine_with_problem, single_meem_problem, sample_problem_params, expected_system_size):
     """
