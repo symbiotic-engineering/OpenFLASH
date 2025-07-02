@@ -6,7 +6,6 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from meem_problem import MEEMProblem
 from problem_cache import ProblemCache
-from coupling import A_nm, A_mk
 from multi_equations import (
     m_k_entry as original_m_k_entry, # Ensure this is correctly imported
     I_nm, I_mk, I_mk_og, Lambda_k, Lambda_k_og, diff_Lambda_k, diff_Lambda_k_og, N_k_multi,
@@ -17,7 +16,6 @@ from multi_equations import (
 import geometry
 from results import Results
 import xarray as xr
-from equations import *
 import inspect
 
 class MEEMEngine:
@@ -39,62 +37,6 @@ class MEEMEngine:
         # Build caches for all problems during engine initialization
         for problem in problem_list:
             self.cache_list[problem] = self._build_problem_cache(problem)
-
-    def assemble_A(self, problem: MEEMProblem, m0) -> np.ndarray:
-        """
-        Assemble the system matrix A for a given problem.
-
-        :param problem: MEEMProblem instance.
-        :return: Assembled matrix A.
-        """
-        # Extract domains
-        inner_domain = problem.domain_list[0]
-        outer_domain = problem.domain_list[1]
-        exterior_domain = problem.domain_list[2]
-
-        N = inner_domain.number_harmonics
-        M = outer_domain.number_harmonics
-        K = exterior_domain.number_harmonics
-
-        size = N + 2 * M + K
-        A = np.zeros((size, size), dtype=complex)
-
-        h, d1, d2 = inner_domain.h, inner_domain.di, outer_domain.di
-        a1, a2 = inner_domain.a, outer_domain.a
-
-        # First row of block matrices (using d1)
-        for i in range(N):
-            A[i][i] = (h - d1) * R_1n_1(i, a1, a2, h, d1)
-        for n in range(N):
-            for m in range(M):
-                A[n][N+m] = -R_1n_2(m, a1, a2, h, d2) * A_nm(n, m)
-                A[n][N+M+m] = -R_2n_2(m, a1, a2, h, d2) * A_nm(n, m)
-
-        # Second row of block matrices (using d2)
-        for i in range(M):
-            A[N + i, N + i] = (h - d2) * R_1n_2(i, a2, a2, h, d2)
-            A[N + i, N + M + i] = (h - d2) * R_2n_2(i, a2, a2, h, d2)
-        for m in range(M):
-            for k in range(K):
-                A[N + m, N + 2 * M + k] = -Lambda_k_r(k, a2, m0, a2, h) * A_mk(m, k)
-
-        # Third row of block matrices (using d1)
-        for m in range(M):
-            for n in range(N):
-                A[N + M + m, n] = -diff_R_1n_1(n, a1, d1, h, a2) * A_nm(n, m)
-        for m in range(M):
-            A[N + M + m, N + m] = (h - d2) * diff_R_1n_2(m, a1, d2, h, a2)
-            A[N + M + m, N + M + m] = (h - d2) * diff_R_2n_2(m, a1, d2, h, a2)
-
-        # Fourth row of block matrices (using d2)
-        for k in range(K):
-            for m in range(M):
-                A[N + 2 * M + k, N + m] = -diff_R_1n_2(m, a2, d2, h, a2) * A_mk(m, k)
-                A[N + 2 * M + k, N + M + m] = -diff_R_2n_2(m, a2, d2, h, a2) * A_mk(m, k)
-        for k in range(K):
-            A[N + 2 * M + k, N + 2 * M + k] = h * diff_Lambda_k_a2(k, m0, a2, h)
-
-        return A
     
     # Renaming current assemble_A_multi to indicate it's the full assembly
     def _full_assemble_A_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
@@ -631,17 +573,6 @@ class MEEMEngine:
         
         cache.set_b_template(b_template)
         return cache
-
-    # The solve_linear_system methods will now call the optimized assemble_A_multi/assemble_b_multi
-    def solve_linear_system(self, problem: MEEMProblem, m0) -> np.ndarray:
-        """
-        Solve the linear system A x = b for the given problem (for single cylinder).
-        """
-        from scipy import linalg
-        A = self.assemble_A(problem, m0) # This is old single-cylinder assemble_A
-        b = self.assemble_b(problem, m0) # This is old single-cylinder assemble_b
-        X = linalg.solve(A, b)
-        return X
     
     def solve_linear_system_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
