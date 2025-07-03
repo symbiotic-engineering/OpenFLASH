@@ -228,7 +228,7 @@ class CapytaineSlantSolver:
 
         # Reshape to original grid shape
         r_vel = r_vel_flat.reshape(R.shape)
-        z_vel = r_vel_flat.reshape(R.shape)
+        z_vel = z_vel_flat.reshape(R.shape)
 
         return R, Z, r_vel, z_vel
     
@@ -262,7 +262,7 @@ class CapytaineSlantSolver:
 
         if MEEM_convention:
             omega = rad_result.omega
-            vr = - vr * 1j / omega
+            vr = vr * 1j / omega
             vz = vz * 1j / omega
 
         real_vr = np.real(vr)
@@ -271,12 +271,19 @@ class CapytaineSlantSolver:
         imag_vz = np.imag(vz)
 
         self.__plot_contour(R, Z, real_vr, "Radial Velocity", "Real radial velocity with Capytaine")
-        self.__plot_contour(R, Z, imag_vr, "Radial Velocity", "Real radial velocity with Capytaine")
+        self.__plot_contour(R, Z, imag_vr, "Radial Velocity", "Imag radial velocity with Capytaine")
         self.__plot_contour(R, Z, real_vz, "Vertical Velocity", "Real vertical velocity with Capytaine")
-        self.__plot_contour(R, Z, imag_vz, "Vetical Velocity", "Real vertical velocity with Capytaine")
+        self.__plot_contour(R, Z, imag_vz, "Vetical Velocity", "Imag vertical velocity with Capytaine")
 
         return real_vr, imag_vr, real_vz, imag_vz
     
+    def plot_from_array(self, h, a, data, color_lab = None, title = None):
+        res = len(data)
+        R_range = np.linspace(0.0, 2 * a[-1], num = res)
+        Z_range = np.linspace(0, -h, num = res) 
+        R, Z = np.meshgrid(R_range, Z_range)
+        self.__plot_contour(R, Z, data, color_lab, title)
+
     
 
     
