@@ -26,6 +26,10 @@ def wavenumber(omega):
 
 scale = a #np.append((np.mean([[0]+a[0:-1], a], axis = 0)), a[-1])
 
+# After which the k = 0 e-region eigenfunction is well approximated by its limiting form.
+# Empirically the true and approximating form differ by a fraction of < 1e-10 after this.
+LARGE_M0H = 14
+
 def lambda_ni(n, i): # factor used often in calculations
     return n * pi / (h - d[i])
 
@@ -103,7 +107,7 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
     dj = d[i]
     if m == 0 and k == 0:
         if m0 == inf: return 0
-        elif m0 * h < 14:
+        elif m0 * h < LARGE_M0H:
             return (1/sqrt(N_k(0))) * sinh(m0 * (h - dj)) / m0
         else: # high m0h approximation
             return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -111,7 +115,7 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
         return (1/sqrt(N_k(k))) * sin(m_k[k] * (h - dj)) / m_k[k]
     if m >= 1 and k == 0:
         if m0 == inf: return 0
-        elif m0 * h < 14:
+        elif m0 * h < LARGE_M0H:
             num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0))) * m0 * sinh(m0 * (h - dj))
         else: # high m0h approximation
             num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -166,7 +170,7 @@ def b_velocity_end_entry(k, i): # between i and e-type regions
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
         if m0 == inf: return 0
-        elif m0 * h < 14:
+        elif m0 * h < LARGE_M0H:
             return constant * (1/sqrt(N_k(0))) * sinh(m0 * (h - d[i])) / m0
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
@@ -191,7 +195,7 @@ def R_1n(n, r, i):
     if n == 0:
         return 0.5
     elif n >= 1:
-        if r == scale[i]:
+        if r == scale[i]: # Saves bessel function eval
             return 1
         else:
             return besselie(0, lambda_ni(n, i) * r) / besselie(0, lambda_ni(n, i) * scale[i]) * exp(lambda_ni(n, i) * (r - scale[i]))
@@ -215,7 +219,7 @@ def R_2n(n, r, i):
     elif n == 0:
         return 0.5 * np.log(r / a[i])
     else:
-        if r == scale[i]:
+        if r == scale[i]:  # Saves bessel function eval
             return 1
         else:
             return besselke(0, lambda_ni(n, i) * r) / besselke(0, lambda_ni(n, i) * scale[i]) * exp(lambda_ni(n, i) * (scale[i] - r))
@@ -254,12 +258,12 @@ def Lambda_k(k, r):
         # the true limit is not well-defined, but whatever value this returns will be multiplied by zero
             return 1
         else:
-            if r == scale[-1]:
+            if r == scale[-1]:  # Saves bessel function eval
                 return 1
             else:
                 return besselh(0, m0 * r) / besselh(0, m0 * scale[-1])
     else:
-        if r == scale[-1]:
+        if r == scale[-1]:  # Saves bessel function eval
             return 1
         else:
             return besselke(0, m_k[k] * r) / besselke(0, m_k[k] * scale[-1]) * exp(m_k[k] * (scale[-1] - r))
@@ -295,7 +299,7 @@ def N_k(k):
 def Z_k_e(k, z):
     if k == 0:
         if m0 == inf: return 0
-        elif m0 * h < 14:
+        elif m0 * h < LARGE_M0H:
             return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
         else: # high m0h approximation
             return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
@@ -305,7 +309,7 @@ def Z_k_e(k, z):
 def diff_Z_k_e(k, z):
     if k == 0:
         if m0 == inf: return 0
-        elif m0 * h < 14:
+        elif m0 * h < LARGE_M0H:
             return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
         else: # high m0h approximation
             return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
@@ -358,6 +362,11 @@ def z_n_d(n):
         return sqrt(2)*(-1)**n
 
 #############################################
-def excitation_phase(coeff): # first coefficient of e-region expansion
+def excitation_phase(x): # x-vector of unknown coefficients
+    coeff = x[-NMK[-1]] # first coefficient of e-region expansion
     return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * scale[-1]))
     
+def excitation_force(damping):
+    # Chau 2012 eq 98
+    const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
+    return sqrt((2 * const * rho * (g ** 2) * damping)/(omega * m0)) ** (1/2)

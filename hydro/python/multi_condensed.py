@@ -600,10 +600,12 @@ class Problem:
             damping = hydro_coef_nondim.imag
         elif convention == "umerc":
             added_mass = hydro_coef.real * self.h**3 * self.rho
-            damping = hydro_coef.imag * self.angular_freq(self.m0) * self.h**3 * self.rho
+            if self.m0 == inf: damping = 0
+            else: damping = hydro_coef.imag * self.angular_freq(self.m0) * self.h**3 * self.rho
         elif convention == "capytaine":
             added_mass = hydro_coef.real * self.rho
-            damping = hydro_coef.imag * self.angular_freq(self.m0) * self.rho
+            if self.m0 == inf: damping = 0
+            else: damping = hydro_coef.imag * self.angular_freq(self.m0) * self.rho
         else:
             raise ValueError("Allowed conventions are nondimensional, umerc, and capytaine.")
         return added_mass, damping
@@ -659,6 +661,12 @@ class Problem:
     def excitation_phase(self, x):
         # from x, access the first coefficient of the e-region expansion
         return -(pi/2) + np.angle(x[-self.NMK[-1]]) - np.angle(besselh(0, self.m0 * self.scale[-1]))
+    
+    def excitation_force(self, damping):
+        # Chau 2012 eq 98
+        m0, h, omega = self.m0, self.h, self.angular_freq(self.m0)
+        const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
+        return sqrt((2 * const * self.rho * (g ** 2) * damping)/(omega * m0)) ** (1/2)
     
     #############################################
     # Graphics functions
