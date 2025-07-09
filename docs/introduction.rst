@@ -20,7 +20,7 @@ Target Audience:
 ----------------
 This documentation is intended for:
 * Researchers and students.
-* Engineers.
+* Hydrodynamicists or ocean engineers.
 * Developers interested in understanding, contributing to, or extending the codebase.
 
 Getting Started:
