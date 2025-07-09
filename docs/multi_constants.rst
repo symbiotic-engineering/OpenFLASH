@@ -4,7 +4,7 @@
 Multi-Constants
 =================
 
-This module defines various global constants that are utilized throughout OpenFlASH. These include
+This module defines various global constants that are utilized throughout OpenFLASH. These include
 physical parameters, geometric dimensions, and settings that
 can be adjusted for different problem configurations.
 
