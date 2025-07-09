@@ -31,7 +31,7 @@ used across various parts of the MEEM formulation.
 
    <hr>
 
-M_k Wavenumber Computations
+m_k Wavenumber Computations
 ---------------------------
 
 Functions related to the calculation of the wavenumber :math:`m_k`, which
