@@ -4,8 +4,8 @@ import sys
 src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'))
 sys.path.append(src_path)
 
-from geometry import Geometry
-from domain import Domain 
+from openflash.geometry import Geometry
+from openflash.domain import Domain 
 import numpy as np
 
 # Sample data 

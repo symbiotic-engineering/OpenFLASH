@@ -10,10 +10,10 @@ if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
 # Import the necessary classes from  MEEM package
-from meem_engine import MEEMEngine
-from meem_problem import MEEMProblem
-from geometry import Geometry, Domain
-from results import Results
+from openflash.meem_engine import MEEMEngine
+from openflash.meem_problem import MEEMProblem
+from openflash.geometry import Geometry, Domain
+from openflash.results import Results
 
 def main():
     """

@@ -7,9 +7,9 @@ import os
 src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'))
 sys.path.append(src_path)
 
-from geometry import Geometry
-from domain import Domain  # Import Domain for assertions
-from multi_constants import h, d, a, heaving, m0
+from openflash.geometry import Geometry
+from openflash.domain import Domain  # Import Domain for assertions
+from openflash.multi_constants import h, d, a, heaving, m0
 
 class TestGeometry(unittest.TestCase):
 

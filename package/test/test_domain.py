@@ -6,8 +6,8 @@ import os
 src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'))
 sys.path.append(src_path)
 
-from domain import Domain
-from multi_constants import h, d, a, m0, heaving  # Import necessary constants
+from openflash.domain import Domain
+from openflash.multi_constants import h, d, a, m0, heaving  # Import necessary constants
 
 class MockGeometry:
     def __init__(self, r_coordinates, z_coordinates):

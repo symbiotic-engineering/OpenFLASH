@@ -1,7 +1,7 @@
 # meem_problem.py
 
 from typing import Dict
-from geometry import Geometry
+from openflash.geometry import Geometry
 import numpy as np
 
 class MEEMProblem:

@@ -1,6 +1,6 @@
 import xarray as xr
 import numpy as np
-from geometry import Geometry
+from openflash.geometry import Geometry
 
 class Results:
     """

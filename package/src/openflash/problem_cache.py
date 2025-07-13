@@ -1,7 +1,7 @@
-# package/src/problem_cache.py
+# problem_cache.py
 import numpy as np
-from typing import List, Tuple, Callable
-from multi_equations import *
+from typing import Callable
+from openflash.multi_equations import *
 
 # store the pre-computed m0-independent parts of matrices and vectors
 # along with the specific indices where m0-dependent terms need to be inserted/updated.

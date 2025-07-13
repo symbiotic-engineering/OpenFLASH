@@ -24,10 +24,10 @@ src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
 # Now, import directly from the modules in src directory
-from meem_problem import MEEMProblem
-from meem_engine import MEEMEngine
-from geometry import Geometry
-from domain import Domain
+from openflash.meem_problem import MEEMProblem
+from openflash.meem_engine import MEEMEngine
+from openflash.geometry import Geometry
+from openflash.domain import Domain
 
 
 # Define parameters for the problem, mimicking the notebook's setup (semi-analytical-hydro/hydro/python/test/m0_mod_confirmation.ipynb)

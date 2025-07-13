@@ -13,15 +13,15 @@ src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
 # Import classes from  package
-from meem_engine import MEEMEngine
-from meem_problem import MEEMProblem
-from geometry import Geometry
-from domain import Domain
-from problem_cache import ProblemCache
-from results import Results # For testing run_and_store_results
+from openflash.meem_engine import MEEMEngine
+from openflash.meem_problem import MEEMProblem
+from openflash.geometry import Geometry
+from openflash.domain import Domain
+from openflash.problem_cache import ProblemCache
+from openflash.results import Results # For testing run_and_store_results
 
 # Import specific functions/constants needed for comparison or mocking
-from multi_equations import (
+from openflash.multi_equations import (
     m_k_entry as original_m_k_entry,
     N_k_multi,
 
@@ -29,7 +29,7 @@ from multi_equations import (
     b_potential_entry, b_velocity_entry, b_velocity_end_entry_og,
     int_R_1n, int_R_2n, z_n_d, int_phi_p_i_no_coef # For compute_hydrodynamic_coefficients
 )
-from multi_constants import rho, omega # For compute_hydrodynamic_coefficients
+from openflash.multi_constants import rho, omega # For compute_hydrodynamic_coefficients
 
 
 # --- Fixtures for common test setup ---

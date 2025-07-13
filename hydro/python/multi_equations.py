@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from numpy import sqrt, cosh, cos, sinh, sin, pi, exp
 from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
-from multi_constants import *
+from openflash.multi_constants import *
 
 omega = sqrt(m0 * np.tanh(m0 * h) * g)
 

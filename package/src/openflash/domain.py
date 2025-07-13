@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import List, Dict, Union
 import numpy as np
-from multi_equations import *
+from openflash.multi_equations import *
 
 class Domain:
     """

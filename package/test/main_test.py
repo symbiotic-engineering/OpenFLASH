@@ -13,12 +13,12 @@ if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
 # --- Import core modules ---
-from meem_engine import MEEMEngine
-from meem_problem import MEEMProblem
-from geometry import Geometry
+from openflash.meem_engine import MEEMEngine
+from openflash.meem_problem import MEEMProblem
+from openflash.geometry import Geometry
 # Rely on global constants and functions from multi_constants and multi_equations
-from multi_constants import h, d, a, heaving, m0, rho, omega
-from multi_equations import (
+from openflash.multi_constants import h, d, a, heaving, m0, rho, omega
+from openflash.multi_equations import (
     Z_n_i, R_1n, R_2n, Lambda_k, phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i,
     diff_R_1n, diff_R_2n, diff_Lambda_k, diff_Z_n_i, diff_Z_k_e, Z_k_e,
 )

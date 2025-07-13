@@ -6,8 +6,8 @@ sys.path.append(src_path)
 
 import xarray as xr
 import numpy as np
-from geometry import Geometry
-from results import Results
+from openflash.geometry import Geometry
+from openflash.results import Results
 
 # Example Geometry Setup
 r_coordinates = {

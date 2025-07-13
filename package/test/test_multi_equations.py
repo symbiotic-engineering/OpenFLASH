@@ -18,7 +18,7 @@ src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
 # Import all functions from multi_equations.py
-from multi_equations import (
+from openflash.multi_equations import (
     omega, scale, lambda_ni, m_k_entry, m_k, m_k_newton,
     I_nm, I_mk, I_mk_og, b_potential_entry, b_potential_end_entry,
     b_velocity_entry, b_velocity_end_entry, b_velocity_end_entry_og,

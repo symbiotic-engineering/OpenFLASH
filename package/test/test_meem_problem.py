@@ -14,9 +14,9 @@ src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
 # Import the class to be tested and its dependencies
-from meem_problem import MEEMProblem
-from geometry import Geometry
-from domain import Domain 
+from openflash.meem_problem import MEEMProblem
+from openflash.geometry import Geometry
+from openflash.domain import Domain 
 
 # --- Fixtures ---
 

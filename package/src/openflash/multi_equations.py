@@ -1,13 +1,12 @@
+#multi_equations.py
 import numpy as np
 from scipy.special import hankel1 as besselh
 from scipy.special import iv as besseli
 from scipy.special import kv as besselk
-import scipy.integrate as integrate
-import scipy.linalg as linalg
-import matplotlib.pyplot as plt
 from numpy import sqrt, cosh, cos, sinh, sin, pi, exp
-from scipy.optimize import newton, minimize_scalar, root_scalar
+from scipy.optimize import newton, root_scalar
 import scipy as sp
+import matplotlib.pyplot as plt
 
 def omega(m0,h,g):
     return sqrt(m0 * np.tanh(m0 * h) * g)
@@ -471,3 +470,18 @@ def z_n_d(n):
 def excitation_phase(coeff, m0, a): # first coefficient of e-region expansion
     local_scale_last = scale(a)[-1]
     return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale_last))
+
+def make_R_Z(a, h, d, sharp, spatial_res): # create coordinate array for graphing
+    rmin = (2 * a[-1] / spatial_res) if sharp else 0.0
+    r_vec = np.linspace(rmin, 2*a[-1], spatial_res)
+    z_vec = np.linspace(0, -h, spatial_res)
+    if sharp: # more precise near boundaries
+        a_eps = 1.0e-4
+        for i in range(len(a)):
+            r_vec = np.append(r_vec, a[i]*(1-a_eps))
+            r_vec = np.append(r_vec, a[i]*(1+a_eps))
+        r_vec = np.unique(r_vec)
+        for i in range(len(d)):
+            z_vec = np.append(z_vec, -d[i])
+        z_vec = np.unique(z_vec)
+    return np.meshgrid(r_vec, z_vec)

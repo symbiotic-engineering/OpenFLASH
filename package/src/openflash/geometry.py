@@ -1,7 +1,7 @@
 # geometry.py
 
 from typing import Dict, List
-from domain import Domain
+from openflash.domain import Domain
 import numpy as np
 
 class Geometry:
