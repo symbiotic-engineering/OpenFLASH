@@ -272,16 +272,45 @@ def R_2n(n, r, i, a, h, d): # this shouldn't be called for i=0, innermost.
     else:
         return besselk(0, lambda_ni(n, i, h, d) * r) / besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
     
-def R_2n_vectorized(n, r_array, i, a, h, d): # Changed 'r' to 'r_array'
-    local_scale = scale(a)
+def R_2n_vectorized(n, r_array, i, a, h, d):
+    """
+    Vectorized implementation of R_2n over an array of radial coordinates.
+
+    Parameters
+    ----------
+    n : int
+        Mode number (must be >= 0).
+    r_array : np.ndarray
+        Array of radial positions.
+    i : int
+        Index of the current boundary (must be > 0).
+    a : list or array
+        Inner radius values for each boundary region.
+    h : float
+        Height parameter.
+    d : list or array
+        Depth parameters for each boundary region.
+
+    Returns
+    -------
+    np.ndarray or float
+        Computed R_2n values, either as an array or scalar depending on n.
+    """
+    if n < 0:
+        raise ValueError("n must be a non-negative integer")
     if i == 0:
         raise ValueError("i cannot be 0")
-    elif n == 0:
-        # This needs to handle division by zero if r_array contains 0
-        # ensure r_array doesn't contain 0 if R_2n is called for r=0
+
+    local_scale = scale(a)
+
+    if n == 0:
+        # Avoid division by zero for r = 0
+        if np.any(r_array == 0):
+            raise ValueError("r_array contains 0, which is invalid when n = 0")
         return 0.5 * np.log(r_array / a[i])
     else:
-        return besselk(0, lambda_ni(n, i, h, d) * r_array) / besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
+        λ = lambda_ni(n, i, h, d)
+        return besselk(0, λ * r_array) / besselk(0, λ * local_scale[i])
 
 # Differentiate wrt r
 def diff_R_2n(n, r, i, h, d, a):
