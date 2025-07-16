@@ -29,37 +29,37 @@ class MEEMEngine:
         for problem in problem_list:
             self.cache_list[problem] = self._build_problem_cache(problem)
     
+    def _ensure_m_k_and_N_k_arrays(self, problem: 'MEEMProblem', m0):
+        """
+        Ensure that m_k_arr and N_k_arr are computed and cached for the given problem and m0.
+        """
+        cache = self.cache_list[problem]
+
+        if cache.m_k_arr is None or cache.N_k_arr is None:
+            h = problem.domain_list[0].h
+            domain_keys = list(problem.domain_list.keys())
+            NMK = [problem.domain_list[idx].number_harmonics for idx in domain_keys]
+            NMK_last = NMK[-1]
+
+            m_k_arr = cache.m_k_entry_func(np.arange(NMK_last), m0, h)
+            N_k_arr = np.array([
+                cache.N_k_func(k, m0, h, NMK, m_k_arr)
+                for k in range(NMK_last)
+            ])
+            cache.set_precomputed_m_k_N_k(m_k_arr, N_k_arr)
+    
     def assemble_A_multi(self, problem: 'MEEMProblem', m0) -> np.ndarray:
         """
         Assemble the system matrix A for a given problem using pre-computed blocks.
         """
         cache = self.cache_list[problem]
-        A = cache.get_A_template() # Get a copy of the m0-independent template
+        A = cache.get_A_template()
 
-        domain_list = problem.domain_list
-        domain_keys = list(domain_list.keys())
-        # NMK is used in the pre-computation of m_k_arr and N_k_arr in assemble_A_multi_cache
-        NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
-        NMK_last = NMK[-1] # Number of harmonics for the exterior region
+        self._ensure_m_k_and_N_k_arrays(problem, m0)
 
-        # --- Compute m_k_arr and N_k_arr for this specific m0 ---
-        # These are used to update the m0-dependent entries of A and b
-        h = domain_list[0].h
-        
-        # Call the functions stored in cache to compute the arrays
-        m_k_arr_computed = cache.m_k_entry_func(np.arange(NMK_last), m0, h) # m_k_entry_func is actually vectorized m_k
-        
-        # N_k_multi is not vectorized, so we need to loop or vectorize it here
-        N_k_arr_computed = np.array([cache.N_k_func(k, m0, h, NMK, m_k_arr_computed) for k in range(NMK_last)])
-        
-        # Store them in the cache for this m0 (can be overwritten if m0 changes)
-        cache.set_precomputed_m_k_N_k(m_k_arr_computed, N_k_arr_computed)
-
-        # Update m0-dependent entries in A
         for row, col, calc_func in cache.m0_dependent_A_indices:
-            # The lambda was defined in _build_problem_cache to take m_k_arr, N_k_arr
             A[row, col] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr)
-        
+
         return A
 
     def _full_assemble_A_multi(self, problem: 'MEEMProblem', m0) -> np.ndarray:
@@ -91,7 +91,7 @@ class MEEMEngine:
         I_mk_vals_original = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype = complex)
         for m_i_mk in range(NMK[boundary_count - 1]):
             for k_i_mk in range(NMK[boundary_count]):
-                I_mk_vals_original[m_i_mk][k_i_mk] = I_mk_og(m_i_mk, k_i_mk, boundary_count - 1, d, m0, h, NMK)
+                I_mk_vals_original[m_i_mk][k_i_mk] = I_mk_full(m_i_mk, k_i_mk, boundary_count - 1, d, m0, h, NMK)
 
         # Helper functions adapted from your 'original code' snippet for use in this method
         # NOTE: `radfunction_unvectorized` is the actual function (e.g., R_1n, R_2n)
@@ -134,7 +134,7 @@ class MEEMEngine:
             
             # --- FIX: Replace np.vectorize with list comprehension ---
             radial_vector = np.array([
-                Lambda_k_og(k_val, a_func[bd_func], m0_func, a_func, NMK_func, h_func) # Lambda_k_og signature
+                Lambda_k_full(k_val, a_func[bd_func], m0_func, a_func, NMK_func, h_func) # Lambda_k_full signature
                 for k_val in range(NMK_func[bd_func+1])
             ], dtype=complex) # Ensure complex dtype
             # --- END FIX ---
@@ -178,7 +178,7 @@ class MEEMEngine:
         def _v_diagonal_block_e_original(bd_func, NMK_func, a_func, m0_func, h_func):
             # --- FIX: Replace np.vectorize with list comprehension ---
             radial_evals = np.array([
-                diff_Lambda_k_og(k_val, a_func[bd_func], m0_func, NMK_func, h_func, a_func) # diff_Lambda_k_og signature
+                diff_Lambda_k_full(k_val, a_func[bd_func], m0_func, NMK_func, h_func, a_func) # diff_Lambda_k_full signature
                 for k_val in range(NMK_func[bd_func+1])
             ], dtype=complex) # Ensure complex dtype
             # --- END FIX ---
@@ -341,25 +341,13 @@ class MEEMEngine:
         m0-independent parts and updating only m0-dependent entries.
         """
         cache = self.cache_list[problem]
-        b = cache.get_b_template() # Get a copy
+        b = cache.get_b_template()
 
-        # Retrieve m_k_arr and N_k_arr from the cache (they should have been computed by assemble_A_multi)
-        if cache.m_k_arr is None or cache.N_k_arr is None:
-            # This block should ideally not be hit if assemble_A_multi is always called first.
-            # But it's good for robustness.
-            print("WARNING: m_k_arr or N_k_arr were None in assemble_b_multi, re-computing.")
-            h = problem.domain_list[0].h
-            NMK = [problem.domain_list[idx].number_harmonics for idx in problem.domain_list.keys()]
-            NMK_last = NMK[-1]
-            
-            m_k_arr_computed = cache.m_k_entry_func(np.arange(NMK_last), m0, h)
-            N_k_arr_computed = np.array([cache.N_k_func(k, m0, h, NMK, m_k_arr_computed) for k in range(NMK_last)])
-            cache.set_precomputed_m_k_N_k(m_k_arr_computed, N_k_arr_computed)
+        self._ensure_m_k_and_N_k_arrays(problem, m0)
 
-        # Update m0-dependent entries in b
         for row, calc_func in cache.m0_dependent_b_indices:
-            # Pass the pre-computed arrays from the cache to the lambda
             b[row] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr)
+
         return b
     def _full_assemble_b_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
@@ -402,8 +390,8 @@ class MEEMEngine:
         for boundary in range(boundary_count):
             if boundary == (boundary_count - 1): # i-e boundary
                 for k in range(NMK[-1]):
-                    # b_velocity_end_entry_og takes (k, i, heaving, a, h, d, m0, NMK)
-                    b[index] = b_velocity_end_entry_og(k, boundary, heaving, a_filtered, h, d, m0, NMK)
+                    # b_velocity_end_entry_full takes (k, i, heaving, a, h, d, m0, NMK)
+                    b[index] = b_velocity_end_entry_full(k, boundary, heaving, a_filtered, h, d, m0, NMK)
                     index += 1
             else: # i-i boundary
                 # Iterate over eigenfunctions for larger h-d, as per original comment

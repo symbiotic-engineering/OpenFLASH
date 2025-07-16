@@ -129,19 +129,19 @@ def I_mk(m, k, i, d, m0, h, NMK, m_k_arr, N_k_arr): # coupling integral for i an
             frac2 = sin((local_m_k_k - lambda1)*(h-dj))/(local_m_k_k - lambda1)
             return sqrt(2)/2 * (1/sqrt(N_k_arr[k])) * (frac1 + frac2) # Use N_k_arr[k]
         
-def I_mk_og(m, k, i, d, m0, h, NMK): # coupling integral for i and e-type regions
+def I_mk_full(m, k, i, d, m0, h, NMK): # coupling integral for i and e-type regions
     local_m_k = m_k(NMK, m0, h)
     dj = d[i]
     if m == 0 and k == 0:
         if m0 * h < 14:
-            return (1/sqrt(N_k_og(0, m0, h, NMK))) * sinh(m0 * (h - dj)) / m0
+            return (1/sqrt(N_k_full(0, m0, h, NMK))) * sinh(m0 * (h - dj)) / m0
         else: # high m0h approximation
             return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
     if m == 0 and k >= 1:
-        return (1/sqrt(N_k_og(k, m0, h, NMK))) * sin(local_m_k[k] * (h - dj)) / local_m_k[k]
+        return (1/sqrt(N_k_full(k, m0, h, NMK))) * sin(local_m_k[k] * (h - dj)) / local_m_k[k]
     if m >= 1 and k == 0:
         if m0 * h < 14:
-            num = (-1)**m * sqrt(2) * (1/sqrt(N_k_og(0, m0, h, NMK))) * m0 * sinh(m0 * (h - dj))
+            num = (-1)**m * sqrt(2) * (1/sqrt(N_k_full(0, m0, h, NMK))) * m0 * sinh(m0 * (h - dj))
         else: # high m0h approximation
             num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
         denom = (m0**2 + lambda_ni(m, i, h, d) **2)
@@ -153,7 +153,7 @@ def I_mk_og(m, k, i, d, m0, h, NMK): # coupling integral for i and e-type region
         else:
             frac1 = sin((local_m_k[k] + lambda1)*(h-dj))/(local_m_k[k] + lambda1)
             frac2 = sin((local_m_k[k] - lambda1)*(h-dj))/(local_m_k[k] - lambda1)
-            return sqrt(2)/2 * (1/sqrt(N_k_og(k, m0, h, NMK))) * (frac1 + frac2)
+            return sqrt(2)/2 * (1/sqrt(N_k_full(k, m0, h, NMK))) * (frac1 + frac2)
 
 #############################################
 # b-vector computation
@@ -205,16 +205,16 @@ def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # b
     else:
         return constant * (1/sqrt(N_k_arr[k])) * sin(local_m_k_k * (h - d[i])) / local_m_k_k # Use N_k_arr[k]
 
-def b_velocity_end_entry_og(k, i, heaving, a, h, d, m0, NMK): # between i and e-type regions
+def b_velocity_end_entry_full(k, i, heaving, a, h, d, m0, NMK): # between i and e-type regions
     local_m_k = m_k(NMK, m0, h)
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
         if m0 * h < 14:
-            return constant * (1/sqrt(N_k_og(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
+            return constant * (1/sqrt(N_k_full(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
     else:
-        return constant * (1/sqrt(N_k_og(k, m0, h, NMK))) * sin(local_m_k[k] * (h - d[i])) / local_m_k[k]
+        return constant * (1/sqrt(N_k_full(k, m0, h, NMK))) * sin(local_m_k[k] * (h - d[i])) / local_m_k[k]
 
 #############################################
 # Phi particular and partial derivatives
@@ -334,7 +334,7 @@ def Lambda_k_vectoized(k, r_array, m0, a, NMK, h, m_k_arr, N_k_arr): # Changed '
     else:
         return besselk(0, local_m_k_k * r_array) / besselk(0, local_m_k_k * local_scale[-1])
     
-def Lambda_k_og(k, r, m0, a, NMK, h):
+def Lambda_k_full(k, r, m0, a, NMK, h):
     local_scale = scale(a)
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
@@ -355,7 +355,7 @@ def diff_Lambda_k(k, r, m0, NMK, h, a, m_k_arr, N_k_arr): # ADDED m_k_arr, N_k_a
         denominator = besselk(0, local_m_k_k * local_scale[-1])
     return numerator / denominator
 
-def diff_Lambda_k_og(k, r, m0, NMK, h, a):
+def diff_Lambda_k_full(k, r, m0, NMK, h, a):
     local_m_k = m_k(NMK, m0, h)
     local_scale = scale(a)
     if k == 0:
@@ -383,7 +383,7 @@ def N_k_multi(k, m0, h, NMK, m_k_arr): # Added m_k_arr as optional argument
     else:
         return 1 / 2 * (1 + sin(2 * local_m_k_k * h) / (2 * local_m_k_k * h))
     
-def N_k_og(k, m0, h, NMK):
+def N_k_full(k, m0, h, NMK):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
