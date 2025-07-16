@@ -1,3 +1,4 @@
+import logging
 import sys
 import os
 import numpy as np
@@ -71,10 +72,11 @@ def main(): # Renamed from test_main
     problem_cache = engine.cache_list[problem] # Access the existing cache
 
     if problem_cache is None:
-        print("ERROR: problem_cache is None!")
+        logging.error("Problem cache is None! Cannot proceed with computations.")
+        raise RuntimeError("Problem cache is None! Cannot proceed with computations.")
     else:
-        print(f"DEBUG: problem_cache.m_k_arr is {problem_cache.m_k_arr.shape if problem_cache.m_k_arr is not None else 'None'}")
-        print(f"DEBUG: problem_cache.N_k_arr is {problem_cache.N_k_arr.shape if problem_cache.N_k_arr is not None else 'None'}")
+        logging.debug(f"problem_cache.m_k_arr shape: {problem_cache.m_k_arr.shape if problem_cache.m_k_arr is not None else 'None'}")
+        logging.debug(f"problem_cache.N_k_arr shape: {problem_cache.N_k_arr.shape if problem_cache.N_k_arr is not None else 'None'}")
 
     m_k_arr = problem_cache.m_k_arr
     N_k_arr = problem_cache.N_k_arr
