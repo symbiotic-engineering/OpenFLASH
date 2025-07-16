@@ -1,6 +1,7 @@
 #meem_engine.py
 from typing import List, Dict, Any
 import numpy as np
+from __future__ import annotations
 import matplotlib.pyplot as plt
 from openflash.meem_problem import MEEMProblem
 from openflash.problem_cache import ProblemCache
@@ -537,49 +538,49 @@ class MEEMEngine:
         fig.tight_layout(rect=[0, 0.03, 1, 0.95])  # leave room for suptitle
         return fig
     
-    def run_and_store_results(self, problem_index: int, m0_values: np.ndarray) -> 'Results': 
+    def run_and_store_results(self, problem_index: int, m0_values: np.ndarray) -> Results:
         """
-        Perform the full MEEM computation for a *list of frequencies* and store results
-        in the Results class.
-        This method will now benefit from the optimized assemble_A_multi/assemble_b_multi.
+        Perform the full MEEM computation for a list of angular frequencies `m0_values` 
+        and store results in a `Results` object.
 
-        :param problem_index: Index of the MEEMProblem instance to process.
-        :param m0_values: A NumPy array of angular frequencies (m0) to process.
-                        These are the specific frequencies for which calculations will be performed.
-        :return: Results object containing the computed data including hydrodynamic coefficients
-                and optionally potentials.
+        The method:
+        - Assembles and solves the linear system A @ X = b for each frequency.
+        - Computes hydrodynamic coefficients (added mass and damping).
+        - Optionally stores domain potentials (placeholder code currently).
+        - Stores all results in a reusable `Results` object.
+
+        Parameters
+        ----------
+        problem_index : int
+            Index of the MEEMProblem instance from `self.problem_list` to run computations for.
+
+        m0_values : np.ndarray
+            Array of angular frequencies (rad/s) to compute. These must be a subset of `problem.frequencies`.
+
+        Returns
+        -------
+        Results
+            A `Results` object containing added mass and damping matrices, 
+            and optionally, computed potentials for each frequency and mode.
         """
         problem = self.problem_list[problem_index]
-        
-        # Initialize a list to store batched potentials
-        # This will be formatted as required by results.store_all_potentials
         all_potentials_batch_data = []
-
-        # Initialize Results object (will be populated with data in the loop)
-        # The Results object takes the full arrays of frequencies and modes defined in the problem.
         geometry = problem.geometry
         results = Results(geometry, problem.frequencies, problem.modes)
 
-        num_modes = len(problem.modes) # Get the number of modes from the problem
-        
-        # Create mappings from the input m0_values to their indices in problem.frequencies
+        num_modes = len(problem.modes)
         freq_to_idx = {freq: idx for idx, freq in enumerate(problem.frequencies)}
-        
-        # Initialize full matrices with NaNs, for the dimensions of the Results object
-        full_added_mass_matrix = np.full((len(problem.frequencies), num_modes), np.nan, dtype=float)
-        full_damping_matrix = np.full((len(problem.frequencies), num_modes), np.nan, dtype=float)
 
-        # Iterate over each frequency for computation from the input m0_values
-        for i, m0 in enumerate(m0_values): # Loop through the input m0_values to calculate
+        full_added_mass_matrix = np.full((len(problem.frequencies), num_modes), np.nan)
+        full_damping_matrix = np.full((len(problem.frequencies), num_modes), np.nan)
+
+        for i, m0 in enumerate(m0_values):
             print(f"  Calculating for m0 = {m0:.4f} rad/s")
-
-            # Get the index of this m0 in the problem's full frequencies array
             freq_idx_in_problem = freq_to_idx.get(m0)
             if freq_idx_in_problem is None:
-                # This should ideally not happen if m0_values are a subset of problem.frequencies
                 print(f"  Warning: m0={m0:.4f} not found in problem.frequencies. Skipping calculation.")
                 continue
-            
+
             A = self.assemble_A_multi(problem, m0)
             b = self.assemble_b_multi(problem, m0)
 
@@ -587,60 +588,27 @@ class MEEMEngine:
                 X = np.linalg.solve(A, b)
             except np.linalg.LinAlgError as e:
                 print(f"  ERROR: Could not solve for m0={m0:.4f}: {e}. Storing NaN for coefficients.")
-                # The `full_added_mass_matrix` and `full_damping_matrix` are already initialized with NaNs,
-                # so no need to explicitly append NaNs here if X is not solved.
-                continue # Skip to the next frequency
+                continue
 
-            # Compute hydrodynamic coefficients for this frequency
             hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
-            
-            # Ensure that hydro_coeffs['real'] and hydro_coeffs['imag'] are arrays of shape (num_modes,)
-            # If compute_hydrodynamic_coefficients returns a scalar for a single mode case,
-            # wrap it in an array here.
             current_added_mass = np.atleast_1d(hydro_coeffs['real'])
             current_damping = np.atleast_1d(hydro_coeffs['imag'])
 
-            # Sanity check: Ensure the number of modes returned matches expected
             if current_added_mass.shape[0] != num_modes or current_damping.shape[0] != num_modes:
-                raise ValueError(f"compute_hydrodynamic_coefficients returned {current_added_mass.shape[0]} modes "
-                                f"for m0={m0:.4f}, but problem expects {num_modes} modes.")
-            
-            # Store results into the pre-allocated full matrices at the correct frequency index
+                raise ValueError(f"compute_hydrodynamic_coefficients returned shape mismatch for m0={m0:.4f}.")
+
             full_added_mass_matrix[freq_idx_in_problem, :] = current_added_mass
             full_damping_matrix[freq_idx_in_problem, :] = current_damping
 
-            # --- Handle Potentials  ---
-            calculated_potentials_for_this_freq_mode = {}
-            for domain_name, domain in problem.geometry.domain_list.items():
-                print(domain_name, domain.category)
-                domain_name = domain.category # Or a more specific name like f'domain_{domain_idx}'
-                num_harmonics_for_domain = domain.number_harmonics # Get this from the domain
-                
-                # Dummy potential values and coordinates
-                dummy_potentials = (np.random.rand(num_harmonics_for_domain) + \
-                                    1j * np.random.rand(num_harmonics_for_domain)).astype(complex)
-                dummy_r_coords_dict = {f'r_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
-                dummy_z_coords_dict = {f'z_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
-                
-                calculated_potentials_for_this_freq_mode[domain_name] = {
-                    'potentials': dummy_potentials,
-                    'r_coords_dict': dummy_r_coords_dict,
-                    'z_coords_dict': dummy_z_coords_dict,
-                }
-
+            # -- Placeholder for potential computation per mode --
             for mode_idx, mode_value in enumerate(problem.modes):
-                
-                # This is a placeholder for the actual calculation of potentials PER MODE
                 current_mode_potentials = {}
                 for domain_idx, domain in problem.geometry.domain_list.items():
                     domain_name = domain.category
-                    num_harmonics_for_domain = domain.number_harmonics
-
-                    dummy_potentials = (np.random.rand(num_harmonics_for_domain) + \
-                                        1j * np.random.rand(num_harmonics_for_domain)).astype(complex)
-                    dummy_r_coords_dict = {f'r_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
-                    dummy_z_coords_dict = {f'z_h{k}': np.random.rand() for k in range(num_harmonics_for_domain)}
-                    
+                    nh = domain.number_harmonics
+                    dummy_potentials = (np.random.rand(nh) + 1j * np.random.rand(nh)).astype(complex)
+                    dummy_r_coords_dict = {f'r_h{k}': np.random.rand() for k in range(nh)}
+                    dummy_z_coords_dict = {f'z_h{k}': np.random.rand() for k in range(nh)}
                     current_mode_potentials[domain_name] = {
                         'potentials': dummy_potentials,
                         'r_coords_dict': dummy_r_coords_dict,
@@ -648,20 +616,18 @@ class MEEMEngine:
                     }
 
                 all_potentials_batch_data.append({
-                    'frequency_idx': freq_idx_in_problem, # Use the index in problem.frequencies
-                    'mode_idx': mode_idx,               # Use the index in problem.modes
-                    'data': current_mode_potentials     # The domain-specific potentials
+                    'frequency_idx': freq_idx_in_problem,
+                    'mode_idx': mode_idx,
+                    'data': current_mode_potentials,
                 })
 
-        # After the loop, store the collected hydrodynamic coefficients
         results.store_hydrodynamic_coefficients(
-            frequencies=problem.frequencies, # Pass the full problem frequencies
-            modes=problem.modes,             # Pass the full problem modes
+            frequencies=problem.frequencies,
+            modes=problem.modes,
             added_mass_matrix=full_added_mass_matrix,
-            damping_matrix=full_damping_matrix
+            damping_matrix=full_damping_matrix,
         )
-        
-        # Store all potentials
+
         if all_potentials_batch_data:
             results.store_all_potentials(all_potentials_batch_data)
 
