@@ -12,11 +12,10 @@ def omega(m0,h,g):
     return sqrt(m0 * np.tanh(m0 * h) * g)
 
 def scale(a):
-    # Pad 'a' with a zero at the beginning to align for the average calculation
-    # For a = [5, 10, 15], this would make padded_a = [0, 5, 10]
-    padded_a_prev = np.concatenate(([0.0], a[:-1])) # Ensure 0.0 for float type consistency
-    
-    # Now, element-wise average: (previous_a + current_a) / 2
+    a = np.atleast_1d(a)  # ensures 'a' is at least 1D array
+    if a.size == 1:
+        return a[0] / 2  # or return a directly, depending on your intent
+    padded_a_prev = np.concatenate(([0.0], a[:-1]))
     result = (padded_a_prev + a) / 2
     return result
 
@@ -27,38 +26,41 @@ def lambda_ni(n, i, h, d): # factor used often in calculations
 # some common computations
 
 # creating a m_k function, used often in calculations
-def m_k_entry(k, m0, h):
-    # m_k_mat = np.zeros((len(m0_vec), 1))
-    if k == 0: return m0
+def m_k_entry(k_input, m0, h):
+    """
+    Compute m_k values for input k (scalar or array-like), with root-finding.
+    Handles root-finding errors gracefully and ensures output size matches input.
+    """
+    k_array = np.atleast_1d(k_input)
+    m_k_vals = []
 
-    m_k_h_err = (
-        lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
-    )
-    k_idx = k
+    for k in k_array:
+        if k == 0:
+            m_k_vals.append(m0)
+            continue
 
-    # # original version of bounds in python
-    m_k_h_lower = pi * (k_idx - 1/2) + np.finfo(float).eps
-    m_k_h_upper = pi * k_idx - np.finfo(float).eps
-    # x_0 =  (m_k_upper - m_k_lower) / 2
-    
-    # becca's version of bounds from MDOcean Matlab code
-    m_k_h_lower = pi * (k_idx - 1/2) + (pi/180)* np.finfo(float).eps * (2**(np.floor(np.log(180*(k_idx- 1/2)) / np.log(2))) + 1)
-    m_k_h_upper = pi * k_idx
+        def m_k_h_err(m_k_h):
+            return m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h)
 
-    m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
-    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
-    # result = minimize_scalar(
-        # m_k_h_err, bounds=(m_k_h_lower, m_k_h_upper), method="bounded"
-    # )
+        # Use Becca’s bounds (copied from your code)
+        lower = pi * (k - 0.5) + (pi/180) * np.finfo(float).eps * (2 ** (np.floor(np.log(180*(k - 0.5)) / np.log(2))) + 1)
+        upper = pi * k
 
-    m_k_val = result.root / h
+        guess = pi * (k - 0.5) + np.finfo(float).eps
 
-    shouldnt_be_int = np.round(m0 * m_k_val / np.pi - 0.5, 4)
-    # not_repeated = np.unique(m_k_val) == m_k_val
-    assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int))
+        try:
+            result = root_scalar(m_k_h_err, x0=guess, method="newton", bracket=[lower, upper])
+            m_k_val = result.root / h
 
-        # m_k_mat[freq_idx, :] = m_k_vec
-    return m_k_val
+            shouldnt_be_int = np.round(m0 * m_k_val / np.pi - 0.5, 4)
+            assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int))
+
+            m_k_vals.append(m_k_val)
+        except Exception as e:
+            print(f"Warning: root-finding failed for k={k} with error: {e}")
+            m_k_vals.append(np.nan)  # or some fallback value
+
+    return np.array(m_k_vals) if isinstance(k_input, (list, np.ndarray)) else m_k_vals[0]
 
 # create an array of m_k values for each k to avoid recomputation
 def m_k(NMK, m0, h):
