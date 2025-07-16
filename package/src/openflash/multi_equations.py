@@ -8,6 +8,8 @@ from scipy.optimize import newton, root_scalar
 import scipy as sp
 import matplotlib.pyplot as plt
 
+M0_H_THRESH=14
+
 def omega(m0,h,g):
     return sqrt(m0 * np.tanh(m0 * h) * g)
 
@@ -107,14 +109,14 @@ def I_mk(m, k, i, d, m0, h, NMK, m_k_arr, N_k_arr): # coupling integral for i an
     
     dj = d[i]
     if m == 0 and k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             return (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - dj)) / m0 # Use N_k_arr[0]
         else: # high m0h approximation
             return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
     if m == 0 and k >= 1:
         return (1/sqrt(N_k_arr[k])) * sin(local_m_k_k * (h - dj)) / local_m_k_k # Use N_k_arr[k]
     if m >= 1 and k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             num = (-1)**m * sqrt(2) * (1/sqrt(N_k_arr[0])) * m0 * sinh(m0 * (h - dj)) # Use N_k_arr[0]
         else: # high m0h approximation
             num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -133,14 +135,14 @@ def I_mk_full(m, k, i, d, m0, h, NMK): # coupling integral for i and e-type regi
     local_m_k = m_k(NMK, m0, h)
     dj = d[i]
     if m == 0 and k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             return (1/sqrt(N_k_full(0, m0, h, NMK))) * sinh(m0 * (h - dj)) / m0
         else: # high m0h approximation
             return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
     if m == 0 and k >= 1:
         return (1/sqrt(N_k_full(k, m0, h, NMK))) * sin(local_m_k[k] * (h - dj)) / local_m_k[k]
     if m >= 1 and k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             num = (-1)**m * sqrt(2) * (1/sqrt(N_k_full(0, m0, h, NMK))) * m0 * sinh(m0 * (h - dj))
         else: # high m0h approximation
             num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -198,7 +200,7 @@ def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # b
 
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - d[i])) / m0 # Use N_k_arr[0]
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
@@ -209,7 +211,7 @@ def b_velocity_end_entry_full(k, i, heaving, a, h, d, m0, NMK): # between i and 
     local_m_k = m_k(NMK, m0, h)
     constant = - heaving[i] * a[i]/(2 * (h - d[i]))
     if k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_full(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
@@ -396,7 +398,7 @@ def N_k_full(k, m0, h, NMK):
 def Z_k_e(k, z, m0, h, NMK, m_k_arr):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * cosh(m0 * (z + h))
         else: # high m0h approximation
             return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
@@ -406,7 +408,7 @@ def Z_k_e(k, z, m0, h, NMK, m_k_arr):
 def Z_k_e_vectorized(k, z_array, m0, h, NMK, m_k_arr): # Changed 'z' to 'z_array'
     local_m_k = m_k(NMK, m0, h) 
     if k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * cosh(m0 * (z_array + h))
         else: # high m0h approximation
             return sqrt(2 * m0 * h) * (exp(m0 * z_array) + exp(-m0 * (z_array + 2*h)))
@@ -416,7 +418,7 @@ def Z_k_e_vectorized(k, z_array, m0, h, NMK, m_k_arr): # Changed 'z' to 'z_array
 def diff_Z_k_e(k, z, m0, h, NMK, m_k_arr):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
-        if m0 * h < 14:
+        if m0 * h < M0_H_THRESH:
             return 1 / sqrt(N_k_multi(k, m0, h, NMK, m_k_arr)) * m0 * sinh(m0 * (z + h))
         else: # high m0h approximation
             return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
