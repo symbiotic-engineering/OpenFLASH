@@ -1,19 +1,28 @@
-python >=3.9
-numpy
-scipy
-matplotlib
-pandas
-h5netcdf
-xarray
-streamlit
-sphinx
-sphinx-tabs
-sphinx_design
-nbsphinx
-pytest
-twine
-build
-readme_renderer
-watchdog
-black
-ruff
+# Specify Python version compatibility
+python_version >= "3.9"
+
+# Runtime dependencies
+numpy>=1.21,<2.1
+scipy>=1.7,<2.0
+matplotlib>=3.5,<4.0
+pandas>=1.5,<3.0
+h5netcdf>=0.12,<1.0
+xarray>=2023.0 
+streamlit>=1.0
+
+# Documentation
+sphinx>=3.0
+sphinx-tabs>=1.0
+sphinx_design>=0.0.8
+nbsphinx>=0.8
+
+# Testing and packaging
+pytest>=7.0
+twine>=4.0
+build>=0.8
+readme_renderer>=30.0
+watchdog>=3.0
+
+# Code quality tools
+black>=23.0
+ruff>=0.0.280

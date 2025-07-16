@@ -24,16 +24,8 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
     ```bash
     pip install open-flash
     ```
-    Alternatively, you can install the latest development version directly from the GitHub repository:
-    ```bash
-    pip install git+[https://github.com/symbiotic-engineering/semi-analytical-hydro.git](https://github.com/symbiotic-engineering/semi-analytical-hydro.git)
-    ```
-2.  **Install dependencies:** Navigate to the project directory (if you cloned it) and run:
-    ```bash
-    pip install -r requirements.txt
-    ```
-3.  **Explore the `docs/` and `package/test` directory:** These directories contain scripts and notebooks demonstrating how to use the open-flash framework for different problems. Run these examples to understand the workflow.
-4.  **Refer to the documentation in the `docs/` directory:** The documentation provides detailed information on the different modules and classes within the `open-flash` package.
+2.  **Explore the `docs/` and `package/test` directory:** These directories contain scripts and notebooks demonstrating how to use the open-flash framework for different problems. Run these examples to understand the workflow.
+3.  **Refer to the documentation in the `docs/` directory:** The documentation provides detailed information on the different modules and classes within the `open-flash` package.
 
 ## References
 
@@ -47,3 +39,5 @@ The following publications are relevant to this package:
 6. R. W. Yeung, “Added mass and damping of a vertical cylinder in finite-depth waters,” *Appl. Ocean Res.*, vol. 3, no. 3, pp. 119–133, Jul. 1981, doi: 10.1016/0141-1187(81)90101-2.
 7. D. Son, V. Belissen, and R. W. Yeung, “Performance validation and optimization of a dual coaxial-cylinder ocean-wave energy extractor,” *Renew. Energy*, vol. 92, pp. 192–201, Jul. 2016, doi: 10.1016/j.renene.2016.01.032.
 8. K. Kokkinowrachos, S. Mavrakos, and S. Asorakos, “Behaviour of vertical bodies of revolution in waves,” *Ocean Eng.*, vol. 13, no. 6, pp. 505–538, Jan. 1986, doi: 10.1016/0029-8018(86)90037-5.
+9. Journal paper citation (in prep): H. Best, R. McCabe, K. Khanal, Y. Bimali, E. Lo, C. Treacy, R. Jiang, and M. Haji, “OpenFLASH: A Python Package for Matched Eigenfunctions Methods,” in preparation, 2025.
+10. Journal paper citation (in prep): R. McCabe, K. Khanal, Y. Bimali, E. Lo, C. Treacy, and M. Haji, “Numerics of the matched eigenfunction method for computing wave forces on concentric bodies,” in preparation, 2025.
