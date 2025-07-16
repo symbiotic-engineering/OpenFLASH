@@ -487,3 +487,141 @@ def make_R_Z(a, h, d, sharp, spatial_res): # create coordinate array for graphin
             z_vec = np.append(z_vec, -d[i])
         z_vec = np.unique(z_vec)
     return np.meshgrid(r_vec, z_vec)
+
+# SHARED FUNCTION
+def generate_boundary_blocks(
+    bd: int,
+    NMK,
+    d,
+    h,
+    a_filtered,
+    m0,
+    I_nm_vals,
+    I_mk_vals,
+    cache=None,
+) -> list:
+    """
+    Builds row blocks for boundary `bd`. If `cache` is provided, adds m0-dependent closures to it.
+    Supports dry-run mode (m0=None) for cache building.
+    """
+    N = NMK[bd]
+    M = NMK[bd + 1]
+    row_blocks = []
+
+    if bd == len(NMK) - 2:  # i-e boundary
+        if bd == 0:
+            left_block1 = (h - d[bd]) * np.diag([
+                R_1n(n, a_filtered[bd], bd, h, d, a_filtered) for n in range(N)
+            ])
+            if cache is not None:
+                def closure(bd=bd, N=N, M=M):
+                    return lambda m0: -np.array([
+                        [I_mk_full(n, m, bd, d, m0, h, NMK) * Lambda_k_full(m, a_filtered[bd], m0, a_filtered, NMK, h)
+                         for m in range(M)]
+                        for n in range(N)
+                    ])
+                cache[f"A_{bd}_i-e"] = closure()
+                right_block = np.zeros((N, M), dtype=complex)
+            else:
+                right_block = -I_mk_vals[:N, :M] * np.array([
+                    [Lambda_k_full(m, a_filtered[bd], m0, a_filtered, NMK, h)
+                     for m in range(M)]
+                    for _ in range(N)
+                ])
+            row_blocks.append(np.hstack((left_block1, right_block)))
+
+        else:
+            left_block1 = (h - d[bd]) * np.diag([
+                R_1n(n, a_filtered[bd], bd, h, d, a_filtered) for n in range(N)
+            ])
+            left_block2 = (h - d[bd]) * np.diag([
+                R_2n(n, a_filtered[bd], bd, h, d) for n in range(N)
+            ])
+            if cache is not None:
+                def closure(bd=bd, N=N, M=M):
+                    return lambda m0: -np.array([
+                        [I_mk_full(n, m, bd, d, m0, h, NMK) * Lambda_k_full(m, a_filtered[bd], m0, a_filtered, NMK, h)
+                         for m in range(M)]
+                        for n in range(N)
+                    ])
+                cache[f"A_{bd}_i-e"] = closure()
+                right_block = np.zeros((N, M), dtype=complex)
+            else:
+                right_block = -I_mk_vals[:N, :M] * np.array([
+                    [Lambda_k_full(m, a_filtered[bd], m0, a_filtered, NMK, h)
+                     for m in range(M)]
+                    for _ in range(N)
+                ])
+            row_blocks.append(np.hstack((left_block1, left_block2, right_block)))
+
+    elif bd == 0:
+        left_diag_is_active = d[bd] > d[bd + 1]
+        if left_diag_is_active:
+            left_block = (h - d[bd]) * np.diag([
+                R_1n(n, a_filtered[bd], bd, h, d, a_filtered) for n in range(N)
+            ])
+            right_block1 = -np.array([
+                [I_nm(n, m, bd, d, h) * R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                 for m in range(M)]
+                for n in range(N)
+            ])
+            right_block2 = -np.array([
+                [I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d)
+                 for m in range(M)]
+                for n in range(N)
+            ])
+            row_blocks.append(np.hstack((left_block, right_block1, right_block2)))
+        else:
+            left_block = np.array([
+                [I_nm(n, m, bd, d, h) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                 for n in range(N)]
+                for m in range(M)
+            ])
+            right_block1 = -(h - d[bd + 1]) * np.diag([
+                R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered) for m in range(M)
+            ])
+            right_block2 = -(h - d[bd + 1]) * np.diag([
+                R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d) for m in range(M)
+            ])
+            row_blocks.append(np.hstack((left_block.T, right_block1, right_block2)))
+
+    else:
+        left_diag_is_active = d[bd] > d[bd + 1]
+        if left_diag_is_active:
+            left_block1 = (h - d[bd]) * np.diag([
+                R_1n(n, a_filtered[bd], bd, h, d, a_filtered) for n in range(N)
+            ])
+            left_block2 = (h - d[bd]) * np.diag([
+                R_2n(n, a_filtered[bd], bd, h, d) for n in range(N)
+            ])
+            right_block1 = -np.array([
+                [I_nm(n, m, bd, d, h) * R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                 for m in range(M)]
+                for n in range(N)
+            ])
+            right_block2 = -np.array([
+                [I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
+                 for m in range(M)]
+                for n in range(N)
+            ])
+            row_blocks.append(np.hstack((left_block1, left_block2, right_block1, right_block2)))
+        else:
+            left_block1 = np.array([
+                [I_nm(n, m, bd, d, h) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
+                 for n in range(N)]
+                for m in range(M)
+            ])
+            left_block2 = np.array([
+                [I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd, a_filtered, h, d)
+                 for n in range(N)]
+                for m in range(M)
+            ])
+            right_block1 = -(h - d[bd + 1]) * np.diag([
+                R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered) for m in range(M)
+            ])
+            right_block2 = -(h - d[bd + 1]) * np.diag([
+                R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d) for m in range(M)
+            ])
+            row_blocks.append(np.hstack((left_block1.T, left_block2.T, right_block1, right_block2)))
+
+    return row_blocks
