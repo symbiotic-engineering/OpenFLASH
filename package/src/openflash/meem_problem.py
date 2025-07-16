@@ -1,31 +1,36 @@
-# meem_problem.py
-
 from typing import Dict
-from openflash.geometry import Geometry
 import numpy as np
+from openflash.geometry import Geometry
 
 class MEEMProblem:
     """
-    Represents a mathematical problem to be solved using the Multiple Expansion Eigenfunction Method (MEEM).
+    Encapsulates the full configuration and computation targets for a MEEM scenario.
     """
 
     def __init__(self, geometry: Geometry):
         """
-        Initialize the MEEMProblem object.
+        Initialize a MEEMProblem instance.
 
-        :param geometry: Geometry object containing domain information.
+        Parameters
+        ----------
+        geometry : Geometry
+            The full system geometry, including all domains.
         """
-        self.domain_list = geometry.domain_list
         self.geometry = geometry
-        self.frequencies = np.array([])  # Initialize with empty arrays
-        self.modes = np.array([])
+        self.domain_list = geometry.domain_list
+        self.frequencies = np.array([])  # Angular frequencies ω (rad/s)
+        self.modes = np.array([])        # Mode numbers (e.g. [0, 1, 2])
 
     def set_frequencies_modes(self, frequencies: np.ndarray, modes: np.ndarray):
         """
-        Set the frequencies and modes for the problem.
+        Set the angular frequencies and motion modes for this problem.
+
+        Parameters
+        ----------
+        frequencies : np.ndarray
+            Array of angular frequencies (rad/s).
+        modes : np.ndarray
+            Array of mode indices.
         """
         self.frequencies = frequencies
         self.modes = modes
-
-
-    # Add any additional methods required for multi-region computations
