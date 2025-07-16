@@ -561,61 +561,53 @@ class MEEMEngine:
             and optionally, computed potentials for each frequency and mode.
         """
         problem = self.problem_list[problem_index]
-        all_potentials_batch_data = []
         geometry = problem.geometry
         results = Results(geometry, problem.frequencies, problem.modes)
 
         num_modes = len(problem.modes)
-        freq_to_idx = {freq: idx for idx, freq in enumerate(problem.frequencies)}
+        num_freqs = len(problem.frequencies)
 
-        full_added_mass_matrix = np.full((len(problem.frequencies), num_modes), np.nan)
-        full_damping_matrix = np.full((len(problem.frequencies), num_modes), np.nan)
+        full_added_mass_matrix = np.full((num_freqs, num_modes), np.nan)
+        full_damping_matrix = np.full((num_freqs, num_modes), np.nan)
+        all_potentials_batch_data = []
 
-        for freq_idx_in_problem, m0 in enumerate(problem.frequencies):
+        for freq_idx, m0 in enumerate(problem.frequencies):
             print(f"  Calculating for m0 = {m0:.4f} rad/s")
-            freq_idx_in_problem = freq_to_idx.get(m0)
-            if freq_idx_in_problem is None:
-                print(f"  Warning: m0={m0:.4f} not found in problem.frequencies. Skipping calculation.")
-                continue
-
-            A = self.assemble_A_multi(problem, m0)
-            b = self.assemble_b_multi(problem, m0)
 
             try:
+                A = self.assemble_A_multi(problem, m0)
+                b = self.assemble_b_multi(problem, m0)
                 X = np.linalg.solve(A, b)
             except np.linalg.LinAlgError as e:
                 print(f"  ERROR: Could not solve for m0={m0:.4f}: {e}. Storing NaN for coefficients.")
                 continue
 
             hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
-            current_added_mass = np.atleast_1d(hydro_coeffs['real'])
-            current_damping = np.atleast_1d(hydro_coeffs['imag'])
+            added_mass = np.atleast_1d(hydro_coeffs["real"])
+            damping = np.atleast_1d(hydro_coeffs["imag"])
 
-            if current_added_mass.shape[0] != num_modes or current_damping.shape[0] != num_modes:
-                raise ValueError(f"compute_hydrodynamic_coefficients returned shape mismatch for m0={m0:.4f}.")
+            if added_mass.shape[0] != num_modes or damping.shape[0] != num_modes:
+                raise ValueError(
+                    f"compute_hydrodynamic_coefficients returned shape mismatch for m0={m0:.4f}."
+                )
 
-            full_added_mass_matrix[freq_idx_in_problem, :] = current_added_mass
-            full_damping_matrix[freq_idx_in_problem, :] = current_damping
+            full_added_mass_matrix[freq_idx, :] = added_mass
+            full_damping_matrix[freq_idx, :] = damping
 
-            # -- Placeholder for potential computation per mode --
-            for mode_idx, mode_value in enumerate(problem.modes):
+            for mode_idx, _ in enumerate(problem.modes):
                 current_mode_potentials = {}
-                for domain_idx, domain in problem.geometry.domain_list.items():
-                    domain_name = domain.category
+                for domain in problem.geometry.domain_list.values():
                     nh = domain.number_harmonics
-                    dummy_potentials = (np.random.rand(nh) + 1j * np.random.rand(nh)).astype(complex)
-                    dummy_r_coords_dict = {f'r_h{k}': np.random.rand() for k in range(nh)}
-                    dummy_z_coords_dict = {f'z_h{k}': np.random.rand() for k in range(nh)}
-                    current_mode_potentials[domain_name] = {
-                        'potentials': dummy_potentials,
-                        'r_coords_dict': dummy_r_coords_dict,
-                        'z_coords_dict': dummy_z_coords_dict,
+                    current_mode_potentials[domain.category] = {
+                        "potentials": (np.random.rand(nh) + 1j * np.random.rand(nh)).astype(complex),
+                        "r_coords_dict": {f"r_h{k}": np.random.rand() for k in range(nh)},
+                        "z_coords_dict": {f"z_h{k}": np.random.rand() for k in range(nh)},
                     }
 
                 all_potentials_batch_data.append({
-                    'frequency_idx': freq_idx_in_problem,
-                    'mode_idx': mode_idx,
-                    'data': current_mode_potentials,
+                    "frequency_idx": freq_idx,
+                    "mode_idx": mode_idx,
+                    "data": current_mode_potentials,
                 })
 
         results.store_hydrodynamic_coefficients(

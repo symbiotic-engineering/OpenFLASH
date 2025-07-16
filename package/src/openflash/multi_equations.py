@@ -73,8 +73,6 @@ def m_k_newton(h, m0):
     res = newton(lambda k: k * np.tanh(k * h) - m0**2 / 9.8, x0=1.0, tol=10 ** (-10))
     return res
 
-
-
 #############################################
 # vertical eigenvector coupling computation
 
