@@ -540,7 +540,7 @@ class MEEMEngine:
     
     def run_and_store_results(self, problem_index: int, m0_values: np.ndarray) -> Results:
         """
-        Perform the full MEEM computation for a list of angular frequencies `m0_values` 
+        Perform the full MEEM computation for an array of frequencies `m0_values` 
         and store results in a `Results` object.
 
         The method:
