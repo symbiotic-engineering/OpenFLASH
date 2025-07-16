@@ -538,13 +538,13 @@ class MEEMEngine:
         fig.tight_layout(rect=[0, 0.03, 1, 0.95])  # leave room for suptitle
         return fig
     
-    def run_and_store_results(self, problem_index: int, m0_values: np.ndarray) -> Results:
+    def run_and_store_results(self, problem_index: int) -> Results:
         """
-        Perform the full MEEM computation for an array of frequencies `m0_values` 
+        Perform the full MEEM computation for all frequencies defined in the selected MEEMProblem,
         and store results in a `Results` object.
 
         The method:
-        - Assembles and solves the linear system A @ X = b for each frequency.
+        - Assembles and solves the linear system A @ X = b for each frequency in `problem.frequencies`.
         - Computes hydrodynamic coefficients (added mass and damping).
         - Optionally stores domain potentials (placeholder code currently).
         - Stores all results in a reusable `Results` object.
@@ -553,9 +553,6 @@ class MEEMEngine:
         ----------
         problem_index : int
             Index of the MEEMProblem instance from `self.problem_list` to run computations for.
-
-        m0_values : np.ndarray
-            Array of angular frequencies (rad/s) to compute. These must be a subset of `problem.frequencies`.
 
         Returns
         -------
@@ -574,7 +571,7 @@ class MEEMEngine:
         full_added_mass_matrix = np.full((len(problem.frequencies), num_modes), np.nan)
         full_damping_matrix = np.full((len(problem.frequencies), num_modes), np.nan)
 
-        for i, m0 in enumerate(m0_values):
+        for freq_idx_in_problem, m0 in enumerate(problem.frequencies):
             print(f"  Calculating for m0 = {m0:.4f} rad/s")
             freq_idx_in_problem = freq_to_idx.get(m0)
             if freq_idx_in_problem is None:
