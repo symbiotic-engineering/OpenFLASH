@@ -26,7 +26,7 @@ from openflash.multi_equations import (
     N_k_multi,
 
     I_nm, I_mk, Lambda_k, diff_Lambda_k, R_1n, R_2n, diff_R_1n, diff_R_2n,
-    b_potential_entry, b_velocity_entry, b_velocity_end_entry_og,
+    b_potential_entry, b_velocity_entry, b_velocity_end_entry_full,
     int_R_1n, int_R_2n, z_n_d, int_phi_p_i_no_coef # For compute_hydrodynamic_coefficients
 )
 from openflash.multi_constants import rho, omega # For compute_hydrodynamic_coefficients

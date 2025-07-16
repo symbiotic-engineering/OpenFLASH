@@ -8,10 +8,10 @@ from openflash.geometry import Geometry
 from openflash.problem_cache import ProblemCache
 from openflash.multi_constants import g, rho
 from openflash.multi_equations import (
-    omega, scale, lambda_ni, m_k_entry, m_k, N_k_multi, N_k_og,
-    I_nm, I_mk, I_mk_og,
-    b_potential_entry, b_potential_end_entry, b_velocity_entry, b_velocity_end_entry, b_velocity_end_entry_og,
-    R_1n, diff_R_1n, R_2n, diff_R_2n, Lambda_k, diff_Lambda_k, Lambda_k_og, diff_Lambda_k_og
+    omega, scale, lambda_ni, m_k_entry, m_k, N_k_multi, N_k_full,
+    I_nm, I_mk, I_mk_full,
+    b_potential_entry, b_potential_end_entry, b_velocity_entry, b_velocity_end_entry, b_velocity_end_entry_full,
+    R_1n, diff_R_1n, R_2n, diff_R_2n, Lambda_k, diff_Lambda_k, Lambda_k_full, diff_Lambda_k_full
 )
 
 

@@ -20,11 +20,11 @@ sys.path.insert(0, os.path.abspath(src_dir))
 # Import all functions from multi_equations.py
 from openflash.multi_equations import (
     omega, scale, lambda_ni, m_k_entry, m_k, m_k_newton,
-    I_nm, I_mk, I_mk_og, b_potential_entry, b_potential_end_entry,
-    b_velocity_entry, b_velocity_end_entry, b_velocity_end_entry_og,
+    I_nm, I_mk, I_mk_full, b_potential_entry, b_potential_end_entry,
+    b_velocity_entry, b_velocity_end_entry, b_velocity_end_entry_full,
     phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i, R_1n, diff_R_1n, R_2n, diff_R_2n,
-    Z_n_i, diff_Z_n_i, Lambda_k, Lambda_k_og, diff_Lambda_k, diff_Lambda_k_og,
-    N_k_multi, N_k_og, Z_k_e, diff_Z_k_e, int_R_1n, int_R_2n,
+    Z_n_i, diff_Z_n_i, Lambda_k, Lambda_k_full, diff_Lambda_k, diff_Lambda_k_full,
+    N_k_multi, N_k_full, Z_k_e, diff_Z_k_e, int_R_1n, int_R_2n,
     int_phi_p_i_no_coef, z_n_d, excitation_phase
 )
 
@@ -372,7 +372,7 @@ def test_I_mk_k_positive_m_positive(test_n, test_k, test_i, d, m0, h, NMK, preco
         expected = sqrt(2)/2 * (1/sqrt(N_k_arr_k)) * (frac1 + frac2)
     assert np.isclose(I_mk(m_val, test_k, i, d, m0, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr), expected)
 
-# Testing _og versions implicitly relies on m_k and N_k_og being correct.
+# Testing _full versions implicitly relies on m_k and N_k_full being correct.
 # We skip these for brevity since the main ones are tested with precomputed arrays.
 
 # --- b-vector computation ---

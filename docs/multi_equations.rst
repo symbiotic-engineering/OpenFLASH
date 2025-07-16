@@ -53,7 +53,7 @@ in adjacent fluid regions.
 
 .. autofunction:: I_nm
 .. autofunction:: I_mk
-.. autofunction:: I_mk_og
+.. autofunction:: I_mk_full
 
 .. raw:: html
 
@@ -69,7 +69,7 @@ Functions that contribute to the assembly of the right-hand side vector
 .. autofunction:: b_potential_end_entry
 .. autofunction:: b_velocity_entry
 .. autofunction:: b_velocity_end_entry
-.. autofunction:: b_velocity_end_entry_og
+.. autofunction:: b_velocity_end_entry_full
 
 .. raw:: html
 
@@ -103,9 +103,9 @@ intermediate (Bessel K type), and exterior (Hankel and Bessel K type) regions.
 .. autofunction:: diff_R_2n
 .. autofunction:: Lambda_k
 .. autofunction:: Lambda_k_vectoized
-.. autofunction:: Lambda_k_og
+.. autofunction:: Lambda_k_full
 .. autofunction:: diff_Lambda_k
-.. autofunction:: diff_Lambda_k_og
+.. autofunction:: diff_Lambda_k_full
 
 .. raw:: html
 
@@ -118,7 +118,7 @@ Functions defining the vertical eigenfunctions for the interior/intermediate
 regions (:math:`Z_n^i`) and the exterior region (:math:`Z_k^e`).
 
 .. autofunction:: N_k_multi
-.. autofunction:: N_k_og
+.. autofunction:: N_k_full
 .. autofunction:: Z_n_i
 .. autofunction:: Z_n_i_vectorized
 .. autofunction:: diff_Z_n_i
