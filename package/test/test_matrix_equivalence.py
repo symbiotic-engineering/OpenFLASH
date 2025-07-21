@@ -68,9 +68,14 @@ def test_assemble_A_equivalence(sample_problem):
     tolerance_rtol = 1e-9 # Relative tolerance
     tolerance_atol = 1e-12 # Absolute tolerance (for values close to zero)
 
+    diff = np.abs(A_original - A_new)
+    nonzero_mask = (np.abs(A_original) > 1e-15)  # or just A_original != 0
+
+    max_abs_diff = np.max(diff)
+    max_rel_diff = np.max(diff[nonzero_mask] / np.abs(A_original[nonzero_mask]))
+
     assert np.allclose(A_original, A_new, rtol=tolerance_rtol, atol=tolerance_atol), \
-        f"A matrices differ significantly.\nMax absolute difference: {np.max(np.abs(A_original - A_new))}\nMax relative difference: {np.max(np.abs((A_original - A_new) / A_original[A_original != 0]))}"
-    print("A matrices are equivalent within specified tolerances.")
+        f"A matrices differ significantly.\nMax absolute difference: {max_abs_diff}\nMax relative difference: {max_rel_diff}"
 
 
 # Test for b vector equivalence

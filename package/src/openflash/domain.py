@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import Union, List
 import numpy as np
-from openflash.geometry import Geometry
 
 class Domain:
     """

@@ -13,16 +13,33 @@ M0_H_THRESH=14
 def omega(m0,h,g):
     return sqrt(m0 * np.tanh(m0 * h) * g)
 
-def scale(a):
-    a = np.atleast_1d(a)  # ensures 'a' is at least 1D array
-    if a.size == 1:
-        return a[0] / 2  # or return a directly, depending on your intent
-    padded_a_prev = np.concatenate(([0.0], a[:-1]))
-    result = (padded_a_prev + a) / 2
+def scale(a: list):
+    # Filter out None before processing
+    a_arr = np.array([val for val in a if val is not None], dtype=float)
+    if len(a_arr) == 0:
+        raise ValueError("Cannot compute scale: all elements are None")
+    if len(a_arr) == 1:
+        return a_arr[0] / 2
+    padded_a_prev = np.concatenate(([0.0], a_arr[:-1]))
+    result = (padded_a_prev + a_arr) / 2
     return result
 
-def lambda_ni(n, i, h, d): # factor used often in calculations
-    return n * pi / (h - d[i])
+def lambda_ni(n, i, h, d_list):
+    # Handle d
+    if isinstance(d_list, (float, int)):
+        d_val = d_list
+    else:
+        d_arr = np.atleast_1d(d_list)
+        d_val = d_arr[i]
+        
+    # Handle h
+    if isinstance(h, (float, int)):
+        h_val = h
+    else:
+        h_arr = np.atleast_1d(h)
+        h_val = h_arr[i]
+    
+    return n * np.pi / (h_val - d_val)
 
 #############################################
 # some common computations
@@ -230,9 +247,9 @@ def diff_z_phi_p_i(d, z, h):
 
 #############################################
 # The "Bessel I" radial eigenfunction
-def R_1n(n, r, i, h, d, a):
-
-    local_scale = scale(a)
+def R_1n(n, r, i, h, d, a_list):
+    filtered_a = [val for val in a_list if val is not None]
+    local_scale = scale(filtered_a)
     if n == 0:
         return 0.5
     elif n >= 1:
@@ -261,14 +278,17 @@ def diff_R_1n(n, r, i, h, d, a):
 
 #############################################
 # The "Bessel K" radial eigenfunction
-def R_2n(n, r, i, a, h, d): # this shouldn't be called for i=0, innermost.
-    local_scale = scale(a)
+def R_2n(n, r, i, a_list, h, d_list):
+    # 'a_list' and 'd_list' are now consistently the full lists
+    filtered_a = [val for val in a_list if val is not None]
+    local_scale = scale(filtered_a)
     if i == 0:
-        raise ValueError("i cannot be 0")  # this shouldn't be called for i=0, innermost region.
+        raise ValueError("i cannot be 0")
     elif n == 0:
-        return 0.5 * np.log(r / a[i])
+        return 0.5 * np.log(r / filtered_a[i])
     else:
-        return besselk(0, lambda_ni(n, i, h, d) * r) / besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
+        λ = lambda_ni(n, i, h, d_list)
+        return besselk(0, λ * r) / besselk(0, λ * local_scale[i])
     
 def R_2n_vectorized(n, r_array, i, a, h, d):
     """
@@ -311,13 +331,14 @@ def R_2n_vectorized(n, r_array, i, a, h, d):
         return besselk(0, λ * r_array) / besselk(0, λ * local_scale[i])
 
 # Differentiate wrt r
-def diff_R_2n(n, r, i, h, d, a):
-    local_scale = scale(a)
+def diff_R_2n(n, r, i, h, d_list, a_list):
+    local_scale = scale(a_list)
     if n == 0:
         return 1 / (2 * r)
     else:
-        top = - lambda_ni(n, i, h, d) * besselk(1, lambda_ni(n, i, h, d) * r)
-        bottom = besselk(0, lambda_ni(n, i, h, d) * local_scale[i])
+        λ = lambda_ni(n, i, h, d_list)
+        top = - λ * besselk(1, λ * r)
+        bottom = besselk(0, λ * local_scale[i])
         return top / bottom
 
 
@@ -502,155 +523,154 @@ def excitation_phase(coeff, m0, a): # first coefficient of e-region expansion
     local_scale_last = scale(a)[-1]
     return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale_last))
 
-def make_R_Z(a, h, d, sharp, spatial_res): # create coordinate array for graphing
-    rmin = (2 * a[-1] / spatial_res) if sharp else 0.0
-    r_vec = np.linspace(rmin, 2*a[-1], spatial_res)
+import numpy as np
+
+def make_R_Z(a, h, d, sharp, spatial_res): 
+    # a, d are lists where some elements may be None
+
+    # Use last valid a value for rmin calculation, skip None at end
+    last_a = next((val for val in reversed(a) if val is not None), 0)
+    rmin = (2 * last_a / spatial_res) if sharp else 0.0
+
+    r_vec = np.linspace(rmin, 2 * last_a, spatial_res)
     z_vec = np.linspace(0, -h, spatial_res)
-    if sharp: # more precise near boundaries
+
+    if sharp:
         a_eps = 1.0e-4
-        for i in range(len(a)):
-            r_vec = np.append(r_vec, a[i]*(1-a_eps))
-            r_vec = np.append(r_vec, a[i]*(1+a_eps))
+        for val in a:
+            if val is not None:
+                r_vec = np.append(r_vec, val * (1 - a_eps))
+                r_vec = np.append(r_vec, val * (1 + a_eps))
         r_vec = np.unique(r_vec)
-        for i in range(len(d)):
-            z_vec = np.append(z_vec, -d[i])
+
+        for val in d:
+            if val is not None:
+                z_vec = np.append(z_vec, -val)
         z_vec = np.unique(z_vec)
+
     return np.meshgrid(r_vec, z_vec)
 
-# SHARED FUNCTION
-def generate_boundary_blocks(
-    bd: int,
-    NMK,
-    d,
-    h,
-    a_filtered,
-    m0,
-    I_nm_vals,
-    I_mk_vals,
-    cache=None,
-) -> list:
-    """
-    Builds row blocks for boundary `bd`. If `cache` is provided, adds m0-dependent closures to it.
-    Supports dry-run mode (m0=None) for cache building.
-    """
-    N = NMK[bd]
-    M = NMK[bd + 1]
-    row_blocks = []
 
-    if bd == len(NMK) - 2:  # i-e boundary
-        if bd == 0:
-            left_block1 = (h - d[bd]) * np.diag([
-                R_1n(n, a_filtered[bd], bd, h, d, a_filtered) for n in range(N)
-            ])
-            if cache is not None:
-                def closure(bd=bd, N=N, M=M):
-                    return lambda m0: -np.array([
-                        [I_mk_full(n, m, bd, d, m0, h, NMK) * Lambda_k_full(m, a_filtered[bd], m0, a_filtered, NMK, h)
-                         for m in range(M)]
-                        for n in range(N)
-                    ])
-                cache[f"A_{bd}_i-e"] = closure()
-                right_block = np.zeros((N, M), dtype=complex)
-            else:
-                right_block = -I_mk_vals[:N, :M] * np.array([
-                    [Lambda_k_full(m, a_filtered[bd], m0, a_filtered, NMK, h)
-                     for m in range(M)]
-                    for _ in range(N)
-                ])
-            row_blocks.append(np.hstack((left_block1, right_block)))
+# Helper functions adapted from your 'original code' snippet for use in this method
+# NOTE: `radfunction_unvectorized` is the actual function (e.g., R_1n, R_2n)
+        
+def p_diagonal_block_original(left, radfunction_unvectorized, bd_func, h_func, d_func, a_func, NMK_func):
+    print(f"[p_diagonal_block_original] left={left}, bd_func={bd_func}")
 
-        else:
-            left_block1 = (h - d[bd]) * np.diag([
-                R_1n(n, a_filtered[bd], bd, h, d, a_filtered) for n in range(N)
-            ])
-            left_block2 = (h - d[bd]) * np.diag([
-                R_2n(n, a_filtered[bd], bd, h, d) for n in range(N)
-            ])
-            if cache is not None:
-                def closure(bd=bd, N=N, M=M):
-                    return lambda m0: -np.array([
-                        [I_mk_full(n, m, bd, d, m0, h, NMK) * Lambda_k_full(m, a_filtered[bd], m0, a_filtered, NMK, h)
-                         for m in range(M)]
-                        for n in range(N)
-                    ])
-                cache[f"A_{bd}_i-e"] = closure()
-                right_block = np.zeros((N, M), dtype=complex)
-            else:
-                right_block = -I_mk_vals[:N, :M] * np.array([
-                    [Lambda_k_full(m, a_filtered[bd], m0, a_filtered, NMK, h)
-                     for m in range(M)]
-                    for _ in range(N)
-                ])
-            row_blocks.append(np.hstack((left_block1, left_block2, right_block)))
+    region = bd_func if left else (bd_func + 1)
+    sign = 1 if left else (-1)
 
-    elif bd == 0:
-        left_diag_is_active = d[bd] > d[bd + 1]
-        if left_diag_is_active:
-            left_block = (h - d[bd]) * np.diag([
-                R_1n(n, a_filtered[bd], bd, h, d, a_filtered) for n in range(N)
-            ])
-            right_block1 = -np.array([
-                [I_nm(n, m, bd, d, h) * R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
-                 for m in range(M)]
-                for n in range(N)
-            ])
-            right_block2 = -np.array([
-                [I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d)
-                 for m in range(M)]
-                for n in range(N)
-            ])
-            row_blocks.append(np.hstack((left_block, right_block1, right_block2)))
-        else:
-            left_block = np.array([
-                [I_nm(n, m, bd, d, h) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
-                 for n in range(N)]
-                for m in range(M)
-            ])
-            right_block1 = -(h - d[bd + 1]) * np.diag([
-                R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered) for m in range(M)
-            ])
-            right_block2 = -(h - d[bd + 1]) * np.diag([
-                R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d) for m in range(M)
-            ])
-            row_blocks.append(np.hstack((left_block.T, right_block1, right_block2)))
+    if bd_func >= len(a_func):
+        print(f"[p_diagonal_block_original] ERROR: bd_func {bd_func} out of range for a_func length {len(a_func)}")
+        return None
 
+    r_val = a_func[bd_func]
+    print(f"[p_diagonal_block_original] r_val (a[{bd_func}]) = {r_val}")
+
+    if r_val is None:
+        print(f"[p_diagonal_block_original] ERROR: r_val is None for bd_func={bd_func}")
+        return None
+
+    if region >= len(NMK_func):
+        print(f"[p_diagonal_block_original] ERROR: region {region} out of range for NMK_func length {len(NMK_func)}")
+        return None
+
+    num_harmonics = NMK_func[region]
+    print(f"[p_diagonal_block_original] num_harmonics = {num_harmonics}")
+
+    if num_harmonics <= 0:
+        print(f"[p_diagonal_block_original] ERROR: num_harmonics <= 0 for region {region}")
+        return None
+
+    radial_evals = []
+    for n in range(num_harmonics):
+        try:
+            val = radfunction_unvectorized(n, r_val, region, a_func, h_func, d_func)
+        except Exception as e:
+            print(f"Exception in radfunction_unvectorized at n={n}: {e}")
+            raise
+        print(f"  radial eval n={n}: {val}")
+        radial_evals.append(val)
+    radial_evals = np.array(radial_evals, dtype=complex)
+
+    diff = h_func - d_func[region]
+    print(f"[p_diagonal_block_original] h_func = {h_func}, d_func[{region}] = {d_func[region]}, difference = {diff}")
+    print(f"[p_diagonal_block_original] radial_evals = {radial_evals}")
+
+    block = sign * diff * np.diag(radial_evals)
+    print(f"[p_diagonal_block_original] block shape: {block.shape}")
+
+    return block
+
+
+
+
+def p_dense_block_original(left, radfunction_unvectorized, bd_func, NMK_func, a_func, h_func, d_func, I_nm_vals_orig):
+    I_nm_array = I_nm_vals_orig[0:NMK_func[bd_func],0:NMK_func[bd_func+1], bd_func]
+    if left:
+        region, adj = bd_func, bd_func + 1
+        sign = 1
+        I_nm_array = np.transpose(I_nm_array)
     else:
-        left_diag_is_active = d[bd] > d[bd + 1]
-        if left_diag_is_active:
-            left_block1 = (h - d[bd]) * np.diag([
-                R_1n(n, a_filtered[bd], bd, h, d, a_filtered) for n in range(N)
-            ])
-            left_block2 = (h - d[bd]) * np.diag([
-                R_2n(n, a_filtered[bd], bd, h, d) for n in range(N)
-            ])
-            right_block1 = -np.array([
-                [I_nm(n, m, bd, d, h) * R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
-                 for m in range(M)]
-                for n in range(N)
-            ])
-            right_block2 = -np.array([
-                [I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd + 1, h, d, a_filtered)
-                 for m in range(M)]
-                for n in range(N)
-            ])
-            row_blocks.append(np.hstack((left_block1, left_block2, right_block1, right_block2)))
-        else:
-            left_block1 = np.array([
-                [I_nm(n, m, bd, d, h) * R_1n(n, a_filtered[bd], bd, h, d, a_filtered)
-                 for n in range(N)]
-                for m in range(M)
-            ])
-            left_block2 = np.array([
-                [I_nm(n, m, bd, d, h) * R_2n(m, a_filtered[bd], bd, a_filtered, h, d)
-                 for n in range(N)]
-                for m in range(M)
-            ])
-            right_block1 = -(h - d[bd + 1]) * np.diag([
-                R_1n(m, a_filtered[bd], bd + 1, h, d, a_filtered) for m in range(M)
-            ])
-            right_block2 = -(h - d[bd + 1]) * np.diag([
-                R_2n(m, a_filtered[bd], bd + 1, a_filtered, h, d) for m in range(M)
-            ])
-            row_blocks.append(np.hstack((left_block1.T, left_block2.T, right_block1, right_block2)))
+        region, adj = bd_func + 1, bd_func
+        sign = -1
+    radial_vector = np.array([
+        radfunction_unvectorized(n, a_func[bd_func], region, h_func, d_func, a_func)
+        for n in range(NMK_func[region])
+        ], dtype=complex) # Ensure complex dtype            
+    radial_array = np.outer((np.full((NMK_func[adj]), 1)), radial_vector)
+    return sign * radial_array * I_nm_array
 
-    return row_blocks
+def p_dense_block_e_original(bd_func, NMK_func, a_func, h_func, m0_func, I_mk_vals_orig):
+    I_mk_array = I_mk_vals_orig
+    radial_vector = np.array([
+        Lambda_k_full(k_val, a_func[bd_func], m0_func, a_func, NMK_func, h_func) # Lambda_k_full signature
+        for k_val in range(NMK_func[bd_func+1])
+        ], dtype=complex) # Ensure complex dtype
+    radial_array = np.outer((np.full((NMK_func[bd_func]), 1)), radial_vector)
+    return (-1) * radial_array * I_mk_array
+            
+def v_diagonal_block_original(left, radfunction_unvectorized, bd_func, h_func, d_func, a_func, NMK_func):
+    region = bd_func if left else (bd_func + 1)
+    sign = (-1) if left else (1)
+    radial_evals = np.array([
+        radfunction_unvectorized(n, a_func[bd_func], region, h_func, d_func, a_func)
+        for n in range(NMK_func[region])
+        ], dtype=complex) # Ensure complex dtype
+    return sign * (h_func - d_func[region]) * np.diag(radial_evals)
+
+def v_dense_block_original(left, radfunction_unvectorized, bd_func, NMK_func, a_func, h_func, d_func, I_nm_vals_orig):
+    I_nm_array = I_nm_vals_orig[0:NMK_func[bd_func],0:NMK_func[bd_func+1], bd_func]
+    if left:
+        region, adj = bd_func, bd_func + 1
+        sign = -1
+        I_nm_array = np.transpose(I_nm_array)
+    else:
+        region, adj = bd_func + 1, bd_func
+        sign = 1
+        radial_vector = np.array([
+            radfunction_unvectorized(n, a_func[bd_func], region, h_func, d_func, a_func)
+            for n in range(NMK_func[region])
+            ], dtype=complex) # Ensure complex dtype
+        radial_array = np.outer((np.full((NMK_func[adj]), 1)), radial_vector)
+        return sign * radial_array * I_nm_array
+
+def v_diagonal_block_e_original(bd_func, NMK_func, a_func, m0_func, h_func):
+    radial_evals = np.array([
+        diff_Lambda_k_full(k_val, a_func[bd_func], m0_func, NMK_func, h_func, a_func) # diff_Lambda_k_full signature
+        for k_val in range(NMK_func[bd_func+1])
+        ], dtype=complex) # Ensure complex dtype
+    return h_func * np.diag(radial_evals)
+
+def v_dense_block_e_original(radfunction_unvectorized, bd_func, NMK_func, a_func, h_func, d_func, I_mk_vals_orig): # for region adjacent to e-type region
+            I_km_array = np.transpose(I_mk_vals_orig)
+            
+            # --- FIX: Replace np.vectorize with list comprehension ---
+            radial_vector = np.array([
+                radfunction_unvectorized(n, a_func[bd_func], bd_func, h_func, d_func, a_func) # diff_R_1n/diff_R_2n signature
+                for n in range(NMK_func[bd_func])
+            ], dtype=complex) # Ensure complex dtype
+            # --- END FIX ---
+
+            radial_array = np.outer((np.full((NMK_func[bd_func + 1]), 1)), radial_vector)
+            return (-1) * radial_array * I_km_array

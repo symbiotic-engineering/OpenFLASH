@@ -1,7 +1,7 @@
 #meem_engine.py
+from __future__ import annotations
 from typing import List, Dict, Any
 import numpy as np
-from __future__ import annotations
 import matplotlib.pyplot as plt
 from openflash.meem_problem import MEEMProblem
 from openflash.problem_cache import ProblemCache
@@ -69,39 +69,183 @@ class MEEMEngine:
         """
         domain_list = problem.domain_list
         domain_keys = list(domain_list.keys())
-        boundary_count = len(domain_keys) - 1
-        
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
-        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:-1])
-        A = np.zeros((size, size), dtype=complex)
+        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
+        boundary_count = len(NMK) - 1
 
+        A = np.zeros((size, size), dtype=complex)
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys]
         a = [domain_list[idx].a for idx in domain_keys]
         a_filtered = [val for val in a if val is not None]
 
-        I_nm_vals = np.zeros((max(NMK), max(NMK), boundary_count - 1), dtype=complex)
-        for bd in range(boundary_count - 1):
-            for n in range(NMK[bd]):
-                for m in range(NMK[bd + 1]):
-                    I_nm_vals[n, m, bd] = I_nm(n, m, bd, d, h)
+        # Replicate original I_nm_vals and I_mk_vals pre-computation
+        I_nm_vals_original = np.zeros((max(NMK), max(NMK), boundary_count - 1), dtype=complex)
+        for bd_i_nm in range(boundary_count - 1):
+            for n_i_nm in range(NMK[bd_i_nm]):
+                for m_i_nm in range(NMK[bd_i_nm + 1]):
+                    I_nm_vals_original[n_i_nm][m_i_nm][bd_i_nm] = I_nm(n_i_nm, m_i_nm, bd_i_nm, d, h)
+        
+        I_mk_vals_original = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
+        for m_i_mk in range(NMK[boundary_count - 1]):
+            for k_i_mk in range(NMK[boundary_count]):
+                I_mk_vals_original[m_i_mk][k_i_mk] = I_mk_full(m_i_mk, k_i_mk, boundary_count - 1, d, m0, h, NMK)
 
-        I_mk_vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
-        for m in range(NMK[boundary_count - 1]):
-            for k in range(NMK[boundary_count]):
-                I_mk_vals[m, k] = I_mk_full(m, k, boundary_count - 1, d, m0, h, NMK)
+        rows_A = []  # collection of rows of blocks in A matrix, to be concatenated later
 
-        row_offset = 0
+        # --- Potential Matching Rows ---
+        col_current_offset = 0
         for bd in range(boundary_count):
-            blocks = generate_boundary_blocks(
-                bd, NMK, d, h, a_filtered, m0, I_nm_vals, I_mk_vals
-            )
-            A_block = np.hstack(blocks)
-            A[row_offset:row_offset + A_block.shape[0], :A_block.shape[1]] = A_block
-            row_offset += A_block.shape[0]
+            N = NMK[bd]
+            M = NMK[bd + 1]
+            
+            block_lst = []
+            row_current_height = 0
+            
+            # Determine the blocks based on boundary type
+            if bd == (boundary_count - 1):  # i-e boundary
+                row_current_height = N
+                left_block1 = p_diagonal_block_original(True, R_1n, bd, h, d, a_filtered, NMK)
+                right_block = p_dense_block_e_original(bd, NMK, a_filtered, h, m0, I_mk_vals_original)
+                
+                # Simplified logic, assuming more than one cylinder
+                left_block2 = p_diagonal_block_original(True, R_2n, bd, h, d, a_filtered, NMK)
+                
+                block_lst.append(np.zeros((row_current_height, col_current_offset), dtype=complex))
+                block_lst.append(left_block1)
+                block_lst.append(left_block2)
+                block_lst.append(right_block)
+                
+            elif bd == 0:  # i-i boundary (Inner-Intermediate)
+                left_diag_is_active = d[bd] > d[bd + 1]
+                if left_diag_is_active:
+                    row_current_height = N
+                    left_block = p_diagonal_block_original(True, R_1n, 0, h, d, a_filtered, NMK)
+                    right_block1 = p_dense_block_original(False, R_1n, 0, NMK, a_filtered, h, d, I_nm_vals_original)
+                    right_block2 = p_dense_block_original(False, R_2n, 0, NMK, a_filtered, h, d, I_nm_vals_original)
+                else:
+                    row_current_height = M
+                    left_block = p_dense_block_original(True, R_1n, 0, NMK, a_filtered, h, d, I_nm_vals_original)
+                    right_block1 = p_diagonal_block_original(False, R_1n, 0, h, d, a_filtered, NMK)
+                    right_block2 = p_diagonal_block_original(False, R_2n, 0, h, d, a_filtered, NMK)
+                
+                block_lst.append(left_block)
+                block_lst.append(right_block1)
+                block_lst.append(right_block2)
+                
+            else:  # i-i boundary (Intermediate-Intermediate)
+                left_diag_is_active = d[bd] > d[bd + 1]
+                if left_diag_is_active:
+                    row_current_height = N
+                    left_block1 = p_diagonal_block_original(True, R_1n, bd, h, d, a_filtered, NMK)
+                    left_block2 = p_diagonal_block_original(True, R_2n, bd, h, d, a_filtered, NMK)
+                    right_block1 = p_dense_block_original(False, R_1n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                    right_block2 = p_dense_block_original(False, R_2n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                else:
+                    row_current_height = M
+                    left_block1 = p_dense_block_original(True, R_1n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                    left_block2 = p_dense_block_original(True, R_2n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                    right_block1 = p_diagonal_block_original(False, R_1n, bd, h, d, a_filtered, NMK)
+                    right_block2 = p_diagonal_block_original(False, R_2n, bd, h, d, a_filtered, NMK)
+                
+                block_lst.append(np.zeros((row_current_height, col_current_offset), dtype=complex))
+                block_lst.append(left_block1)
+                block_lst.append(left_block2)
+                block_lst.append(right_block1)
+                block_lst.append(right_block2)
+                
+            # Common logic to calculate padding and concatenate
+            current_blocks_width = sum(b.shape[1] for b in block_lst)
+            right_zeros_width = size - current_blocks_width
+            right_zeros = np.zeros((row_current_height, right_zeros_width), dtype=complex)
+            
+            block_lst.append(right_zeros)
+            rows_A.append(np.concatenate(block_lst, axis=1))
 
+            # Update the offset for the next row
+            if bd == 0:
+                col_current_offset += N
+            elif bd < boundary_count - 1:
+                col_current_offset += (2 * N)
+
+        # --- Velocity Matching Rows ---
+        col_current_offset = 0 # Reset column offset for velocity matching section
+        for bd in range(boundary_count):
+            N = NMK[bd]
+            M = NMK[bd + 1]
+            row_current_height = 0
+            block_lst = []
+            
+            if bd == (boundary_count - 1):  # i-e boundary
+                row_current_height = M
+                left_block1 = v_dense_block_e_original(diff_R_1n, bd, NMK, a_filtered, h, d, I_mk_vals_original)
+                right_block = v_diagonal_block_e_original(bd, NMK, a_filtered, m0, h)
+                
+                # Simplified logic, assuming more than one cylinder
+                left_block2 = v_dense_block_e_original(diff_R_2n, bd, NMK, a_filtered, h, d, I_mk_vals_original)
+
+                block_lst.append(np.zeros((row_current_height, col_current_offset), dtype=complex))
+                block_lst.append(left_block1)
+                block_lst.append(left_block2)
+                block_lst.append(right_block)
+                
+            elif bd == 0: # i-i boundary (Inner-Intermediate)
+                left_diag_is_active = d[bd] <= d[bd + 1]
+                if left_diag_is_active:
+                    row_current_height = N
+                    left_block = v_diagonal_block_original(True, diff_R_1n, 0, h, d, a_filtered, NMK)
+                    right_block1 = v_dense_block_original(False, diff_R_1n, 0, NMK, a_filtered, h, d, I_nm_vals_original)
+                    right_block2 = v_dense_block_original(False, diff_R_2n, 0, NMK, a_filtered, h, d, I_nm_vals_original)
+                else:
+                    row_current_height = M
+                    left_block = v_dense_block_original(True, diff_R_1n, 0, NMK, a_filtered, h, d, I_nm_vals_original)
+                    right_block1 = v_diagonal_block_original(False, diff_R_1n, 0, h, d, a_filtered, NMK)
+                    right_block2 = v_diagonal_block_original(False, diff_R_2n, 0, h, d, a_filtered, NMK)
+                
+                block_lst.append(left_block)
+                block_lst.append(right_block1)
+                block_lst.append(right_block2)
+
+            else: # i-i boundary (Intermediate-Intermediate)
+                left_diag_is_active = d[bd] <= d[bd + 1]
+                if left_diag_is_active:
+                    row_current_height = N
+                    left_block1 = v_diagonal_block_original(True, diff_R_1n, bd, h, d, a_filtered, NMK)
+                    left_block2 = v_diagonal_block_original(True, diff_R_2n, bd, h, d, a_filtered, NMK)
+                    right_block1 = v_dense_block_original(False, diff_R_1n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                    right_block2 = v_dense_block_original(False, diff_R_2n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                else:
+                    row_current_height = M
+                    left_block1 = v_dense_block_original(True, diff_R_1n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                    left_block2 = v_dense_block_original(True, diff_R_2n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                    right_block1 = v_diagonal_block_original(False, diff_R_1n, bd, h, d, a_filtered, NMK)
+                    right_block2 = v_diagonal_block_original(False, diff_R_2n, bd, NMK, a_filtered, h, d, I_nm_vals_original)
+                
+                block_lst.append(np.zeros((row_current_height, col_current_offset), dtype=complex))
+                block_lst.append(left_block1)
+                block_lst.append(left_block2)
+                block_lst.append(right_block1)
+                block_lst.append(right_block2)
+                
+            # Common logic to calculate padding and concatenate
+            current_blocks_width = sum(b.shape[1] for b in block_lst)
+            right_zeros_width = size - current_blocks_width
+            right_zeros = np.zeros((row_current_height, right_zeros_width), dtype=complex)
+            
+            block_lst.append(right_zeros)
+            rows_A.append(np.concatenate(block_lst, axis=1))
+
+            # Update the offset for the next row
+            if bd == 0:
+                col_current_offset += N
+            elif bd < boundary_count - 1:
+                col_current_offset += (2 * N)
+            
+        for idx, row in enumerate(rows_A):
+            print(f"Row {idx} shape: {row.shape}")
+        A = np.concatenate(rows_A, axis=0)
         return A
-
+                
     # Now, the optimized assemble_b_multi method that uses the cache
     def assemble_b_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
         """
@@ -124,11 +268,11 @@ class MEEMEngine:
         """
         domain_list = problem.domain_list
         domain_keys = list(domain_list.keys())
-        boundary_count = len(domain_keys) - 1
 
         # Collect number of harmonics for each domain
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
-        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:-1])
+        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
+        boundary_count = len(NMK) - 1
 
         b = np.zeros(size, dtype=complex)
 
@@ -138,116 +282,391 @@ class MEEMEngine:
         a = [domain_list[idx].a for idx in domain_keys]
         a_filtered = [val for val in a if val is not None] # Ensure this matches your original logic
         heaving = [domain_list[idx].heaving for idx in domain_keys]
+        print(f"domain_keys: {domain_keys}")
+        print(f"NMK (number harmonics): {NMK}")
+        print(f"a: {a}")
+        print(f"d: {d}")
 
         # Potential matching (m0-independent)
         index = 0
         for boundary in range(boundary_count):
             if boundary == (boundary_count - 1): # i-e boundary
-                for n in range(NMK[boundary]): # NMK[boundary] is NMK[-2] for last i-region
-                    b[index] = b_potential_end_entry(n, boundary, heaving, h, d, a_filtered) # Assuming b_potential_end_entry signature
+                for n in range(NMK[-2]): # NMK[boundary] is NMK[-2] for last i-region
+                    b[index] = b_potential_end_entry(n, boundary, heaving, h, d, a) # Assuming b_potential_end_entry signature
                     index += 1
             else: # i-i boundary
-                i = boundary
                 # Iterate over eigenfunctions for smaller h-d, as per original comment
-                num_harmonics_for_b = NMK[i] if (d[i] > d[i + 1]) else NMK[i+1] # This logic needs to be consistent with original
-                for n in range(num_harmonics_for_b):
-                    b[index] = b_potential_entry(n, boundary, d, heaving, h, a_filtered) # Assuming b_potential_entry signature
+                for n in range(NMK[boundary + (d[boundary] <= d[boundary + 1])]):
+                    b[index] = b_potential_entry(n, boundary, d, heaving, h, a) # Assuming b_potential_entry signature
                     index += 1
 
         # Velocity matching (m0-dependent via b_velocity_end_entry)
         for boundary in range(boundary_count):
             if boundary == (boundary_count - 1): # i-e boundary
-                for k in range(NMK[-1]):
+                for n in range(NMK[-1]):
                     # b_velocity_end_entry_full takes (k, i, heaving, a, h, d, m0, NMK)
-                    b[index] = b_velocity_end_entry_full(k, boundary, heaving, a_filtered, h, d, m0, NMK)
+                    b[index] = b_velocity_end_entry_full(n, boundary, heaving, a, h, d, m0, NMK)
                     index += 1
             else: # i-i boundary
                 # Iterate over eigenfunctions for larger h-d, as per original comment
-                num_harmonics_for_b = NMK[boundary] if (d[boundary] > d[boundary + 1]) else NMK[boundary + 1] # This logic needs to be consistent with original
-                for n in range(num_harmonics_for_b):
-                    b[index] = b_velocity_entry(n, boundary, heaving, a_filtered, h, d) # Assuming b_velocity_entry signature
+                for n in range(NMK[boundary + (d[boundary] > d[boundary + 1])]):
+                    b[index] = b_velocity_entry(n, boundary, heaving, a, h, d) # Assuming b_velocity_entry signature
                     index += 1
         return b
+    
+    # --- Specialized helper functions for _build_problem_cache (for m0-dependent parts) ---
+    # These will return a zero array for the template and add closures to cache.m0_dependent_A_indices
 
-    # Method to build the ProblemCache
+    def _p_dense_block_e_for_cache(self, bd, NMK, a_filtered, h, d, cache, current_global_row_offset, current_global_col_offset):
+        N = NMK[bd]
+        M = NMK[bd+1]
+        block_template = np.zeros((N, M), dtype=complex)
+
+        for n_local in range(N):
+            for m_local in range(M):
+                global_row = current_global_row_offset + n_local
+                global_col = current_global_col_offset + m_local
+
+                calc_func = lambda p, m0_val, mk_arr, Nk_arr, n=n_local, m=m_local, bd_val=bd: \
+                            -I_mk_full(n, m, bd_val, d, m0_val, h, NMK) * \
+                            Lambda_k_full(m, a_filtered[bd_val], m0_val, a_filtered, NMK, h)
+                cache.add_m0_dependent_A_entry(global_row, global_col, calc_func)
+        return block_template
+
+    def _v_diagonal_block_e_for_cache(self, bd, NMK, a_filtered, h, d, cache, current_global_row_offset, current_global_col_offset):
+        M = NMK[bd+1]
+        block_template = np.zeros((M, M), dtype=complex)
+
+        for k_local in range(M):
+            global_row = current_global_row_offset + k_local
+            global_col = current_global_col_offset + k_local # Diagonal
+            
+            calc_func = lambda p, m0_val, mk_arr, Nk_arr, k=k_local, bd_val=bd: \
+                        h * diff_Lambda_k_full(k, a_filtered[bd_val], m0_val, NMK, h, a_filtered)
+            cache.add_m0_dependent_A_entry(global_row, global_col, calc_func)
+        return block_template
+    
     def _build_problem_cache(self, problem: MEEMProblem) -> ProblemCache:
-        from dataclasses import dataclass
-
-        @dataclass
-        class SharedParams:
-            d: list
-            h: float
-            NMK: list
-            a: list
-            a_bd: float
-
-        def make_A_lambda(n, m, bd, func, shared: SharedParams):
-            def closure(problem, m0, m_k, N_k):
-                return -func(n, m, bd, shared.d, m0, shared.h, shared.NMK, m_k, N_k) * \
-                    Lambda_k(m, shared.a_bd, m0, shared.a, shared.NMK, shared.h, m_k, N_k)
-            return closure
-
-        def make_b_velocity_lambda(k, bd, shared: SharedParams, heaving):
-            def closure(problem, m0, m_k, N_k):
-                return b_velocity_end_entry(k, bd, heaving, shared.a, shared.h, shared.d, m0, shared.NMK, m_k, N_k)
-            return closure
-
         cache = ProblemCache(problem)
 
         domain_list = problem.domain_list
         domain_keys = list(domain_list.keys())
-        boundary_count = len(domain_keys) - 1
 
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
-        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:-1])
+        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
+        boundary_count = len(NMK) - 1
 
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys]
         a = [domain_list[idx].a for idx in domain_keys]
         a_filtered = [val for val in a if val is not None]
+        
+        print(f"domain_keys: {domain_keys}")
+        print(f"NMK (number harmonics): {NMK}")
+        print(f"a: {a}")
+        print(f"d: {d}")
 
         cache.set_m_k_and_N_k_funcs(m_k_entry, N_k_multi)
+        
+        # --- FIX 1: Compute m0-independent I_nm_vals and store in cache ---
+        # This must be done once, at the start of cache building.
+        I_nm_vals = np.zeros((max(NMK), max(NMK), boundary_count - 1), dtype=complex)
+        for bd_i_nm in range(boundary_count - 1):
+            for n_i_nm in range(NMK[bd_i_nm]):
+                for m_i_nm in range(NMK[bd_i_nm + 1]):
+                    I_nm_vals[n_i_nm][m_i_nm][bd_i_nm] = I_nm(n_i_nm, m_i_nm, bd_i_nm, d, h)
+        cache.set_I_nm_vals(I_nm_vals)
+
 
         A_template = np.zeros((size, size), dtype=complex)
-        row_offset = 0
+        current_global_row_offset = 0
 
+        # --- Potential Blocks (Caching) ---
+        col_start_of_potential_row_section = 0
         for bd in range(boundary_count):
-            N = NMK[bd] if d[bd] > d[bd + 1] else NMK[bd + 1]
-            blocks = generate_boundary_blocks(bd, NMK, d, h, a_filtered, None, None, None, cache)
-            for block in blocks:
-                A_template[row_offset:row_offset + block.shape[0], :block.shape[1]] = block
-                row_offset += block.shape[0]
+            N_bd = NMK[bd]
+            M_bd_plus_1 = NMK[bd + 1]
+            
+            current_row_blocks = []
+            current_local_col_offset = 0
+
+            if bd == (boundary_count - 1):  # i-e boundary (Potential)
+                row_height = N_bd
+                # Build blocks as before
+                block1 = p_diagonal_block_original(True, R_1n, bd, h, d, a, NMK)
+                current_row_blocks.append(block1)
+
+                if bd > 0:
+                    block3 = p_diagonal_block_original(True, R_2n, bd, h, d, a, NMK)
+                    current_row_blocks.append(block3)
+
+                block2_template = self._p_dense_block_e_for_cache(
+                    bd, NMK, a, h, d, cache,
+                    current_global_row_offset,
+                    col_start_of_potential_row_section + sum(b.shape[1] for b in current_row_blocks)
+                )
+                current_row_blocks.append(block2_template)
+
+                # Insert left zeros if bd != 0
+                if bd != 0:
+                    left_zeros_width = col_start_of_potential_row_section
+                    left_zeros = np.zeros((row_height, left_zeros_width), dtype=complex)
+                    current_row_blocks.insert(0, left_zeros)
+                # Now recompute total width including left_zeros
+                current_blocks_total_width = sum(b.shape[1] for b in current_row_blocks)  # includes left_zeros now
+
+                right_zeros_width = size - current_blocks_total_width  # no need to add col_start again because included
+
+                if right_zeros_width < 0:
+                    raise ValueError(f"Negative right_zeros_width {right_zeros_width} at bd={bd}")
+
+                if right_zeros_width > 0:
+                    right_zeros = np.zeros((row_height, right_zeros_width), dtype=complex)
+                    current_row_blocks.append(right_zeros)
+                
+            elif bd == 0: # i-i boundary (Inner-Intermediate Potential)
+                left_diag_is_active = d[bd] > d[bd + 1]
+                row_height = N_bd if left_diag_is_active else M_bd_plus_1
+                
+                if left_diag_is_active:
+                    block1 = p_diagonal_block_original(True, R_1n, 0, h, d, a, NMK)
+                    # FIX 2: Pass the computed I_nm_vals from the cache
+                    block2 = p_dense_block_original(False, R_1n, 0, NMK, a, h, d, I_nm_vals)
+                    block3 = p_dense_block_original(False, R_2n, 0, NMK, a, h, d, I_nm_vals)
+                else:
+                    # FIX 2: Pass the computed I_nm_vals from the cache
+                    block1 = p_dense_block_original(True, R_1n, 0, NMK, a, h, d, I_nm_vals)
+                    block2 = p_diagonal_block_original(False, R_1n, 0, h, d, a, NMK)
+                    block3 = p_diagonal_block_original(False, R_2n, 0, h, d, a, NMK)
+                
+                current_row_blocks = [block1, block2, block3]
+                if any(b is None for b in current_row_blocks):
+                    raise ValueError(f"One or more blocks in current_row_blocks are None: {current_row_blocks}")
+                current_blocks_total_width = sum(b.shape[1] for b in current_row_blocks)
+                right_zeros_width = size - (col_start_of_potential_row_section + current_blocks_total_width)
+                print(f"size: {size}")
+                print(f"col_start_of_potential_row_section: {col_start_of_potential_row_section}")
+                print(f"current_blocks_total_width: {current_blocks_total_width}")
+                print(f"right_zeros_width: {right_zeros_width}")
+                print(f"row_height: {row_height}")
+                right_zeros = np.zeros((row_height, right_zeros_width), dtype=complex)
+                print(f"right_zeros shape: {right_zeros.shape}")
+                current_row_blocks.append(right_zeros)
+                
+            else: # i-i boundary (Intermediate-Intermediate Potential)
+                left_diag_is_active = d[bd] > d[bd + 1]
+                row_height = N_bd if left_diag_is_active else M_bd_plus_1
+                
+                if left_diag_is_active:
+                    block1 = p_diagonal_block_original(True, R_1n, bd, h, d, a, NMK)
+                    block2 = p_diagonal_block_original(True, R_2n, bd, h, d, a, NMK)
+                    # FIX 2: Pass the computed I_nm_vals from the cache
+                    block3 = p_dense_block_original(False, R_1n, bd, NMK, a, h, d, I_nm_vals)
+                    block4 = p_dense_block_original(False, R_2n, bd, NMK, a, h, d, I_nm_vals)
+                else:
+                    # FIX 2: Pass the computed I_nm_vals from the cache
+                    block1 = p_dense_block_original(True, R_1n, bd, NMK, a, h, d, I_nm_vals)
+                    block2 = p_dense_block_original(True, R_2n, bd, NMK, a, h, d, I_nm_vals)
+                    block3 = p_diagonal_block_original(False, R_1n, bd, h, d, a, NMK)
+                    block4 = p_diagonal_block_original(False, R_2n, bd, h, d, a, NMK)
+
+                current_row_blocks = [block1, block2, block3, block4]
+                left_zeros = np.zeros((row_height, col_start_of_potential_row_section), dtype=complex)
+                if any(b is None for b in current_row_blocks):
+                    raise ValueError(f"One or more blocks in current_row_blocks are None: {current_row_blocks}")
+                current_blocks_total_width = sum(b.shape[1] for b in current_row_blocks)
+                right_zeros_width = size - (col_start_of_potential_row_section + current_blocks_total_width)
+                print(f"size: {size}")
+                print(f"col_start_of_potential_row_section: {col_start_of_potential_row_section}")
+                print(f"current_blocks_total_width: {current_blocks_total_width}")
+                print(f"right_zeros_width: {right_zeros_width}")
+                print(f"row_height: {row_height}")
+                right_zeros = np.zeros((row_height, right_zeros_width), dtype=complex)
+                current_row_blocks.insert(0, left_zeros)
+                current_row_blocks.append(right_zeros)
+                
+            print("Current row blocks shapes:")
+            for i, b in enumerate(current_row_blocks):
+                print(f"Block {i}: shape={b.shape}")
+            concat_row = np.concatenate(current_row_blocks, axis=1)
+            if concat_row.shape[1] != size:
+                missing = size - concat_row.shape[1]
+                if missing < 0:
+                    raise ValueError(f"concat_row too wide: got {concat_row.shape[1]}, expected {size}")
+                pad = np.zeros((concat_row.shape[0], missing), dtype=complex)
+                concat_row = np.concatenate([concat_row, pad], axis=1)
+            print(f"Concatenated row shape: {concat_row.shape}")
+            # assert concat_row.shape[1] == size, f"Expected width {size}, got {concat_row.shape[1]}"
+            A_template[current_global_row_offset : current_global_row_offset + concat_row.shape[0], :] = concat_row
+            current_global_row_offset += concat_row.shape[0]
+
+            if bd == 0:
+                col_start_of_potential_row_section += NMK[bd]
+            elif 0 < bd < boundary_count - 1:
+                col_start_of_potential_row_section += 2 * NMK[bd]
+            elif bd == boundary_count - 1:
+                col_start_of_potential_row_section += NMK[bd]
+
+        # --- Velocity Blocks (Caching) ---
+        col_start_of_velocity_row_section = 0 
+        for bd in range(boundary_count):
+            N_bd = NMK[bd]
+            M_bd_plus_1 = NMK[bd + 1]
+            
+            current_row_blocks = []
+            current_local_col_offset = 0
+
+            if bd == (boundary_count - 1):
+                row_height = M_bd_plus_1
+                # FIX: Call the correct instance methods
+                dummy_I_mk = np.ones((NMK[bd], NMK[bd + 1]), dtype=complex)
+                block1 = v_dense_block_e_original(diff_R_1n, bd, NMK, a, h, d, dummy_I_mk)
+                current_row_blocks.append(block1)
+                current_local_col_offset += block1.shape[1]
+                
+                print(f"block1 shape: {block1.shape}")
+                if bd > 0:
+                    block3 = v_dense_block_e_original(diff_R_2n, bd, NMK, a, h, d, dummy_I_mk) # I_mk_vals not needed for template
+                    print(f"block3 shape: {block3.shape}")
+                    current_row_blocks.append(block3)
+                    current_local_col_offset += block3.shape[1]
+                
+                block2_template = self._v_diagonal_block_e_for_cache(
+                    bd, NMK, a, h, d, cache,
+                    current_global_row_offset,
+                    col_start_of_velocity_row_section + current_local_col_offset
+                )
+                print(f"block2_template shape: {block2_template.shape}")
+                current_row_blocks.append(block2_template)
+                current_local_col_offset += block2_template.shape[1]
+
+                if bd != 0:
+                    left_zeros = np.zeros((row_height, col_start_of_velocity_row_section), dtype=complex)
+                    print(f"left_zeros shape (if inserted): {left_zeros.shape}")
+                    current_row_blocks.insert(0, left_zeros)
+                
+                current_blocks_total_width = sum(b.shape[1] for b in current_row_blocks)
+                right_zeros_width = size - (col_start_of_velocity_row_section + current_blocks_total_width)
+                if right_zeros_width > 0:
+                    right_zeros = np.zeros((row_height, right_zeros_width), dtype=complex)
+                    current_row_blocks.append(right_zeros)
+                    print(f"Added right_zeros with shape: {right_zeros.shape}")
+                
+            elif bd == 0:
+                left_diag_is_active = d[bd] <= d[bd + 1]
+                row_height = N_bd if left_diag_is_active else M_bd_plus_1
+                
+                if left_diag_is_active:
+                    block1 = v_diagonal_block_original(True, diff_R_1n, 0, h, d, a, NMK)
+                    # FIX 2: Pass the computed I_nm_vals from the cache
+                    block2 = v_dense_block_original(False, diff_R_1n, 0, NMK, a, h, d, I_nm_vals)
+                    block3 = v_dense_block_original(False, diff_R_2n, 0, NMK, a, h, d, I_nm_vals)
+                else:
+                    # FIX 2: Pass the computed I_nm_vals from the cache
+                    block1 = v_dense_block_original(True, diff_R_1n, 0, NMK, a, h, d, I_nm_vals)
+                    block2 = v_diagonal_block_original(False, diff_R_1n, 0, h, d, a, NMK)
+                    block3 = v_diagonal_block_original(False, diff_R_2n, 0, h, d, a, NMK)
+
+                current_row_blocks = [block1, block2, block3]
+                if any(b is None for b in current_row_blocks):
+                    raise ValueError(f"One or more blocks in current_row_blocks are None: {current_row_blocks}")
+                current_blocks_total_width = sum(b.shape[1] for b in current_row_blocks)
+                right_zeros_width = size - (col_start_of_velocity_row_section + current_blocks_total_width)
+                right_zeros = np.zeros((row_height, right_zeros_width), dtype=complex)
+                print(f"right_zeros shape: {right_zeros.shape}")
+                current_row_blocks.append(right_zeros)
+
+            else:
+                left_diag_is_active = d[bd] <= d[bd + 1]
+                row_height = N_bd if left_diag_is_active else M_bd_plus_1
+                
+                if left_diag_is_active:
+                    block1 = v_diagonal_block_original(True, diff_R_1n, bd, h, d, a, NMK)
+                    block2 = v_diagonal_block_original(True, diff_R_2n, bd, h, d, a, NMK)
+                    # FIX 2: Pass the computed I_nm_vals from the cache
+                    block3 = v_dense_block_original(False, diff_R_1n, bd, NMK, a, h, d, I_nm_vals)
+                    block4 = v_dense_block_original(False, diff_R_2n, bd, NMK, a, h, d, I_nm_vals)
+                else:
+                    # FIX 2: Pass the computed I_nm_vals from the cache
+                    block1 = v_dense_block_original(True, diff_R_1n, bd, NMK, a, h, d, I_nm_vals)
+                    block2 = v_dense_block_original(True, diff_R_2n, bd, NMK, a, h, d, I_nm_vals)
+                    block3 = v_diagonal_block_original(False, diff_R_1n, bd, h, d, a, NMK)
+                    block4 = v_diagonal_block_original(False, diff_R_2n, bd, h, d, a, NMK)
+
+                current_row_blocks = [block1, block2, block3, block4]
+                left_zeros = np.zeros((row_height, col_start_of_velocity_row_section), dtype=complex)
+                if any(b is None for b in current_row_blocks):
+                    raise ValueError(f"One or more blocks in current_row_blocks are None: {current_row_blocks}")
+                current_blocks_total_width = sum(b.shape[1] for b in current_row_blocks)
+                right_zeros_width = size - (col_start_of_velocity_row_section + current_blocks_total_width)
+                right_zeros = np.zeros((row_height, right_zeros_width), dtype=complex)
+                current_row_blocks.insert(0, left_zeros)
+                current_row_blocks.append(right_zeros)
+            print("Current row blocks shapes:")
+            for i, b in enumerate(current_row_blocks):
+                print(f"Block {i}: shape={b.shape}")
+            concat_row = np.concatenate(current_row_blocks, axis=1)
+            if concat_row.shape[1] != size:
+                missing = size - concat_row.shape[1]
+                if missing < 0:
+                    raise ValueError(f"concat_row too wide: got {concat_row.shape[1]}, expected {size}")
+                pad = np.zeros((concat_row.shape[0], missing), dtype=complex)
+                concat_row = np.concatenate([concat_row, pad], axis=1)
+            print(f"Concatenated row shape: {concat_row.shape}")
+            # assert concat_row.shape[1] == size, f"Expected width {size}, got {concat_row.shape[1]}"
+            A_template[current_global_row_offset : current_global_row_offset + concat_row.shape[0], :] = concat_row
+            current_global_row_offset += concat_row.shape[0]
+
+            if bd == 0:
+                col_start_of_velocity_row_section += NMK[bd]
+            elif 0 < bd < boundary_count - 1:
+                col_start_of_velocity_row_section += 2 * NMK[bd]
+            elif bd == boundary_count - 1:
+                col_start_of_velocity_row_section += NMK[bd + 1]
 
         cache.set_A_template(A_template)
 
+        # --- Build b_template and populate m0_dependent_b_indices ---
         b_template = np.zeros(size, dtype=complex)
+        
         heaving = [domain_list[idx].heaving for idx in domain_keys]
         index = 0
 
-        for bd in range(boundary_count):
-            if bd == boundary_count - 1:
-                for n in range(NMK[bd]):
-                    b_template[index] = b_potential_end_entry(n, bd, heaving, h, d, a_filtered)
+        # Potential matching (m0-independent)
+        for boundary in range(boundary_count):
+            if boundary == (boundary_count - 1):
+                for n in range(NMK[boundary]):
+                    b_template[index] = b_potential_end_entry(n, boundary, heaving, h, d, a)
                     index += 1
             else:
-                N = NMK[bd + 1] if d[bd] < d[bd + 1] else NMK[bd]
+                i = boundary
+                if d[i] > d[i + 1]:
+                    N = NMK[i]
+                else:
+                    N = NMK[i+1]
                 for n in range(N):
-                    b_template[index] = b_potential_entry(n, bd, d, heaving, h, a_filtered)
+                    b_template[index] = b_potential_entry(n, boundary, d, heaving, h, a)
                     index += 1
 
-        for bd in range(boundary_count):
-            shared = SharedParams(d=d, h=h, NMK=NMK, a=a_filtered, a_bd=a_filtered[bd])
-            if bd == boundary_count - 1:
+        # Velocity matching (m0-dependent via b_velocity_end_entry)
+        for boundary in range(boundary_count):
+            if boundary == (boundary_count - 1):
                 for k in range(NMK[-1]):
                     current_row = index + k
-                    cache.add_m0_dependent_b_entry(current_row, make_b_velocity_lambda(k, bd, shared, heaving))
+                    cache.add_m0_dependent_b_entry(current_row,
+                        lambda problem_local, m0_local, m_k_arr, N_k_arr, k_local=k, boundary_local=boundary, heaving_local=heaving, a_local=a, h_local=h, d_local=d, NMK_local=NMK:
+                            b_velocity_end_entry(k_local, boundary_local, heaving_local, a_local, h_local, d_local, m0_local, NMK_local, m_k_arr, N_k_arr)
+                    )
                 index += NMK[-1]
             else:
-                N = NMK[bd + 1] if d[bd] < d[bd + 1] else NMK[bd]
+                if d[boundary] < d[boundary + 1]:
+                    N = NMK[boundary + 1]
+                else:
+                    N = NMK[boundary]
                 for n in range(N):
-                    b_template[index] = b_velocity_entry(n, bd, heaving, a_filtered, h, d)
+                    b_template[index] = b_velocity_entry(n, boundary, heaving, a, h, d)
                     index += 1
-
+        
         cache.set_b_template(b_template)
         return cache
     
@@ -434,7 +853,7 @@ class MEEMEngine:
         )
 
         phi_p_i_vec = np.vectorize(
-            lambda d_i, r, z: self.phi_p_i_func(d_i, r, z),
+            lambda d_i, r, z: phi_p_i(d_i, r, z, h),
             otypes=[complex]
         )
 
