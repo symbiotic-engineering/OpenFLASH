@@ -17,12 +17,9 @@ if src_dir not in sys.path:
 from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
 from openflash.geometry import Geometry
-# Rely on global constants and functions from multi_constants and multi_equations
-from openflash.multi_constants import h, d, a, heaving, m0, rho, omega
-from openflash.multi_equations import (
-    Z_n_i, R_1n, R_2n, Lambda_k, phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i,
-    diff_R_1n, diff_R_2n, diff_Lambda_k, diff_Z_n_i, diff_Z_k_e, Z_k_e,
-)
+from openflash.multi_equations import *
+from openflash.multi_constants import g
+from openflash.utils import *
 
 # Set print options for better visibility in console
 np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
@@ -33,41 +30,39 @@ def main(): # Renamed from test_main
     and visualize the potential and velocity fields.
     """
     # --- Problem Definition Parameters ---
-    NMK = [30, 30, 30] # Number of harmonics for inner, outer, exterior regions
+    # get an error when NMK[idx] > 89
+    NMK = [100, 100, 100, 100] # Number of terms in approximation of each region (including e).
     boundary_count = len(NMK) - 1
-    
+    h = 100
+    d = [29, 7, 4]
+    a = [3, 5, 10]
+    heaving = [0, 1, 1]
+    # 0/false if not heaving, 1/true if yes heaving
+    # All computations assume at least 2 regions.
+
     # --- Geometry Setup ---
-    domain_params = []
-    for idx in range(len(NMK)):
-        params = {
-            'number_harmonics': NMK[idx],
-            'height': h - d[idx] if idx < len(d) else h,
-            'radial_width': a[idx] if idx < len(a) else a[-1]*1.5,
-            'top_BC': None,
-            'bottom_BC': None,
-            'category': 'multi',  # Adjust category as needed
-            'di': d[idx] if idx < len(d) else 0,
-            'a': a[idx] if idx < len(a) else a[-1]*1.5,
-            'heaving': heaving[idx] if idx < len(heaving) else False,
-            'slant': [0, 0, 1]  # 1 means region is slanted
-        }
-        domain_params.append(params)
+    domain_params = build_domain_params(NMK, a, d, heaving, h)
+    
+    a_recovered = [p['a'] for p in domain_params[:-1]]
+    d_recovered = [p['di'] for p in domain_params[:-1]]
+    heaving_recovered = [p['heaving'] for p in domain_params[:-1]]
+    h_recovered = domain_params[0]['height']
+
+    assert a_recovered == a
+    assert d_recovered == d
+    assert heaving_recovered == heaving
+    assert h_recovered == h
 
     # Create Geometry object
-    r_coordinates = {'a1': a[0], 'a2': a[1], 'a3': a[2]}
-    z_coordinates = {'h': h}
+    r_coordinates = build_r_coordinates_dict(a)
+    z_coordinates = build_z_coordinates_dict(h)
 
     geometry = Geometry(r_coordinates, z_coordinates, domain_params)
     problem = MEEMProblem(geometry)
-
+    m0 = 1
+        
     # --- MEEM Engine Operations ---
     engine = MEEMEngine(problem_list=[problem])
-
-
-    # Assemble A matrix and b vector
-    A = engine.assemble_A_multi(problem, m0)
-    b = engine.assemble_b_multi(problem, m0)
-
 
     problem_cache = engine.cache_list[problem] # Access the existing cache
 
@@ -77,6 +72,8 @@ def main(): # Renamed from test_main
     else:
         logging.debug(f"problem_cache.m_k_arr shape: {problem_cache.m_k_arr.shape if problem_cache.m_k_arr is not None else 'None'}")
         logging.debug(f"problem_cache.N_k_arr shape: {problem_cache.N_k_arr.shape if problem_cache.N_k_arr is not None else 'None'}")
+
+    engine._ensure_m_k_and_N_k_arrays(problem, m0)
 
     m_k_arr = problem_cache.m_k_arr
     N_k_arr = problem_cache.N_k_arr
@@ -90,11 +87,25 @@ def main(): # Renamed from test_main
     print(f"System solved. Solution vector X shape: {X.shape}")
 
     # Compute and print hydrodynamic coefficients
-    hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X)
-    print("\nHydrodynamic Coefficients:")
-    print(f"Real part (Added Mass): {hydro_coefficients['real']}")
-    print(f"Imaginary part (Damping): {hydro_coefficients['imag']}")
+    hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0)
+    print(type(hydro_coefficients["real"]), type(hydro_coefficients["imag"]))
 
+    real = hydro_coefficients["real"]
+    imag = hydro_coefficients["imag"]
+    nondim_real = hydro_coefficients["nondim_real"]
+    nondim_imag = hydro_coefficients["nondim_imag"]
+    excitation_phase = hydro_coefficients["excitation_phase"]
+    excitation_force = hydro_coefficients["excitation_force"]
+
+    print("\n--- Hydrodynamic Coefficient Breakdown ---")
+    print(f"real (added mass): {real:.10f}")
+    print(f"imag (damping): {imag:.10f}")
+    print(f"real/(h^3): {real / h**3:.10f}")
+    print(f"imag/(h^3): {imag / h**3:.10f}")
+    print(f"nondimensional, real: {nondim_real:.10f}")
+    print(f"nondimensional, imag (no omega factor): {nondim_imag:.10f}")
+    print(f"Excitation Phase: {excitation_phase:.10f} radians")
+    print(f"Excitation Force: {excitation_force:.10f} N")
     # --- Reformat coefficients using the dedicated MEEMEngine method ---
     reformat_boundary_count = len(NMK) - 1
     Cs = engine.reformat_coeffs(X, NMK, reformat_boundary_count)
@@ -103,106 +114,24 @@ def main(): # Renamed from test_main
         print(f"  Region {i} (NMK={NMK[i]}): {c_region.shape} coefficients")
 
     # --- Potential and Velocity Field Calculation ---
-
-    # Define potential calculation functions, now passing m_k_arr and N_k_arr
-    def phi_h_n_inner_func(n, r, z):
-        return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * Z_n_i(n, z, 0, h, d)
-
-    def phi_h_m_i_func(i_region_idx, m, r, z):
-        return (Cs[i_region_idx][m] * R_1n(m, r, i_region_idx, h, d, a) +
-                Cs[i_region_idx][NMK[i_region_idx] + m] * R_2n(m, r, i_region_idx, a, h, d)) * \
-                Z_n_i(m, z, i_region_idx, h, d)
-
-    def phi_e_k_func(k, r, z, m_k_arr, N_k_arr):
-        return Cs[-1][k] * Lambda_k(k, r, m0, a, NMK, h, m_k_arr, N_k_arr) * \
-               Z_k_e(k, z, m0, h, NMK, m_k_arr)
     
-    spatial_res = 50
-    r_vec = np.linspace(2 * a[-1] / spatial_res, 2*a[-1], spatial_res)
-    z_vec = np.linspace(-h, 0, spatial_res)
+    # --- Use MEEMEngine to calculate potentials ---
+    potentials = engine.calculate_potentials(problem, X, m0, m_k_arr, N_k_arr, spatial_res=50, sharp=True)
 
-    #add values at the radii
-    a_eps = 1.0e-4
-    for i in range(len(a)):
-        r_vec = np.append(r_vec, a[i]*(1-a_eps))
-        r_vec = np.append(r_vec, a[i]*(1+a_eps))
-    r_vec = np.unique(r_vec)
+    # Unpack
+    R = potentials["R"]
+    Z = potentials["Z"]
+    phiH = potentials["phiH"]
+    phiP = potentials["phiP"]
+    phi = potentials["phi"]
 
-    for i in range(len(d)):
-        z_vec = np.append(z_vec, -d[i])
-    z_vec = np.unique(z_vec)
-
-    R, Z = np.meshgrid(r_vec, z_vec)
-
-    regions = []
-    regions.append((R <= a[0]) & (Z < -d[0])) # Region 0
-    for i in range(1, boundary_count):
-        regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i])) # Middle regions
-    regions.append(R > a[-1]) # Last (exterior) region
-
-    phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex)
-    phiH = np.full_like(R, np.nan + np.nan*1j, dtype=complex)
-    phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex)
-
-    # Calculate homogeneous potentials (phiH)
-    for n in range(NMK[0]):
-        temp_phiH = phi_h_n_inner_func(n, R[regions[0]], Z[regions[0]])
-        phiH[regions[0]] = temp_phiH if n == 0 else phiH[regions[0]] + temp_phiH
-
-    for i in range(1, boundary_count):
-        for m in range(NMK[i]):
-            temp_phiH = phi_h_m_i_func(i, m, R[regions[i]], Z[regions[i]])
-            phiH[regions[i]] = temp_phiH if m == 0 else phiH[regions[i]] + temp_phiH
-
-    for k in range(NMK[-1]):
-        temp_phiH = phi_e_k_func(k, R[regions[-1]], Z[regions[-1]], m_k_arr, N_k_arr)
-        phiH[regions[-1]] = temp_phiH if k == 0 else phiH[regions[-1]] + temp_phiH
-
-    # Calculate Particular Potentials (phiP)
-    phi_p_i_vec = np.vectorize(phi_p_i)
-    
-    phiP[regions[0]] = heaving[0] * phi_p_i_vec(d[0], R[regions[0]], Z[regions[0]], h)
-    for i in range(1, boundary_count):
-        phiP[regions[i]] = heaving[i] * phi_p_i_vec(d[i], R[regions[i]], Z[regions[i]], h)
-    phiP[regions[-1]] = 0
-
-    phi = phiH + phiP
-
-    # --- Plotting Function ---
-    def plot_field(field, R, Z, title): 
-        plt.figure(figsize=(10, 8))
-        
-        plt.subplot(1, 2, 1)
-        c = plt.contourf(R, Z, np.real(field), levels=50, cmap='viridis')
-        plt.colorbar(c)
-        for r_val in a:
-            plt.axvline(r_val, color='grey', linestyle='--', linewidth=0.8)
-        for z_val in d:
-            plt.axhline(-z_val, color='grey', linestyle='--', linewidth=0.8)
-        plt.title(f'{title} - Real Part')
-        plt.xlabel('Radial Distance (R)')
-        plt.ylabel('Axial Distance (Z)')
-        plt.grid(True, linestyle=':', alpha=0.6)
-
-        plt.subplot(1, 2, 2)
-        c = plt.contourf(R, Z, np.imag(field), levels=50, cmap='viridis')
-        plt.colorbar(c)
-        for r_val in a:
-            plt.axvline(r_val, color='grey', linestyle='--', linewidth=0.8)
-        for z_val in d:
-            plt.axhline(-z_val, color='grey', linestyle='--', linewidth=0.8)
-        plt.title(f'{title} - Imaginary Part')
-        plt.xlabel('Radial Distance (R)')
-        plt.ylabel('Axial Distance (Z)')
-        plt.grid(True, linestyle=':', alpha=0.6)
-
-        plt.tight_layout()
-        plt.show()
-
-    print("\nPlotting Potentials...")
-    plot_field(phiH, R, Z, 'Homogeneous Potential')
-    plot_field(phiP, R, Z, 'Particular Potential')
-    plot_field(phi, R, Z, 'Total Potential')
+    # --- Plot using built-in visualizer ---
+    engine.visualize_potential(np.real(phiH), R, Z, "Homogeneous Potential (Real)")
+    engine.visualize_potential(np.imag(phiH), R, Z, "Homogeneous Potential (Imag)")
+    engine.visualize_potential(np.real(phiP), R, Z, "Particular Potential (Real)")
+    engine.visualize_potential(np.imag(phiP), R, Z, "Particular Potential (Imag)")
+    engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
+    engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
 
     # --- Velocity Field Calculation ---
     # Define velocity component functions using reformatted Cs

@@ -1,4 +1,3 @@
-from typing import Dict
 import numpy as np
 from openflash.geometry import Geometry
 
@@ -32,5 +31,9 @@ class MEEMProblem:
         modes : np.ndarray
             Array of mode indices.
         """
+        assert isinstance(modes, np.ndarray), "modes must be a numpy array"
+        assert np.all(modes > 0), "All mode numbers (m0) must be positive integers"
+        assert np.issubdtype(modes.dtype, np.integer), "Mode numbers must be integers"
+
         self.frequencies = frequencies
         self.modes = modes
