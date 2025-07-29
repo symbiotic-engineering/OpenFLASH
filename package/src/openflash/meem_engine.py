@@ -68,7 +68,6 @@ class MEEMEngine:
         cache = self.cache_list[problem]
         b = cache.get_b_template()
 
-        self._ensure_m_k_and_N_k_arrays(problem, m0)
         I_mk_vals = cache.get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
 
         for row, calc_func in cache.m0_dependent_b_indices:
@@ -277,21 +276,10 @@ class MEEMEngine:
 
         # ✅ Ensure m₀-dependent arrays are evaluated
         self._ensure_m_k_and_N_k_arrays(problem, m0)
-        print("m_k_arr:", cache.m_k_arr)
-        print("N_k_arr:", cache.N_k_arr)
-        print("Any NaNs in m_k_arr?", np.isnan(cache.m_k_arr).any())
-        print("Any NaNs in N_k_arr?", np.isnan(cache.N_k_arr).any())
 
         A = self.assemble_A_multi(problem, m0) # Now calls the optimized A assembly
         # Debug prints for zero rows and m0-dependent entries
 
-        rows_zero_after_fill = [i for i in range(A.shape[0]) if np.allclose(A[i,:], 0)]
-        print("Rows still zero after filling closures:", rows_zero_after_fill)
-        print("Condition number of A:", np.linalg.cond(A))
-        print("Any NaNs in A?", np.isnan(A).any())
-        print("Any Infs in A?", np.isinf(A).any())
-        print("Rank of A:", np.linalg.matrix_rank(A))
-        print("Shape of A:", A.shape)
         b = self.assemble_b_multi(problem, m0) # Now calls the optimized B assembly
         X = linalg.solve(A, b)
         return X
@@ -328,22 +316,15 @@ class MEEMEngine:
         """
         geometry = problem.geometry
         domain_keys = list(geometry.domain_list.keys())
-        print("domain_keys:", domain_keys)
         a = [geometry.domain_list[idx].a for idx in domain_keys]
-        print("a:", a)
         d = [
             domain.di[0] if isinstance(domain.di, list) else domain.di
             for domain in geometry.domain_list.values()
         ]
-        print("d:", d)
         h = geometry.domain_list[0].h
-        print("h:", h)
         NMK = [geometry.domain_list[idx].number_harmonics for idx in domain_keys]
-        print("NMK:", NMK)
         heaving = [geometry.domain_list[idx].heaving for idx in domain_keys]
-        print("heaving:", heaving)
         boundary_count = len(NMK) - 1
-        print("boundary_count:", boundary_count)
 
         size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
         c_vector = np.zeros((size - NMK[-1]), dtype=complex)
@@ -359,28 +340,21 @@ class MEEMEngine:
                 c_vector[col + m] = heaving[i] * int_R_1n(i, m, a, h, d) * z_n_d(m)
                 c_vector[col + M + m] = heaving[i] * int_R_2n(i, m, a, h, d) * z_n_d(m)
             col += 2 * M
-        print("c_vector norm:", np.linalg.norm(c_vector))
-        print("max |c_vector|:", np.max(np.abs(c_vector)))
-        print("min |c_vector|:", np.min(np.abs(c_vector)))
         # === Assemble hydro_p_terms ===
         hydro_p_term_sum = np.zeros(boundary_count, dtype=complex)
         for i in range(boundary_count):
             hydro_p_term_sum[i] = heaving[i] * int_phi_p_i(i, h, d, a)
-        print("hydro_p_terms:", hydro_p_term_sum)
 
         # === Compute unscaled hydro coefficient ===
         hydro_coef = 2 * pi * (np.dot(c_vector, X[:-NMK[-1]]) + sum(hydro_p_term_sum))
 
         # === Convert to physical units ===
         hydro_coef_real = hydro_coef.real * h**3 * rho
-        print("hydro_coef_real:", hydro_coef_real)
         if m0 == np.inf: hydro_coef_imag = 0
         else: hydro_coef_imag = hydro_coef.imag * omega(m0,h,g) * h**3 * rho
-        print("hydro_coef_imag:", hydro_coef_imag)
 
         # === Nondimensional coefficients ===
         max_rad = a[0]
-        print("max_rad initial:", max_rad)
         for i in range(boundary_count - 1, 0, -1):
             if heaving[i]:
                 max_rad = a[i]
@@ -388,14 +362,7 @@ class MEEMEngine:
 
         hydro_coef_nondim = h**3/(max_rad**3 * pi)*hydro_coef
         # === Phase and excitation force ===
-        print("excitation_phase:", excitation_phase(X, NMK, m0, a))
-        print("excitation_force:", excitation_force(hydro_coef_imag, m0, h))
-        
-        print("hydro_coef raw complex:", hydro_coef)
-        print("omega:", omega(m0, h, g))
-        print("real scaled:", hydro_coef.real * h**3 * rho)
-        print("imag scaled:", hydro_coef.imag * omega(m0, h, g) * h**3 * rho)
-
+      
         return {
             "real": hydro_coef_real,
             "imag": hydro_coef_imag,
@@ -419,7 +386,7 @@ class MEEMEngine:
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
         return Cs[-1][k] * Lambda_k(k, r, m0, a, m_k_arr) * Z_k_e(k, z, m0, h, NMK, m_k_arr)
     
-    def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, m_k_arr, N_k_arr, spatial_res, sharp) -> Dict[str, Any]:
+    def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]:
         """
         Calculate full spatial potentials phiH, phiP, and total phi on a meshgrid for visualization.
 
@@ -432,89 +399,105 @@ class MEEMEngine:
         Returns:
         - Dictionary containing meshgrid arrays R,Z and potentials phiH, phiP, phi
         """
+        # Ensure m_k_arr and N_k_arr are computed and retrieved from the cache
+        # =================== DEBUGGING START ===================
+        print("\n--- Debugging: Entering calculate_potentials ---")
+        print(f"  Received m0={m0}, spatial_res={spatial_res}, sharp={sharp}")
+        # =======================================================
+        self._ensure_m_k_and_N_k_arrays(problem, m0)
+        cache = self.cache_list[problem]
+        m_k_arr = cache.m_k_arr
+        N_k_arr = cache.N_k_arr
+        # =================== DEBUGGING ===================
+        print(f"  Cache check: m_k_arr shape = {m_k_arr.shape}, N_k_arr shape = {N_k_arr.shape}")
+        if m_k_arr is not None:
+            print(f"  m_k_arr head: {m_k_arr[:3]}")
+        # =================================================
+        
         domain_list = problem.domain_list
         domain_keys = list(domain_list.keys())
         boundary_count = len(domain_keys) - 1
 
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
         h = domain_list[0].h
-        d = [domain_list[idx].di for idx in domain_keys]
+        d = [domain_list[idx].di for idx in domain_keys if domain_list[idx].di is not None]
+        print("d in new calculate_potentials:", d)
         a = [domain_list[idx].a for idx in domain_keys if domain_list[idx].a is not None]
         heaving = [domain_list[idx].heaving for idx in domain_keys]
+        
+        print("  Reformatting solution coefficients once...")
+        Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
-        # Vectorize harmonic basis functions for performance
-        phi_h_n_inner_vec = np.vectorize(
-            lambda n, r, z: self.phi_h_n_inner_func(n, r, z, h, d, a, solution_vector, NMK, boundary_count),
-            otypes=[complex]
-        )
-        phi_h_m_i_vec = np.vectorize(
-            lambda i, m, r, z: self.phi_h_m_i_func(i, m, r, z, h, d, a, solution_vector, NMK, boundary_count),
-            otypes=[complex]
-        )
-        phi_e_k_vec = np.vectorize(
-            lambda k, r, z: self.phi_e_k_func(k, r, z, m0, a, NMK, h, m_k_arr, N_k_arr, solution_vector, boundary_count),
-            otypes=[complex]
-        )
-
-        phi_p_i_vec = np.vectorize(
-            lambda d_i, r, z: phi_p_i(d_i, r, z, h),
-            otypes=[complex]
-        )
-
-        # Generate meshgrid (R,Z) with sharp boundary refinement if requested
+        # --- 2. Create Meshgrid and Regions ---
         R, Z = make_R_Z(a, h, d, sharp, spatial_res)
-
-        # Define spatial regions based on radii and draft values
         regions = []
-        # Inner region
         regions.append((R <= a[0]) & (Z < -d[0]))
-        # Intermediate regions
         for i in range(1, boundary_count):
             regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i]))
-        # Exterior region
         regions.append(R > a[-1])
+        # =================== DEBUGGING ===================
+        print(f"  Meshgrid created: R shape={R.shape}, Z shape={Z.shape}")
+        print(f"    R range: [{np.min(R):.2f}, {np.max(R):.2f}], Z range: [{np.min(Z):.2f}, {np.max(Z):.2f}]")
+        # =================================================
 
-        # Initialize complex arrays for potentials filled with NaNs
-        shape = R.shape
-        phiH = np.full(shape, np.nan + 1j*np.nan, dtype=complex)
-        phiP = np.full(shape, np.nan + 1j*np.nan, dtype=complex)
-        phi = np.full(shape, np.nan + 1j*np.nan, dtype=complex)
+        # =================== DEBUGGING ===================
+        print("  Region mask point counts:")
+        for i, region_mask in enumerate(regions):
+            print(f"    Region {i}: {np.sum(region_mask)} points")
+        # =================================================
 
-        # Calculate Homogeneous Potential phiH for each region
-        # Region 0: inner
-        for n in range(NMK[0]):
-            temp_phiH = phi_h_n_inner_vec(n, R[regions[0]], Z[regions[0]])
-            phiH[regions[0]] = temp_phiH if n == 0 else phiH[regions[0]] + temp_phiH
+        # Initialize potential arrays
+        phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+        phiH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
+        phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
 
-        # Intermediate regions 1..boundary_count-1
+        # --- 3. Vectorized Calculation of Potentials ---
+        print("  Calculating potentials with vectorized operations...")
+
+        # Region 0 (Inner)
+        if np.any(regions[0]):
+            r_vals, z_vals = R[regions[0]], Z[regions[0]]
+            n_vals = np.arange(NMK[0])
+            R1n_vals = R_1n_vectorized(n_vals[:, None], r_vals[None, :], 0, h, d, a)
+            Zn_vals = Z_n_i_vectorized(n_vals[:, None], z_vals[None, :], 0, h, d)
+            phiH[regions[0]] = np.sum(Cs[0][:, None] * R1n_vals * Zn_vals, axis=0)
+        print("    Done with Region 0.")
+
+        # Intermediate Regions
         for i in range(1, boundary_count):
-            for m in range(NMK[i]):
-                temp_phiH = phi_h_m_i_vec(i, m, R[regions[i]], Z[regions[i]])
-                phiH[regions[i]] = temp_phiH if m == 0 else phiH[regions[i]] + temp_phiH
+            if np.any(regions[i]):
+                r_vals, z_vals = R[regions[i]], Z[regions[i]]
+                m_vals = np.arange(NMK[i])
+                R1n_vals = R_1n_vectorized(m_vals[:, None], r_vals[None, :], i, h, d, a)
+                R2n_vals = R_2n_vectorized(m_vals[:, None], r_vals[None, :], i, a, h, d)
+                Zm_vals = Z_n_i_vectorized(m_vals[:, None], z_vals[None, :], i, h, d)
+                term1 = Cs[i][:NMK[i], None] * R1n_vals
+                term2 = Cs[i][NMK[i]:, None] * R2n_vals
+                phiH[regions[i]] = np.sum((term1 + term2) * Zm_vals, axis=0)
+            print(f"    Done with Region {i}.")
 
-        # Exterior region (last)
-        for k in range(NMK[-1]):
-            temp_phiH = phi_e_k_vec(k, R[regions[-1]], Z[regions[-1]])
-            phiH[regions[-1]] = temp_phiH if k == 0 else phiH[regions[-1]] + temp_phiH
-
-        # Calculate Particular Potential phiP
-        # Set to zero outside physical regions to avoid NaNs in visualization
-        phiP[regions[0]] = heaving[0] * phi_p_i_vec(d[0], R[regions[0]], Z[regions[0]])
+        # Exterior Region
+        if np.any(regions[-1]):
+            r_vals, z_vals = R[regions[-1]], Z[regions[-1]]
+            k_vals = np.arange(NMK[-1])
+            Lambda_vals = Lambda_k_vectorized(k_vals[:, None], r_vals[None, :], m0, a, m_k_arr)
+            Zk_vals = Z_k_e_vectorized(k_vals[:, None], z_vals[None, :], m0, h, m_k_arr, N_k_arr)
+            phiH[regions[-1]] = np.sum(Cs[-1][:, None] * Lambda_vals * Zk_vals, axis=0)
+        print("    Done with Exterior Region.")
+        
+        # --- 4. Calculate Particular Potential (phiP) ---
+        print("  Calculating Particular Potential (phiP)...")
+        phiP[regions[0]] = heaving[0] * phi_p_i(d[0], R[regions[0]], Z[regions[0]], h)
         for i in range(1, boundary_count):
-            phiP[regions[i]] = heaving[i] * phi_p_i_vec(d[i], R[regions[i]], Z[regions[i]])
-        phiP[regions[-1]] = 0.0  # Exterior domain particular potential zero
+            phiP[regions[i]] = heaving[i] * phi_p_i(d[i], R[regions[i]], Z[regions[i]], h)
+        phiP[regions[-1]] = 0
+        print("    Done with phiP calculation.")
 
         # Sum to get total potential phi
         phi = phiH + phiP
+        print("--- Exiting Optimized calculate_potentials ---\n")
 
-        return {
-            "R": R,
-            "Z": Z,
-            "phiH": phiH,
-            "phiP": phiP,
-            "phi": phi
-        }
-
+        return {"R": R, "Z": Z, "phiH": phiH, "phiP": phiP, "phi": phi}
 
     def visualize_potential(self, field, R, Z, title):
         plt.figure(figsize=(8, 6))
@@ -559,7 +542,6 @@ class MEEMEngine:
         all_potentials_batch_data = []
 
         for freq_idx, m0 in enumerate(problem.frequencies):
-            print(f"  Calculating for m0 = {m0:.4f} rad/s")
 
             try:
                 A = self.assemble_A_multi(problem, m0)

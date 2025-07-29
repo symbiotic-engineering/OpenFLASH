@@ -19,7 +19,7 @@ from openflash.meem_problem import MEEMProblem
 from openflash.geometry import Geometry
 from openflash.multi_equations import *
 from openflash.multi_constants import g
-from openflash.utils import *
+from openflash.domain import Domain
 
 # Set print options for better visibility in console
 np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
@@ -41,7 +41,7 @@ def main(): # Renamed from test_main
     # All computations assume at least 2 regions.
 
     # --- Geometry Setup ---
-    domain_params = build_domain_params(NMK, a, d, heaving, h)
+    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
     
     a_recovered = [p['a'] for p in domain_params[:-1]]
     d_recovered = [p['di'] for p in domain_params[:-1]]
@@ -54,8 +54,8 @@ def main(): # Renamed from test_main
     assert h_recovered == h
 
     # Create Geometry object
-    r_coordinates = build_r_coordinates_dict(a)
-    z_coordinates = build_z_coordinates_dict(h)
+    r_coordinates = Domain.build_r_coordinates_dict(a)
+    z_coordinates = Domain.build_z_coordinates_dict(h)
 
     geometry = Geometry(r_coordinates, z_coordinates, domain_params)
     problem = MEEMProblem(geometry)
@@ -72,8 +72,6 @@ def main(): # Renamed from test_main
     else:
         logging.debug(f"problem_cache.m_k_arr shape: {problem_cache.m_k_arr.shape if problem_cache.m_k_arr is not None else 'None'}")
         logging.debug(f"problem_cache.N_k_arr shape: {problem_cache.N_k_arr.shape if problem_cache.N_k_arr is not None else 'None'}")
-
-    engine._ensure_m_k_and_N_k_arrays(problem, m0)
 
     m_k_arr = problem_cache.m_k_arr
     N_k_arr = problem_cache.N_k_arr
@@ -116,7 +114,7 @@ def main(): # Renamed from test_main
     # --- Potential and Velocity Field Calculation ---
     
     # --- Use MEEMEngine to calculate potentials ---
-    potentials = engine.calculate_potentials(problem, X, m0, m_k_arr, N_k_arr, spatial_res=50, sharp=True)
+    potentials = engine.calculate_potentials(problem, X, m0, spatial_res=50, sharp=True)
 
     # Unpack
     R = potentials["R"]

@@ -25,11 +25,9 @@ class ProblemCache:
         self.named_closures: Dict[str, Any] = {}
 
     def set_A_template(self, A_template: np.ndarray):
-        # print("Setting A_template in ProblemCache")
         self.A_template = A_template
 
     def set_b_template(self, b_template: np.ndarray):
-        # print("Setting b_template in ProblemCache")
         self.b_template = b_template
 
     def add_m0_dependent_A_entry(self, row: int, col: int, calc_func: Callable):
@@ -39,7 +37,6 @@ class ProblemCache:
         :param col: Column index of the entry.
         :param calc_func: A callable that takes (problem, m0, m_k_arr, N_k_arr) and returns the complex value.
         """
-        # print(f"Adding m0-dependent A entry: row={row}, col={col}")
         self.m0_dependent_A_indices.append((row, col, calc_func))
 
     def add_m0_dependent_b_entry(self, row: int, calc_func: Callable):
@@ -48,14 +45,12 @@ class ProblemCache:
         :param row: Row index of the entry.
         :param calc_func: A callable that takes (problem, m0, m_k_arr, N_k_arr) and returns the complex value.
         """
-        # print(f"Adding m0-dependent b entry: row={row}")
         self.m0_dependent_b_indices.append((row, calc_func))
 
     def set_m_k_and_N_k_funcs(self, m_k_entry_func: Callable, N_k_func: Callable):
         """
         Sets the references to the m_k_entry and N_k functions.
         """
-        # print("Setting m_k_entry_func and N_k_func in ProblemCache")
         self.m_k_entry_func = m_k_entry_func
         self.N_k_func = N_k_func
 
@@ -63,7 +58,6 @@ class ProblemCache:
         """
         Sets the pre-computed m_k and N_k arrays for a specific m0.
         """
-        # print("Setting pre-computed m_k_arr and N_k_arr in ProblemCache")
         self.m_k_arr = m_k_arr
         self.N_k_arr = N_k_arr
 
@@ -71,25 +65,20 @@ class ProblemCache:
         """
         Sets the pre-computed m0-independent I_nm_vals matrix.
         """
-        # print("Setting pre-computed I_nm_vals in ProblemCache")
         self.I_nm_vals = I_nm_vals
 
     def get_A_template(self) -> np.ndarray:
-        # print("Getting A_template from ProblemCache")
         if self.A_template is None:
             raise ValueError("A_template has not been set.")
         return self.A_template.copy()
 
     def get_b_template(self) -> np.ndarray:
-        # print("Getting b_template from ProblemCache")
         if self.b_template is None:
             raise ValueError("b_template has not been set.")
         return self.b_template.copy()
 
     def set_closure(self, key: str, closure):
-        # print(f"Setting closure for key: {key}")
         self.named_closures[key] = closure
 
     def get_closure(self, key: str):
-        # print(f"Getting closure for key: {key}")
         return self.named_closures.get(key, None)

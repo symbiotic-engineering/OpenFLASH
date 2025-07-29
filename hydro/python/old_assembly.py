@@ -13,6 +13,59 @@ from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 
 LARGE_M0H = 14
+def phi_p_i_old(d, r, z, h): 
+    return (1 / (2* (h - d))) * ((z + h) ** 2 - (r**2) / 2)
+def make_R_Z_old(a, h, d, sharp, spatial_res): # create coordinate array for graphing
+    rmin = (2 * a[-1] / spatial_res) if sharp else 0.0
+    r_vec = np.linspace(rmin, 2*a[-1], spatial_res)
+    z_vec = np.linspace(0, -h, spatial_res)
+    if sharp: # more precise near boundaries
+        a_eps = 1.0e-4
+        for i in range(len(a)):
+            r_vec = np.append(r_vec, a[i]*(1-a_eps))
+            r_vec = np.append(r_vec, a[i]*(1+a_eps))
+        r_vec = np.unique(r_vec)
+        for i in range(len(d)):
+            z_vec = np.append(z_vec, -d[i])
+        z_vec = np.unique(z_vec)
+    return np.meshgrid(r_vec, z_vec)
+def Z_k_e_old(k, z, m0, h, NMK):
+    m_k = m_k_old(NMK, m0, h)
+    if k == 0:
+        if m0 == inf: return 0
+        elif m0 * h < LARGE_M0H:
+            return 1 / sqrt(N_k_old(k, m0, h, m_k)) * cosh(m0 * (z + h))
+        else: # high m0h approximation
+            return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
+    else:
+        return 1 / sqrt(N_k_old(k, m0, h, m_k)) * cos(m_k[k] * (z + h))
+def R_2n_old(n, r, i, a, h, d):
+    if i == 0:
+        raise ValueError("i cannot be 0")  # this shouldn't be called for i=0, innermost region.
+    elif n == 0:
+        return 0.5 * np.log(r / a[i])
+    else:
+        if r == scale_old(a)[i]:  # Saves bessel function eval
+            return 1
+        else:
+            return besselke(0, lambda_ni_old(n, i, h, d) * r) / besselke(0, lambda_ni_old(n, i, h, d) * scale_old(a)[i]) * exp(lambda_ni_old(n, i, h, d) * (scale_old(a)[i] - r))
+def Z_n_i_old(n, z, i, h, d):
+    if n == 0:
+        return 1
+    else:
+        return np.sqrt(2) * np.cos(lambda_ni_old(n, i, h, d) * (z + h))
+    
+def R_1n_old(n, r, i, a, h, d):
+    if n == 0:
+        return 0.5
+    elif n >= 1:
+        if r == scale_old(a)[i]: # Saves bessel function eval
+            return 1
+        else:
+            return besselie(0, lambda_ni_old(n, i, h, d) * r) / besselie(0, lambda_ni_old(n, i, h, d) * scale_old(a)[i]) * exp(lambda_ni_old(n, i, h, d) * (r - scale_old(a)[i]))
+    else: 
+        raise ValueError("Invalid value for n")
+
 def Lambda_k_old_wrapped(m0, a, NMK, h):
     def func(k, r):
         return Lambda_k_old(k, r, m0, a, NMK, h)
