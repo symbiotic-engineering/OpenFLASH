@@ -127,6 +127,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.new_env
 
 # Spyder project settings
 .spyderproject
@@ -203,3 +204,6 @@ html/
 
 # mat data files
 *.mat
+
+# vscode configuration files
+.vscode/
