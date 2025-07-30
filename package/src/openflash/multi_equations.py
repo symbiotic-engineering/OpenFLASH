@@ -368,31 +368,30 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
     """
     Vectorized derivative of the R_2n radial function.
     """
-    # Define the condition to be applied element-wise to the 'n' array.
-    condition = (n == 0)
+    n = np.asarray(n)
+    r = np.asarray(r)
     
-    # Define the calculation for when the condition is True (n=0).
-    # This is already vectorized as it uses basic NumPy operations.
-    value_if_true = 1 / (2 * r)
+    # Case n == 0
+    value_if_true = np.divide(1, 2 * r, out=np.full_like(r, np.inf), where=(r != 0))
     
-    # --- Define the calculation for when the condition is False (n > 0) ---
+    # Case n > 0
+    lambda_val = lambda_ni(n, i, h, d)  # ensure lambda_ni is vectorized
     
-    # This assumes `lambda_ni` is also vectorized.
-    lambda_val = lambda_ni(n, i, h, d)
+    # Calculate besselke(0, λni * scale(a)[i])
+    scale_ai = scale(a)[i]  # scalar
+    denom = besselke(0, lambda_val * scale_ai)
     
-    # Calculate the numerator and denominator.
-    numerator = -lambda_val * besselke(1, lambda_val * r)
-    denominator = besselke(0, lambda_val * scale(a)[i])
-    
-    # Use np.divide for safe division to avoid warnings if the denominator is zero.
-    ratio = np.divide(numerator, denominator, 
-                      out=np.zeros_like(numerator, dtype=float), 
-                      where=(denominator != 0))
-                      
-    value_if_false = ratio * exp(lambda_val * (scale(a)[i] - r))
-    
-    # Use np.where to select the final output based on the condition.
-    return np.where(condition, value_if_true, value_if_false)
+    # Avoid division by zero or extremely small denominators
+    safe_denom = np.where(np.abs(denom) < 1e-10, 1e-10, denom)
+
+    with np.errstate(divide='ignore', invalid='ignore'):
+        numerator = -lambda_val * besselke(1, lambda_val * r)
+        ratio = numerator / safe_denom
+        exp_term = exp(lambda_val * (scale_ai - r))
+        value_if_false = ratio * exp_term
+
+    # Combine using np.where
+    return np.where(n == 0, value_if_true, value_if_false)
 
 #############################################
 # i-region vertical eigenfunctions

@@ -593,7 +593,7 @@ class MEEMEngine:
         The method:
         - Assembles and solves the linear system A @ X = b for each frequency in `problem.frequencies`.
         - Computes hydrodynamic coefficients (added mass and damping).
-        - Optionally stores domain potentials (placeholder code currently).
+        - Stores domain potentials.
         - Stores all results in a reusable `Results` object.
 
         Parameters
@@ -619,6 +619,7 @@ class MEEMEngine:
         all_potentials_batch_data = []
 
         for freq_idx, m0 in enumerate(problem.frequencies):
+            self._ensure_m_k_and_N_k_arrays(problem, m0)
 
             try:
                 A = self.assemble_A_multi(problem, m0)
@@ -628,7 +629,7 @@ class MEEMEngine:
                 print(f"  ERROR: Could not solve for m0={m0:.4f}: {e}. Storing NaN for coefficients.")
                 continue
 
-            hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X)
+            hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X, m0)
             added_mass = np.atleast_1d(hydro_coeffs["real"])
             damping = np.atleast_1d(hydro_coeffs["imag"])
 
