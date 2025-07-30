@@ -370,4 +370,4 @@ def excitation_phase(x): # x-vector of unknown coefficients
 def excitation_force(damping):
     # Chau 2012 eq 98
     const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
-    return sqrt((2 * const * rho * (g ** 2) * damping)/(omega * m0)) ** (1/2)
+    return ( (2 * const * rho * (g ** 2) * damping) / (omega * m0) ) ** (1/2)
