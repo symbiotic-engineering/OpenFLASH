@@ -281,6 +281,28 @@ def diff_R_1n(n, r, i, h, d, a):
         top = lambda_ni(n, i, h, d) * besselie(1, lambda_ni(n, i, h, d) * r)
         bottom = besselie(0, lambda_ni(n, i, h, d) * scale(a)[i])
         return top / bottom * exp(lambda_ni(n, i, h, d) * (r - scale(a)[i]))
+    
+def diff_R_1n_vectorized(n, r, i, h, d, a):
+    """
+    Vectorized derivative of the diff_R_1n radial function.
+    """
+    condition = (n == 0)
+    value_if_true = 0.0
+    
+    # --- Calculation for when n > 0 ---
+    lambda_val = lambda_ni(n, i, h, d)
+    
+    # Use besselie with the order specified as the first argument
+    numerator = lambda_val * besselie(1, lambda_val * r) 
+    denominator = besselie(0, lambda_val * scale(a)[i])
+    
+    bessel_ratio = np.divide(numerator, denominator, 
+                             out=np.zeros_like(numerator, dtype=float), 
+                             where=(denominator != 0))
+                             
+    value_if_false = bessel_ratio * exp(lambda_val * (r - scale(a)[i]))
+    
+    return np.where(condition, value_if_true, value_if_false)
 
 #############################################
 # The "Bessel K" radial eigenfunction
@@ -341,6 +363,36 @@ def diff_R_2n(n, r, i, h, d, a):
         top = - lambda_ni(n, i, h, d) * besselke(1, lambda_ni(n, i, h, d) * r)
         bottom = besselke(0, lambda_ni(n, i, h, d) * scale(a)[i])
         return top / bottom * exp(lambda_ni(n, i, h, d) * (scale(a)[i] - r))
+    
+def diff_R_2n_vectorized(n, r, i, h, d, a):
+    """
+    Vectorized derivative of the R_2n radial function.
+    """
+    # Define the condition to be applied element-wise to the 'n' array.
+    condition = (n == 0)
+    
+    # Define the calculation for when the condition is True (n=0).
+    # This is already vectorized as it uses basic NumPy operations.
+    value_if_true = 1 / (2 * r)
+    
+    # --- Define the calculation for when the condition is False (n > 0) ---
+    
+    # This assumes `lambda_ni` is also vectorized.
+    lambda_val = lambda_ni(n, i, h, d)
+    
+    # Calculate the numerator and denominator.
+    numerator = -lambda_val * besselke(1, lambda_val * r)
+    denominator = besselke(0, lambda_val * scale(a)[i])
+    
+    # Use np.divide for safe division to avoid warnings if the denominator is zero.
+    ratio = np.divide(numerator, denominator, 
+                      out=np.zeros_like(numerator, dtype=float), 
+                      where=(denominator != 0))
+                      
+    value_if_false = ratio * exp(lambda_val * (scale(a)[i] - r))
+    
+    # Use np.where to select the final output based on the condition.
+    return np.where(condition, value_if_true, value_if_false)
 
 #############################################
 # i-region vertical eigenfunctions
@@ -372,6 +424,24 @@ def diff_Z_n_i(n, z, i, h, d):
     else:
         lambda0 = lambda_ni(n, i, h, d)
         return - lambda0 * np.sqrt(2) * np.sin(lambda0 * (z + h))
+    
+def diff_Z_n_i_vectorized(n, z, i, h, d):
+    """
+    Vectorized derivative of the Z_n_i vertical function.
+    """
+    # Define the condition to be applied element-wise.
+    condition = (n == 0)
+    
+    # Define the value if the condition is True (when n=0).
+    value_if_true = 0.0
+    
+    # Define the calculation for when the condition is False (when n > 0).
+    # This part is already vectorized.
+    lambda_val = lambda_ni(n, i, h, d)
+    value_if_false = -lambda_val * np.sqrt(2) * np.sin(lambda_val * (z + h))
+    
+    # Use np.where to select the output based on the condition.
+    return np.where(condition, value_if_true, value_if_false)
 
 #############################################
 # Region e radial eigenfunction
@@ -453,6 +523,40 @@ def diff_Lambda_k(k, r, m0, a, m_k_arr):
         numerator = -(local_m_k_k * besselke(1, local_m_k_k * r))
         denominator = besselke(0, local_m_k_k * scale(a)[-1])
         return numerator / denominator * exp(local_m_k_k * (scale(a)[-1] - r))
+    
+def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
+    """
+    Vectorized derivative of the exterior region radial function Lambda_k.
+    """
+    # Handle the scalar case where m0 is infinite. The result is always 1.
+    if m0 == inf:
+        return np.ones(np.broadcast(k, r).shape, dtype=float)
+
+    # --- Define the condition for vectorization ---
+    condition = (k == 0)
+
+    # --- Define the outcome for k == 0 ---
+    numerator_k_zero = -(m0 * besselh(1, m0 * r))
+    denominator_k_zero = besselh(0, m0 * scale(a)[-1])
+    outcome_k_zero = np.divide(numerator_k_zero, denominator_k_zero,
+                               out=np.zeros_like(numerator_k_zero, dtype=complex),
+                               where=(denominator_k_zero != 0))
+
+    # --- Define the outcome for k > 0 ---
+    # NumPy's advanced indexing allows m_k_arr[k] to create an array from indices.
+    local_m_k_k = m_k_arr[k]
+    numerator_k_nonzero = -(local_m_k_k * besselke(1, local_m_k_k * r))
+    denominator_k_nonzero = besselke(0, local_m_k_k * scale(a)[-1])
+    
+    # Use safe division to avoid warnings
+    ratio = np.divide(numerator_k_nonzero, denominator_k_nonzero,
+                      out=np.zeros_like(numerator_k_nonzero, dtype=float),
+                      where=(denominator_k_nonzero != 0))
+                      
+    outcome_k_nonzero = ratio * exp(local_m_k_k * (scale(a)[-1] - r))
+
+    # --- Use np.where to select the final output ---
+    return np.where(condition, outcome_k_zero, outcome_k_nonzero)
 
 def diff_Lambda_k_full(k, r, m0, NMK, h, a):
     local_m_k = m_k(NMK, m0, h)
@@ -534,6 +638,32 @@ def diff_Z_k_e(k, z, m0, h, NMK, m_k_arr):
             return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
     else:
         return -1 / sqrt(N_k_multi(k, m0, h, m_k_arr)) * local_m_k[k] * sin(local_m_k[k] * (z + h))
+def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
+    """
+    Vectorized derivative of the e-region vertical eigenfunction Z_k_e.
+    This version uses pre-calculated m_k_arr and N_k_arr for efficiency.
+    """
+    # This outer conditional is fine because it operates on scalar inputs.
+    if m0 * h < M0_H_THRESH:
+        # --- Logic for the standard case ---
+        # Value for k = 0
+        outcome_k_zero = (1 / sqrt(N_k_arr[0])) * m0 * sinh(m0 * (z + h))
+        
+        # Value for k > 0
+        # NumPy's advanced indexing handles using an array 'k' to index other arrays.
+        outcome_k_nonzero = -(1 / sqrt(N_k_arr[k])) * m_k_arr[k] * sin(m_k_arr[k] * (z + h))
+        
+        return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
+    
+    else:
+        # --- Logic for the high m0h approximation ---
+        # Value for k = 0
+        outcome_k_zero = m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2 * h)))
+        
+        # Value for k > 0 (this part is the same as the standard case)
+        outcome_k_nonzero = -(1 / sqrt(N_k_arr[k])) * m_k_arr[k] * sin(m_k_arr[k] * (z + h))
+        
+        return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
 
 #############################################
 # To calculate hydrocoefficients

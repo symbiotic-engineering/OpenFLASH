@@ -372,20 +372,6 @@ class MEEMEngine:
             "excitation_force": excitation_force(hydro_coef_imag, m0, h)
         }
     
-    def phi_h_n_inner_func(self, n, r, z, h, d, a, solution_vector, NMK, boundary_count):
-        # Reformat solution vector into coefficients per region
-        Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
-        return (Cs[0][n] * R_1n(n, r, 0, h, d, a)) * Z_n_i(n, z, 0, h, d)
-
-    def phi_h_m_i_func(self, i, m, r, z, h, d, a, solution_vector, NMK, boundary_count):
-        # Reformat solution vector into coefficients per region
-        Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
-        return (Cs[i][m] * R_1n(m, r, i, h, d, a) + Cs[i][NMK[i] + m] * R_2n(m, r, i, a, h, d)) * Z_n_i(m, z, i, h, d)
-
-    def phi_e_k_func(self, k, r, z, m0, a, NMK, h, m_k_arr, N_k_arr, solution_vector, boundary_count):
-        Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
-        return Cs[-1][k] * Lambda_k(k, r, m0, a, m_k_arr) * Z_k_e(k, z, m0, h, NMK, m_k_arr)
-    
     def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]:
         """
         Calculate full spatial potentials phiH, phiP, and total phi on a meshgrid for visualization.
@@ -507,6 +493,97 @@ class MEEMEngine:
         plt.xlabel('Radial Distance (R)')
         plt.ylabel('Axial Distance (Z)')
         plt.show()
+        
+    def calculate_velocities(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]:
+        """
+        Calculate full spatial velocities vr and vz on a meshgrid for visualization.
+        (Optimized to pre-compute components and use vectorized operations)
+        """
+        print("\n--- Entering Optimized calculate_velocities ---")
+        self._ensure_m_k_and_N_k_arrays(problem, m0)
+        cache = self.cache_list[problem]
+        m_k_arr, N_k_arr = cache.m_k_arr, cache.N_k_arr
+
+        # --- 1. Extract parameters and pre-calculate coefficients ONCE ---
+        domain_list = problem.domain_list
+        domain_keys = list(domain_list.keys())
+        boundary_count = len(domain_keys) - 1
+
+        NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
+        h = domain_list[0].h
+        d = [domain_list[idx].di for idx in domain_keys if domain_list[idx].di is not None]
+        print("d in new calculate_velocities:", d)
+        a = [domain_list[idx].a for idx in domain_keys if domain_list[idx].a is not None]
+        heaving = [domain_list[idx].heaving for idx in domain_keys]
+
+        print("  Reformatting solution coefficients once...")
+        Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
+
+        # --- 2. Create Meshgrid and Regions ---
+        R, Z = make_R_Z(a, h, d, sharp, spatial_res)
+        regions = [
+            (R <= a[0]) & (Z < -d[0]),
+            *[(R > a[i-1]) & (R <= a[i]) & (Z < -d[i]) for i in range(1, boundary_count)],
+            (R > a[-1])
+        ]
+        
+        # Initialize velocity component arrays
+        vrH = np.full(R.shape, np.nan, dtype=complex)
+        vzH = np.full(R.shape, np.nan, dtype=complex)
+
+        # --- 3. Vectorized Calculation of Homogeneous Velocities (vrH, vzH) ---
+        print("  Calculating homogeneous velocities (vrH, vzH)...")
+
+        # Region 0 (Inner)
+        if np.any(regions[0]):
+            r, z = R[regions[0]], Z[regions[0]]
+            n = np.arange(NMK[0])
+            vrH[regions[0]] = np.sum(Cs[0][:, None] * diff_R_1n_vectorized(n[:, None], r[None, :], 0, h, d, a) * Z_n_i_vectorized(n[:, None], z[None, :], 0, h, d), axis=0)
+            vzH[regions[0]] = np.sum(Cs[0][:, None] * R_1n_vectorized(n[:, None], r[None, :], 0, h, d, a) * diff_Z_n_i_vectorized(n[:, None], z[None, :], 0, h, d), axis=0)
+        print("    Done with Region 0.")
+
+        # Intermediate Regions
+        for i in range(1, boundary_count):
+            if np.any(regions[i]):
+                r, z = R[regions[i]], Z[regions[i]]
+                m = np.arange(NMK[i])
+                # Radial velocity (vrH)
+                vr_term1 = Cs[i][:NMK[i], None] * diff_R_1n_vectorized(m[:, None], r[None, :], i, h, d, a)
+                vr_term2 = Cs[i][NMK[i]:, None] * diff_R_2n_vectorized(m[:, None], r[None, :], i, h, d, a)
+                vrH[regions[i]] = np.sum((vr_term1 + vr_term2) * Z_n_i_vectorized(m[:, None], z[None, :], i, h, d), axis=0)
+                # Vertical velocity (vzH)
+                vz_term1 = Cs[i][:NMK[i], None] * R_1n_vectorized(m[:, None], r[None, :], i, h, d, a)
+                vz_term2 = Cs[i][NMK[i]:, None] * R_2n_vectorized(m[:, None], r[None, :], i, a, h, d)
+                vzH[regions[i]] = np.sum((vz_term1 + vz_term2) * diff_Z_n_i_vectorized(m[:, None], z[None, :], i, h, d), axis=0)
+            print(f"    Done with Region {i}.")
+
+        # Exterior Region
+        if np.any(regions[-1]):
+            r, z = R[regions[-1]], Z[regions[-1]]
+            k = np.arange(NMK[-1])
+            vrH[regions[-1]] = np.sum(Cs[-1][:, None] * diff_Lambda_k_vectorized(k[:, None], r[None, :], m0, a, m_k_arr) * Z_k_e_vectorized(k[:, None], z[None, :], m0, h, m_k_arr, N_k_arr), axis=0)
+            vzH[regions[-1]] = np.sum(Cs[-1][:, None] * Lambda_k_vectorized(k[:, None], r[None, :], m0, a, m_k_arr) * diff_Z_k_e_vectorized(k[:, None], z[None, :], m0, h, m_k_arr, N_k_arr), axis=0)
+        print("    Done with Exterior Region.")
+        
+        # --- 4. Vectorized Calculation of Particular Velocities (vrP, vzP) ---
+        print("  Calculating particular velocities (vrP, vzP)...")
+        vrP = np.full(R.shape, 0.0, dtype=complex)
+        vzP = np.full(R.shape, 0.0, dtype=complex)
+        
+        vrP[regions[0]] = heaving[0] * diff_r_phi_p_i(d[0], R[regions[0]], h)
+        vzP[regions[0]] = heaving[0] * diff_z_phi_p_i(d[0], Z[regions[0]], h)
+        for i in range(1, boundary_count):
+            if heaving[i]:
+                vrP[regions[i]] = heaving[i] * diff_r_phi_p_i(d[i], R[regions[i]], h)
+                vzP[regions[i]] = heaving[i] * diff_z_phi_p_i(d[i], Z[regions[i]], h)
+        print("    Done with particular velocity calculation.")
+
+        # --- 5. Sum for Total Velocity ---
+        vr = vrH + vrP
+        vz = vzH + vzP
+        print("--- Exiting Optimized calculate_velocities ---\n")
+
+        return {"R": R, "Z": Z, "vrH": vrH, "vzH": vzH, "vrP": vrP, "vzP": vzP, "vr": vr, "vz": vz}
     
     def run_and_store_results(self, problem_index: int) -> Results:
         """

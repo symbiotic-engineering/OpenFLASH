@@ -13,6 +13,27 @@ from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 
 LARGE_M0H = 14
+def diff_z_phi_p_i_old(d, z, h): 
+    return ((z+h) / (h - d))
+def diff_r_phi_p_i_old(d, r, h): 
+    return (- r / (2* (h - d)))
+def diff_Z_n_i_old(n, z, i, h, d):
+    if n == 0:
+        return 0
+    else:
+        lambda0 = lambda_ni_old(n, i, h, d)
+        return - lambda0 * np.sqrt(2) * np.sin(lambda0 * (z + h))
+def diff_Z_k_e_old(k, z, NMK, m0, h):
+    m_k = m_k_old(NMK, m0, h)
+    N_k = N_k_old(k, m0, h, m_k)
+    if k == 0:
+        if m0 == inf: return 0
+        elif m0 * h < LARGE_M0H:
+            return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
+        else: # high m0h approximation
+            return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
+    else:
+        return -1 / sqrt(N_k(k)) * m_k[k] * sin(m_k[k] * (z + h))
 def phi_p_i_old(d, r, z, h): 
     return (1 / (2* (h - d))) * ((z + h) ** 2 - (r**2) / 2)
 def make_R_Z_old(a, h, d, sharp, spatial_res): # create coordinate array for graphing
@@ -97,11 +118,6 @@ def diff_Lambda_k_old(k, r, m0, a, NMK, h):
         else:
             numerator = -(m0 * besselh(1, m0 * r))
             denominator = besselh(0, m0 * scale_old(a)[-1])
-            print(f"DEBUG: diff_Lambda_k_old (k={k}, r={r}, m0={m0})")
-            print(f"  m0*r: {m0*r}")
-            print(f"  numerator: {numerator}")
-            print(f"  denominator: {denominator}")
-            print(f"  result: {numerator / denominator}") 
             return numerator / denominator
     else:
         numerator = -(m_k[k] * besselke(1, m_k[k] * r))
@@ -207,7 +223,6 @@ def I_nm_old(n, m, i, h, d):
         return frac1 + frac2
     
 def N_k_old(k, m0, h, m_k):
-    # print(f"N_k_old called with k: {k}, m0: {m0}, h: {h}")
     if m0 == inf: return 1/2
     elif k == 0:
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
@@ -215,7 +230,6 @@ def N_k_old(k, m0, h, m_k):
         return 1 / 2 * (1 + sin(2 * m_k[k] * h) / (2 * m_k[k] * h))
 
 def m_k_entry_old(k, m0, h):
-    # print(f"m_k_entry_old called with k: {k}, m0: {m0}, h: {h}")
     if k == 0: return m0
     elif m0 == inf:
         return ((k - 1/2) * pi)/h
@@ -251,17 +265,14 @@ def m_k_entry_old(k, m0, h):
 
 # create an array of m_k values for each k to avoid recomputation
 def m_k_old(NMK, m0, h):
-    # print(f"m_k_old called with NMK: {NMK}, m0: {m0}, h: {h}")
     func = np.vectorize(lambda k: m_k_entry_old(k, m0, h), otypes=[float])
     return func(range(NMK[-1]))
 
 def lambda_ni_old(n, i, h, d):
-    # print(f"lambda_ni_old called with n: {n}, i: {i}, h: {h}, d: {d}")
     return n * pi / (h - d[i])
 
 def I_mk_old(m,k,i, d, h, m0, NMK):
     m_k = m_k_old(NMK, m0, h)
-    # print(f"I_mk_old called with m: {m}, k: {k}, i: {i}, d: {d}, h: {h}, m0: {m0}, NMK: {NMK}")
     dj = d[i]
     if m == 0 and k == 0:
         if m0 == inf: return 0
@@ -325,8 +336,6 @@ def assemble_old_A_and_b(h, d, a, NMK, heaving, m0):
     for m in range(NMK[boundary_count - 1]):
         for k in range(NMK[boundary_count]):
             I_mk_vals[m][k]= I_mk_old(m, k, boundary_count - 1, d, h, m0, NMK)
-    print(f"I_nm_vals max abs: {np.max(np.abs(I_nm_vals))}")
-    print(f"I_mk_vals max abs: {np.max(np.abs(I_mk_vals))}")
 
     ## Functions to create blocks of certain types
     # arguments: diagonal block on left (T/F), vectorized radial eigenfunction, boundary number
@@ -350,15 +359,10 @@ def assemble_old_A_and_b(h, d, a, NMK, heaving, m0):
         return sign * radial_array * I_nm_array
 
     def p_dense_block_e(bd):
-        # print(f"(old) Creating dense block for e-type region at boundary {bd}")
         I_mk_array = I_mk_vals
-        # print(f"I_mk_vals shape: {I_mk_array.shape}")
         vectorized_func = Lambda_k_old_wrapped(m0, a, NMK, h)
         radial_vector = vectorized_func(list(range(NMK[bd+1])), a[bd])
-        # print(f"Radial vector shape: {radial_vector.shape}")
         radial_array = np.outer((np.full((NMK[bd]), 1)), radial_vector)
-        # print(f"Radial array shape: {radial_array.shape}")
-        # print(f"Returning: {(-1) * radial_array * I_mk_array}")
         return (-1) * radial_array * I_mk_array
 
     #####

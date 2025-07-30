@@ -148,9 +148,6 @@ def main():
     # Solve the system once to get the common solution vector X
     print("--- Solving linear system once ---")
     X = engine.solve_linear_system_multi(problem, m0)
-    
-    # Retrieve cached arrays needed for the old method
-    cache = engine.cache_list[problem]
 
     # 2. ACT: Run both the new and old calculation methods
     potentials_new = engine.calculate_potentials(problem, X, m0, spatial_res=50, sharp=True)
