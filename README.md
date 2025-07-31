@@ -1,15 +1,9 @@
 # OpenFLASH ⚡️
 Open-source Flexible Library for Analytical and Semi-analytical Hydrodynamics 
 
-matlab: see `hydro/matlab/run_MEEM.m` for the symbolic and numeric code, see `test/matlab/` for some scripts to get results.
+## About The OpenFLASH Project
 
-python: see `package/src/` for some helper functions.
-
-`test/time_comparison` for time comparisons of BEM (Capytaine), and `dev/` for various matlab experiments.
-
-## About The Open-Flash Project
-
-The Open-Flash project is a Python package designed for solving boundary value problems using eigenfunction expansion methods. It provides a modular framework for defining complex geometries, setting up multi-domain problems, performing numerical computations, and analyzing results, particularly in fields like fluid dynamics.
+The OpenFLASH project is a Python package designed for solving boundary value problems using eigenfunction expansion methods. It provides a modular framework for defining complex geometries, setting up multi-domain problems, performing numerical computations, and analyzing results, particularly in fields like fluid dynamics.
 
 When referencing this work, please reference our `docs/citations.rst`
 
@@ -27,8 +21,14 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
     ```bash
     pip install -r requirements.txt
     ```
-3.  **Explore the `docs/` and `package/test` directory:** These directories contain scripts and notebooks demonstrating how to use the open-flash framework for different problems. Run these examples to understand the workflow.
+3.  **Explore the `docs/` and `package/test` directory:** These directories contain scripts and notebooks demonstrating how to use the OpenFLASH framework for different problems. Run these examples to understand the workflow.
 4.  **Refer to the documentation in the `docs/` directory:** The documentation provides detailed information on the different modules and classes within the `open-flash` package.
+
+## MATLAB
+We also have a MATLAB code version, although the Python version is intended as primary for future development. MATLAB only supports bodies consisting of 2 concentric cylinders, rather than the arbitrary N concentric cylinders in the Python package.
+
+See `matlab/src/run_MEEM.m` for the symbolic and numeric code, see `matlab/test/` for some scripts to get results, and `matlab/dev` for various matlab experiments.
+
 
 ## References
 
