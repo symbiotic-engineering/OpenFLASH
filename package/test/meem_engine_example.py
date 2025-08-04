@@ -1,188 +1,127 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import sys
 import os
-import matplotlib.pyplot as plt
 
 # --- Path Setup ---
+# This ensures the script can find your package source files.
+# Adjust the path if your project structure is different.
 current_dir = os.path.dirname(__file__)
 src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src'))
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
-# Import the necessary classes from  MEEM package
+# --- Import Your Package Classes ---
 from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
-from openflash.geometry import Geometry, Domain
-from openflash.results import Results
+from openflash.geometry import Geometry
+from openflash.domain import Domain
 
 def main():
     """
-    Demonstrates the usage of the MEEMEngine to solve a problem for multiple frequencies,
-    performing batch processing of hydrodynamic coefficients and potentials,
-    visualizing coefficients, and storing all in a NetCDF file.
+    An example script demonstrating the end-to-end workflow for using the MEEMEngine.
     """
-    print("--- Starting MEEMEngine Batch Processing, Plotting, and Data Saving Example ---")
+    print("--- MEEMEngine Full Workflow Example ---")
 
-    # --- 1. Define Problem Parameters ---
-    h_val = 1.001
-    d_vals = [0.5, 0.25]
-    a_vals = [0.5, 1]
-    heaving_vals = [1, 1]
-    NMK_vals = [50, 50, 50]
-    rho_val = 1023.0
+    # ==========================================================================
+    # STEP 1: Define the Physical System
+    # ==========================================================================
+    # Describe the system with simple lists: radii, drafts, etc.
+    # This example defines a system with two cylinders.
 
-    analysis_frequencies = np.linspace(0.1, 3.0, 50)
-    analysis_modes = np.array([1]) 
+    NMK = [30, 30, 30]  # Harmonics for inner, outer, and exterior domains
+    h = 100.0           # Total water depth
+    a = [5.0, 10.0]     # Radii of the two cylinders
+    d = [20.0, 10.0]    # Drafts of the two cylinders
+    heaving = [1, 0]    # The first cylinder is heaving, the second is fixed
 
-    print(f"\nProblem Parameters:")
-    print(f"  Water Depth (h): {h_val}")
-    print(f"  (d): {d_vals}")
-    print(f"  Radii (a): {a_vals}")
-    print(f"  Harmonics (NMK): {NMK_vals}")
-    print(f"  Fluid Density (rho): {rho_val}")
-    print(f"  Frequencies to analyze: {analysis_frequencies[0]:.2f} to {analysis_frequencies[-1]:.2f} rad/s ({len(analysis_frequencies)} points)")
+    # ==========================================================================
+    # STEP 2: Create the Problem Definition
+    # ==========================================================================
+    # Use the helper methods to structure the data and create the problem object.
 
-    # --- 2. Create Geometry and Domain Objects ---
-    domain_params_list = [
-        {'number_harmonics': NMK_vals[0], 'height': h_val, 'radial_width': a_vals[0],
-         'top_BC': None, 'bottom_BC': None, 'category': 'inner',
-         'a': a_vals[0], 'di': d_vals[0], 'heaving': heaving_vals[0]},
-        {'number_harmonics': NMK_vals[1], 'height': h_val, 'radial_width': a_vals[1] - a_vals[0],
-         'top_BC': None, 'bottom_BC': None, 'category': 'outer',
-         'a': a_vals[1], 'di': d_vals[1], 'heaving': heaving_vals[1]},
-        {'number_harmonics': NMK_vals[2], 'height': h_val, 'radial_width': None,
-         'top_BC': None, 'bottom_BC': None, 'category': 'exterior'}
-    ]
+    print("\n[1] Setting up the geometry and problem definition...")
+    
+    # Use helper methods to create the required data structures
+    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
+    r_coords = Domain.build_r_coordinates_dict(a)
+    z_coords = Domain.build_z_coordinates_dict(h)
+    
+    # Create the Geometry and MEEMProblem objects
+    geometry = Geometry(r_coords, z_coords, domain_params)
+    problem = MEEMProblem(geometry)
+    
+    # Define the frequencies (as m0 values) and modes to solve for
+    problem.frequencies = np.linspace(0.1, 2.0, 20) # 20 frequencies from 0.1 to 2.0
+    problem.modes = ['heave']
 
-    r_coords = {'a1': a_vals[0], 'a2': a_vals[1]}
-    z_coords = {'h': h_val}
+    # ==========================================================================
+    # STEP 3: Instantiate and Run the MEEMEngine
+    # ==========================================================================
+    # The engine is the main workhorse. It takes a list of problems to manage.
 
-    geometry = Geometry(r_coordinates=r_coords, z_coordinates=z_coords, domain_params=domain_params_list)
-    print("\nGeometry object created.")
+    print("[2] Initializing the MEEMEngine...")
+    engine = MEEMEngine(problem_list=[problem])
 
-    # --- 3. Create a MEEMProblem Instance and set multiple frequencies ---
-    meem_problem = MEEMProblem(geometry=geometry)
-    meem_problem.set_frequencies_modes(analysis_frequencies, analysis_modes)
-    print("MEEMProblem instance created and configured with multiple frequencies.")
+    # The `run_and_store_results` method iterates through all frequencies,
+    # solves the system, and stores the hydrodynamic coefficients.
+    print("[3] Running solver for all frequencies...")
+    results = engine.run_and_store_results(problem_index=0)
+    print("    ...Done.")
 
-    # --- 4. Instantiate the MEEMEngine ---
-    engine = MEEMEngine(problem_list=[meem_problem])
-    print("MEEMEngine instance created. Problem cache built.")
+    # You can display the stored hydrodynamic coefficients
+    print("\n--- Hydrodynamic Coefficients (Added Mass) ---")
+    print(results.dataset['added_mass'].to_pandas())
 
-    # --- 5. Batch Process for Each Frequency ---
-    collected_added_mass = []
-    collected_damping = []
-    all_potentials_batch_data = [] # <--- NEW: List to store potential data for all frequencies/modes
 
-    print("\n--- Starting Batch Processing for Multiple Frequencies ---")
-    for i, current_m0_val in enumerate(meem_problem.frequencies):
-        #  only one mode for now (mode_idx = 0 as analysis_modes is [1])
-        mode_idx = 0
+    # ==========================================================================
+    # STEP 4: Calculate and Visualize Detailed Fields
+    # ==========================================================================
+    # After solving, you can calculate the full potential or velocity fields
+    # for any single frequency.
 
-        if (i + 1) % 10 == 0 or i == 0 or i == len(meem_problem.frequencies) - 1:
-            print(f"Processing frequency {i+1}/{len(meem_problem.frequencies)}: m0 = {current_m0_val:.4f} rad/s")
+    # Let's pick a single frequency to visualize
+    m0_for_viz = 1.0
+    
+    print(f"\n[4] Solving for a single frequency (m0={m0_for_viz}) to get the solution vector X...")
+    X = engine.solve_linear_system_multi(problem, m0=m0_for_viz)
 
-        A = engine.assemble_A_multi(meem_problem, current_m0_val)
-        b = engine.assemble_b_multi(meem_problem, current_m0_val)
+    print("[5] Calculating detailed potential and velocity fields...")
+    potentials = engine.calculate_potentials(problem, X, m0=m0_for_viz, spatial_res=50, sharp=True)
+    velocities = engine.calculate_velocities(problem, X, m0=m0_for_viz, spatial_res=50, sharp=True)
+    print("    ...Done.")
+    
+    # ==========================================================================
+    # STEP 5: Visualize the Results
+    # ==========================================================================
+    # Use the `visualize_potential` method to plot the results.
 
-        try:
-            x_coeffs = np.linalg.solve(A, b)
-            # Compute Hydrodynamic Coefficients
-            hydro_coeffs = engine.compute_hydrodynamic_coefficients(meem_problem, x_coeffs)
-            collected_added_mass.append(hydro_coeffs.get('real', np.nan))
-            collected_damping.append(hydro_coeffs.get('imag', np.nan))
+    print("[6] Generating plots...")
 
-            # <--- Calculate Potentials for the current frequency/mode --->
-            current_potentials_data = engine.calculate_potentials(meem_problem, x_coeffs)
-            
-            # Store potentials with their corresponding frequency/mode indices
-            formatted_potentials_for_batch = {}
-            for domain_name, domain_data in current_potentials_data.items():
-                formatted_potentials_for_batch[domain_name] = {
-                    'potentials': domain_data['potentials'],
-                    'r_coords_dict': domain_data['r'], # Pass the dictionary for r coords
-                    'z_coords_dict': domain_data['z']  # Pass the dictionary for z coords
-                }
+    # Extract the meshgrid and fields from the results dictionaries
+    R = potentials["R"]
+    Z = potentials["Z"]
+    total_potential = potentials["phi"]
+    radial_velocity = velocities["vr"]
 
-            all_potentials_batch_data.append({
-                'frequency_idx': i,
-                'mode_idx': mode_idx,
-                'data': formatted_potentials_for_batch
-            })
+    # Visualize the real part of the total potential
+    engine.visualize_potential(
+        field=np.real(total_potential),
+        R=R,
+        Z=Z,
+        title=f"Real Part of Total Potential (phi) at m0={m0_for_viz}"
+    )
 
-        except np.linalg.LinAlgError as e:
-            print(f"  ERROR: Could not solve for m0={current_m0_val:.4f}: {e}. Recording NaN for coefficients and skipping potentials.")
-            collected_added_mass.append(np.nan)
-            collected_damping.append(np.nan)
-            continue
-
-    print("\n--- Batch Processing Complete ---")
-
-    # --- 6. Prepare data for Results object and Visualization ---
-    frequencies_for_results = np.array(meem_problem.frequencies)
-    modes_for_results = np.array(meem_problem.modes)
-
-    num_frequencies = len(frequencies_for_results)
-    num_modes = len(modes_for_results)
-
-    added_mass_matrix = np.array(collected_added_mass).reshape(num_frequencies, num_modes)
-    damping_matrix = np.array(collected_damping).reshape(num_frequencies, num_modes)
-
-    # --- 7. Instantiate Results and Store Data ---
-    results_obj = Results(geometry, frequencies_for_results, modes_for_results)
-
-    # Store hydrodynamic coefficients
-    results_obj.store_hydrodynamic_coefficients(
-        frequencies=frequencies_for_results,
-        modes=modes_for_results,
-        added_mass_matrix=added_mass_matrix,
-        damping_matrix=damping_matrix
+    # Visualize the magnitude of the radial velocity
+    engine.visualize_potential(
+        field=np.abs(radial_velocity),
+        R=R,
+        Z=Z,
+        title=f"Magnitude of Radial Velocity (vr) at m0={m0_for_viz}"
     )
     
-    # <--- Store ALL collected Potentials --->
-    results_obj.store_all_potentials(all_potentials_batch_data)
+    print("\n--- Example Finished ---")
 
-    # --- 8. Export Results to NetCDF ---
-    output_netcdf_file = "meem_hydro_results_full.nc" 
-    results_obj.export_to_netcdf(output_netcdf_file)
-    print(f"\nResults successfully exported to {output_netcdf_file}")
-
-    # --- 9. Present Summary of Results (Table - using data from Results object for consistency) ---
-    print("\nSummary of Hydrodynamic Coefficients vs. Frequency (from Results object):")
-    print(f"{'Frequency (rad/s)':<20} | {'Added Mass':<20} | {'Damping':<20}")
-    print("-" * 65)
-    
-    freqs_display = results_obj.dataset['frequencies'].values
-    am_display = results_obj.dataset['added_mass'].values.squeeze()
-    damp_display = results_obj.dataset['damping'].values.squeeze()
-
-    for i in range(len(freqs_display)):
-        freq_str = f"{freqs_display[i]:.4f}"
-        am_str = f"{am_display[i]:.6f}" if not np.isnan(am_display[i]) else "NaN"
-        damp_str = f"{damp_display[i]:.6f}" if not np.isnan(damp_display[i]) else "NaN"
-        print(f"{freq_str:<20} | {am_str:<20} | {damp_str:<20}")
-
-    # --- 10. Visualize Hydrodynamic Coefficients (Plots) ---
-    print("\n--- Plotting Hydrodynamic Coefficients ---")
-
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
-
-    ax1.plot(frequencies_for_results, added_mass_matrix.squeeze(), 'b-o', markersize=4, label='Added Mass')
-    ax1.set_title('Hydrodynamic Coefficients for Heaving Cylinders')
-    ax1.set_ylabel('Added Mass ($A_{33}$)')
-    ax1.grid(True, linestyle=':', alpha=0.7)
-    ax1.legend()
-
-    ax2.plot(frequencies_for_results, damping_matrix.squeeze(), 'r-o', markersize=4, label='Damping')
-    ax2.set_xlabel(r'Angular Frequency ($\omega$, rad/s)')
-    ax2.set_ylabel('Damping ($B_{33}$)')
-    ax2.grid(True, linestyle=':', alpha=0.7)
-    ax2.legend()
-
-    plt.tight_layout()
-    plt.show()
-
-    print("\n--- MEEMEngine Example Finished ---")
 
 if __name__ == "__main__":
     main()
