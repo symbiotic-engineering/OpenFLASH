@@ -22,18 +22,19 @@ class MEEMProblem:
 
     def set_frequencies_modes(self, frequencies: np.ndarray, modes: np.ndarray):
         """
-        Set the angular frequencies and motion modes for this problem.
+        Set the angular frequencies and degrees of freedom for this problem.
 
         Parameters
         ----------
         frequencies : np.ndarray
-            Array of angular frequencies (rad/s).
+            Array of angular frequencies or omega (rad/s).
         modes : np.ndarray
-            Array of mode indices.
+            Array of degrees of freedom indices.
         """
         assert isinstance(modes, np.ndarray), "modes must be a numpy array"
-        assert np.all(frequencies > 0), "All frequencies must be positive integers"
-        assert np.issubdtype(modes.dtype, np.integer), "Mode numbers must be integers"
+        assert np.all(frequencies > 0), "All frequencies must be positive"
+        assert isinstance(frequencies, np.ndarray), "frequencies must be a numpy array"
+        assert np.all(modes >= 0), "modes must be non-negative integers"
 
         self.frequencies = frequencies
         self.modes = modes

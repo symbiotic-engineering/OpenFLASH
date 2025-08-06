@@ -22,6 +22,5 @@ The ProblemCache Class
 
 .. autoclass:: ProblemCache
    :members:
-   :undoc-members:
+   :undoc-members: 
    :show-inheritance:
-   :noindex: 

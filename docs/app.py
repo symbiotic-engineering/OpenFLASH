@@ -166,23 +166,28 @@ def main():
     # Compute and print hydrodynamic coefficients
     hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0)
     st.write("Hydrodynamic Coefficients:")
-    if hydro_coefficients.get('real') is not None and hydro_coefficients.get('imag') is not None:
-        if np.isscalar(hydro_coefficients['real']): # Unlikely if num_modes > 1
-            st.metric(label="Added Mass (Real Part)", value=f"{hydro_coefficients['real']:.4f}")
-            st.metric(label="Damping (Imaginary Part)", value=f"{hydro_coefficients['imag']:.4f}")
-        elif len(hydro_coefficients['real']) > 0: # Check if array is not empty
-            st.write("The calculated hydrodynamic coefficients are:")
-            df_coeffs = pd.DataFrame({ 
-                "Mode Index": problem_modes, # Use actual mode indices/names
-                "Added Mass (Real)": hydro_coefficients['real'],
-                "Damping (Imaginary)": hydro_coefficients['imag']
-            })
-            st.dataframe(df_coeffs)
-        else:
-            st.warning("Hydrodynamic coefficients arrays are empty. Check calculation logic.")
-    else:
-        st.warning("Hydrodynamic coefficients could not be calculated. `real` or `imag` keys are missing or None.")
+    if hydro_coefficients and isinstance(hydro_coefficients, list):
+        # Create a DataFrame from the list of dicts
+        df_coeffs = pd.DataFrame(hydro_coefficients)
+        
+        # Check if DataFrame has the expected columns before displaying
+        expected_cols = {'mode', 'real', 'imag', 'nondim_real', 'nondim_imag'}
+        if expected_cols.issubset(df_coeffs.columns):
+            # Option 1: Display as a table
+            st.dataframe(df_coeffs[['mode', 'real', 'imag', 'nondim_real', 'nondim_imag']])
 
+            # Option 2: Display each mode's added mass and damping as metrics (optional)
+            with st.expander("View Metrics per Mode"):
+                for mode_data in hydro_coefficients:
+                    mode_idx = mode_data.get("mode")
+                    real = mode_data.get("real")
+                    imag = mode_data.get("imag")
+                    st.metric(label=f"Mode {mode_idx} Added Mass (Real)", value=f"{real:.4f}")
+                    st.metric(label=f"Mode {mode_idx} Damping (Imag)", value=f"{imag:.4f}")
+        else:
+            st.warning("Hydrodynamic coefficients data missing some expected keys.")
+    else:
+        st.warning("Hydrodynamic coefficients could not be calculated or are empty.")
     # --- Reformat coefficients using the dedicated MEEMEngine method ---
     reformat_boundary_count = len(a_list) # This is the number of regions
     Cs = engine.reformat_coeffs(X, NMK, reformat_boundary_count)

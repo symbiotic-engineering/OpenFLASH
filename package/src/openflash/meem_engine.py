@@ -312,7 +312,12 @@ class MEEMEngine:
 
     def compute_hydrodynamic_coefficients(self, problem, X, m0):
         """
-        Compute the hydrodynamic coefficients (added mass and damping) for a given problem and solution vector X.
+        Compute hydrodynamic coefficients (added mass and damping) for each mode defined in the problem.
+
+        :param problem: Problem object containing the geometry
+        :param X: Solution vector from eigenfunction solver
+        :param m0: Mode number (used for omega and excitation terms)
+        :return: List of dictionaries, one per mode, with hydrodynamic properties
         """
         geometry = problem.geometry
         domain_keys = list(geometry.domain_list.keys())
@@ -323,54 +328,66 @@ class MEEMEngine:
         ]
         h = geometry.domain_list[0].h
         NMK = [geometry.domain_list[idx].number_harmonics for idx in domain_keys]
-        heaving = [geometry.domain_list[idx].heaving for idx in domain_keys]
         boundary_count = len(NMK) - 1
 
         size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
-        c_vector = np.zeros((size - NMK[-1]), dtype=complex)
-        # === Assemble c_vector ===``
-        col = 0
-        for n in range(NMK[0]):
-            c_vector[n] = heaving[0] * int_R_1n(0, n, a, h, d)* z_n_d(n)
-        col += NMK[0]
 
-        for i in range(1, boundary_count):
-            M = NMK[i]
-            for m in range(M):
-                c_vector[col + m] = heaving[i] * int_R_1n(i, m, a, h, d) * z_n_d(m)
-                c_vector[col + M + m] = heaving[i] * int_R_2n(i, m, a, h, d) * z_n_d(m)
-            col += 2 * M
-        # === Assemble hydro_p_terms ===
-        hydro_p_term_sum = np.zeros(boundary_count, dtype=complex)
-        for i in range(boundary_count):
-            hydro_p_term_sum[i] = heaving[i] * int_phi_p_i(i, h, d, a)
+        results_per_mode = []
 
-        # === Compute unscaled hydro coefficient ===
-        hydro_coef = 2 * pi * (np.dot(c_vector, X[:-NMK[-1]]) + sum(hydro_p_term_sum))
+        # Loop through each mode (degree of freedom)
+        for mode_index in range(len(domain_keys) - 1):
+            # Set heaving vector: only one mode active at a time
+            heaving = [0] * len(domain_keys)
+            heaving[mode_index] = 1
 
-        # === Convert to physical units ===
-        hydro_coef_real = hydro_coef.real * h**3 * rho
-        if m0 == np.inf: hydro_coef_imag = 0
-        else: hydro_coef_imag = hydro_coef.imag * omega(m0,h,g) * h**3 * rho
+            c_vector = np.zeros((size - NMK[-1]), dtype=complex)
+            col = 0
 
-        # === Nondimensional coefficients ===
-        max_rad = a[0]
-        for i in range(boundary_count - 1, 0, -1):
-            if heaving[i]:
-                max_rad = a[i]
-                break
+            for n in range(NMK[0]):
+                c_vector[n] = heaving[0] * int_R_1n(0, n, a, h, d) * z_n_d(n)
+            col += NMK[0]
 
-        hydro_coef_nondim = h**3/(max_rad**3 * pi)*hydro_coef
-        # === Phase and excitation force ===
-      
-        return {
-            "real": hydro_coef_real,
-            "imag": hydro_coef_imag,
-            "nondim_real": hydro_coef_nondim.real,
-            "nondim_imag": hydro_coef_nondim.imag,
-            "excitation_phase": excitation_phase(X, NMK, m0, a),
-            "excitation_force": excitation_force(hydro_coef_imag, m0, h)
-        }
+            for i in range(1, boundary_count):
+                M = NMK[i]
+                for m in range(M):
+                    c_vector[col + m] = heaving[i] * int_R_1n(i, m, a, h, d) * z_n_d(m)
+                    c_vector[col + M + m] = heaving[i] * int_R_2n(i, m, a, h, d) * z_n_d(m)
+                col += 2 * M
+
+            hydro_p_term_sum = np.zeros(boundary_count, dtype=complex)
+            for i in range(boundary_count):
+                hydro_p_term_sum[i] = heaving[i] * int_phi_p_i(i, h, d, a)
+
+            hydro_coef = 2 * pi * (np.dot(c_vector, X[:-NMK[-1]]) + sum(hydro_p_term_sum))
+
+            # Physical units
+            hydro_coef_real = hydro_coef.real * h**3 * rho
+            if m0 == np.inf:
+                hydro_coef_imag = 0
+            else:
+                hydro_coef_imag = hydro_coef.imag * omega(m0, h, g) * h**3 * rho
+
+            # Nondimensional
+            max_rad = a[0]
+            for i in range(boundary_count - 1, 0, -1):
+                if heaving[i]:
+                    max_rad = a[i]
+                    break
+
+            hydro_coef_nondim = h**3 / (max_rad**3 * pi) * hydro_coef
+
+            # Store results for this mode
+            results_per_mode.append({
+                "mode": mode_index,
+                "real": hydro_coef_real,
+                "imag": hydro_coef_imag,
+                "nondim_real": hydro_coef_nondim.real,
+                "nondim_imag": hydro_coef_nondim.imag,
+                "excitation_phase": excitation_phase(X, NMK, m0, a),
+                "excitation_force": excitation_force(hydro_coef_imag, m0, h)
+            })
+
+        return results_per_mode
     
     def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]:
         """
@@ -386,19 +403,10 @@ class MEEMEngine:
         - Dictionary containing meshgrid arrays R,Z and potentials phiH, phiP, phi
         """
         # Ensure m_k_arr and N_k_arr are computed and retrieved from the cache
-        # =================== DEBUGGING START ===================
-        print("\n--- Debugging: Entering calculate_potentials ---")
-        print(f"  Received m0={m0}, spatial_res={spatial_res}, sharp={sharp}")
-        # =======================================================
         self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         m_k_arr = cache.m_k_arr
         N_k_arr = cache.N_k_arr
-        # =================== DEBUGGING ===================
-        print(f"  Cache check: m_k_arr shape = {m_k_arr.shape}, N_k_arr shape = {N_k_arr.shape}")
-        if m_k_arr is not None:
-            print(f"  m_k_arr head: {m_k_arr[:3]}")
-        # =================================================
         
         domain_list = problem.domain_list
         domain_keys = list(domain_list.keys())
@@ -407,11 +415,9 @@ class MEEMEngine:
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys if domain_list[idx].di is not None]
-        print("d in new calculate_potentials:", d)
         a = [domain_list[idx].a for idx in domain_keys if domain_list[idx].a is not None]
         heaving = [domain_list[idx].heaving for idx in domain_keys]
         
-        print("  Reformatting solution coefficients once...")
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
         # --- 2. Create Meshgrid and Regions ---
@@ -421,16 +427,6 @@ class MEEMEngine:
         for i in range(1, boundary_count):
             regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i]))
         regions.append(R > a[-1])
-        # =================== DEBUGGING ===================
-        print(f"  Meshgrid created: R shape={R.shape}, Z shape={Z.shape}")
-        print(f"    R range: [{np.min(R):.2f}, {np.max(R):.2f}], Z range: [{np.min(Z):.2f}, {np.max(Z):.2f}]")
-        # =================================================
-
-        # =================== DEBUGGING ===================
-        print("  Region mask point counts:")
-        for i, region_mask in enumerate(regions):
-            print(f"    Region {i}: {np.sum(region_mask)} points")
-        # =================================================
 
         # Initialize potential arrays
         phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
@@ -438,7 +434,6 @@ class MEEMEngine:
         phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
 
         # --- 3. Vectorized Calculation of Potentials ---
-        print("  Calculating potentials with vectorized operations...")
 
         # Region 0 (Inner)
         if np.any(regions[0]):
@@ -447,7 +442,6 @@ class MEEMEngine:
             R1n_vals = R_1n_vectorized(n_vals[:, None], r_vals[None, :], 0, h, d, a)
             Zn_vals = Z_n_i_vectorized(n_vals[:, None], z_vals[None, :], 0, h, d)
             phiH[regions[0]] = np.sum(Cs[0][:, None] * R1n_vals * Zn_vals, axis=0)
-        print("    Done with Region 0.")
 
         # Intermediate Regions
         for i in range(1, boundary_count):
@@ -460,7 +454,6 @@ class MEEMEngine:
                 term1 = Cs[i][:NMK[i], None] * R1n_vals
                 term2 = Cs[i][NMK[i]:, None] * R2n_vals
                 phiH[regions[i]] = np.sum((term1 + term2) * Zm_vals, axis=0)
-            print(f"    Done with Region {i}.")
 
         # Exterior Region
         if np.any(regions[-1]):
@@ -469,19 +462,15 @@ class MEEMEngine:
             Lambda_vals = Lambda_k_vectorized(k_vals[:, None], r_vals[None, :], m0, a, m_k_arr)
             Zk_vals = Z_k_e_vectorized(k_vals[:, None], z_vals[None, :], m0, h, m_k_arr, N_k_arr)
             phiH[regions[-1]] = np.sum(Cs[-1][:, None] * Lambda_vals * Zk_vals, axis=0)
-        print("    Done with Exterior Region.")
         
         # --- 4. Calculate Particular Potential (phiP) ---
-        print("  Calculating Particular Potential (phiP)...")
         phiP[regions[0]] = heaving[0] * phi_p_i(d[0], R[regions[0]], Z[regions[0]], h)
         for i in range(1, boundary_count):
             phiP[regions[i]] = heaving[i] * phi_p_i(d[i], R[regions[i]], Z[regions[i]], h)
         phiP[regions[-1]] = 0
-        print("    Done with phiP calculation.")
 
         # Sum to get total potential phi
         phi = phiH + phiP
-        print("--- Exiting Optimized calculate_potentials ---\n")
 
         return {"R": R, "Z": Z, "phiH": phiH, "phiP": phiP, "phi": phi}
 
@@ -646,8 +635,8 @@ class MEEMEngine:
                 continue
 
             hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X, m0)
-            added_mass = np.atleast_1d(hydro_coeffs["real"])
-            damping = np.atleast_1d(hydro_coeffs["imag"])
+            added_mass = np.array([hc["real"] for hc in hydro_coeffs])
+            damping = np.array([hc["imag"] for hc in hydro_coeffs])
 
             if added_mass.shape[0] != num_modes or damping.shape[0] != num_modes:
                 raise ValueError(

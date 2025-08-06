@@ -40,16 +40,3 @@ The Domain Class
    :members:
    :undoc-members: 
    :show-inheritance:
-   :noindex:
-
-   .. automethod:: __init__
-
-   .. automethod:: _get_di
-
-   .. automethod:: _get_a
-
-   .. automethod:: _get_heaving
-
-   .. automethod:: _get_r_coords
-
-   .. automethod:: _get_z_coords

@@ -16,6 +16,8 @@ from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
 from openflash.geometry import Geometry
 from openflash.domain import Domain
+from openflash.multi_equations import omega
+from openflash.multi_constants import g
 
 def main():
     """
@@ -52,8 +54,12 @@ def main():
     problem = MEEMProblem(geometry)
     
     # Define the frequencies (as m0 values) and modes to solve for
-    problem.frequencies = np.linspace(0.1, 2.0, 20) # 20 frequencies from 0.1 to 2.0
-    problem.modes = ['heave']
+    m0 = 1.0
+    local_omega = omega(m0,h,g)
+    problem_frequencies = np.array([local_omega])
+    boundary_count = len(NMK) -1
+    problem_modes = np.arange(boundary_count) # Modes 0, 1, ... up to boundary_count-1 (heaving modes)
+    problem.set_frequencies_modes(problem_frequencies, problem_modes)
 
     # ==========================================================================
     # STEP 3: Instantiate and Run the MEEMEngine
@@ -119,6 +125,8 @@ def main():
         Z=Z,
         title=f"Magnitude of Radial Velocity (vr) at m0={m0_for_viz}"
     )
+    
+    plt.show()
     
     print("\n--- Example Finished ---")
 

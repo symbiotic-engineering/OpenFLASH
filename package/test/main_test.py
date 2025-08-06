@@ -70,14 +70,17 @@ def main(): # Renamed from test_main
 
     # Compute and print hydrodynamic coefficients
     hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0)
-    print(type(hydro_coefficients["real"]), type(hydro_coefficients["imag"]))
+    print(f"Type of hydro_coefficients: {type(hydro_coefficients)}")
+    print(f"Value: {hydro_coefficients}")
 
-    real = hydro_coefficients["real"]
-    imag = hydro_coefficients["imag"]
-    nondim_real = hydro_coefficients["nondim_real"]
-    nondim_imag = hydro_coefficients["nondim_imag"]
-    excitation_phase = hydro_coefficients["excitation_phase"]
-    excitation_force = hydro_coefficients["excitation_force"]
+    print(type(hydro_coefficients[0]["real"]), type(hydro_coefficients[0]["imag"]))
+
+    real = hydro_coefficients[0]["real"]
+    imag = hydro_coefficients[0]["imag"]
+    nondim_real = hydro_coefficients[0]["nondim_real"]
+    nondim_imag = hydro_coefficients[0]["nondim_imag"]
+    excitation_phase = hydro_coefficients[0]["excitation_phase"]
+    excitation_force = hydro_coefficients[0]["excitation_force"]
 
     print("\n--- Hydrodynamic Coefficient Breakdown ---")
     print(f"real (added mass): {real:.10f}")
@@ -113,7 +116,7 @@ def main(): # Renamed from test_main
     engine.visualize_potential(np.real(phiP), R, Z, "Particular Potential (Real)")
     engine.visualize_potential(np.imag(phiP), R, Z, "Particular Potential (Imag)")
     engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
-    engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")\
+    engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
         
     plt.show()
 

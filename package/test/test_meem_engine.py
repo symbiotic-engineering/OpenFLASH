@@ -18,6 +18,8 @@ from openflash.geometry import Geometry
 from openflash.domain import Domain
 from openflash.problem_cache import ProblemCache
 from openflash.results import Results
+from openflash.multi_equations import omega
+from openflash.multi_constants import g
 
 # ==============================================================================
 # Pytest Fixture: Reusable Test Problem
@@ -42,7 +44,13 @@ def sample_problem():
     geometry = Geometry(r_coords, z_coords, domain_params)
     problem = MEEMProblem(geometry)
     
-    problem.modes = ['heave']
+    m0 = 1.0
+    
+    local_omega = omega(m0,h,g)
+    problem_frequencies = np.array([local_omega])
+    boundary_count = len(NMK) -1
+    problem_modes = np.arange(boundary_count) # Modes 0, 1, ... up to boundary_count-1 (heaving modes)
+    problem.set_frequencies_modes(problem_frequencies, problem_modes)
     
     return problem
 
@@ -111,11 +119,15 @@ def test_compute_hydrodynamic_coefficients(sample_problem):
     
     coeffs = engine.compute_hydrodynamic_coefficients(problem=sample_problem, X=X, m0=m0)
     
-    assert isinstance(coeffs, dict)
-    assert "real" in coeffs and isinstance(coeffs["real"], float)
-    assert "imag" in coeffs and isinstance(coeffs["imag"], float)
-    assert "nondim_real" in coeffs
-    assert "excitation_force" in coeffs
+    assert isinstance(coeffs, list), "Expected list of dictionaries"
+    for c in coeffs:
+        assert isinstance(c, dict), "Each entry in the result should be a dictionary"
+        assert "real" in c, "Missing 'real' in coefficient dictionary"
+        assert "imag" in c, "Missing 'imag' in coefficient dictionary"
+        assert "nondim_real" in c, "Missing 'nondim_real'"
+        assert "nondim_imag" in c, "Missing 'nondim_imag'"
+        assert "excitation_phase" in c, "Missing 'excitation_phase'"
+        assert "excitation_force" in c, "Missing 'excitation_force'"
     print("✅ Hydrodynamic coefficients test passed.")
 
 def test_calculate_potentials_and_velocities(sample_problem):
