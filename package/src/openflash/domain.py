@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Optional
 import numpy as np
 
 
@@ -66,12 +66,28 @@ class Domain:
         a: List[float],
         d: List[float],
         heaving: List[Union[int, bool]],
-        h: float
+        h: float, slant: Optional[List[Union[int, bool]]] = None
     ) -> List[Dict]:
         """
-        Create structured domain parameters list for Geometry constructor.
+        Creates a structured list of domain parameters from simulation inputs.
+
+        Args:
+            NMK: List of harmonic counts for each domain.
+            a: List of cylinder radii, must be strictly increasing.
+            d: List of cylinder drafts.
+            heaving: List of heaving states (0 or 1) for each cylinder.
+            h: Total water depth.
+            slant: Optional list of slant states (0 or 1) for each cylinder.
+
+        Returns:
+            A list of dictionaries, each defining a simulation domain.
         """
         boundary_count = len(NMK) - 1
+        
+        # If slant is not provided, default to all zeros.
+        if slant is None:
+            slant = [0] * boundary_count
+            
         assert len(a) == boundary_count, "Length of 'a' must be one less than length of 'NMK'"
         assert len(d) == boundary_count, "Length of 'd' must match 'a'"
         assert len(heaving) == boundary_count, "Length of 'heaving' must match 'a'"
@@ -110,13 +126,13 @@ class Domain:
                 'top_BC': None,
                 'bottom_BC': None,
                 'category': category,
-                'slant': 0,
             }
 
             if idx < boundary_count:
                 param['a'] = a[idx]
                 param['di'] = d[idx]
                 param['heaving'] = heaving[idx]
+                param['slant'] = slant[idx]
 
             domain_params.append(param)
 

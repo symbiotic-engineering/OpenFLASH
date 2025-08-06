@@ -31,4 +31,4 @@ Here is a detailed reference for the global constants defined in this module:
    Default value: :math:`\rho = 1023` kg/m³.
 
 .. note::
-   Parameters such as water depth, geometric dimensions, wave properties (e.g., wavenumber or frequency), and motion types are specific to a given hydrodynamic problem. These should be defined when constructing or configuring your OpenFLASH problem instance.
+   Parameters such as water depth, geometric dimensions, wave properties (e.g., wavenumber), and motion types are specific to a given hydrodynamic problem. These should be defined when constructing or configuring your OpenFLASH problem instance.

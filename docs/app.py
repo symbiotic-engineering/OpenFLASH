@@ -1,16 +1,18 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import openflash
 
 # --- Import core MEEM modules ---
 try:
     from openflash import *
+    from openflash.multi_equations import m_k_newton # Needed to convert omega to m0
 except ImportError as e:
     st.error(f"Error importing core modules from openflash. Error: {e}")
     st.stop()
 
-# Set print options for better visibility in console (less relevant for Streamlit, but kept for consistency)
+# Set print options for better visibility in console
 np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
 
 def main():
@@ -20,229 +22,159 @@ def main():
     # --- User Inputs for Parameters ---
     h = st.sidebar.slider("Water Depth (h)", 0.5, 5.0, 1.001, step=0.001)
     
-    d_input = st.sidebar.text_input(" (d) - comma-separated for each cylinder", "0.5,0.25")
-    a_input = st.sidebar.text_input("Cylinder Radii (a) - comma-separated for each cylinder", "0.5,1.0")
+    d_input = st.sidebar.text_input("Drafts (d) - comma-separated", "0.5,0.25")
+    a_input = st.sidebar.text_input("Cylinder Radii (a) - comma-separated", "0.5,1.0")
     
-    heaving_input = st.sidebar.text_input("Heaving States (1=True, 0=False) - comma-separated for each domain (inner, middle, exterior)", "1,0,0")
-    slant_input = st.sidebar.text_input("Slanted States (1=True, 0=False) - comma-separated for each domain", "0,0,0")
+    heaving_input = st.sidebar.text_input("Heaving States (1/0) - one per domain", "1,0")
+    slant_input = st.sidebar.text_input("Slanted States (1/0) - one per domain", "0,0,0")
     
-    NMK_input = st.sidebar.text_input("Number of Harmonics (NMK) - comma-separated for each domain (inner, middle, exterior)", "30,30,30")
+    NMK_input = st.sidebar.text_input("Number of Harmonics (NMK) - one per domain", "30,30,30")
     
-    m0 = st.sidebar.number_input("Wave Number (m0)", value=1.0)
-    omega = st.sidebar.number_input("Angular Frequency (omega)", value=2.0)
+    # --- UI for Single Point Test ---
+    st.sidebar.subheader("Single Frequency Test")
+    omega_single = st.sidebar.number_input("Angular Frequency (omega)", value=2.0)
+    spatial_res = st.sidebar.slider("Plot Spatial Resolution", min_value=20, max_value=150, value=75, step=5)
 
-    spatial_res = st.sidebar.slider("Spatial Resolution", min_value=20, max_value=150, value=75, step=5)
+    # --- UI for Frequency Sweep ---
+    st.sidebar.subheader("Frequency Sweep for Coefficients")
+    omega_start = st.sidebar.number_input("Start Omega", value=0.1)
+    omega_end = st.sidebar.number_input("End Omega", value=4.0)
+    omega_steps = st.sidebar.slider("Number of Steps", min_value=10, max_value=200, value=50)
+
 
     # --- Parse and Validate Inputs ---
     try:
         d_list = list(map(float, d_input.split(',')))
         a_list = list(map(float, a_input.split(',')))
         heaving_list = list(map(int, heaving_input.split(',')))
-        slant_list = list(map(int, slant_input.split(',')))  # Use int for 0/1 values
+        slant_list = list(map(int, slant_input.split(',')))
         NMK = list(map(int, NMK_input.split(',')))
     except ValueError:
         st.error("Invalid input format. Please use comma-separated numbers.")
-        return
+        st.stop()
 
-    boundary_count = len(NMK) - 1  # Number of radial boundaries (cylinders)
+    boundary_count = len(NMK) - 1
 
-    # --- Validate Length Consistency ---
-    if len(a_list) != boundary_count:
-        st.error(f"Expected {boundary_count} entries in cylinder radii (a), but got {len(a_list)}.")
-        return
-
-    if len(d_list) != boundary_count:
-        st.error(f"Expected {boundary_count} entries in draft values (d), but got {len(d_list)}.")
-        return
-
-    if len(heaving_list) != len(NMK):
-        st.error(f"Expected {len(NMK)} heaving states (1/0), one per domain, but got {len(heaving_list)}.")
-        return
-
-    if len(slant_list) != len(NMK):
-        st.error(f"Expected {len(NMK)} slant states (1/0), one per domain, but got {len(slant_list)}.")
-        return
-
-    # --- Validate Value Ranges and Rules ---
-    if not all(entry in [0, 1] for entry in heaving_list):
-        st.error("Heaving entries must be either 0 (False) or 1 (True).")
-        return
-
-    if not all(entry in [0, 1] for entry in slant_list):
-        st.error("Slant entries must be either 0 (False) or 1 (True).")
-        return
-
-    if not all(isinstance(val, int) and val > 0 for val in NMK):
-        st.error("All NMK values must be positive integers.")
-        return
-
-    if m0 <= 0:
-        st.error("Wave number (m0) must be positive.")
-        return
-
-    if not all(depth >= 0 for depth in d_list):
-        st.error("All draft values (d) must be nonnegative.")
-        return
-
-    if not all(depth < h for depth in d_list):
-        st.error("All draft values (d) must be less than the water depth (h).")
-        return
-
-    if not all(a_list[i] > a_list[i - 1] for i in range(1, len(a_list))):
-        st.error("Cylinder radii (a) must be strictly increasing.")
-        return
-
-    # --- Construct Domain Parameters for Geometry ---
-    domain_params = []
-    # Inner domain (Region 0)
-    params0 = {
-        'number_harmonics': NMK[0],
-        'height': h,
-        'radial_width': a_list[0],
-        'di': d_list[0],
-        'a': a_list[0],
-        'heaving': heaving_list[0],
-        'slant': slant_list[0], # Will be 0 or 1
-        'category': 'multi',
-        'top_BC': None, 'bottom_BC': None
-    }
-    domain_params.append(params0)
-
-    # Intermediate domains
-    for idx in range(1, boundary_count):
-        params_mid = {
-            'number_harmonics': NMK[idx],
-            'height': h,
-            'radial_width': a_list[idx],
-            'di': d_list[idx],
-            'a': a_list[idx],
-            'heaving': heaving_list[idx],
-            'slant': slant_list[idx], # Will be 0 or 1
-            'category': 'multi',
-            'top_BC': None, 'bottom_BC': None
-        }
-        domain_params.append(params_mid)
-
-    # Exterior domain (Last region)
-    params_ext = {
-        'number_harmonics': NMK[-1],
-        'height': h,
-        'radial_width': None, # Extends to infinity
-        'di': 0,
-        'a': a_list[-1], # Inner radius for the exterior domain
-        'heaving': heaving_list[-1],
-        'slant': slant_list[-1], # Will be 0 or 1
-        'category': 'multi',
-        'top_BC': None, 'bottom_BC': None
-    }
-    domain_params.append(params_ext)
+    # --- Geometry Setup (runs once) ---
+    try:
+        domain_params = Domain.build_domain_params(NMK, a_list, d_list, heaving_list, h, slant_list)
+        r_coords_for_geometry = Domain.build_r_coordinates_dict(a_list)
+        z_coordinates = Domain.build_z_coordinates_dict(h)
+        geometry = Geometry(r_coords_for_geometry, z_coordinates, domain_params)
+        problem = MEEMProblem(geometry)
+        problem_modes = np.arange(boundary_count)
+        problem.set_frequencies_modes(np.array([]), problem_modes) # Freqs will be set later
+    except Exception as e:
+        st.error(f"Error during geometry setup: {e}")
+        st.stop()
     
-    with st.expander("View Generated Domain Parameters"):
-        st.json(domain_params)
+    # --- Main Action Buttons ---
+    st.header("Run Analysis")
+    col1, col2 = st.columns(2)
 
-    # Create Geometry object
-    # r_coordinates in geometry.py expects a dict like {'a1': val, 'a2': val}
-    # Let's create the r_coordinates dict in the format Geometry expects for 'a' values.
-    r_coords_for_geometry = {'a': a_list} # Updated based on the provided geometry.py's `r_coordinates` usage
-    z_coordinates = {'h': h}
-
-    geometry = Geometry(r_coords_for_geometry, z_coordinates, domain_params)
-    problem = MEEMProblem(geometry)
-
-    problem_frequencies = np.array([omega])  
-    problem_modes = np.arange(boundary_count) # Modes 0, 1, ... (up to boundary_count-1)
-
-    problem.set_frequencies_modes(problem_frequencies, problem_modes)
-    st.write(f"Problem configured with {len(problem.frequencies)} frequency(ies) and {len(problem.modes)} mode(s).")
-
-    # --- MEEM Engine Operations ---
-    engine = MEEMEngine(problem_list=[problem])
-
-    # Solve the linear system
-    X = engine.solve_linear_system_multi(problem, m0)
-    with st.expander("Show Solver Details"):
-        st.write(f"The system of equations was successfully solved. The solution vector has a shape of: `{X.shape}`.")
-
-    # Compute and print hydrodynamic coefficients
-    hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0)
-    st.write("Hydrodynamic Coefficients:")
-    if hydro_coefficients and isinstance(hydro_coefficients, list):
-        # Create a DataFrame from the list of dicts
-        df_coeffs = pd.DataFrame(hydro_coefficients)
+    if col1.button("Run Single Test & Plot Potentials"):
+        st.info(f"Running simulation for single omega = {omega_single:.2f}")
+        # --- Convert single omega to m0 ---
+        m0_single = m_k_newton(h, omega_single)
         
-        # Check if DataFrame has the expected columns before displaying
-        expected_cols = {'mode', 'real', 'imag', 'nondim_real', 'nondim_imag'}
-        if expected_cols.issubset(df_coeffs.columns):
-            # Option 1: Display as a table
+        # --- MEEM Engine Operations ---
+        engine = MEEMEngine(problem_list=[problem])
+        X = engine.solve_linear_system_multi(problem, m0_single)
+        
+        # Display Hydrodynamic Coefficients for the single run
+        st.subheader("Hydrodynamic Coefficients (Single Run)")
+        hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0_single)
+        if hydro_coefficients:
+            df_coeffs = pd.DataFrame(hydro_coefficients)
             st.dataframe(df_coeffs[['mode', 'real', 'imag', 'nondim_real', 'nondim_imag']])
-
-            # Option 2: Display each mode's added mass and damping as metrics (optional)
-            with st.expander("View Metrics per Mode"):
-                for mode_data in hydro_coefficients:
-                    mode_idx = mode_data.get("mode")
-                    real = mode_data.get("real")
-                    imag = mode_data.get("imag")
-                    st.metric(label=f"Mode {mode_idx} Added Mass (Real)", value=f"{real:.4f}")
-                    st.metric(label=f"Mode {mode_idx} Damping (Imag)", value=f"{imag:.4f}")
         else:
-            st.warning("Hydrodynamic coefficients data missing some expected keys.")
-    else:
-        st.warning("Hydrodynamic coefficients could not be calculated or are empty.")
-    # --- Reformat coefficients using the dedicated MEEMEngine method ---
-    reformat_boundary_count = len(a_list) # This is the number of regions
-    Cs = engine.reformat_coeffs(X, NMK, reformat_boundary_count)
-    st.write(f"Coefficients reformatted into {len(Cs)} regions.")
-    for i, c_region in enumerate(Cs):
-        st.write(f"  Region {i} (NMK={NMK[i]}): {c_region.shape} coefficients")
+            st.warning("Could not calculate hydrodynamic coefficients.")
 
-    # Access precomputed arrays from cache
-    problem_cache = engine.cache_list[problem]
+        # --- Visualize Potentials ---
+        st.subheader("Potential Field Plots")
+        potentials = engine.calculate_potentials(problem, X, m0_single, spatial_res, sharp=True)
+        R, Z, phi = potentials["R"], potentials["Z"], potentials["phi"]
+        
+        fig1, _ = engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
+        st.pyplot(fig1)
 
-    if problem_cache and hasattr(problem_cache, 'm_k_arr') and problem_cache.m_k_arr is not None:
-        m_k_arr = problem_cache.m_k_arr
-        st.write(f"m_k_arr shape from cache: {m_k_arr.shape}")
-    else:
-        st.warning("m_k_arr not found in cache or is None. This might affect calculations for exterior domain.")
+        fig2, _ = engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
+        st.pyplot(fig2)
+        
+        st.success("Single frequency test complete.")
 
-    if problem_cache and hasattr(problem_cache, 'N_k_arr') and problem_cache.N_k_arr is not None:
-        N_k_arr = problem_cache.N_k_arr
-        st.write(f"N_k_arr shape from cache: {N_k_arr.shape}")
-    else:
-        st.warning("N_k_arr not found in cache or is None. This might affect calculations for exterior domain.")
+    if col2.button("Run Frequency Sweep & Plot Coefficients"):
+        # --- Frequency Sweep Logic ---
+        omegas_to_run = np.linspace(omega_start, omega_end, omega_steps)
+        results_list = []
+        
+        engine = MEEMEngine(problem_list=[problem])
+        progress_bar = st.progress(0)
+        status_text = st.empty()
 
-   
-    # Modal Potentials
-    st.subheader("Modal Potential Magnitudes")
-    potentials = engine.calculate_potentials(problem, X, m0, spatial_res, sharp=True)
+        with st.spinner(f"Running simulation for {omega_steps} frequencies..."):
+            for i, omega_val in enumerate(omegas_to_run):
+                status_text.text(f"Calculating for omega = {omega_val:.3f}...")
+                try:
+                    m0_val = m_k_newton(h, omega_val)
+                    X = engine.solve_linear_system_multi(problem, m0_val)
+                    coeffs = engine.compute_hydrodynamic_coefficients(problem, X, m0_val)
+                    
+                    # Store results for each mode
+                    for c in coeffs:
+                        results_list.append({
+                            'omega': omega_val,
+                            'mode': c['mode'],
+                            'added_mass': c['real'],
+                            'damping': c['imag']
+                        })
+                except Exception as e:
+                    st.warning(f"Could not solve for omega={omega_val:.3f}. Error: {e}")
+                
+                progress_bar.progress((i + 1) / omega_steps)
 
-    # Unpack
-    R = potentials["R"]
-    Z = potentials["Z"]
-    phiH = potentials["phiH"]
-    phiP = potentials["phiP"]
-    phi = potentials["phi"]
+        status_text.text("Calculation complete. Generating plots...")
+        progress_bar.empty()
 
-    # --- Plot using built-in visualizer ---
-    fig1, _ = engine.visualize_potential(np.real(phiH), R, Z, "Homogeneous Potential (Real)")
-    st.pyplot(fig1)
+        if not results_list:
+            st.error("No data was generated. Cannot create plots.")
+            st.stop()
+            
+        # Convert results to DataFrame for easy plotting
+        df_results = pd.DataFrame(results_list)
 
-    fig2, _ = engine.visualize_potential(np.imag(phiH), R, Z, "Homogeneous Potential (Imag)")
-    st.pyplot(fig2)
+        # --- Plotting Hydrodynamic Coefficients vs. Frequency ---
+        st.subheader("Hydrodynamic Coefficients vs. Frequency")
+        
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True)
+        
+        # Plot Added Mass
+        for mode, group in df_results.groupby('mode'):
+            ax1.plot(group['omega'], group['added_mass'], label=f'Mode {mode}')
+        ax1.set_title('Added Mass vs. Frequency')
+        ax1.set_ylabel('Added Mass (Real Part)')
+        ax1.legend()
+        ax1.grid(True, which='both', linestyle='--', linewidth=0.5)
 
-    fig3, _ = engine.visualize_potential(np.real(phiP), R, Z, "Particular Potential (Real)")
-    st.pyplot(fig3)
-
-    fig4, _ = engine.visualize_potential(np.imag(phiP), R, Z, "Particular Potential (Imag)")
-    st.pyplot(fig4)
-
-    fig5, _ = engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
-    st.pyplot(fig5)
-
-    fig6, _ = engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
-    st.pyplot(fig6)
-
-    st.success(f"Simulation complete with {len(domain_params)} domains configured.")
+        # Plot Damping
+        for mode, group in df_results.groupby('mode'):
+            ax2.plot(group['omega'], group['damping'], label=f'Mode {mode}')
+        ax2.set_title('Damping vs. Frequency')
+        ax2.set_ylabel('Damping (Imaginary Part)')
+        ax2.set_xlabel('Angular Frequency (omega)')
+        ax2.legend()
+        ax2.grid(True, which='both', linestyle='--', linewidth=0.5)
+        
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+        with st.expander("View Raw Data"):
+            st.dataframe(df_results)
 
 
 if __name__ == "__main__":
-    main()
+    # Wrap main execution in a try-catch to handle potential errors gracefully
+    try:
+        main()
+    except Exception as e:
+        st.error(f"An unexpected error occurred: {e}")
