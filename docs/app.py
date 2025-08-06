@@ -33,13 +33,6 @@ def main():
 
     spatial_res = st.sidebar.slider("Spatial Resolution", min_value=20, max_value=150, value=75, step=5)
 
-    st.sidebar.subheader("Plot Options")
-    show_homogeneous = st.sidebar.checkbox("Show Homogeneous Potential Plots", value=True)
-    show_particular = st.sidebar.checkbox("Show Particular Potential Plots", value=True)
-    show_total = st.sidebar.checkbox("Show Total Potential Plots", value=True)
-    show_radial_vel = st.sidebar.checkbox("Show Radial Velocity Plots", value=True)
-    show_vertical_vel = st.sidebar.checkbox("Show Vertical Velocity Plots", value=True)
-
     # --- Parse and Validate Inputs ---
     try:
         d_list = list(map(float, d_input.split(',')))
@@ -171,7 +164,7 @@ def main():
         st.write(f"The system of equations was successfully solved. The solution vector has a shape of: `{X.shape}`.")
 
     # Compute and print hydrodynamic coefficients
-    hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X)
+    hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0)
     st.write("Hydrodynamic Coefficients:")
     if hydro_coefficients.get('real') is not None and hydro_coefficients.get('imag') is not None:
         if np.isscalar(hydro_coefficients['real']): # Unlikely if num_modes > 1
@@ -199,8 +192,6 @@ def main():
 
     # Access precomputed arrays from cache
     problem_cache = engine.cache_list[problem]
-    m_k_arr = None
-    N_k_arr = None
 
     if problem_cache and hasattr(problem_cache, 'm_k_arr') and problem_cache.m_k_arr is not None:
         m_k_arr = problem_cache.m_k_arr
@@ -217,12 +208,33 @@ def main():
    
     # Modal Potentials
     st.subheader("Modal Potential Magnitudes")
-    potentials = engine.calculate_potentials(problem, X, m0, m_k_arr, N_k_arr, spatial_res, sharp=True)
-    fig = engine.visualize_potential(potentials)
-    st.pyplot(fig)
+    potentials = engine.calculate_potentials(problem, X, m0, spatial_res, sharp=True)
 
-    # --- Velocity Field Calculation ---
-    st.subheader("Calculating Velocities...")
+    # Unpack
+    R = potentials["R"]
+    Z = potentials["Z"]
+    phiH = potentials["phiH"]
+    phiP = potentials["phiP"]
+    phi = potentials["phi"]
+
+    # --- Plot using built-in visualizer ---
+    fig1, _ = engine.visualize_potential(np.real(phiH), R, Z, "Homogeneous Potential (Real)")
+    st.pyplot(fig1)
+
+    fig2, _ = engine.visualize_potential(np.imag(phiH), R, Z, "Homogeneous Potential (Imag)")
+    st.pyplot(fig2)
+
+    fig3, _ = engine.visualize_potential(np.real(phiP), R, Z, "Particular Potential (Real)")
+    st.pyplot(fig3)
+
+    fig4, _ = engine.visualize_potential(np.imag(phiP), R, Z, "Particular Potential (Imag)")
+    st.pyplot(fig4)
+
+    fig5, _ = engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
+    st.pyplot(fig5)
+
+    fig6, _ = engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
+    st.pyplot(fig6)
 
     st.success(f"Simulation complete with {len(domain_params)} domains configured.")
 

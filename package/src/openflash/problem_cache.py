@@ -2,7 +2,6 @@
 import numpy as np
 from typing import Callable, Dict, Any
 
-# Assuming these are defined elsewhere or correctly imported
 from openflash.multi_equations import *
 
 class ProblemCache:

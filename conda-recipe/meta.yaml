@@ -4,7 +4,7 @@ package:
 
 source:
   git_url: https://github.com/symbiotic-engineering/semi-analytical-hydro.git
-  git_rev: main  # or a tagged version like v0.1.9 if you prefer
+  git_rev: main  # or a tagged version like v0.1.9
 
 build:
   noarch: python

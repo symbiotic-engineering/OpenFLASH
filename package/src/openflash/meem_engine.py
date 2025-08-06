@@ -486,13 +486,29 @@ class MEEMEngine:
         return {"R": R, "Z": Z, "phiH": phiH, "phiP": phiP, "phi": phi}
 
     def visualize_potential(self, field, R, Z, title):
-        plt.figure(figsize=(8, 6))
-        plt.contourf(R, Z, field, levels=50, cmap='viridis')
-        plt.colorbar()
-        plt.title(title)
-        plt.xlabel('Radial Distance (R)')
-        plt.ylabel('Axial Distance (Z)')
-        plt.show()
+        """
+        Creates a contour plot of a potential field.
+
+        Returns:
+            tuple: A tuple containing the Matplotlib figure and axes objects (fig, ax).
+        """
+        # Create figure and axes objects for more control
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        # Use axes methods for plotting (e.g., ax.contourf)
+        contour = ax.contourf(R, Z, field, levels=50, cmap='viridis')
+        
+        # Add a colorbar associated with the figure and axes
+        fig.colorbar(contour, ax=ax)
+        
+        ax.set_title(title)
+        ax.set_xlabel('Radial Distance (R)')
+        ax.set_ylabel('Axial Distance (Z)')
+
+        # Remove plt.show() to allow for further modifications after returning
+        
+        # Return the figure and axes objects
+        return fig, ax
         
     def calculate_velocities(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]:
         """

@@ -13,7 +13,7 @@ package_base_dir = os.path.join(current_dir, '..')
 src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
-# Import the Results class from your results.py
+# Import the Results class from results.py
 from openflash.results import Results
 
 # --- Mock Geometry Class ---

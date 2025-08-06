@@ -5,13 +5,13 @@ import os
 import xarray as xr
 
 # --- Path Setup ---
-# This ensures pytest can find your package source files
+# This ensures pytest can find package source files
 current_dir = os.path.dirname(__file__)
 src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src'))
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
-# --- Import Your Package Modules ---
+# --- Import Package Modules ---
 from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
 from openflash.geometry import Geometry

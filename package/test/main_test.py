@@ -113,7 +113,9 @@ def main(): # Renamed from test_main
     engine.visualize_potential(np.real(phiP), R, Z, "Particular Potential (Real)")
     engine.visualize_potential(np.imag(phiP), R, Z, "Particular Potential (Imag)")
     engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
-    engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
+    engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")\
+        
+    plt.show()
 
     print("\nScript finished. Close plot windows to exit.")
 

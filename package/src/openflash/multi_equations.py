@@ -258,7 +258,7 @@ def R_1n_vectorized(n, r, i, h, d, a):
     outcome_for_r_boundary = 1.0
     
     # Outcome 3: The general case for n>=1 inside the boundary.
-    # This assumes `lambda_ni` is also vectorized to handle an array of 'n' values.
+    # `lambda_ni` is also vectorized to handle an array of 'n' values.
     lambda_val = lambda_ni(n, i, h, d)
     bessel_term = (besselie(0, lambda_val * r) / besselie(0, lambda_val * scale(a)[i])) * \
                   exp(lambda_val * (r - scale(a)[i]))
@@ -838,7 +838,7 @@ def v_dense_block_e_entry(m, k, bd, I_mk_vals, a, h, d): # Added h,d,NMK
     # Determine which radial function to call based on the original logic
     # This might depend on 'bd' or other conditions that determine R_1n vs R_2n use
     # For the i-e boundary (bd == boundary_count - 1), typically R_1n is used for the inner region.
-    radial_term = diff_R_1n(k, a[bd], bd, h, d, a) # Assuming diff_R_1n is the correct one for this block
+    radial_term = diff_R_1n(k, a[bd], bd, h, d, a) # diff_R_1n is the correct one for this block
     
     # I_mk_vals is correctly defined as (NMK[prev_region], NMK[current_region])
     # The old code used I_km_array = np.transpose(I_mk_vals) and then indexed it as I_km_array[m, k] (local row, local col)
@@ -856,19 +856,19 @@ def v_diagonal_block_e_entry(m, k, bd, m0, m_k_arr, a, h):
     Compute individual (m,k) entry of the velocity diagonal block e at boundary bd.
     """
     
-    # You need access to 'h' here. It's available in the outer scope
+    #  need access to 'h' here. It's available in the outer scope
     # through the problem object, or pass it directly.
     # Since NMK and a are passed, h should be too if it's not a global constant.
-    # Let's assume you'll retrieve h from the problem object or pass it.
+    # retrieve h from the problem object or pass it.
     
-    # If h is always domain_list[0].h, you can pass it from build_problem_cache
+    # If h is always domain_list[0].h, can pass it from build_problem_cache
     # For now, let's explicitly pass h from build_problem_cache to this function
     # via the closure.
     
     radius = a[bd]
     
     # Call diff_Lambda_k, ensure it's the correct new version from multi_equations.py
-    # (it is, from your code snippet)
+    # (it is, from code snippet)
     val = diff_Lambda_k(k, radius, m0, a, m_k_arr)
  
     result =  h * val 

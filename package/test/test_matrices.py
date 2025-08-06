@@ -59,11 +59,10 @@ def extract_block_from_assembly(assembly_func, h, d, a, NMK, heaving, m0, block_
     block_position: (row_start, row_end, col_start, col_end)
     """
     # Call the assembly function but modify it to expose blocks or
-    # reconstruct blocks for this position (you may need to refactor your
-    # assembly function to allow block extraction)
+    # reconstruct blocks for this position
     
-    # Since your assembly function currently returns the full matrix,
-    # you can simply slice the returned matrix after building it:
+    # Since assembly function currently returns the full matrix,
+    # can simply slice the returned matrix after building it:
     A, _ = assembly_func(h, d, a, NMK, heaving, m0)
     row_start, row_end, col_start, col_end = block_position
     return A[row_start:row_end, col_start:col_end]
@@ -212,11 +211,11 @@ def run_comparison_test():
     h = 100                 # example characteristic length
     m0 = 1
     # --- Assemble old matrix and vector ---
-    # You need to implement or import the old assemble function here
+    #  need to implement or import the old assemble function here
     A_old, b_old = assemble_old_A_and_b(h, d, a, NMK, heaving, m0)
 
     # --- Setup problem and m0 for package assembly ---
-    # You must implement or mock a 'problem' object and m0 index for your new code
+    #  must implement or mock a 'problem' object and m0 index for  new code
     # --- Geometry Setup ---
     domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
     

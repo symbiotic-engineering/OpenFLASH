@@ -3,13 +3,13 @@ import sys
 import os
 
 # --- Path Setup ---
-# This ensures the script can find your package files
+# This ensures the script can find package files
 current_dir = os.path.dirname(__file__)
 src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src'))
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
-# --- Import Your Package Modules ---
+# --- Import Package Modules ---
 from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
 from openflash.geometry import Geometry
