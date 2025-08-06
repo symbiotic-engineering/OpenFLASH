@@ -13,7 +13,7 @@ if src_dir not in sys.path:
 from openflash.geometry import Geometry
 from openflash.meem_problem import MEEMProblem
 from openflash.meem_engine import MEEMEngine
-from openflash.utils import *
+from openflash.domain import Domain
 from openflash.multi_equations import I_mk, N_k_multi, diff_R_1n, diff_Lambda_k, scale, v_dense_block_e_entry, v_diagonal_block_e, v_diagonal_block_e_entry
 
 # --- Path Setup ---
@@ -218,7 +218,7 @@ def run_comparison_test():
     # --- Setup problem and m0 for package assembly ---
     # You must implement or mock a 'problem' object and m0 index for your new code
     # --- Geometry Setup ---
-    domain_params = build_domain_params(NMK, a, d, heaving, h)
+    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
     
     a_recovered = [p['a'] for p in domain_params[:-1]]
     d_recovered = [p['di'] for p in domain_params[:-1]]
@@ -231,8 +231,8 @@ def run_comparison_test():
     assert h_recovered == h
 
     # Create Geometry object
-    r_coordinates = build_r_coordinates_dict(a)
-    z_coordinates = build_z_coordinates_dict(h)
+    r_coordinates = Domain.build_r_coordinates_dict(a)
+    z_coordinates = Domain.build_z_coordinates_dict(h)
 
     geometry = Geometry(r_coordinates, z_coordinates, domain_params)
     problem = MEEMProblem(geometry)

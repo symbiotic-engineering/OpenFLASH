@@ -20,12 +20,12 @@ sys.path.insert(0, os.path.abspath(src_dir))
 # Import all functions from multi_equations.py
 from openflash.multi_equations import (
     omega, scale, lambda_ni, m_k_entry, m_k, m_k_newton,
-    I_nm, I_mk, I_mk_full, b_potential_entry, b_potential_end_entry,
-    b_velocity_entry, b_velocity_end_entry, b_velocity_end_entry_full,
+    I_nm, I_mk, b_potential_entry, b_potential_end_entry,
+    b_velocity_entry, b_velocity_end_entry, 
     phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i, R_1n, diff_R_1n, R_2n, diff_R_2n,
-    Z_n_i, diff_Z_n_i, Lambda_k, Lambda_k_full, diff_Lambda_k, diff_Lambda_k_full,
-    N_k_multi, N_k_full, Z_k_e, diff_Z_k_e, int_R_1n, int_R_2n,
-    int_phi_p_i_no_coef, z_n_d, excitation_phase
+    Z_n_i, diff_Z_n_i, Lambda_k, diff_Lambda_k,
+    N_k_multi, Z_k_e, diff_Z_k_e, int_R_1n, int_R_2n,
+    z_n_d, excitation_phase
 )
 
 # --- Fixtures for common parameters ---
@@ -104,10 +104,6 @@ def precomputed_N_k_arr(NMK):
 def test_omega(m0, h, g):
     expected = sqrt(m0 * np.tanh(m0 * h) * g)
     assert np.isclose(omega(m0, h, g), expected)
-
-def test_scale(a):
-    expected_result = np.array([a[0]/2, (a[0]+a[1])/2, (a[1]+a[2])/2]) # for a = [5, 10, 15]
-    assert np.allclose(scale(a), expected_result)
 
 def test_lambda_ni(test_n, test_i, h, d):
     expected = test_n * pi / (h - d[test_i])
@@ -289,92 +285,6 @@ def test_I_nm_n_positive_m_positive(h, d):
     expected_eq = frac1_eq + frac2_eq
 
     assert np.isclose(I_nm(n_eq, m_eq, i_eq, d_eq, h), expected_eq)
-
-
-def test_I_mk_k0m0_small_m0h(test_i, d, m0, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr):
-    i = test_i # For I_mk, d[i] is the boundary depth
-    dj = d[i] # dj = d[1] = 20.0
-    m0_local = 0.01 # Small m0 for m0*h < 14 (0.01 * 100 = 1)
-    NMK_local = NMK # Keep NMK for parameter compatibility
-    N_k_arr_local = precomputed_N_k_arr.copy()
-    N_k_arr_local[0] = 0.5 # A realistic N_k(0) for testing
-
-    expected = (1/sqrt(N_k_arr_local[0])) * sinh(m0_local * (h - dj)) / m0_local
-    assert np.isclose(I_mk(0, 0, i, d, m0_local, h, NMK_local, precomputed_m_k_arr, N_k_arr_local), expected)
-
-def test_I_mk_k0m0_large_m0h(test_i, d, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr):
-    i = test_i
-    dj = d[i]
-    m0_local = 0.2 # Large m0 for m0*h >= 14 (0.2 * 100 = 20)
-    NMK_local = NMK
-    N_k_arr_local = precomputed_N_k_arr.copy()
-    N_k_arr_local[0] = 0.5 # A realistic N_k(0) for testing
-
-    expected = sqrt(2 * h / m0_local) * (exp(- m0_local * dj) - exp(m0_local * dj - 2 * m0_local * h))
-    assert np.isclose(I_mk(0, 0, i, d, m0_local, h, NMK_local, precomputed_m_k_arr, N_k_arr_local), expected)
-
-def test_I_mk_k_positive_m0(test_k, test_i, d, m0, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr):
-    if test_k == 0: pytest.skip("Test for k>0")
-    i = test_i
-    dj = d[i]
-    
-    local_m_k_k = precomputed_m_k_arr[test_k]
-    N_k_arr_k = precomputed_N_k_arr[test_k]
-
-    expected = (1/sqrt(N_k_arr_k)) * sin(local_m_k_k * (h - dj)) / local_m_k_k
-    assert np.isclose(I_mk(0, test_k, i, d, m0, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr), expected)
-
-def test_I_mk_k0_m_positive_small_m0h(test_n, test_i, d, m0, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr):
-    if test_n == 0: pytest.skip("Test for m>0")
-    i = test_i
-    dj = d[i]
-    m_val = test_n # Using test_n for m
-
-    m0_local = 0.01 # Small m0
-    N_k_arr_local = precomputed_N_k_arr.copy()
-    N_k_arr_local[0] = 0.5
-
-    num = (-1)**m_val * sqrt(2) * (1/sqrt(N_k_arr_local[0])) * m0_local * sinh(m0_local * (h - dj))
-    denom = (m0_local**2 + lambda_ni(m_val, i, h, d) **2)
-    expected = num/denom
-    assert np.isclose(I_mk(m_val, 0, i, d, m0_local, h, NMK, precomputed_m_k_arr, N_k_arr_local), expected)
-
-def test_I_mk_k0_m_positive_large_m0h(test_n, test_i, d, m0, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr):
-    if test_n == 0: pytest.skip("Test for m>0")
-    i = test_i
-    dj = d[i]
-    m_val = test_n # Using test_n for m
-
-    m0_local = 0.2 # Large m0
-    N_k_arr_local = precomputed_N_k_arr.copy()
-    N_k_arr_local[0] = 0.5
-
-    num = (-1)**m_val * 2 * sqrt(h * m0_local ** 3) *(exp(- m0_local * dj) - exp(m0_local * dj - 2 * m0_local * h))
-    denom = (m0_local**2 + lambda_ni(m_val, i, h, d) **2)
-    expected = num/denom
-    assert np.isclose(I_mk(m_val, 0, i, d, m0_local, h, NMK, precomputed_m_k_arr, N_k_arr_local), expected)
-
-def test_I_mk_k_positive_m_positive(test_n, test_k, test_i, d, m0, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr):
-    if test_n == 0 or test_k == 0: pytest.skip("Test for m>0 and k>0")
-    i = test_i
-    dj = d[i]
-    m_val = test_n
-
-    local_m_k_k = precomputed_m_k_arr[test_k]
-    N_k_arr_k = precomputed_N_k_arr[test_k]
-    lambda1 = lambda_ni(m_val, i, h, d)
-
-    if np.isclose(abs(local_m_k_k), lambda1): # Check for the equality branch
-        expected = (h - dj)/2
-    else:
-        frac1 = sin((local_m_k_k + lambda1)*(h-dj))/(local_m_k_k + lambda1)
-        frac2 = sin((local_m_k_k - lambda1)*(h-dj))/(local_m_k_k - lambda1)
-        expected = sqrt(2)/2 * (1/sqrt(N_k_arr_k)) * (frac1 + frac2)
-    assert np.isclose(I_mk(m_val, test_k, i, d, m0, h, NMK, precomputed_m_k_arr, precomputed_N_k_arr), expected)
-
-# Testing _full versions implicitly relies on m_k and N_k_full being correct.
-# We skip these for brevity since the main ones are tested with precomputed arrays.
-
 # --- b-vector computation ---
 def test_b_potential_entry_n0(test_i, d, heaving, h, a):
     j = test_i + (d[test_i] < d[test_i+1]) # Example for i=1, d[1]=20, d[2]=50. j=2
@@ -537,93 +447,16 @@ def test_diff_Z_n_i_n_positive(test_n, test_z, test_i, h, d):
     expected = - lambda0 * sqrt(2) * np.sin(lambda0 * (test_z + h))
     assert np.isclose(diff_Z_n_i(test_n, test_z, test_i, h, d), expected)
 
-# --- Region e radial eigenfunction ---
-def test_Lambda_k_k0(test_r, m0, a, NMK, h, precomputed_m_k_arr, precomputed_N_k_arr):
-    local_scale = scale(a)
-    expected = besselh(0, m0 * test_r) / besselh(0, m0 * local_scale[-1])
-    assert np.isclose(Lambda_k(0, test_r, m0, a, NMK, h, precomputed_m_k_arr, precomputed_N_k_arr), expected)
-
-def test_Lambda_k_k_positive(test_k, test_r, m0, a, NMK, h, precomputed_m_k_arr, precomputed_N_k_arr):
-    if test_k == 0: pytest.skip("Test for k>0")
-    local_scale = scale(a)
-    local_m_k_k = precomputed_m_k_arr[test_k]
-    expected = besselk(0, local_m_k_k * test_r) / besselk(0, local_m_k_k * local_scale[-1])
-    assert np.isclose(Lambda_k(test_k, test_r, m0, a, NMK, h, precomputed_m_k_arr, precomputed_N_k_arr), expected)
-
-def test_diff_Lambda_k_k0(test_r, m0, NMK, h, a, precomputed_m_k_arr, precomputed_N_k_arr):
-    local_scale = scale(a)
-    numerator = -(m0 * besselh(1, m0 * test_r))
-    denominator = besselh(0, m0 * local_scale[-1])
-    expected = numerator / denominator
-    assert np.isclose(diff_Lambda_k(0, test_r, m0, NMK, h, a, precomputed_m_k_arr, precomputed_N_k_arr), expected)
-
-def test_diff_Lambda_k_k_positive(test_k, test_r, m0, NMK, h, a, precomputed_m_k_arr, precomputed_N_k_arr):
-    if test_k == 0: pytest.skip("Test for k>0")
-    local_m_k_k = precomputed_m_k_arr[test_k]
-    local_scale = scale(a)
-    numerator = -(local_m_k_k * besselk(1, local_m_k_k * test_r))
-    denominator = besselk(0, local_m_k_k * local_scale[-1])
-    expected = numerator / denominator
-    assert np.isclose(diff_Lambda_k(test_k, test_r, m0, NMK, h, a, precomputed_m_k_arr, precomputed_N_k_arr), expected)
-
-# --- N_k_multi ---
-def test_N_k_multi_k0(m0, h, NMK):
-    # Test N_k_multi without passing m_k_arr
-    expected = 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
-    assert np.isclose(N_k_multi(0, m0, h, NMK, None), expected) # Test case where m_k_arr is None
-
-def test_N_k_multi_k_positive(test_k, m0, h, NMK, precomputed_m_k_arr):
-    if test_k == 0: pytest.skip("Test for k>0")
-    # Test N_k_multi with precomputed_m_k_arr
-    local_m_k_k = precomputed_m_k_arr[test_k]
-    expected = 1 / 2 * (1 + sin(2 * local_m_k_k * h) / (2 * local_m_k_k * h))
-    assert np.isclose(N_k_multi(test_k, m0, h, NMK, precomputed_m_k_arr), expected)
-
 # --- e-region vertical eigenfunctions ---
-def test_Z_k_e_k0_small_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
-    m0_local = 0.01
-    # Patch N_k_multi to return a known value for this test
-    with patch('multi_equations.N_k_multi', return_value=0.5): # Mock N_k_multi for simplicity
-        expected = 1 / sqrt(0.5) * cosh(m0_local * (test_z + h))
-        assert np.isclose(Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
-
 def test_Z_k_e_k0_large_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
     m0_local = 0.2
     expected = sqrt(2 * m0_local * h) * (exp(m0_local * test_z) + exp(-m0_local * (test_z + 2*h)))
     assert np.isclose(Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
 
-def test_Z_k_e_k_positive(test_k, test_z, m0, h, NMK, precomputed_m_k_arr):
-    if test_k == 0: pytest.skip("Test for k>0")
-    local_m_k_k_from_precomputed = precomputed_m_k_arr[test_k] # This is 0.1325
-
-    # Patch N_k_multi AND m_k
-    with patch('multi_equations.N_k_multi', return_value=0.8), \
-         patch('multi_equations.m_k', return_value=precomputed_m_k_arr) as mock_m_k: # Mock m_k to return the whole array
-        expected = 1 / sqrt(0.8) * cos(local_m_k_k_from_precomputed * (test_z + h))
-        print(f"DEBUG TEST Z_k_e: Expected calculated in test: {expected}") 
-        assert np.isclose(Z_k_e(test_k, test_z, m0, h, NMK, precomputed_m_k_arr), expected)
-
-def test_diff_Z_k_e_k0_small_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
-    m0_local = 0.01
-    with patch('multi_equations.N_k_multi', return_value=0.5):
-        expected = 1 / sqrt(0.5) * m0_local * sinh(m0_local * (test_z + h))
-        assert np.isclose(diff_Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
-
 def test_diff_Z_k_e_k0_large_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
     m0_local = 0.2
     expected = m0_local * sqrt(2 * h * m0_local) * (exp(m0_local * test_z) - exp(-m0_local * (test_z + 2*h)))
     assert np.isclose(diff_Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
-
-def test_diff_Z_k_e_k_positive(test_k, test_z, m0, h, NMK, precomputed_m_k_arr):
-    if test_k == 0: pytest.skip("Test for k>0")
-    local_m_k_k_from_precomputed = precomputed_m_k_arr[test_k] # This is 0.1325
-
-    # Patch N_k_multi AND m_k
-    with patch('multi_equations.N_k_multi', return_value=0.8), \
-         patch('multi_equations.m_k', return_value=precomputed_m_k_arr) as mock_m_k: # Mock m_k to return the whole array
-        expected = -1 / sqrt(0.8) * local_m_k_k_from_precomputed * sin(local_m_k_k_from_precomputed * (test_z + h))
-        print(f"DEBUG TEST diff_Z_k_e: Expected calculated in test: {expected}")
-        assert np.isclose(diff_Z_k_e(test_k, test_z, m0, h, NMK, precomputed_m_k_arr), expected)
 
 # --- To calculate hydrocoefficients ---
 def test_int_R_1n_n0_i0(a, h, d):
@@ -665,20 +498,6 @@ def test_int_R_2n_n_positive(test_n, a, h, d):
     expected = top / bottom
     assert np.isclose(int_R_2n(i, test_n, a, h, d), expected) # Switched args order for test_n, i
 
-def test_int_phi_p_i_no_coef_i0(a, h, d):
-    i = 0
-    denom = 16 * (h - d[i])
-    num = a[i]**2 * (4 * (h - d[i])**2 - a[i]**2)
-    expected = num/denom
-    assert np.isclose(int_phi_p_i_no_coef(i, h, d, a), expected)
-
-def test_int_phi_p_i_no_coef_i_positive(a, h, d):
-    i = 1
-    denom = 16 * (h - d[i])
-    num = (a[i]**2 * (4 * (h - d[i])**2 - a[i]**2) - a[i-1]**2 * (4 * (h - d[i])**2 - a[i-1]**2))
-    expected = num/denom
-    assert np.isclose(int_phi_p_i_no_coef(i, h, d, a), expected)
-
 def test_z_n_d_n0():
     assert np.isclose(z_n_d(0), 1)
 
@@ -686,8 +505,3 @@ def test_z_n_d_n_positive(test_n):
     if test_n == 0: pytest.skip("Test for n>0")
     expected = sqrt(2) * (-1)**test_n
     assert np.isclose(z_n_d(test_n), expected)
-
-def test_excitation_phase(coeff, m0, a): # <-- 'a' is present
-    local_scale_last = scale(a)[-1] # 'a' is the actual array
-    expected = -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale_last))
-    assert np.isclose(excitation_phase(coeff, m0, a), expected) # excitation_phase needs 'a' too

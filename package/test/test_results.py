@@ -4,6 +4,7 @@ import xarray as xr
 import numpy as np
 import os
 import sys
+import h5netcdf
 
 # --- Path Setup ---
 # Adjust the path to import from package's 'src' directory.

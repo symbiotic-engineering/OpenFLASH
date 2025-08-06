@@ -1,5 +1,11 @@
 import pytest
 import numpy as np
+import os as os
+import sys as sys
+current_dir = os.path.dirname(__file__)
+src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src'))
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
 from openflash.domain import Domain
 
 # Mock Geometry class for testing

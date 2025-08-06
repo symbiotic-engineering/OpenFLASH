@@ -341,8 +341,10 @@ def R_2n_vectorized(n, r, i, a, h, d):
 
     # Case 3: n > 0 and r is not at the boundary (general case)
     lambda_val = lambda_ni(n, i, h, d)
-    bessel_term = (besselke(0, lambda_val * r) / besselke(0, lambda_val * scale(a)[i])) * \
-                  exp(lambda_val * (scale(a)[i] - r))
+    denom = besselke(0, lambda_val * scale(a)[i])
+    denom = np.where(np.abs(denom) < 1e-12, np.nan, denom)  # or another threshold
+
+    bessel_term = (besselke(0, lambda_val * r) / denom) * exp(lambda_val * (scale(a)[i] - r))
 
     # --- Nest np.where to apply the logic element-wise ---
     # First, handle the logic for when n > 0
