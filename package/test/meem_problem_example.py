@@ -3,95 +3,101 @@ import sys
 import os
 
 # --- Path Setup ---
-# Adjust the Python path to allow importing modules from the 'src' directory.
-#  this example file is in 'semi-analytical-hydro/package/test/'
-# and the MEEM package source is in 'semi-analytical-hydro/package/src/'.
+# This ensures the script can find your package files.
 current_dir = os.path.dirname(__file__)
-src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src')) # Navigates from 'test' up to 'package', then into 'src'
+src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src'))
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
-# Import the necessary classes from  MEEM package
-from meem_problem import MEEMProblem
-from geometry import Geometry, Domain # Domain is used internally by Geometry with domain_params
+# --- Import Your Package Classes ---
+from openflash.meem_engine import MEEMEngine
+from openflash.meem_problem import MEEMProblem
+from openflash.geometry import Geometry
+from openflash.domain import Domain
+
+# ==============================================================================
+#  Purpose of the MEEMProblem Class
+# ==============================================================================
+#
+# The `MEEMProblem` class is a data container that bundles everything needed
+# to define a complete hydrodynamic analysis. It holds two key pieces of information:
+#
+# 1.  **The Physical System**: This is stored as a `Geometry` object, which
+#     describes the physical layout of cylinders, water depth, etc.
+# 2.  **The Computation Targets**: These are the specific frequencies and
+#     modes of motion (e.g., heave, surge) you want to analyze for that geometry.
+#
+# Essentially, a `MEEMProblem` object is a complete "job description" that you
+# can hand off to the `MEEMEngine` to be solved.
 
 def main():
     """
-    Demonstrates the usage of the MEEMProblem class.
-    It sets up geometry and assigns frequencies/modes.
+    An example script demonstrating how to create and configure a MEEMProblem.
     """
-    print("--- Starting MEEMProblem Example ---")
+    print("--- MEEMProblem Class Example ---")
 
-    # --- 1. Define Problem Parameters (Using 'config1' parameters for consistency) ---
-    h_val = 1.001  # Water depth
-    d_vals = [0.5, 0.25]  # for inner and outer bodies
-    a_vals = [0.5, 1]     # Radii for inner and outer bodies
-    heaving_vals = [1, 1] # Heaving flags for inner and outer bodies (1 for heaving, 0 for fixed)
-    NMK_vals = [50, 50, 50] # Number of harmonics for inner, outer, and exterior domains
+    # ==========================================================================
+    # STEP 1: Create a Geometry Object (Prerequisite)
+    # ==========================================================================
+    #
+    # A MEEMProblem cannot exist without a Geometry. First, we must define
+    # the physical layout of the system.
+    
+    print("\n[1] Defining the physical geometry...")
+    NMK = [10, 10, 10]
+    h = 100.0
+    a = [5.0, 10.0]
+    d = [20.0, 10.0]
+    heaving = [1, 0]
 
-    # Frequencies and modes relevant to the MEEMProblem itself
-    analysis_frequencies = np.array([1.0, 1.5, 2.0]) # Example: analyze at 3 different frequencies
-    analysis_modes = np.array([1]) 
+    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
+    r_coords = Domain.build_r_coordinates_dict(a)
+    z_coords = Domain.build_z_coordinates_dict(h)
+    
+    geometry = Geometry(r_coords, z_coords, domain_params)
+    print("    ...Geometry object created.")
 
-    print(f"\nProblem Parameters for Setup:")
-    print(f"  Water Depth (h): {h_val}")
-    print(f"  (d): {d_vals}")
-    print(f"  Radii (a): {a_vals}")
-    print(f"  Harmonics (NMK): {NMK_vals}")
-    print(f"  Analysis Frequencies: {analysis_frequencies}")
-    print(f"  Analysis Modes: {analysis_modes}")
+    # ==========================================================================
+    # STEP 2: Create and Configure the MEEMProblem
+    # ==========================================================================
+    
+    # --- Part A: Initialization ---
+    # A MEEMProblem is initialized with the geometry from Step 1.
+    
+    print("\n[2] Initializing the MEEMProblem...")
+    problem = MEEMProblem(geometry)
+    
+    print("    Initial state of the problem:")
+    print(f"      Frequencies: {problem.frequencies} (empty by default)")
+    print(f"      Modes: {problem.modes} (empty by default)")
 
-    # --- 2. Prepare Domain Parameters for Geometry ---
-    # The `Geometry` class will create `Domain` objects internally based on this list.
-    domain_params_list = [
-        # Inner domain (index 0)
-        {'number_harmonics': NMK_vals[0], 'height': h_val, 'radial_width': a_vals[0],
-         'top_BC': None, 'bottom_BC': None, 'category': 'inner',
-         'a': a_vals[0], 'di': d_vals[0], 'heaving': heaving_vals[0]},
-        # Outer domain (index 1) - Annular region between a[0] and a[1]
-        {'number_harmonics': NMK_vals[1], 'height': h_val, 'radial_width': a_vals[1] - a_vals[0],
-         'top_BC': None, 'bottom_BC': None, 'category': 'outer',
-         'a': a_vals[1], 'di': d_vals[1], 'heaving': heaving_vals[1]},
-        # Exterior domain (index 2) - From a[1] to infinity
-        {'number_harmonics': NMK_vals[2], 'height': h_val, 'radial_width': None, # radial_width not applicable for exterior
-         'top_BC': None, 'bottom_BC': None, 'category': 'exterior'}
-    ]
+    # --- Part B: Setting Computation Targets ---
+    # Now, we use the `set_frequencies_modes` method to tell the problem
+    # what we want the MEEMEngine to compute.
+    
+    print("\n[3] Setting frequencies and modes of motion...")
+    
+    # Define the frequencies and modes to be analyzed
+    frequencies_to_run = np.linspace(0.1, 2.0, 5)
+    modes_to_run = np.array([1, 2, 3]) # e.g., representing Heave, Surge, Pitch
 
-    # Radial and Z coordinates information for Geometry
-    r_coords = {'a1': a_vals[0], 'a2': a_vals[1]}
-    z_coords = {'h': h_val}
+    # Set them on the problem object
+    problem.set_frequencies_modes(frequencies=frequencies_to_run, modes=modes_to_run)
+    
+    print("    State after configuration:")
+    print(f"      Frequencies: {problem.frequencies}")
+    print(f"      Modes: {problem.modes}")
 
-    # --- 3. Create a Geometry Object ---
-    geometry = Geometry(r_coordinates=r_coords, z_coordinates=z_coords, domain_params=domain_params_list)
-    print("\nGeometry object created and domains are defined within it.")
+    # ==========================================================================
+    # STEP 3: Using the MEEMProblem
+    # ==========================================================================
+    #
+    # The fully configured `problem` object is now ready to be passed to the
+    # MEEMEngine to perform calculations, such as in `engine.run_and_store_results()`.
 
-    # --- 4. Instantiate MEEMProblem ---
-    # The MEEMProblem object takes the configured Geometry.
-    meem_problem = MEEMProblem(geometry=geometry)
-    print("\nMEEMProblem instance created.")
+    print("\n[4] The MEEMProblem object is now fully configured and ready for the solver.")
+    print("\n--- Example Finished ---")
 
-    # --- 5. Set Frequencies and Modes for the Problem ---
-    meem_problem.set_frequencies_modes(analysis_frequencies, analysis_modes)
-    print("Frequencies and modes set for the MEEMProblem.")
-
-    # --- 6. Access and Verify Problem Attributes ---
-    print(f"\nVerifying MEEMProblem Attributes:")
-    print(f"  Geometry object reference: {meem_problem.geometry}")
-    print(f"  Number of domains in problem: {len(meem_problem.domain_list)}")
-    print(f"  Problem Frequencies: {meem_problem.frequencies}")
-    print(f"  Problem Modes: {meem_problem.modes}")
-
-    # Example: Accessing details of the first domain
-    first_domain_key = list(meem_problem.domain_list.keys())[0]
-    first_domain = meem_problem.domain_list[first_domain_key]
-    print(f"  First Domain (Category: {first_domain.category}) Details:")
-    print(f"    Number of Harmonics: {first_domain.number_harmonics}")
-    print(f"    Height (h): {first_domain.h}")
-    print(f"    (di): {first_domain.di}")
-    print(f"    Radius (a): {first_domain.a}")
-
-
-    print("\n--- MEEMProblem Example Finished ---")
 
 if __name__ == "__main__":
     main()

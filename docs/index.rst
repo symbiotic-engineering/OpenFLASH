@@ -24,10 +24,7 @@ Modules Overview
    results
    problem_cache
    tutorial_walk
-   constants
    multi_constants
-   coupling
-   equations
    multi_equations
    app_walk
    citations

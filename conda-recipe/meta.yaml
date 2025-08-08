@@ -1,0 +1,47 @@
+package:
+  name: open-flash
+  version: "0.1.9"
+
+source:
+  git_url: https://github.com/symbiotic-engineering/semi-analytical-hydro.git
+  git_rev: main  # or a tagged version like v0.1.9
+
+build:
+  noarch: python
+  script: python -m pip install . --no-deps --ignore-installed -vv
+
+requirements:
+  host:
+    - python >=3.9
+    - pip
+    - setuptools
+    - wheel
+    - conda-forge::nbsphinx
+    - conda-forge::sphinx-tabs
+  run:
+    - python >=3.9
+    - numpy
+    - scipy
+    - matplotlib
+    - pandas
+    - h5netcdf
+    - xarray
+    - streamlit
+    - sphinx
+    - pytest
+    - twine
+    - build
+    - readme_renderer
+    - watchdog
+    - black
+    - ruff
+    # Note: sphinx_design is excluded here because it's not available on conda
+
+about:
+  home: https://github.com/symbiotic-engineering/semi-analytical-hydro
+  license: MIT
+  summary: "A Python package for semi-analytical hydrodynamics modeling using the matched eigenfunction method"
+
+extra:
+  recipe-maintainers:
+    - hopeonthestack

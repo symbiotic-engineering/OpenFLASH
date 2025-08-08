@@ -10,10 +10,9 @@ Prerequisites
 -------------
 Before you begin, ensure you have the following software installed on your system:
 
-* **Python**: Version 3 or higher. You can download the latest version from `python.org <https://www.python.org/downloads/>`_.
+* **Python**: Version 3.9 or higher. You can download the latest version from `python.org <https://www.python.org/downloads/>`_.
 * **pip**: The Python package installer, which typically comes bundled with Python installations.
-* **Git**: A version control system required for cloning the project repository. Download Git from `git-scm.com <https://git-scm.com/downloads>`_.
-* **(Highly Recommended) Anaconda**: Popular Python distribution for scientific computing that simplifies environment management.
+* **Anaconda**: Popular Python distribution for scientific computing that simplifies environment management.
 
 Recommended Setup: Virtual Environments
 ---------------------------------------
@@ -70,31 +69,36 @@ Choose one of the following methods to set up your virtual environment:
 
           Your terminal prompt will change to show the active environment (e.g., `(openflash_project_env)`).
 
-Installation Steps
-------------------
+Installation via PyPI (pip)
+---------------------------
+**OpenFLASH** can be installed directly from PyPI using `pip`.
 
-Once your chosen virtual environment is active:
+1.  **Activate your virtual environment**:
+    Ensure your chosen virtual environment (created with `venv` or `conda`) is active.
 
-1.  **Clone the repository**:
-    Download the project's source code from its GitHub repository:
-
-    .. code-block:: bash
-
-        git clone https://github.com/symbiotic-engineering/OpenFLASH.git
-
-2.  **Navigate into the project directory**:
+2.  **Install OpenFLASH**:
+    Run the following command in your activated environment:
 
     .. code-block:: bash
 
-        cd OpenFLASH
+        pip install open-flash
 
-3.  **Install dependencies**:
-    Install all required Python packages using `pip`. The project relies on a `requirements.txt` file that lists all necessary libraries.
+    This will download and install the latest stable version of OpenFLASH and its dependencies.
 
-    .. code-block:: bash
+Installing via Conda
+---------------------
 
-        pip install -r requirements.txt
+You can install **OpenFLASH** directly from the `hopeonthestack` channel on Anaconda.org by running:
 
+.. code-block:: bash
+
+    conda install hopeonthestack::open-flash
+
+This will install **OpenFLASH** and all necessary dependencies into your current conda environment.
+
+.. note::
+
+   Ensure your conda environment is activated before running the command.
 
 Verification (Optional)
 -----------------------

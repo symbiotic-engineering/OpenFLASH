@@ -1,6 +1,6 @@
 import xarray as xr
 import numpy as np
-from geometry import Geometry
+from openflash.geometry import Geometry
 
 class Results:
     """
@@ -66,7 +66,36 @@ class Results:
         )
         print(f"Eigenfunctions for domain {domain_index} stored in dataset.")
 
+    def store_single_potential_field(self, potential_data: dict, frequency_idx: int = 0, mode_idx: int = 0):
+        """
+        Stores a single, fully computed potential field (R, Z, phi) in the dataset.
 
+        :param potential_data: The dictionary returned by `calculate_potentials`.
+        :param frequency_idx: The index of the frequency for this data.
+        :param mode_idx: The index of the mode for this data.
+        """
+        if not all(k in potential_data for k in ["R", "Z", "phi"]):
+            raise ValueError("potential_data must contain 'R', 'Z', and 'phi' keys.")
+
+        # Store each component of the potential field
+        # We add coordinates to make the data self-describing
+        self.dataset[f'potential_R_{mode_idx}_{frequency_idx}'] = xr.DataArray(
+            potential_data["R"],
+            dims=['z_coord', 'r_coord']
+        )
+        self.dataset[f'potential_Z_{mode_idx}_{frequency_idx}'] = xr.DataArray(
+            potential_data["Z"],
+            dims=['z_coord', 'r_coord']
+        )
+        self.dataset[f'potential_phi_real_{mode_idx}_{frequency_idx}'] = xr.DataArray(
+            potential_data["phi"].real,
+            dims=['z_coord', 'r_coord']
+        )
+        self.dataset[f'potential_phi_imag_{mode_idx}_{frequency_idx}'] = xr.DataArray(
+            potential_data["phi"].imag,
+            dims=['z_coord', 'r_coord']
+        )
+        print(f"Stored single potential field for mode {mode_idx} and frequency {frequency_idx}.")
     # --- METHOD TO STORE BATCHED POTENTIALS ---
     def store_all_potentials(self, all_potentials_batch: list[dict]):
         """
@@ -199,20 +228,23 @@ class Results:
 
     def export_to_netcdf(self, file_path: str):
         """
-        Export the results to a NetCDF (.nc) file.
-
-        :param file_path: Path where the .nc file will be saved.
+        Exports the dataset to a NetCDF file.
+        Complex values are split into real and imaginary parts for compatibility.
         """
-        if self.dataset is not None:
-            # Ensure no incompatible complex variable exists
-            if 'potentials' in self.dataset.data_vars:
-                self.dataset = self.dataset.drop_vars('potentials')
+        def _split_complex(ds):
+            new_vars = {}
+            for var in ds.data_vars:
+                data = ds[var].data
+                if np.iscomplexobj(data):
+                    new_vars[var + "_real"] = (ds[var].dims, np.real(data))
+                    new_vars[var + "_imag"] = (ds[var].dims, np.imag(data))
+                else:
+                    new_vars[var] = ds[var]
+            return xr.Dataset(new_vars, attrs=ds.attrs)
 
-            # Export only the real/imag split (standard-compliant NetCDF)
-            self.dataset.to_netcdf(file_path, engine='h5netcdf')
-            print(f"Results successfully exported to {file_path} (h5netcdf format).")
-        else:
-            print("No results to export!")
+        safe_ds = _split_complex(self.dataset)
+        safe_ds.to_netcdf(file_path, engine="h5netcdf")
+
 
 
     def get_results(self):

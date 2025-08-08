@@ -4,6 +4,7 @@ import xarray as xr
 import numpy as np
 import os
 import sys
+import h5netcdf
 
 # --- Path Setup ---
 # Adjust the path to import from package's 'src' directory.
@@ -12,8 +13,8 @@ package_base_dir = os.path.join(current_dir, '..')
 src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
-# Import the Results class from your results.py
-from results import Results
+# Import the Results class from results.py
+from openflash.results import Results
 
 # --- Mock Geometry Class ---
 # Since Results depends on Geometry, we'll create a simple mock for testing purposes.
@@ -305,14 +306,18 @@ def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mo
 
     assert 'added_mass' in loaded_dataset.data_vars
     assert 'damping' in loaded_dataset.data_vars
-    assert f'radial_eigenfunctions_{domain_name_ef}' in loaded_dataset.data_vars
-    assert f'vertical_eigenfunctions_{domain_name_ef}' in loaded_dataset.data_vars
+    assert f'radial_eigenfunctions_{domain_name_ef}_real' in loaded_dataset.data_vars
+    assert f'radial_eigenfunctions_{domain_name_ef}_imag' in loaded_dataset.data_vars
+    assert f'vertical_eigenfunctions_{domain_name_ef}_real' in loaded_dataset.data_vars
+    assert f'vertical_eigenfunctions_{domain_name_ef}_imag' in loaded_dataset.data_vars
     assert 'potential_r_coords' in loaded_dataset.data_vars
     assert 'potential_z_coords' in loaded_dataset.data_vars
     
-    # Assert that the data is numerically correct (this covers the main concern)
-    # The dtype assertion can be more specific
-    assert loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].dtype.kind == 'V' or loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].dtype == complex
+    assert loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}_real'].dtype == np.float64
+    assert loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}_imag'].dtype == np.float64
+    assert loaded_dataset[f'vertical_eigenfunctions_{domain_name_ef}_real'].dtype == np.float64
+    assert loaded_dataset[f'vertical_eigenfunctions_{domain_name_ef}_imag'].dtype == np.float64
+
 
     # Verify data integrity (e.g., potentials) - this is the most important part
     loaded_real = loaded_dataset['potentials_real'].sel(
@@ -335,13 +340,6 @@ def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mo
         loaded_potentials_combined = loaded_potentials
 
     np.testing.assert_array_almost_equal(loaded_potentials_combined, potentials_val)
-
-    # Do the same for eigenfunctions
-    loaded_radial_ef = loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].sel(
-        frequencies=sample_frequencies[0],
-        modes=sample_modes[0],
-        r=mock_geometry.r_coordinates[0] # Select a specific r-coordinate for check
-    ).values
 
     # Cleanup
     os.remove(file_path)

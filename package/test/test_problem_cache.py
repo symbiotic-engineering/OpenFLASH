@@ -14,7 +14,7 @@ src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
 # Import the class to be tested
-from problem_cache import ProblemCache
+from openflash.problem_cache import ProblemCache
 # No need to import MEEMProblem or multi_equations directly here for these tests,
 # as we'll mock the 'problem' object and the functions.
 

@@ -23,7 +23,7 @@ Domain Module
    :align: center
    :width: 100%
 
-   **Figure 2**: The package can model any number of concentric cylindrical domains i₁, ..., iₙ between exterior domains e.
+   **Figure 2**: The package can model any number of concentric cylindrical domains :math:`i_1, \ldots, i_M` between exterior domains :math:`e`.
 
 This module defines the `Domain` class, which represents the characteristics of a physical domain.
 
@@ -40,16 +40,3 @@ The Domain Class
    :members:
    :undoc-members: 
    :show-inheritance:
-   :noindex:
-
-   .. automethod:: __init__
-
-   .. automethod:: _get_di
-
-   .. automethod:: _get_a
-
-   .. automethod:: _get_heaving
-
-   .. automethod:: _get_r_coords
-
-   .. automethod:: _get_z_coords
