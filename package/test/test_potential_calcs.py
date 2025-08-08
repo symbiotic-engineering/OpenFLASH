@@ -19,7 +19,7 @@ from openflash.domain import Domain
 current_dir = os.path.dirname(__file__)
 
 # Add hydro/python for old code
-old_code_dir = os.path.abspath(os.path.join(current_dir, '..', '..', 'hydro', 'python'))
+old_code_dir = os.path.abspath(os.path.join(current_dir, '..', '..', 'dev', 'python'))
 if old_code_dir not in sys.path:
     sys.path.insert(0, old_code_dir)
 
