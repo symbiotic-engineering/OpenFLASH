@@ -205,4 +205,5 @@ html/
 # mat data files
 *.mat
 
-.vscode/settings.json
+# vscode configuration files
+.vscode/
