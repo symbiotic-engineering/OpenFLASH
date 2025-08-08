@@ -1,6 +1,6 @@
 # OpenFLASH: A Python Package for Matched Eigenfunctions Methods
 
-Hope Best, Rebecca McCabe, Kapil Khanal, Yinghu Bimali, En Lo, Collin Treacy, Ruiyang Jiang, Maha Haji
+Kapil Khanal, Rebecca McCabe, Hope Best, Ruiyang Jiang, Maha Haji
 
 ## Summary
 
@@ -36,10 +36,10 @@ OpenFLASH offers the following key functionalities:
 
   * **Modular Geometry Definition**: The `Geometry` class represents the physical setup of the problem, managing radial (`r_coordinates`) and vertical (`z_coordinates`) dimensions and parameters for individual sub-regions (domains).  It is designed to flexibly support any number of concentric cylinders, making it well-suited for modeling a wide range of Wave Energy Converter (WEC) configurations.  The class is responsible for creating a list of `Domain` objects based on the provided input. 
   * **Domain Representation**: The `Domain` class represents a sub-region within the defined geometry.  Each domain possesses properties such as height, radial width, and specific boundary conditions at its top and bottom.  The class also calculates the spatial coordinates relevant to the domain. 
-  ![Domain class](figures/domain.png)
+  ![Domain class](pubs/joss/figures/domain.png)
   * **Problem Setup**: The `MEEMProblem` class sets up the computational problem by defining the relevant frequencies and modes of analysis.  It links the `Geometry` object to the problem definition and maintains a list of the `Domain` objects necessary for the subsequent computations. 
   * **MEEM Computation Engine**: The `MEEMEngine` class is the core of the package, responsible for managing the matched eigenfunction expansion method.  It assembles the system matrix (A) and the right-hand side vector (b) based on the geometry, boundary conditions, and matching conditions.  It then solves the resulting linear system (Ax=b) to determine the unknown coefficients of the eigenfunction expansions.  Additionally, it calculates hydrodynamic coefficients and the potential fields within each domain. 
-  ![MEEMEngine class](figures/meem_engine.png)
+  ![MEEMEngine class](pubs/joss/figures/meem_engine.png)
   * **Problem Cache for Efficient Computation**: The `ProblemCache` class is designed to enhance the computational efficiency of the `MEEMEngine` class significantly.  Solving for the unknown expansion coefficients involves assembling and solving a system of linear equations, Ax = b.  Many terms within the system matrix A and the right-hand side vector b are independent of m0.  Recomputing these constant terms for every m0 would be computationally expensive.  The ProblemCache addresses this by pre-computing and storing the A matrix and b vector templates, specifically the parts that are independent of m0.  It then identifies and stores the indices of the m0-dependent terms, along with references to the functions required to calculate their values.  This approach allows quick updates of only the necessary m0-dependent entries for each new m0 value, rather than reassembling the entire system.  Furthermore, the `ProblemCache` stores precomputed arrays for mk and Nk.  By providing these pre-computed arrays and the functions to calculate the m0-dependent terms, the `ProblemCache` reduces overall computation time. 
   * **Results Management**: The `Results` class provides a structured way to store and organize the output of the MEEM computations using the `xarray` library, adhering to conventions similar to those used in the `Capytaine` library.  It offers methods for storing various results, including velocity potentials and hydrodynamic coefficients, and facilitates accessing and exporting these results to NetCDF (`.nc`) files. 
   * **Visualization**: The package includes visualization capabilities, as demonstrated in the Streamlit application. 
