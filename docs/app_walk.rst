@@ -41,30 +41,6 @@ This Streamlit application (`app.py`) provides an interactive interface for simu
 
 Functions
 =========
-
-.. autofunction:: plot_field
-   :noindex:
-
-   Plots the real and imaginary parts of a field using Matplotlib.
-   The function returns a Matplotlib figure object.
-
-   :param field: A 2D NumPy array representing the complex field data.
-   :type field: numpy.ndarray
-   :param R: A 2D NumPy array of radial coordinates.
-   :type R: numpy.ndarray
-   :param Z: A 2D NumPy array of axial coordinates.
-   :type Z: numpy.ndarray
-   :param title: The title for the plot.
-   :type title: str
-   :param a_list: A list of cylinder radii used for plotting vertical boundary lines.
-   :type a_list: list[float]
-   :param d_list: A list of cylinder depths used for plotting horizontal boundary lines.
-   :type d_list: list[float]
-   :param plot_imaginary: If True, plots both real and imaginary parts. If False, only plots the real part. Defaults to True.
-   :type plot_imaginary: bool
-   :returns: A Matplotlib Figure object.
-   :rtype: matplotlib.figure.Figure
-
 .. autofunction:: main
    :noindex:
 

@@ -11,7 +11,6 @@ eigenfunctions, coupling integrals, and terms for matrix assembly, particularly
 adapted for multi-region configurations.
 
 .. automodule:: multi_equations
-   :members:
 
 .. raw:: html
 
@@ -53,7 +52,6 @@ in adjacent fluid regions.
 
 .. autofunction:: I_nm
 .. autofunction:: I_mk
-.. autofunction:: I_mk_full
 
 .. raw:: html
 
@@ -102,7 +100,7 @@ intermediate (Bessel K type), and exterior (Hankel and Bessel K type) regions.
 .. autofunction:: R_2n_vectorized
 .. autofunction:: diff_R_2n
 .. autofunction:: Lambda_k
-.. autofunction:: Lambda_k_vectoized
+.. autofunction:: Lambda_k_vectorized
 .. autofunction:: Lambda_k_full
 .. autofunction:: diff_Lambda_k
 .. autofunction:: diff_Lambda_k_full
@@ -138,7 +136,6 @@ integrals of radial eigenfunctions and other terms.
 
 .. autofunction:: int_R_1n
 .. autofunction:: int_R_2n
-.. autofunction:: int_phi_p_i_no_coef
 .. autofunction:: z_n_d
 
 .. raw:: html
