@@ -5,10 +5,6 @@ Domain Module
 ==============
 
 .. automodule:: domain
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. _domain-overview:
 
 .. figure:: _static/domain_table.png
@@ -16,7 +12,7 @@ Domain Module
    :align: center
    :width: 100%
 
-   **Figure 1**: This table illustrates the characteristics of the domains, including exterior and an arbitrary number of concentric cylindrical interior domains.
+   **Table 1**: This table illustrates the characteristics of the domains, including exterior and an arbitrary number of concentric cylindrical interior domains.
 
 .. figure:: _static/domain_drawing.png
    :alt: Example of how domains would look
