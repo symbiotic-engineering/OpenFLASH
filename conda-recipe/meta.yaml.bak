@@ -2,9 +2,6 @@ package:
   name: open-flash
   version: "0.2.2"
 
-source:
-  path: ..
-
 build:
   noarch: python
   # Use a two-stage build script for robustness
