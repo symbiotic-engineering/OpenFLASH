@@ -86,7 +86,7 @@ def validate_closures(problem, engine, m0, tol=1e-12):
     engine._ensure_m_k_and_N_k_arrays(problem, m0)
     m_k_arr = cache.m_k_arr
     N_k_arr = cache.N_k_arr
-    I_mk_vals = cache.get_closure("I_mk_vals")(m0, m_k_arr, N_k_arr)
+    I_mk_vals = cache._get_closure("I_mk_vals")(m0, m_k_arr, N_k_arr)
 
     print("\n--- Validating m₀-dependent A closures ---")
     for (row, col, closure_fn) in cache.m0_dependent_A_indices:
