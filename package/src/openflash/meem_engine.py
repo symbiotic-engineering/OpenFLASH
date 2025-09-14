@@ -44,16 +44,16 @@ class MEEMEngine:
             h = domain_list[0].h
             m_k_arr = np.array([cache.m_k_entry_func(k, m0, h) for k in range(NMK[-1])])
             N_k_arr = np.array([cache.N_k_func(k, m0, h, m_k_arr) for k in range(NMK[-1])])
-            cache.set_precomputed_m_k_N_k(m_k_arr, N_k_arr)
+            cache._set_precomputed_m_k_N_k(m_k_arr, N_k_arr)
     
     def assemble_A_multi(self, problem: 'MEEMProblem', m0) -> np.ndarray:
         """
         Assemble the system matrix A for a given problem using pre-computed blocks.
         """
         cache = self.cache_list[problem]
-        A = cache.get_A_template()
+        A = cache._get_A_template()
 
-        I_mk_vals = cache.get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
+        I_mk_vals = cache._get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
 
         for row, col, calc_func in cache.m0_dependent_A_indices:
             A[row, col] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
@@ -66,9 +66,9 @@ class MEEMEngine:
         Assemble the right-hand side vector b for a given problem.
         """
         cache = self.cache_list[problem]
-        b = cache.get_b_template()
+        b = cache._get_b_template()
 
-        I_mk_vals = cache.get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
+        I_mk_vals = cache._get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
 
         for row, calc_func in cache.m0_dependent_b_indices:
             b[row] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
@@ -103,7 +103,7 @@ class MEEMEngine:
             for n in range(NMK[bd]):
                 for m in range(NMK[bd + 1]):
                     I_nm_vals_precomputed[n, m, bd] = I_nm(n, m, bd, d, h)
-        cache.set_I_nm_vals(I_nm_vals_precomputed)
+        cache._set_I_nm_vals(I_nm_vals_precomputed)
 
         R_1n_func = np.vectorize(partial(R_1n, h=h, d=d, a=a))
         R_2n_func = np.vectorize(partial(R_2n, a=a, h=h, d=d))
@@ -119,8 +119,8 @@ class MEEMEngine:
                     vals[m, k] = I_mk(m, k, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
             return vals
         
-        cache.set_closure("I_mk_vals", _calculate_I_mk_vals)
-        cache.set_m_k_and_N_k_funcs(m_k_entry, N_k_multi)
+        cache._set_closure("I_mk_vals", _calculate_I_mk_vals)
+        cache._set_m_k_and_N_k_funcs(m_k_entry, N_k_multi)
 
         # 4. Assemble A_template and identify m0-dependent indices
         
@@ -150,7 +150,7 @@ class MEEMEngine:
                         g_row, g_col = row_offset + m_local, p_dense_e_col_start + k_local
                         calc_func = lambda p, m0, mk, Nk, Imk, m=m_local, k=k_local: \
                             p_dense_block_e_entry(m, k, bd, Imk, NMK, a, m0, h, mk, Nk)
-                        cache.add_m0_dependent_A_entry(g_row, g_col, calc_func)
+                        cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
                 col_offset += block.shape[1]
 
             else: # Internal i-i boundaries
@@ -191,7 +191,7 @@ class MEEMEngine:
                         g_row, g_col = row_offset + m_local, v_dense_e_col_start + k_local
                         calc_func = lambda p, m0, mk, Nk, Imk, m=m_local, k=k_local: \
                             v_dense_block_e_entry(m, k, bd, Imk, a, h, d)
-                        cache.add_m0_dependent_A_entry(g_row, g_col, calc_func)
+                        cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
                     # Second dense block (R2n) if needed
                     if bd > 0:
                         # FIX: Correctly place the R2n block after the R1n block
@@ -200,7 +200,7 @@ class MEEMEngine:
                             g_row, g_col = row_offset + m_local, r2n_col_start + k_local
                             calc_func = lambda p, m0, mk, Nk, Imk, m=m_local, k=k_local: \
                                 v_dense_block_e_entry_R2(m, k, bd, Imk, a, h, d)
-                            cache.add_m0_dependent_A_entry(g_row, g_col, calc_func)
+                            cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
                 
                 v_diag_e_col_start = col_offset + (2*N if bd > 0 else N)
                 for k_local in range(M):
@@ -208,7 +208,7 @@ class MEEMEngine:
                     # FIX: Removed unused 'm' argument from lambda signature
                     calc_func = lambda p, m0, mk, Nk, Imk, k=k_local: \
                         v_diagonal_block_e_entry(m, k, bd, m0, mk, a, h)
-                    cache.add_m0_dependent_A_entry(g_row, g_col, calc_func)
+                    cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
                 col_offset += (2*N if bd > 0 else N)
 
             else: # Internal i-i boundaries
@@ -254,7 +254,7 @@ class MEEMEngine:
                 for n_local in range(NMK[-1]):
                     calc_func = lambda p, m0, mk, Nk, Imk, n=n_local: \
                         b_velocity_end_entry(n, bd, heaving, a, h, d, m0, NMK, mk, Nk)
-                    cache.add_m0_dependent_b_entry(index, calc_func)
+                    cache._add_m0_dependent_b_entry(index, calc_func)
                     index += 1
             else:
                 num_entries = NMK[bd] if d[bd] <= d[bd+1] else NMK[bd+1]
@@ -263,8 +263,8 @@ class MEEMEngine:
                     index += 1
                     
         # 6. Finalize and return cache
-        cache.set_A_template(A_template)
-        cache.set_b_template(b_template)
+        cache._set_A_template(A_template)
+        cache._set_b_template(b_template)
         
         return cache
     
@@ -504,7 +504,6 @@ class MEEMEngine:
         Calculate full spatial velocities vr and vz on a meshgrid for visualization.
         (Optimized to pre-compute components and use vectorized operations)
         """
-        print("\n--- Entering Optimized calculate_velocities ---")
         self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         m_k_arr, N_k_arr = cache.m_k_arr, cache.N_k_arr
@@ -517,11 +516,9 @@ class MEEMEngine:
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys if domain_list[idx].di is not None]
-        print("d in new calculate_velocities:", d)
         a = [domain_list[idx].a for idx in domain_keys if domain_list[idx].a is not None]
         heaving = [domain_list[idx].heaving for idx in domain_keys]
 
-        print("  Reformatting solution coefficients once...")
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
         # --- 2. Create Meshgrid and Regions ---
@@ -537,7 +534,6 @@ class MEEMEngine:
         vzH = np.full(R.shape, np.nan, dtype=complex)
 
         # --- 3. Vectorized Calculation of Homogeneous Velocities (vrH, vzH) ---
-        print("  Calculating homogeneous velocities (vrH, vzH)...")
 
         # Region 0 (Inner)
         if np.any(regions[0]):
@@ -545,7 +541,6 @@ class MEEMEngine:
             n = np.arange(NMK[0])
             vrH[regions[0]] = np.sum(Cs[0][:, None] * diff_R_1n_vectorized(n[:, None], r[None, :], 0, h, d, a) * Z_n_i_vectorized(n[:, None], z[None, :], 0, h, d), axis=0)
             vzH[regions[0]] = np.sum(Cs[0][:, None] * R_1n_vectorized(n[:, None], r[None, :], 0, h, d, a) * diff_Z_n_i_vectorized(n[:, None], z[None, :], 0, h, d), axis=0)
-        print("    Done with Region 0.")
 
         # Intermediate Regions
         for i in range(1, boundary_count):
@@ -560,7 +555,6 @@ class MEEMEngine:
                 vz_term1 = Cs[i][:NMK[i], None] * R_1n_vectorized(m[:, None], r[None, :], i, h, d, a)
                 vz_term2 = Cs[i][NMK[i]:, None] * R_2n_vectorized(m[:, None], r[None, :], i, a, h, d)
                 vzH[regions[i]] = np.sum((vz_term1 + vz_term2) * diff_Z_n_i_vectorized(m[:, None], z[None, :], i, h, d), axis=0)
-            print(f"    Done with Region {i}.")
 
         # Exterior Region
         if np.any(regions[-1]):
@@ -568,10 +562,8 @@ class MEEMEngine:
             k = np.arange(NMK[-1])
             vrH[regions[-1]] = np.sum(Cs[-1][:, None] * diff_Lambda_k_vectorized(k[:, None], r[None, :], m0, a, m_k_arr) * Z_k_e_vectorized(k[:, None], z[None, :], m0, h, m_k_arr, N_k_arr), axis=0)
             vzH[regions[-1]] = np.sum(Cs[-1][:, None] * Lambda_k_vectorized(k[:, None], r[None, :], m0, a, m_k_arr) * diff_Z_k_e_vectorized(k[:, None], z[None, :], m0, h, m_k_arr, N_k_arr), axis=0)
-        print("    Done with Exterior Region.")
         
         # --- 4. Vectorized Calculation of Particular Velocities (vrP, vzP) ---
-        print("  Calculating particular velocities (vrP, vzP)...")
         vrP = np.full(R.shape, 0.0, dtype=complex)
         vzP = np.full(R.shape, 0.0, dtype=complex)
         
@@ -581,12 +573,10 @@ class MEEMEngine:
             if heaving[i]:
                 vrP[regions[i]] = heaving[i] * diff_r_phi_p_i(d[i], R[regions[i]], h)
                 vzP[regions[i]] = heaving[i] * diff_z_phi_p_i(d[i], Z[regions[i]], h)
-        print("    Done with particular velocity calculation.")
 
         # --- 5. Sum for Total Velocity ---
         vr = vrH + vrP
         vz = vzH + vzP
-        print("--- Exiting Optimized calculate_velocities ---\n")
 
         return {"R": R, "Z": Z, "vrH": vrH, "vzH": vzH, "vrP": vrP, "vzP": vzP, "vr": vr, "vz": vz}
     

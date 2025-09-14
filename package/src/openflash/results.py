@@ -245,8 +245,6 @@ class Results:
         safe_ds = _split_complex(self.dataset)
         safe_ds.to_netcdf(file_path, engine="h5netcdf")
 
-
-
     def get_results(self):
         """
         Get the stored results as an xarray Dataset.
