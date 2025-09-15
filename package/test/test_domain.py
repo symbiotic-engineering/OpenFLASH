@@ -34,8 +34,8 @@ def test_domain_inner(mock_geometry):
         number_harmonics=5,
         height=10.0,
         radial_width=1.0,
-        top_BC=None,
-        bottom_BC=None,
+        top_BC='Body',
+        bottom_BC='Sea floor',
         category='inner',
         params=params,
         index=0,
@@ -51,6 +51,8 @@ def test_domain_inner(mock_geometry):
     assert domain.heaving is True
     assert domain.slant is False
     assert isinstance(domain.scale, float)
+    assert domain.top_BC == 'Body'
+    assert domain.bottom_BC == 'Sea floor'
 
 def test_domain_outer(mock_geometry):
     params = {
@@ -63,8 +65,8 @@ def test_domain_outer(mock_geometry):
         number_harmonics=4,
         height=10.0,
         radial_width=1.0,
-        top_BC='Free Surface',
-        bottom_BC='Sea Floor',
+        top_BC='Body',
+        bottom_BC='Sea floor',
         category='outer',
         params=params,
         index=1,
@@ -73,8 +75,8 @@ def test_domain_outer(mock_geometry):
 
     assert domain.r_coords == [1.0, 2.0]
     assert domain.z_coords == [0, 10.0]
-    assert domain.top_BC == 'Free Surface'
-    assert domain.bottom_BC == 'Sea Floor'
+    assert domain.top_BC == 'Body'
+    assert domain.bottom_BC == 'Sea floor'
     assert domain.heaving is False
 
 def test_domain_exterior(mock_geometry):
@@ -86,8 +88,8 @@ def test_domain_exterior(mock_geometry):
         number_harmonics=3,
         height=10.0,
         radial_width=None,
-        top_BC=None,
-        bottom_BC=None,
+        top_BC='Wave surface',
+        bottom_BC='Sea floor',
         category='exterior',
         params=params,
         index=2,
@@ -98,3 +100,5 @@ def test_domain_exterior(mock_geometry):
     assert domain.a is None
     assert domain.r_coords == np.inf
     assert domain.z_coords == [0, 10.0]
+    assert domain.top_BC == 'Wave surface'
+    assert domain.bottom_BC == 'Sea floor'
