@@ -119,12 +119,19 @@ class Domain:
             else:
                 category = 'outer'
 
+            # Assign boundary conditions based on domain category
+            bottom_bc = 'Sea floor'
+            if category == 'exterior':
+                top_bc = 'Wave surface'
+            else:  # 'inner' or 'outer'
+                top_bc = 'Body'
+
             param = {
                 'number_harmonics': NMK[idx],
                 'height': h,
                 'radial_width': a[idx] if idx < boundary_count else a[-1] * 1.5,
-                'top_BC': None,
-                'bottom_BC': None,
+                'top_BC': top_bc,
+                'bottom_BC': bottom_bc,
                 'category': category,
             }
 

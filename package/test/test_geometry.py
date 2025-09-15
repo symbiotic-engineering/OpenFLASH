@@ -22,8 +22,8 @@ def sample_domain_params():
             'heaving': True,
             'slant': False,
             'category': 'inner',
-            'top_BC': None,
-            'bottom_BC': None
+            'top_BC': 'Body',
+            'bottom_BC': 'Sea floor'
         },
         {
             'number_harmonics': 8,
@@ -34,8 +34,8 @@ def sample_domain_params():
             'heaving': False,
             'slant': False,
             'category': 'outer',
-            'top_BC': None,
-            'bottom_BC': None
+            'top_BC': 'Body',
+            'bottom_BC': 'Sea floor'
         },
         {
             'number_harmonics': 6,
@@ -44,8 +44,8 @@ def sample_domain_params():
             'heaving': False,
             'slant': False,
             'category': 'exterior',
-            'top_BC': None,
-            'bottom_BC': None
+            'top_BC': 'Wave surface',
+            'bottom_BC': 'Sea floor'
         }
     ]
 
