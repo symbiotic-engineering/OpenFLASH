@@ -85,11 +85,22 @@ for cls, members in classes.items():
     dot.node(cls, shape="record", label=label)
 
 # Relationships
-dot.edge("Geometry", "Domain", arrowhead="diamond", label="1..*")  # Composition
+# Geometry owns Domain (Composition: filled diamond)
+dot.edge("Geometry", "Domain", arrowhead="diamond", style="filled", label="1..*")  
+
+# MEEMProblem references Geometry (Association)
 dot.edge("MEEMProblem", "Geometry", label="1")
-dot.edge("MEEMEngine", "MEEMProblem", label="*")
-dot.edge("MEEMEngine", "ProblemCache", label="*")
-dot.edge("MEEMEngine", "Results", label="*")
+
+# MEEMEngine aggregates MEEMProblem (Aggregation: hollow diamond)
+dot.edge("MEEMEngine", "MEEMProblem", arrowhead="odiamond", label="*")  
+
+# MEEMEngine composes ProblemCache (Composition: filled diamond)
+dot.edge("MEEMEngine", "ProblemCache", arrowhead="diamond", style="filled", label="*")  
+
+# MEEMEngine depends on Results (Dependency: dashed arrow)
+dot.edge("MEEMEngine", "Results", style="dashed", label="*")  
+
+# Results references Geometry (Association)
 dot.edge("Results", "Geometry", label="1")
 
 # Legend / Key node
@@ -99,7 +110,9 @@ legend = """<
   <TR><TD ALIGN="LEFT">1</TD><TD ALIGN="LEFT">Exactly one</TD></TR>
   <TR><TD ALIGN="LEFT">*</TD><TD ALIGN="LEFT">Many</TD></TR>
   <TR><TD ALIGN="LEFT">1..*</TD><TD ALIGN="LEFT">One to many</TD></TR>
-  <TR><TD ALIGN="LEFT">Diamond</TD><TD ALIGN="LEFT">Composition</TD></TR>
+  <TR><TD ALIGN="LEFT">Filled Diamond</TD><TD ALIGN="LEFT">Composition (strong ownership)</TD></TR>
+  <TR><TD ALIGN="LEFT">Hollow Diamond</TD><TD ALIGN="LEFT">Aggregation</TD></TR>
+  <TR><TD ALIGN="LEFT">Dashed Arrow</TD><TD ALIGN="LEFT">Dependency (temporary use)</TD></TR>
   <TR><TD ALIGN="LEFT">Arrow</TD><TD ALIGN="LEFT">Association</TD></TR>
   <TR><TD ALIGN="LEFT">__init__</TD><TD ALIGN="LEFT">Constructor</TD></TR>
 </TABLE>>"""
