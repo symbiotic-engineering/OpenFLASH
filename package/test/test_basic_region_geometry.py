@@ -14,7 +14,6 @@ if src_dir not in sys.path:
 from openflash.basic_region_geometry import BasicRegionGeometry
 from openflash.body import SteppedBody
 from openflash.geometry import ConcentricBodyGroup
-from openflash.domain import Domain
 
 # ------------------------------
 # Helper utilities used in randomized tests
