@@ -1,102 +1,105 @@
-from typing import Dict, List
+# geometry.py
+
+from abc import ABC, abstractmethod
+from typing import List
 import numpy as np
-from openflash.domain import Domain
 
-class Geometry:
+from .body import Body, SteppedBody, CoordinateBody
+from .domain import Domain
+
+
+class BodyArrangement(ABC):
     """
-    Represents the physical geometry of the problem, including coordinates and domain parameters.
+    Abstract base class for any arrangement.
     """
-
-    def __init__(self, r_coordinates: Dict[str, float], z_coordinates: Dict[str, float], domain_params: List[Dict]):
-        """
-        Initialize the Geometry object.
-
-        Parameters
-        ----------
-        r_coordinates : dict
-            Radial coordinates of the system.
-        z_coordinates : dict
-            Vertical coordinates (must contain 'h').
-        domain_params : list of dict
-            List of domain parameter dictionaries.
-        """
-        self.r_coordinates = r_coordinates
-        self.z_coordinates = z_coordinates
-        self.domain_params = domain_params
-        self.domain_list = self.make_domain_list()
-
-    def make_domain_list(self) -> Dict[int, Domain]:
-        """
-        Constructs the domain list using shared geometric properties.
-
-        Returns
-        -------
-        dict
-            Dictionary of domain index to Domain object.
-        """
-        domain_list = {}
-
-        a_values = [params['a'] for params in self.domain_params if 'a' in params and params['a'] is not None]
-        scale = np.mean(a_values) if a_values else 1.0
-
-        h = self.z_coordinates.get('h')
-        if h is None:
-            raise ValueError("z_coordinates must contain key 'h'")
-
-        for idx, params in enumerate(self.domain_params):
-            category = params.get('category')
-            di = params.get('di', None)
-            a = params.get('a', None)
-
-            if category != 'exterior':
-                if di is None:
-                    raise ValueError(f"domain_params[{idx}] missing required 'di'")
-                if a is None:
-                    raise ValueError(f"domain_params[{idx}] missing required 'a'")
-
-            domain = Domain(
-                number_harmonics=params.get('number_harmonics', 0),
-                height=params.get('height', 0.0),
-                radial_width=params.get('radial_width', 0.0),
-                top_BC=params.get('top_BC'),
-                bottom_BC=params.get('bottom_BC'),
-                category=category,
-                params={
-                    'h': h,
-                    'di': di,
-                    'a': a,
-                    'scale': scale,
-                    'heaving': params.get('heaving'),
-                    'slant': params.get('slant', False)
-                },
-                index=idx,
-                geometry=self
-            )
-
-            domain_list[idx] = domain
-
-        return domain_list
+    def __init__(self, bodies: List[Body]):
+        self.bodies = bodies
 
     @property
-    def adjacency_matrix(self) -> np.ndarray:
-        """
-        Boolean matrix indicating adjacency between domains.
+    @abstractmethod
+    def a(self) -> np.ndarray:
+        """Array of characteristic radii."""
+        pass
 
-        Returns
-        -------
-        np.ndarray
-            Matrix where entry (i, j) is True if domains i and j are adjacent.
-        """
-        n = len(self.domain_list)
-        adj = np.zeros((n, n), dtype=bool)
+    @property
+    @abstractmethod
+    def d(self) -> np.ndarray:
+        """Array of characteristic d."""
+        pass
 
-        for i, domain_i in self.domain_list.items():
-            for j, domain_j in self.domain_list.items():
-                if i == j:
-                    continue
-                a_i = domain_i.a
-                a_j = domain_j.a
-                if a_i is not None and a_j is not None and np.isclose(a_i, a_j, atol=1e-6):
-                    adj[i, j] = True
+    @property
+    @abstractmethod
+    def slant_angle(self) -> np.ndarray:
+        """Array of slant angles."""
+        pass
 
-        return adj
+    @property
+    @abstractmethod
+    def heaving(self) -> np.ndarray:
+        """Array of heaving flags."""
+        pass
+
+
+class ConcentricBodyGroup(BodyArrangement):
+    """
+    A concrete arrangement of one or more concentric bodies.
+    For JOSS, this class assumes all bodies are SteppedBody objects.
+    """
+    def __init__(self, bodies: List[Body]):
+        super().__init__(bodies)
+        # For now, we only handle SteppedBody
+        for body in self.bodies:
+            if not isinstance(body, SteppedBody):
+                raise TypeError("ConcentricBodyGroup currently only supports SteppedBody objects.")
+
+    def _get_concatenated_property(self, prop_name: str) -> np.ndarray:
+        """Helper to concatenate a property from all SteppedBody objects."""
+        return np.concatenate([getattr(body, prop_name) for body in self.bodies])
+
+    def _get_heaving_flags(self) -> np.ndarray:
+        """Helper to create a heaving flag array based on each body."""
+        flags = []
+        for body in self.bodies:
+            num_steps = len(body.a)
+            flags.extend([body.heaving] * num_steps)
+        return np.array(flags, dtype=bool)
+
+    @property
+    def a(self) -> np.ndarray:
+        return self._get_concatenated_property('a')
+
+    @property
+    def d(self) -> np.ndarray:
+        return self._get_concatenated_property('d')
+
+    @property
+    def slant_angle(self) -> np.ndarray:
+        return self._get_concatenated_property('slant_angle')
+
+    @property
+    def heaving(self) -> np.ndarray:
+        return self._get_heaving_flags()
+
+
+class Geometry(ABC):
+    """
+    Abstract base class for a complete problem geometry.
+
+    A Geometry consists of a BodyArrangement and the total water depth, and
+    it is responsible for creating the corresponding fluid domains.
+    """
+    def __init__(self, body_arrangement: BodyArrangement, h: float):
+        self.body_arrangement = body_arrangement
+        self.h = h
+        self._fluid_domains: List[Domain] = []
+
+    @property
+    def fluid_domains(self) -> List[Domain]:
+        if not self._fluid_domains:
+            self._fluid_domains = self.make_fluid_domains()
+        return self._fluid_domains
+
+    @abstractmethod
+    def make_fluid_domains(self) -> List[Domain]:
+        """Creates the list of Domain objects from the BodyArrangement."""
+        pass

@@ -59,7 +59,7 @@ def main():
     print("\n## Step 1: Defined Basic Physical Properties ##")
     print(f"Number of Harmonics (NMK): {NMK}")
     print(f"Cylinder Radii (a): {a}")
-    print(f"Cylinder Drafts (d): {d}")
+    print(f"Cylinder (d): {d}")
     print(f"Total Water Depth (h): {h}")
 
 

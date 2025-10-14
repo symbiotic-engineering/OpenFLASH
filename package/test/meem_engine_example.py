@@ -28,13 +28,13 @@ def main():
     # ==========================================================================
     # STEP 1: Define the Physical System
     # ==========================================================================
-    # Describe the system with simple lists: radii, drafts, etc.
+    # Describe the system with simple lists: radii, etc.
     # This example defines a system with two cylinders.
 
     NMK = [30, 30, 30]  # Harmonics for inner, outer, and exterior domains
     h = 100.0           # Total water depth
     a = [5.0, 10.0]     # Radii of the two cylinders
-    d = [20.0, 10.0]    # Drafts of the two cylinders
+    d = [20.0, 10.0]    #  of the two cylinders
     heaving = [1, 0]    # The first cylinder is heaving, the second is fixed
 
     # ==========================================================================

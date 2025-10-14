@@ -236,7 +236,7 @@ def R_1n_vectorized(n, r, i, h, d, a):
         r (np.ndarray): Array of radial coordinates.
         i (int): The region index.
         h (float): The total water depth.
-        d (list): A list of the draft depths for each region.
+        d (list): A list of the  depths for each region.
         a (list): A list of the cylinder radii.
 
     Returns:
@@ -892,7 +892,7 @@ def v_dense_block_e_entry_R2(m: int, k: int, bd: int, I_mk_vals: np.ndarray, a: 
         I_mk_vals (np.ndarray): The m0-dependent coupling integral matrix, I_mk.
         a (list): A list of the cylinder radii.
         h (float): The total water depth.
-        d (list): A list of the draft depths for each region.
+        d (list): A list of the depths for each region.
 
     Returns:
         complex: The computed complex value for the matrix entry A[row, col].

@@ -1,32 +1,93 @@
 from graphviz import Digraph
+import os
 
-dot = Digraph(comment="MEEM UML Diagram (Simplified Geometry-Domain Link)", format="png")
+# Prevent Graphviz from trying to open the file after rendering
+os.environ["GV_RENDER_NEATO_DOES_NOT_WORKAROUND_BUG_2312"] = "1"
+
+# --- HELPER FUNCTION TO CREATE LEGEND SYMBOL ---
+def create_symbol_image(filename, attributes):
+    """Creates a small image of a graphviz symbol."""
+    d = Digraph()
+    d.attr('node', shape='point', style='invis', width='0')
+    d.attr(rankdir='LR', splines='false', margin='0')
+    d.edge('start', 'end', **attributes)
+    d.render(os.path.splitext(filename)[0], format='png', cleanup=True)
+
+# --- CREATE THE SYMBOL IMAGES NEEDED FOR THE LEGEND ---
+create_symbol_image("legend_inheritance.png", {'arrowhead': 'empty'})
+create_symbol_image("legend_association.png", {'arrowhead': 'vee'})
+create_symbol_image("legend_dependency.png", {'arrowhead': 'vee', 'style': 'dashed'})
+create_symbol_image("legend_aggregation.png", {'arrowhead': 'odiamond'})
+create_symbol_image("legend_composition.png", {'arrowhead': 'diamond', 'style': 'filled'})
+
+
+# --- MAIN DIAGRAM DEFINITION ---
+dot = Digraph(comment="MEEM UML Diagram", format="png")
 dot.attr(rankdir="TB", fontsize="10")  # Top-to-Bottom layout
 
 # Define classes with constructors explicitly
 classes = {
     "Geometry": [
-        "+ __init__(r_coordinates: Dict[str, float], z_coordinates: Dict[str, float], domain_params: List[Dict])",
-        "- r_coordinates: Dict[str, float]",
-        "- z_coordinates: Dict[str, float]",
-        "- domain_params: List[Dict]",
-        "+ adjacency_matrix: np.ndarray",
-        "+ make_domain_list(): Dict[int, Domain]"
+        "<<Abstract>>",
+        "+ __init__(body_arrangement: BodyArrangement, h: float)",
+        "- body_arrangement: BodyArrangement",
+        "- h: float",
+        "- _fluid_domains: List[Domain]",
+        "+ fluid_domains: List[Domain]",
+        "+ make_fluid_domains(): List[Domain]"
+    ],
+    "BasicRegionGeometry": [
+        "+ __init__(body_arrangement: ConcentricBodyGroup, h: float, NMK: List[int])",
+        "- NMK: List[int]",
+        "+ make_fluid_domains(): List[Domain]",
+        "+ from_vectors(a: np.ndarray, d: np.ndarray, h: float, NMK: List[int]) -> BasicRegionGeometry"
+    ],
+    "AnyRegionGeometry": [
+        "(future implementation)"
+    ],
+    "BodyArrangement": [
+        "<<Abstract>>",
+        "+ __init__(bodies: List[Body])",
+        "- bodies: List[Body]",
+        "+ a: np.ndarray",
+        "+ d: np.ndarray",
+        "+ slant_angle: np.ndarray",
+        "+ heaving: np.ndarray"
+    ],
+    "ConcentricBodyGroup": [
+        "+ __init__(bodies: List[SteppedBody])",
+        "+ _get_concatenated_property(prop_name: str): np.ndarray",
+        "+ _get_heaving_flags(): np.ndarray",
+        "+ a: np.ndarray",
+        "+ d: np.ndarray",
+        "+ slant_angle: np.ndarray",
+        "+ heaving: np.ndarray"
+    ],
+    "Body": [
+        "<<Abstract>>",
+        "- heaving: bool"
+    ],
+    "SteppedBody": [
+        "+ __init__(a: np.ndarray, d: np.ndarray, slant_angle: np.ndarray, heaving: bool = False)",
+        "- a: np.ndarray",
+        "- d: np.ndarray",
+        "- slant_angle: np.ndarray",
+        "- heaving: bool"
+    ],
+    "CoordinateBody": [
+        "+ __init__(r_coords: np.ndarray, z_coords: np.ndarray, heaving: bool = False)",
+        "+ discretize(): Tuple[np.ndarray, np.ndarray, np.ndarray]"
     ],
     "Domain": [
-        "+ __init__(number_harmonics: int, height: float, radial_width: float, top_BC, bottom_BC, category: str, params: dict, index: int, geometry: Geometry)",
-        "- number_harmonics: int",
-        "- height: float",
-        "- radial_width: float",
-        "- top_BC",
-        "- bottom_BC",
-        "- category: str",
-        "- params: dict",
+        "+ __init__(index: int, NMK: int, a_inner: float, a_outer: float, d_lower: float, geometry_h: float, heaving: Optional[bool], slant: bool, category: str)",
         "- index: int",
-        "- geometry: Geometry",
-        "+ build_domain_params(NMK, a, d, heaving, h, slant) List[Dict]",
-        "+ build_r_coordinates_dict() dict[str, float]",
-        "+ build_z_coordinates_dict() dict[str, float]"
+        "- number_harmonics: int",
+        "- a_inner: float",
+        "- a_outer: float",
+        "- d_lower: float",
+        "- geometry_h: float",
+        "- category: str",
+        "+ are_adjacent(d1: Domain, d2: Domain) -> bool"
     ],
     "MEEMProblem": [
         "+ __init__(geometry: Geometry)",
@@ -78,18 +139,29 @@ classes = {
     ]
 }
 
-# Add class nodes
+# Add class nodes using robust HTML-like labels
 for cls, members in classes.items():
-    members_str = "\\l".join(members) + "\\l"
-    label = f"{{{cls}|{members_str}}}"
-    dot.node(cls, shape="record", label=label)
+    # Escape special characters for HTML
+    escaped_members = [m.replace('<', '&lt;').replace('>', '&gt;') for m in members]
+
+    # Join members with HTML line breaks, aligned left
+    members_str = '<BR ALIGN="LEFT"/>'.join(escaped_members)
+
+    # Create the complete HTML table label for the node
+    label = f'''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+    <TR><TD><B>{cls}</B></TD></TR>
+    <TR><TD ALIGN="LEFT">{members_str}</TD></TR>
+    </TABLE>>'''
+
+    dot.node(cls, shape="plain", label=label) # Use shape="plain" for HTML labels
+
 
 # Relationships
 # Geometry owns Domain (Composition: filled diamond)
 dot.edge("Geometry", "Domain", arrowhead="diamond", style="filled", label="1..*")  
 
 # MEEMProblem references Geometry (Association)
-dot.edge("MEEMProblem", "Geometry", label="1")
+dot.edge("MEEMProblem", "Geometry", arrowhead="vee", label="1")
 
 # MEEMEngine aggregates MEEMProblem (Aggregation: hollow diamond)
 dot.edge("MEEMEngine", "MEEMProblem", arrowhead="odiamond", label="*")  
@@ -101,23 +173,43 @@ dot.edge("MEEMEngine", "ProblemCache", arrowhead="diamond", style="filled", labe
 dot.edge("MEEMEngine", "Results", style="dashed", label="*")  
 
 # Results references Geometry (Association)
-dot.edge("Results", "Geometry", label="1")
+dot.edge("Results", "Geometry", arrowhead="vee", label="1")
 
-# Legend / Key node
+# Inheritance (is-a)
+dot.edge("BasicRegionGeometry", "Geometry", arrowhead="empty")
+dot.edge("AnyRegionGeometry", "Geometry", arrowhead="empty")
+dot.edge("ConcentricBodyGroup", "BodyArrangement", arrowhead="empty")
+dot.edge("SteppedBody", "Body", arrowhead="empty")
+dot.edge("CoordinateBody", "Body", arrowhead="empty")
+
+# Composition (has-a, strong ownership)
+dot.edge("ConcentricBodyGroup", "Body", arrowhead="diamond", style="filled", label="1..*")
+
+# Association (uses-a)
+dot.edge("Geometry", "BodyArrangement", arrowhead="vee", label="1")
+
+# --- Legend / Key node ---
 legend = """<
-<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="2">
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="2" CELLPADDING="4">
   <TR><TD COLSPAN="2"><B>Legend</B></TD></TR>
-  <TR><TD ALIGN="LEFT">1</TD><TD ALIGN="LEFT">Exactly one</TD></TR>
-  <TR><TD ALIGN="LEFT">*</TD><TD ALIGN="LEFT">Many</TD></TR>
-  <TR><TD ALIGN="LEFT">1..*</TD><TD ALIGN="LEFT">One to many</TD></TR>
-  <TR><TD ALIGN="LEFT">Filled Diamond</TD><TD ALIGN="LEFT">Composition (strong ownership)</TD></TR>
-  <TR><TD ALIGN="LEFT">Hollow Diamond</TD><TD ALIGN="LEFT">Aggregation</TD></TR>
-  <TR><TD ALIGN="LEFT">Dashed Arrow</TD><TD ALIGN="LEFT">Dependency (temporary use)</TD></TR>
-  <TR><TD ALIGN="LEFT">Arrow</TD><TD ALIGN="LEFT">Association</TD></TR>
-  <TR><TD ALIGN="LEFT">__init__</TD><TD ALIGN="LEFT">Constructor</TD></TR>
+  <TR><TD><IMG SRC="legend_inheritance.png"/></TD><TD ALIGN="LEFT">Inheritance ("is-a")</TD></TR>
+  <TR><TD><IMG SRC="legend_composition.png"/></TD><TD ALIGN="LEFT">Composition ("Owns / Is part of")</TD></TR>
+  <TR><TD><IMG SRC="legend_aggregation.png"/></TD><TD ALIGN="LEFT">Aggregation ("Has-a / Contains")</TD></TR>
+  <TR><TD><IMG SRC="legend_association.png"/></TD><TD ALIGN="LEFT">Association ("uses-a")</TD></TR>
+  <TR><TD><IMG SRC="legend_dependency.png"/></TD><TD ALIGN="LEFT">Dependency / Planned</TD></TR>
+  <TR><TD COLSPAN="2" HEIGHT="1" BGCOLOR="black" BORDER="0"></TD></TR>
+  <TR><TD ALIGN="LEFT">1, *, 1..*</TD><TD ALIGN="LEFT">Multiplicity</TD></TR>
 </TABLE>>"""
 dot.node("Legend", legend, shape="none")
 
-# Render
+# Render the final diagram
 output_path = "openflash_uml_vertical"
 dot.render(output_path, cleanup=True)
+
+# Clean up the generated symbol images
+for img in ["legend_inheritance.png", "legend_association.png", "legend_dependency.png",
+            "legend_aggregation.png", "legend_composition.png"]:
+    if os.path.exists(img):
+        os.remove(img)
+
+print(f"UML diagram successfully generated as '{output_path}.png'")
