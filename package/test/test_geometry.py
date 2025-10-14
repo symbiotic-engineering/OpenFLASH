@@ -1,3 +1,4 @@
+# test_geometry.py
 import pytest
 import numpy as np
 import os as os
@@ -6,100 +7,128 @@ current_dir = os.path.dirname(__file__)
 src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src'))
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
-from openflash.geometry import Geometry
-
-# Mock Domain class if needed (avoid circular import)
+from openflash.body import SteppedBody, CoordinateBody
+from openflash.geometry import ConcentricBodyGroup, Geometry, BodyArrangement
 from openflash.domain import Domain
 
-def sample_domain_params():
-    return [
-        {
-            'number_harmonics': 10,
-            'height': 5.0,
-            'radial_width': 1.0,
-            'di': 2.0,
-            'a': 1.0,
-            'heaving': True,
-            'slant': False,
-            'category': 'inner',
-            'top_BC': 'Body',
-            'bottom_BC': 'Sea floor'
-        },
-        {
-            'number_harmonics': 8,
-            'height': 5.0,
-            'radial_width': 1.0,
-            'di': 2.5,
-            'a': 1.0,  # Same 'a' as domain 0 → should be adjacent
-            'heaving': False,
-            'slant': False,
-            'category': 'outer',
-            'top_BC': 'Body',
-            'bottom_BC': 'Sea floor'
-        },
-        {
-            'number_harmonics': 6,
-            'height': 5.0,
-            'radial_width': None,
-            'heaving': False,
-            'slant': False,
-            'category': 'exterior',
-            'top_BC': 'Wave surface',
-            'bottom_BC': 'Sea floor'
-        }
-    ]
+# -------------------------
+# Fixtures
+# -------------------------
+@pytest.fixture
+def simple_stepped_body():
+    a = np.array([1.0, 2.0])
+    d = np.array([0.5, 1.0])
+    slant = np.array([0.0, 0.1])
+    return SteppedBody(a, d, slant, heaving=True)
 
-def test_geometry_initialization():
-    r_coords = {'a1': 1.0, 'a2': 2.0}
-    z_coords = {'h': 5.0}
-    domain_params = sample_domain_params()
+@pytest.fixture
+def concentric_group(simple_stepped_body):
+    return ConcentricBodyGroup([simple_stepped_body])
 
-    geometry = Geometry(r_coords, z_coords, domain_params)
+# -------------------------
+# ConcentricBodyGroup tests
+# -------------------------
+def test_concatenated_properties(concentric_group):
+    body = concentric_group.bodies[0]
+    np.testing.assert_array_equal(concentric_group.a, body.a)
+    np.testing.assert_array_equal(concentric_group.d, body.d)
+    np.testing.assert_array_equal(concentric_group.slant_angle, body.slant_angle)
+    np.testing.assert_array_equal(concentric_group.heaving, np.array([True, True]))
 
-    assert isinstance(geometry.domain_list, dict)
-    assert len(geometry.domain_list) == 3
-    assert isinstance(geometry.domain_list[0], Domain)
-    assert geometry.domain_list[0].heaving is True
-    assert geometry.domain_list[2].category == 'exterior'
+def test_invalid_body_type():
+    with pytest.raises(TypeError):
+        ConcentricBodyGroup([CoordinateBody(np.array([0,1]), np.array([0,1]))])
 
-def test_missing_z_coordinate_raises():
-    r_coords = {'a1': 1.0, 'a2': 2.0}
-    z_coords = {}  # Missing 'h'
-    domain_params = sample_domain_params()
+# -------------------------
+# Geometry abstract tests
+# -------------------------
+class DummyGeometry(Geometry):
+    """Concrete implementation for testing Geometry base class."""
+    def make_fluid_domains(self):
+        # Create a simple domain per body step
+        domains = []
+        last_r = 0.0
+        for i, (a, d, h_flag, sl) in enumerate(zip(
+            self.body_arrangement.a,
+            self.body_arrangement.d,
+            self.body_arrangement.heaving,
+            self.body_arrangement.slant_angle
+        )):
+            domains.append(Domain(
+                index=i,
+                NMK=1,
+                a_inner=last_r,
+                a_outer=a,
+                d_lower=d,
+                geometry_h=self.h,
+                heaving=h_flag,
+                slant=bool(sl),
+                category="interior"
+            ))
+            last_r = a
+        # Add exterior domain
+        domains.append(Domain(
+            index=len(self.body_arrangement.a),
+            NMK=1,
+            a_inner=last_r,
+            a_outer=np.inf,
+            d_lower=0.0,
+            geometry_h=self.h,
+            category="exterior"
+        ))
+        return domains
 
-    with pytest.raises(ValueError, match="z_coordinates must contain key 'h'"):
-        Geometry(r_coords, z_coords, domain_params)
+@pytest.fixture
+def dummy_geometry(concentric_group):
+    return DummyGeometry(concentric_group, h=5.0)
 
-def test_missing_di_in_non_exterior_domain():
-    bad_params = sample_domain_params()
-    del bad_params[0]['di']  # Remove required key
+def test_fluid_domains_count(dummy_geometry, simple_stepped_body):
+    # Should have one domain per step + one exterior
+    expected_count = len(simple_stepped_body.a) + 1
+    assert len(dummy_geometry.fluid_domains) == expected_count
 
-    r_coords = {'a1': 1.0}
-    z_coords = {'h': 5.0}
+def test_fluid_domain_properties(dummy_geometry, simple_stepped_body):
+    domains = dummy_geometry.fluid_domains
+    for i, domain in enumerate(domains[:-1]):
+        assert domain.a_outer == simple_stepped_body.a[i]
+        assert domain.d_lower == simple_stepped_body.d[i]
+        assert domain.heaving == simple_stepped_body.heaving
+        assert isinstance(domain.slant, bool)
+    # Check exterior domain
+    ext = domains[-1]
+    assert ext.category == "exterior"
+    assert ext.a_outer == np.inf
 
-    with pytest.raises(ValueError, match=r"domain_params\[0\] missing required 'di'"):
-        Geometry(r_coords, z_coords, bad_params)
+# -------------------------
+# Randomized stress test (fixed)
+# -------------------------
+def test_randomized_multiple_bodies():
+    np.random.seed(42)
+    num_bodies = 5
+    bodies = []
+    last_max_r = 0.0  # Keep track of last outer radius
 
-def test_adjacency_matrix_behavior():
-    r_coords = {'a1': 1.0, 'a2': 2.0}
-    z_coords = {'h': 5.0}
-    domain_params = sample_domain_params()
+    for _ in range(num_bodies):
+        steps = np.random.randint(1, 5)
+        # Generate increasing radii relative to last_max_r
+        a = np.sort(np.random.rand(steps) * 10 + last_max_r + 0.1)  # shift to avoid overlap
+        d = np.random.rand(steps) * 5
+        slant = np.random.rand(steps) * 0.5
+        heaving = np.random.choice([True, False])
+        bodies.append(SteppedBody(a, d, slant, heaving))
+        last_max_r = a[-1]  # update last_max_r for next body
 
-    geometry = Geometry(r_coords, z_coords, domain_params)
-    adj = geometry.adjacency_matrix
+    group = ConcentricBodyGroup(bodies)
+    geom = DummyGeometry(group, h=10.0)
+    domains = geom.fluid_domains
 
-    assert isinstance(adj, np.ndarray)
-    assert adj.shape == (3, 3)
-    assert adj[0, 1]
-    assert adj[1, 0]
-    assert not adj[0, 2] # exterior domain has a=None
-
-def test_adjacency_matrix_is_symmetric():
-    r_coords = {'a1': 1.0}
-    z_coords = {'h': 5.0}
-    domain_params = sample_domain_params()
-
-    geometry = Geometry(r_coords, z_coords, domain_params)
-    adj = geometry.adjacency_matrix
-
-    assert np.allclose(adj, adj.T)
+    # Basic checks
+    assert all(isinstance(d, Domain) for d in domains)
+    # Check exterior domain
+    assert domains[-1].a_outer == np.inf
+    # Ensure number of domains = sum of steps + 1 exterior
+    expected_domains = sum(len(body.a) for body in bodies) + 1
+    assert len(domains) == expected_domains
+    # Ensure all interior radii are strictly increasing
+    for i in range(len(domains) - 1):
+        assert domains[i+1].a_inner >= domains[i].a_outer - 1e-12
