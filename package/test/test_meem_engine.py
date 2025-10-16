@@ -14,12 +14,13 @@ if src_dir not in sys.path:
 # --- Import Package Modules ---
 from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
-from openflash.geometry import Geometry
-from openflash.domain import Domain
 from openflash.problem_cache import ProblemCache
 from openflash.results import Results
 from openflash.multi_equations import omega
 from openflash.multi_constants import g
+from openflash.body import SteppedBody
+from openflash.geometry import ConcentricBodyGroup
+from openflash.basic_region_geometry import BasicRegionGeometry
 
 # ==============================================================================
 # Pytest Fixture: Reusable Test Problem
@@ -31,25 +32,39 @@ def sample_problem():
     `scope="module"` means this function runs only once per test session.
     """
     # Define a simple but complete 2-cylinder problem
-    NMK = [10, 10, 10]  # Use a small number of harmonics for fast tests
+    NMK = [10, 10, 10]
     h = 100.0
-    a = [5.0, 10.0]
-    d = [20.0, 10.0]
-    heaving = [1, 0]
+    a = np.array([5.0, 10.0])
+    d = np.array([20.0, 10.0])
+    heaving = np.array([1, 0]) # [True, False]
     
-    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
-    r_coords = Domain.build_r_coordinates_dict(a)
-    z_coords = Domain.build_z_coordinates_dict(h)
+    # 1. Define the physical bodies
+    bodies = []
+    for i in range(len(a)):
+        body = SteppedBody(
+            a=np.array([a[i]]),
+            d=np.array([d[i]]),
+            slant_angle=np.array([0.0]), # Assuming zero slant for test
+            heaving=bool(heaving[i])
+        )
+        bodies.append(body)
+
+    # 2. Create the body arrangement
+    arrangement = ConcentricBodyGroup(bodies)
+
+    # 3. Instantiate the concrete geometry class
+    geometry = BasicRegionGeometry(arrangement, h, NMK)
     
-    geometry = Geometry(r_coords, z_coords, domain_params)
+    # 4. Create the problem
     problem = MEEMProblem(geometry)
     
-    m0 = 1.0
-    
-    local_omega = omega(m0,h,g)
+    # --- Set frequencies and modes for the problem ---
+    m0 = 1.0 
+    local_omega = omega(m0, h, g)
     problem_frequencies = np.array([local_omega])
-    boundary_count = len(NMK) -1
-    problem_modes = np.arange(boundary_count) # Modes 0, 1, ... up to boundary_count-1 (heaving modes)
+    
+    # Modes correspond to heaving bodies. In this case, only the first body heaves.
+    problem_modes = np.array([0])
     problem.set_frequencies_modes(problem_frequencies, problem_modes)
     
     return problem
@@ -264,16 +279,19 @@ def test_reformat_coeffs():
     
     print("✅ Coefficient reformatting test passed.")
     
+# test_meem_engine.py
+
 def test_run_and_store_results(sample_problem):
     """
     Tests the full computation loop over a set of frequencies, ensuring
     results are correctly stored in a Results object.
     """
-    # 1. Arrange: Define a set of frequencies for the test
-    test_frequencies = [0.5, 1.0, 1.5]
+    # 1. Arrange: Define a set of test frequencies
+    # Using omega function to get valid frequencies based on m0 values
+    test_m0s = [0.5, 1.0, 1.5]
+    test_frequencies = [omega(m0, sample_problem.geometry.h, g) for m0 in test_m0s]
     sample_problem.frequencies = test_frequencies
     
-    # The default problem has 1 mode
     num_modes = len(sample_problem.modes)
     num_freqs = len(test_frequencies)
 
@@ -289,19 +307,19 @@ def test_run_and_store_results(sample_problem):
     # Check that hydrodynamic coefficients are in the dataset and have the correct shape
     assert 'added_mass' in results.dataset
     assert 'damping' in results.dataset
-    assert results.dataset['added_mass'].shape == (num_freqs, num_modes)
-    assert results.dataset['damping'].shape == (num_freqs, num_modes)
+    assert results.dataset['added_mass'].shape == (num_freqs, num_modes, num_modes)
+    assert results.dataset['damping'].shape == (num_freqs, num_modes, num_modes)
     assert not np.isnan(results.dataset['added_mass']).any()
     assert not np.isnan(results.dataset['damping']).any()
     
-    # FIX: Check for the potential data within the `dataset` attribute
     assert 'potentials_real' in results.dataset
     assert 'potentials_imag' in results.dataset
     
     # Check the shape of the stored potential data
     # Shape is (frequencies, modes, domains, harmonics)
-    num_domains = len(sample_problem.geometry.domain_list)
-    max_harmonics = max(sample_problem.geometry.domain_params, key=lambda x: x['number_harmonics'])['number_harmonics']
+    num_domains = len(sample_problem.geometry.fluid_domains)
+    # Get max harmonics from the Domain objects themselves
+    max_harmonics = max(d.number_harmonics for d in sample_problem.geometry.fluid_domains)
     expected_shape = (num_freqs, num_modes, num_domains, max_harmonics)
     
     assert results.dataset['potentials_real'].shape == expected_shape

@@ -4,29 +4,79 @@
 Introduction
 ==============
 
-Welcome to the documentation for **OpenFLASH**.
+Welcome to **OpenFLASH**, a modern Python package for solving wave-body interaction problems for concentric cylindrical structures.
 
-This project provides a robust and efficient computational framework for solving complex hydrodynamic problems involving multiple regions. Leveraging the power of MEEM, it aims to accurately model fluid dynamics for applications in engineering, marine hydrodynamics, and related fields.
+OpenFLASH implements the **Matched Eigenfunction Expansion Method (MEEM)**, a powerful semi-analytical technique that offers significant performance advantages over traditional numerical methods like the Boundary Element Method (BEM). The package is designed to be user-friendly, efficient, and easily extensible for researchers, engineers, and students in marine hydrodynamics.
 
-Key Features:
+---
+
+Why OpenFLASH?
+--------------
+
+* **🚀 High Performance**: Leveraging the semi-analytical nature of MEEM, OpenFLASH is exceptionally fast. Our benchmarks show that it can compute hydrodynamic coefficients up to **10 times faster** than leading open-source BEM packages like Capytaine, especially for frequency sweep analyses. This speed is achieved by an intelligent caching system that minimizes redundant calculations.
+
+* **💡 Intuitive, Object-Oriented API**: Define your physical problem intuitively by creating ``SteppedBody`` objects. The library's object-oriented structure handles the complex task of translating this physical geometry into the mathematical fluid domains required for the solver, making your code cleaner and more readable.
+
+* **📊 Structured Data Output**: Simulation results are not just raw numbers. OpenFLASH packages all outputs into an ``xarray.Dataset``, a powerful data structure that provides labeled dimensions (like 'frequencies', 'modes') and coordinates. This makes your data self-describing, easy to analyze with tools like Pandas, and simple to export to standard scientific formats like NetCDF.
+
+---
+
+Quick Example
 -------------
-* **Multi-Domain Approach**: Divides the region into cylindrical domains, allowing for flexible geometric configurations and handling of multiple bodies with different depths. Learn more about defining domains in the :doc:`domain` module and setting up the overall geometry in :doc:`geometry`.
-* **Semi-Analytical Method & Eigenfunction Expansion**: OpenFLASH employs a semi-analytical approach. The core of this method lies in the use of analytical eigenfunctions, enabling highly accurate and efficient solutions by reducing the computational burden compared to fully numerical methods. The core mathematical formulations are detailed in the :doc:`multi_equations` module.
-* **Performance Optimization**: Employs caching mechanisms (see :doc:`problem_cache`) to store frequency-independent computations, enabling rapid evaluation across a range of wave frequencies and significantly reducing solving time.
-    * We have profiled OpenFLASH against **Capytaine**, a leading open-source boundary element method (BEM) software. We found that **MEEM** performs significantly faster than Capytaine, achieving **10x faster computation times**.
-* **Modular Design**: The codebase is structured with distinct modules for clear separation of concerns, facilitating maintainability and extensibility. Key modules include those for geometric definition, domain properties, and problem-solving.
 
-Target Audience:
-----------------
+Here is a minimal example of setting up and solving a two-body problem:
+
+.. code-block:: python
+
+   import numpy as np
+   from openflash import (
+       SteppedBody, ConcentricBodyGroup, BasicRegionGeometry,
+       MEEMProblem, MEEMEngine, omega, g
+   )
+
+   # 1. Define the physical bodies
+   body1 = SteppedBody(a=np.array([5.0]), d=np.array([20.0]), heaving=True)
+   body2 = SteppedBody(a=np.array([10.0]), d=np.array([10.0]), heaving=False)
+
+   # 2. Create the geometry from the bodies
+   arrangement = ConcentricBodyGroup(bodies=[body1, body2])
+   geometry = BasicRegionGeometry(
+       body_arrangement=arrangement,
+       h=100.0,
+       NMK=[30, 30, 30]
+   )
+
+   # 3. Set up the problem with simulation parameters
+   problem = MEEMProblem(geometry)
+   problem.set_frequencies_modes(
+       frequencies=np.array([omega(m0=1.0, h=100.0, g=g)]),
+       modes=np.array([0]) # Only solve for the heaving of body 0
+   )
+
+   # 4. Run the engine and get results
+   engine = MEEMEngine(problem_list=[problem])
+   results = engine.run_and_store_results(problem_index=0)
+
+   # 5. Analyze the output
+   print(results.get_results())
+
+
+---
+
+Target Audience
+---------------
 This documentation is intended for:
-* Researchers and students.
-* Hydrodynamicists or ocean engineers.
-* Developers interested in understanding, contributing to, or extending the codebase.
+* Researchers and students in ocean engineering and marine hydrodynamics.
+* Engineers working on wave energy converters or offshore platforms.
+* Developers interested in contributing to or extending the codebase.
 
-Getting Started:
-----------------
-To begin using the OpenFLASH, we recommend the following steps:
+---
 
-1.  **Project Setup**: Ensure you have followed the installation instructions (`installation.rst`).
-2.  **Application Walkthrough**: Explore a practical example of how to use the solver by following the :doc:`app_walk` and tutorial_walk.ipynb guide.
-3.  **API Reference**: For detailed information on specific classes, functions, and their parameters, refer to the individual module documentation listed in the sidebar (e.g., :doc:`domain`, :doc:`multi_equations`, :doc:`geometry`, :doc:`problem_cache`).
+Getting Started
+---------------
+To begin using OpenFLASH, we recommend the following steps:
+
+1.  **Installation**: Follow the instructions in the :doc:`installation` guide to set up the package in a virtual environment.
+2.  **Run the Tutorial**: Walk through the `Jupyter Notebook Tutorial <tutorial.html>`_ for a hands-on, interactive example of a full simulation.
+3.  **Explore the Web App**: Try the interactive Streamlit application by following the :doc:`app_walk` guide.
+4.  **API Reference**: For detailed information on specific classes and functions, refer to the individual module documentation listed in the sidebar.

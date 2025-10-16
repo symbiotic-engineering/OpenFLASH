@@ -37,7 +37,7 @@ def main():
     # --- User Inputs for Parameters ---
     h = st.sidebar.slider("Water Depth (h)", 0.5, 5.0, 1.001, step=0.001)
     
-    d_input = st.sidebar.text_input("Drafts (d) - comma-separated", "0.5,0.25")
+    d_input = st.sidebar.text_input(" (d) - comma-separated", "0.5,0.25")
     a_input = st.sidebar.text_input("Cylinder Radii (a) - comma-separated", "0.5,1.0")
     
     heaving_input = st.sidebar.text_input("Heaving States (1/0) - one per domain", "1,0")

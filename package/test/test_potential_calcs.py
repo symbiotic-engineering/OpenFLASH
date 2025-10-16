@@ -12,8 +12,9 @@ if src_dir not in sys.path:
 # --- Import Package Modules ---
 from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
-from openflash.geometry import Geometry
-from openflash.domain import Domain
+from openflash.basic_region_geometry import BasicRegionGeometry
+from openflash.geometry import ConcentricBodyGroup
+from openflash.body import SteppedBody
 
 # --- Path Setup ---
 current_dir = os.path.dirname(__file__)
@@ -131,17 +132,34 @@ def main():
     print("--- Setting up test problem ---")
     NMK = [1, 1, 1, 1]
     h = 100
-    d = [29, 7, 4]
-    a = [3, 5, 10]
-    heaving = [0, 1, 1]
+    d = np.array([29, 7, 4])
+    a = np.array([3, 5, 10])
+    heaving = np.array([0, 1, 1])
     m0 = 1.0
 
-    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
-    geometry = Geometry(
-        Domain.build_r_coordinates_dict(a),
-        Domain.build_z_coordinates_dict(h),
-        domain_params
+    # --- CORRECTED Geometry and Problem Setup ---
+    # 1. Define the physical bodies
+    bodies = []
+    for i in range(len(a)):
+        body = SteppedBody(
+            a=np.array([a[i]]),
+            d=np.array([d[i]]),
+            slant_angle=np.array([0.0]),  # Assuming zero slant for test
+            heaving=bool(heaving[i])
+        )
+        bodies.append(body)
+
+    # 2. Create the body arrangement
+    arrangement = ConcentricBodyGroup(bodies)
+
+    # 3. Instantiate the CONCRETE geometry class
+    geometry = BasicRegionGeometry(
+        body_arrangement=arrangement,
+        h=h,
+        NMK=NMK
     )
+    
+    # 4. Create the problem object
     problem = MEEMProblem(geometry)
     engine = MEEMEngine(problem_list=[problem])
 

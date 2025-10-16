@@ -17,6 +17,9 @@ sys.path.insert(0, os.path.abspath(src_dir))
 from openflash.meem_problem import MEEMProblem
 from openflash.geometry import Geometry
 from openflash.domain import Domain 
+from openflash.basic_region_geometry import BasicRegionGeometry
+from openflash.geometry import ConcentricBodyGroup
+from openflash.body import SteppedBody
 
 # --- Fixtures ---
 
@@ -28,7 +31,7 @@ def sample_geometry_params():
         'd_values': [20.0, 10.0],
         'a_values': [5.0, 10.0],
         'NMK_values': [5, 5, 5],
-        'heaving_values': [0, 1, 1],
+        'heaving_values': [False, True], # One flag per body
         'r_coordinates': {'a1': 5.0, 'a2': 10.0},
         'z_coordinates': {'h': 100.0, 'd1': 20.0, 'd2': 10.0}
     }
@@ -56,17 +59,32 @@ def mock_geometry(sample_geometry_params):
 
 @pytest.fixture
 def real_geometry(sample_geometry_params):
-    """Creates a real Geometry object for testing if needed."""
+    """Creates a real BasicRegionGeometry object for testing."""
     params = sample_geometry_params
-    r_coords = params['r_coordinates']
-    z_coords = params['z_coordinates']
-
-    domain_params = [
-        {'number_harmonics': params['NMK_values'][0], 'height': params['h'], 'radial_width': params['a_values'][0], 'category': 'inner', 'di': params['d_values'][0], 'a': params['a_values'][0], 'heaving': params['heaving_values'][0], 'slant': False},
-        {'number_harmonics': params['NMK_values'][1], 'height': params['h'], 'radial_width': params['a_values'][1], 'category': 'outer', 'di': params['d_values'][1], 'a': params['a_values'][1], 'heaving': params['heaving_values'][1], 'slant': False},
-        {'number_harmonics': params['NMK_values'][2], 'height': params['h'], 'radial_width': None, 'category': 'exterior', 'di': None, 'a': None, 'heaving': params['heaving_values'][2], 'slant': False},
-    ]
-    return Geometry(r_coords, z_coords, domain_params)
+    a_vals = np.array(params['a_values'])
+    d_vals = np.array(params['d_values'])
+    heaving_vals = np.array(params['heaving_values'])
+    
+    # 1. Define the physical bodies
+    bodies = []
+    for i in range(len(a_vals)):
+        body = SteppedBody(
+            a=np.array([a_vals[i]]),
+            d=np.array([d_vals[i]]),
+            slant_angle=np.array([0.0]), # Assuming zero slant
+            heaving=heaving_vals[i]
+        )
+        bodies.append(body)
+        
+    # 2. Create the body arrangement
+    arrangement = ConcentricBodyGroup(bodies)
+    
+    # 3. Instantiate the CONCRETE geometry class
+    return BasicRegionGeometry(
+        body_arrangement=arrangement,
+        h=params['h'],
+        NMK=params['NMK_values']
+    )
 
 
 # --- Test Cases ---

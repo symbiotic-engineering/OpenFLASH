@@ -1,26 +1,28 @@
-.. _problem-cache-module:
+.. _problem_cache-module:
 
 ====================
 Problem Cache Module
 ====================
 
-.. automodule:: problem_cache
-   :no-members:       
-   :no-undoc-members:
+.. automodule:: openflash.problem_cache
 
-.. _problem-cache-overview:
+.. _problem_cache-overview:
 
-Overview
-========
+Conceptual Overview
+===================
 
-The `problem_cache.py` module introduces the :class:`ProblemCache` class, a critical component designed to optimize the performance of the MEEM engine. This class serves as a storage for pre-computed, frequency-independent parts of the system matrix (A) and right-hand side vector (b), along with storing indices and calculation functions for terms that depend on the incident wave number (:math:`m_0`). By caching these components, MEEM Engine can efficiently re-evaluate the system for different frequencies without re-computing the entire problem from scratch, significantly reducing computation time.
+The ``ProblemCache`` class is a crucial **internal component** designed to optimize the performance of the :class:`~openflash.meem_engine.MEEMEngine`. Its purpose is to store pre-calculated components of the mathematical system to avoid redundant computations, especially when solving a problem over a range of frequencies.
 
-.. _problem-cache-class:
+.. note::
+   As an end-user of the OpenFLASH package, you will **not** need to interact with or create ``ProblemCache`` objects directly. The ``MEEMEngine`` automatically creates and manages a cache for each ``MEEMProblem`` instance it handles.
 
-The ProblemCache Class
-======================
+How it Works
+------------
 
-.. autoclass:: ProblemCache
-   :members:
-   :undoc-members: 
-   :show-inheritance:
+When the ``MEEMEngine`` is initialized with a problem, it builds a ``ProblemCache`` that:
+
+1.  **Analyzes the System**: It identifies which parts of the governing matrices (**A**) and vectors (**b**) are constant (frequency-independent) and which parts change with the wave frequency.
+2.  **Pre-computes Templates**: It calculates the frequency-independent parts once and stores them in "template" matrices.
+3.  **Stores Calculation Logic**: For the frequency-dependent parts, it stores lightweight functions (closures) that can be quickly executed to calculate the values for any given frequency.
+
+When a user requests a solution at a new frequency, the engine simply copies the pre-computed templates and runs the stored functions to fill in the missing pieces, rather than re-building the entire system from scratch. This caching strategy is the key to the engine's efficiency during frequency sweeps.

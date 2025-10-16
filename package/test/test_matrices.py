@@ -15,6 +15,9 @@ from openflash.meem_problem import MEEMProblem
 from openflash.meem_engine import MEEMEngine
 from openflash.domain import Domain
 from openflash.multi_equations import I_mk, N_k_multi, diff_R_1n, diff_Lambda_k, scale, v_dense_block_e_entry, v_diagonal_block_e, v_diagonal_block_e_entry
+from openflash.geometry import ConcentricBodyGroup
+from openflash.body import SteppedBody
+from openflash.basic_region_geometry import BasicRegionGeometry
 
 # --- Path Setup ---
 current_dir = os.path.dirname(__file__)
@@ -217,26 +220,25 @@ def run_comparison_test():
     # --- Setup problem and m0 for package assembly ---
     #  must implement or mock a 'problem' object and m0 index for  new code
     # --- Geometry Setup ---
-    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
+    bodies = []
+    for i in range(len(a)):
+        body = SteppedBody(
+            a=np.array([a[i]]),
+            d=np.array([d[i]]),
+            slant_angle=np.array([0.0]),  # Assuming zero slant for the test
+            heaving=bool(heaving[i])
+        )
+        bodies.append(body)
     
-    a_recovered = [p['a'] for p in domain_params[:-1]]
-    d_recovered = [p['di'] for p in domain_params[:-1]]
-    heaving_recovered = [p['heaving'] for p in domain_params[:-1]]
-    h_recovered = domain_params[0]['height']
+    # 2. Create the body arrangement.
+    arrangement = ConcentricBodyGroup(bodies)
 
-    assert a_recovered == a
-    assert d_recovered == d
-    assert heaving_recovered == heaving
-    assert h_recovered == h
-
-    # Create Geometry object
-    r_coordinates = Domain.build_r_coordinates_dict(a)
-    z_coordinates = Domain.build_z_coordinates_dict(h)
-
-    geometry = Geometry(r_coordinates, z_coordinates, domain_params)
+    # 3. Instantiate the CONCRETE geometry class.
+    #    This object will now correctly create the fluid domains internally.
+    geometry = BasicRegionGeometry(arrangement, h, NMK)
+    
     problem = MEEMProblem(geometry)
-    
-        
+
     # --- MEEM Engine Operations ---
     engine = MEEMEngine(problem_list=[problem])
     engine.build_problem_cache(problem)

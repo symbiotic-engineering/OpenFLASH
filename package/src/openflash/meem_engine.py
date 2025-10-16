@@ -335,7 +335,7 @@ class MEEMEngine:
         results_per_mode = []
 
         # Loop through each mode (degree of freedom)
-        for mode_index in range(len(domain_keys) - 1):
+        for mode_index in problem.modes:
             # Set heaving vector: only one mode active at a time
             heaving = [0] * len(domain_keys)
             heaving[mode_index] = 1
@@ -408,19 +408,28 @@ class MEEMEngine:
         m_k_arr = cache.m_k_arr
         N_k_arr = cache.N_k_arr
         
+        # --- FIX: Get parameters from the definitive source ---
+        # Get geometry parameters directly from the body arrangement and domains
+        geometry = problem.geometry
+        body_arrangement = geometry.body_arrangement
         domain_list = problem.domain_list
+        
+        # These are the correct physical parameters for meshgrid and particular solution
+        a = body_arrangement.a
+        d = body_arrangement.d
+        heaving = body_arrangement.heaving
+        
+        # These are needed for the homogeneous solution and coefficient reformatting
+        h = geometry.h
         domain_keys = list(domain_list.keys())
         boundary_count = len(domain_keys) - 1
-
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
-        h = domain_list[0].h
-        d = [domain_list[idx].di for idx in domain_keys if domain_list[idx].di is not None]
-        a = [domain_list[idx].a for idx in domain_keys if domain_list[idx].a is not None]
-        heaving = [domain_list[idx].heaving for idx in domain_keys]
         
+        # --- The rest of the function remains the same ---
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
-        # --- 2. Create Meshgrid and Regions ---
+        # 2. Create Meshgrid and Regions
+        # Now make_R_Z will receive the correct a and d lists
         R, Z = make_R_Z(a, h, d, sharp, spatial_res)
         regions = []
         regions.append((R <= a[0]) & (Z < -d[0]))
@@ -502,26 +511,32 @@ class MEEMEngine:
     def calculate_velocities(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]:
         """
         Calculate full spatial velocities vr and vz on a meshgrid for visualization.
-        (Optimized to pre-compute components and use vectorized operations)
         """
         self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         m_k_arr, N_k_arr = cache.m_k_arr, cache.N_k_arr
 
-        # --- 1. Extract parameters and pre-calculate coefficients ONCE ---
+        # --- FIX: Get parameters from their definitive sources ---
+        geometry = problem.geometry
+        body_arrangement = geometry.body_arrangement
         domain_list = problem.domain_list
+
+        # Get physical body parameters for meshgrid and particular solution
+        a = body_arrangement.a
+        d = body_arrangement.d
+        heaving = body_arrangement.heaving
+        
+        # Get domain/solver parameters for homogeneous solution and coefficient reformatting
+        h = geometry.h
         domain_keys = list(domain_list.keys())
         boundary_count = len(domain_keys) - 1
-
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
-        h = domain_list[0].h
-        d = [domain_list[idx].di for idx in domain_keys if domain_list[idx].di is not None]
-        a = [domain_list[idx].a for idx in domain_keys if domain_list[idx].a is not None]
-        heaving = [domain_list[idx].heaving for idx in domain_keys]
 
+        # --- The rest of the function remains the same ---
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
-        # --- 2. Create Meshgrid and Regions ---
+        # 2. Create Meshgrid and Regions
+        # This will now use the correct 'a' and 'd' arrays
         R, Z = make_R_Z(a, h, d, sharp, spatial_res)
         regions = [
             (R <= a[0]) & (Z < -d[0]),
@@ -609,8 +624,9 @@ class MEEMEngine:
         num_modes = len(problem.modes)
         num_freqs = len(problem.frequencies)
 
-        full_added_mass_matrix = np.full((num_freqs, num_modes), np.nan)
-        full_damping_matrix = np.full((num_freqs, num_modes), np.nan)
+        # FIX 1: Initialize as 3D arrays to hold the (N x N) matrices for each frequency.
+        full_added_mass_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
+        full_damping_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
         all_potentials_batch_data = []
 
         for freq_idx, m0 in enumerate(problem.frequencies):
@@ -624,23 +640,24 @@ class MEEMEngine:
                 print(f"  ERROR: Could not solve for m0={m0:.4f}: {e}. Storing NaN for coefficients.")
                 continue
 
+            # This returns a flat list of (num_modes * num_modes) coefficients
             hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X, m0)
-            added_mass = np.array([hc["real"] for hc in hydro_coeffs])
-            damping = np.array([hc["imag"] for hc in hydro_coeffs])
 
-            if added_mass.shape[0] != num_modes or damping.shape[0] != num_modes:
-                raise ValueError(
-                    f"compute_hydrodynamic_coefficients returned shape mismatch for m0={m0:.4f}."
-                )
+            # FIX 2: Reshape the flat list of coefficients into (num_modes x num_modes) matrices.
+            added_mass = np.array([hc["real"] for hc in hydro_coeffs]).reshape(num_modes, num_modes)
+            damping = np.array([hc["imag"] for hc in hydro_coeffs]).reshape(num_modes, num_modes)
 
-            full_added_mass_matrix[freq_idx, :] = added_mass
-            full_damping_matrix[freq_idx, :] = damping
+            # Assign the 2D matrices to the correct slice of the 3D result arrays.
+            full_added_mass_matrix[freq_idx, :, :] = added_mass
+            full_damping_matrix[freq_idx, :, :] = damping
 
             for mode_idx, _ in enumerate(problem.modes):
                 current_mode_potentials = {}
-                for domain in problem.geometry.domain_list.values():
+                # Using .fluid_domains which is a list, not .domain_list (dict)
+                for domain in problem.geometry.fluid_domains:
                     nh = domain.number_harmonics
-                    current_mode_potentials[domain.category] = {
+                    # FIX: Use the unique domain index as the key instead of the non-unique category.
+                    current_mode_potentials[domain.index] = {
                         "potentials": (np.random.rand(nh) + 1j * np.random.rand(nh)).astype(complex),
                         "r_coords_dict": {f"r_h{k}": np.random.rand() for k in range(nh)},
                         "z_coords_dict": {f"z_h{k}": np.random.rand() for k in range(nh)},

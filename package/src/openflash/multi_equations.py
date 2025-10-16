@@ -28,7 +28,7 @@ def wavenumber(omega, h):
     return (root_scalar(m0_err, x0 = 2, method="newton")).root
 
 def scale(a: list):
-    return [val for val in a if val is not None]
+    return [val for val in a if val not in (None, np.inf, float('inf'))]
 
 def lambda_ni(n, i, h, d):  # Cap avoids Bessel overflow
     return n * pi / (h - d[i])
@@ -144,14 +144,14 @@ def I_mk(m, k, i, d, m0, h, m_k_arr, N_k_arr): # coupling integral for i and e-t
 def b_potential_entry(n, i, d, heaving, h, a): # for two i-type regions
     #(integrate over shorter fluid, use shorter fluid eigenfunction)    
     j = i + (d[i] <= d[i+1]) # index of shorter fluid
-    constant = (heaving[i+1] / (h - d[i+1]) - heaving[i] / (h - d[i]))
+    constant = (float(heaving[i+1]) / (h - d[i+1]) - float(heaving[i]) / (h - d[i]))
     if n == 0:
         return constant * 1/2 * ((h - d[j])**3/3 - (h-d[j]) * a[i]**2/2)
     else:
         return sqrt(2) * (h - d[j]) * constant * ((-1) ** n)/(lambda_ni(n, j, h, d) ** 2)
 
 def b_potential_end_entry(n, i, heaving, h, d, a): # between i and e-type regions
-    constant = - heaving[i] / (h - d[i])
+    constant = - float(heaving[i]) / (h - d[i])
     if n == 0:
         return constant * 1/2 * ((h - d[i])**3/3 - (h-d[i]) * a[i]**2/2)
     else:
@@ -159,7 +159,7 @@ def b_potential_end_entry(n, i, heaving, h, d, a): # between i and e-type region
 
 def b_velocity_entry(n, i, heaving, a, h, d): # for two i-type regions
     if n == 0:
-        return (heaving[i+1] - heaving[i]) * (a[i]/2)
+        return (float(heaving[i+1]) - float(heaving[i])) * (a[i]/2)
     if d[i] > d[i + 1]: #using i+1's vertical eigenvectors
         if heaving[i]:
             num = - sqrt(2) * a[i] * sin(lambda_ni(n, i+1, h, d) * (h-d[i]))
@@ -178,7 +178,7 @@ def b_velocity_entry(n, i, heaving, a, h, d): # for two i-type regions
 def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # between i and e-type regions
     local_m_k_k = m_k_arr[k] # Access directly from array
 
-    constant = - heaving[i] * a[i]/(2 * (h - d[i]))
+    constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
     if k == 0:
         if m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - d[i])) / m0 # Use N_k_arr[0]
@@ -189,7 +189,7 @@ def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # b
 
 def b_velocity_end_entry_full(k, i, heaving, a, h, d, m0, NMK): # between i and e-type regions
     local_m_k = m_k(NMK, m0, h)
-    constant = - heaving[i] * a[i]/(2 * (h - d[i]))
+    constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
     if k == 0:
         if m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_full(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
@@ -236,7 +236,7 @@ def R_1n_vectorized(n, r, i, h, d, a):
         r (np.ndarray): Array of radial coordinates.
         i (int): The region index.
         h (float): The total water depth.
-        d (list): A list of the draft depths for each region.
+        d (list): A list of the  depths for each region.
         a (list): A list of the cylinder radii.
 
     Returns:
@@ -892,7 +892,7 @@ def v_dense_block_e_entry_R2(m: int, k: int, bd: int, I_mk_vals: np.ndarray, a: 
         I_mk_vals (np.ndarray): The m0-dependent coupling integral matrix, I_mk.
         a (list): A list of the cylinder radii.
         h (float): The total water depth.
-        d (list): A list of the draft depths for each region.
+        d (list): A list of the depths for each region.
 
     Returns:
         complex: The computed complex value for the matrix entry A[row, col].
