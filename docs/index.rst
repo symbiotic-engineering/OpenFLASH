@@ -28,6 +28,7 @@ Modules Overview
    multi_equations
    app_walk
    citations
+   basic_region_geometry
 
 Indices and Tables
 ==================

@@ -14,28 +14,37 @@ App Module
 Application Overview
 ====================
 
-This Streamlit application (`app.py`) provides an interactive interface for simulating the hydrodynamic behavior of multiple cylinders using MEEM. Users can adjust various parameters to visualize potential and velocity fields, and compute hydrodynamic coefficients (added mass and damping).
+This Streamlit application (`app.py`) provides an interactive interface for simulating the hydrodynamic behavior of multiple bodies using the OpenFLASH engine. Users can adjust various parameters to visualize potential fields for a single frequency or compute and plot hydrodynamic coefficients over a range of frequencies.
 
- **Run the Streamlit App:**
- Ensure that you have Streamlit installed. You can install it using:
+Running the App
+---------------
 
- .. code-block:: bash
+There are two ways to run the Streamlit application:
+
+**Option 1: Use the Web-Based App (Recommended)**
+The app is deployed and can be run directly in your web browser, with no installation required. This is the easiest way to get started.
+
+* **Simply navigate to the following URL:** `https://symbiotic-engineering.github.io/OpenFLASH/`
+
+**Option 2: Run the App Locally**
+Ensure that you have Streamlit and the `openflash` package installed.
+
+.. code-block:: bash
 
    pip install streamlit
 
- To launch the app, run the following command in the docs folder:
+To launch the app, run the following command from your project's root directory:
 
- .. code-block:: bash
+.. code-block:: bash
 
-   streamlit run app.py
+   streamlit run docs/app.py
 
 **Key Features:**
 
-* **Interactive Parameters:** Adjust water depth, cylinder radii, heaving states, number of harmonics, wave number, angular frequency, and spatial resolution.
-* **Dynamic Domain Configuration:** Supports multi-region calculations.
-* **Slant Support:** Allows specification of slanted cylinder walls.
-* **Hydrodynamic Coefficients:** Calculates and displays added mass and damping for each heaving mode.
-* **Potential and Velocity Field Visualization:** Plots homogeneous, particular, and total potential fields, as well as radial and vertical velocity components.
+* **Interactive Parameters:** Adjust water depth, body radii, step depths, and the number of harmonics.
+* **Object-Oriented Setup:** Defines the geometry by creating `SteppedBody` objects, reflecting the modern API.
+* **Single Frequency Analysis:** Solves the system for a single wave frequency and visualizes the total potential field in real time.
+* **Frequency Sweep Analysis:** Efficiently runs the simulation across a range of frequencies to compute and plot how added mass and damping coefficients change.
 
 .. _app-functions:
 
@@ -46,43 +55,38 @@ Functions
 
    The main function that sets up and runs the Streamlit application.
 
-   It configures the sidebar for user inputs, parses and validates these inputs,
-   sets up the `MEEMProblem` and `MEEMEngine`, solves the hydrodynamic problem,
-   computes coefficients, calculates potential and velocity fields, and
-   visualizes the results using Matplotlib plots within the Streamlit interface.
+   It configures the sidebar for user inputs, parses them, and sets up the problem geometry using the object-oriented API (`SteppedBody`, `ConcentricBodyGroup`, `BasicRegionGeometry`). The interface is split into two main actions: a single frequency test and a frequency sweep.
 
    **User Inputs (Sidebar):**
 
-   * **Water Depth (h):** Overall depth of the water. (Slider)
-   * **Cylinder Depths (d):** Comma-separated list of depths for each cylinder. (Text Input)
-   * **Cylinder Radii (a):** Comma-separated list of radii for each cylinder. (Text Input)
-   * **Heaving States:** Comma-separated binary (1=True, 0=False) list indicating if each domain is heaving. (Text Input)
-   * **Slanted States:** Comma-separated binary (1=True, 0=False) list indicating if each domain's outer wall is slanted. (Text Input)
-   * **Number of Harmonics (NMK):** Comma-separated list specifying the number of terms in the approximation for each domain (inner, middle, exterior). (Text Input)
-   * **Wave Number (m0):** The radial wave number. (Number Input)
-   * **Angular Frequency (omega):** The angular frequency of the wave system. (Number Input)
-   * **Spatial Resolution:** Controls the density of the grid for plotting potential/velocity fields. (Slider)
+   * **Water Depth (h):** Overall depth of the water.
+   * **Body Step Depths (d):** Comma-separated list of submerged depths, one for each body.
+   * **Body Radii (a):** Comma-separated list of radii, one for each body.
+   * **Heaving Bodies (1/0):** Comma-separated binary list (1=True, 0=False) indicating if each body is heaving.
+   * **Harmonics (NMK):** Comma-separated list specifying the number of series approximation terms for each fluid domain (number of bodies + 1).
+   * **Single Frequency Test:**
+      * **Angular Frequency (omega):** The specific frequency for the potential field visualization.
+      * **Plot Spatial Resolution:** Controls the grid density for the potential plots.
+   * **Frequency Sweep for Coefficients:**
+      * **Start Omega:** The beginning of the frequency range.
+      * **End Omega:** The end of the frequency range.
+      * **Number of Steps:** The number of frequencies to simulate within the range.
 
-   **Plot Options (Sidebar Checkboxes):**
+   **Simulation Workflows:**
 
-   * Show Homogeneous Potential Plots
-   * Show Particular Potential Plots
-   * Show Total Potential Plots
-   * Show Radial Velocity Plots
-   * Show Vertical Velocity Plots
+   The application logic is divided into two distinct workflows, triggered by buttons in the main interface.
 
-   **Simulation Steps:**
+   1.  **Run Single Test & Plot Potentials:**
+      * Calculates the non-dimensional wavenumber (`m0`) from the user-provided `omega`.
+      * Configures the `MEEMProblem` with the single frequency and the active modes of motion.
+      * Initializes the `MEEMEngine` and calls `solve_linear_system_multi` to get the solution vector `X`.
+      * Computes and displays the hydrodynamic coefficient matrices for that single frequency.
+      * Calls `calculate_potentials` to compute the total potential field.
+      * Visualizes the real and imaginary parts of the potential field using Matplotlib.
 
-   1.  **Input Parsing & Validation:** Converts string inputs to lists of numbers and performs basic validation on their lengths.
-   2.  **Domain Parameter Construction:** Builds a list of dictionaries, each describing a domain's properties based on user inputs.
-   3.  **Geometry and Problem Setup:** Initializes `Geometry` and `MEEMProblem` objects with the defined parameters, frequencies, and modes.
-   4.  **MEEM Engine Initialization:** Creates an `MEEMEngine` instance.
-   5.  **Linear System Solving:** Solves the core linear system to find the unknown coefficients (`X`).
-   6.  **Hydrodynamic Coefficients Calculation:** Computes and displays added mass and damping coefficients for each heaving mode.
-   7.  **Coefficient Reformatting:** Reformats the solution vector `X` into a more usable structure (`Cs`) per region.
-   8.  **Cache Access:** Retrieves precomputed arrays (`m_k_arr`, `N_k_arr`) from the engine's cache.
-   9.  **Potential Field Calculation:** Iterates through spatial regions to calculate homogeneous and particular potentials based on the computed coefficients.
-   10. **Potential Field Plotting:** Generates and displays Matplotlib plots for the selected potential fields.
-   11. **Velocity Field Calculation:** Computes radial and vertical velocity components across the domain.
-   12. **Velocity Field Plotting:** Generates and displays Matplotlib plots for the velocity fields.
-   13. **Completion Message:** Displays a success message upon simulation completion.
+   2.  **Run Frequency Sweep & Plot Coefficients:**
+      * Creates an array of frequencies based on the user's start, end, and step inputs.
+      * Configures the `MEEMProblem` with the full array of frequencies and active modes.
+      * Initializes the `MEEMEngine` and calls the highly efficient `run_and_store_results` method. This single method handles the entire simulation loop internally.
+      * Extracts the computed `added_mass` and `damping` coefficients from the resulting `xarray.Dataset`.
+      * Generates and displays Matplotlib plots showing how the added mass and damping coefficients vary across the simulated frequency range.

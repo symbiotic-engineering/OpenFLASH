@@ -1,150 +1,105 @@
-.. _multi_equations:
+.. _multi_equations-module:
 
 ======================
-Multi-Region Equations
+Mathematical Equations
 ======================
 
-The `multi_equations` module contains a comprehensive set of mathematical functions
-and expressions central to MEEM Engine.
-These functions define the fundamental components of the problem, including
-eigenfunctions, coupling integrals, and terms for matrix assembly, particularly
-adapted for multi-region configurations.
+.. automodule:: openflash.multi_equations
 
-.. automodule:: multi_equations
+.. _multi_equations-overview:
 
-.. raw:: html
+Conceptual Overview
+===================
 
-   <hr>
+The ``multi_equations`` module is the mathematical heart of the OpenFLASH package. It contains the Python implementations of the core analytical functions required for the Matched Eigenfunction Expansion Method (MEEM), including radial and vertical eigenfunctions, their derivatives, coupling integrals, and terms for constructing the final linear system.
 
-Common Computations
--------------------
+.. warning::
+   Most functions in this module are low-level mathematical components used internally by the :class:`~openflash.meem_engine.MEEMEngine`. The average user will typically only need to interact with the **User-Facing Utility Functions** listed below. The other sections are provided for developers and researchers interested in the underlying mathematical theory.
 
-This section includes general utility functions and fundamental computations
-used across various parts of the MEEM formulation.
+.. _multi_equations-user-api:
 
-.. autofunction:: omega
-.. autofunction:: scale
-.. autofunction:: lambda_ni
+User-Facing Utility Functions
+=============================
 
-.. raw:: html
+These are high-level helper functions that you may need to use when setting up a simulation.
 
-   <hr>
+.. autofunction:: openflash.multi_equations.omega
+.. autofunction:: openflash.multi_equations.wavenumber
 
-m_k Wavenumber Computations
----------------------------
+.. _multi_equations-core-api:
 
-Functions related to the calculation of the wavenumber :math:`m_k`, which
-are crucial for the exterior region's eigenfunctions.
+Core Mathematical Components
+============================
 
-.. autofunction:: m_k_entry
-.. autofunction:: m_k
-.. autofunction:: m_k_newton
+This section details the core mathematical building blocks of the MEEM formulation. These functions are primarily called by the ``MEEMEngine`` during the matrix assembly process.
 
-.. raw:: html
+Wavenumber Computations
+-----------------------
+These functions determine the wavenumbers for the exterior fluid domain.
 
-   <hr>
+.. autofunction:: openflash.multi_equations.m_k_entry
+.. autofunction:: openflash.multi_equations.lambda_ni
 
-Vertical Eigenvector Coupling Integrals
----------------------------------------
+Coupling Integrals
+------------------
+These functions compute the integrals that couple the vertical eigenfunctions at the boundaries between adjacent fluid regions.
 
-Functions that compute the coupling integrals between vertical eigenfunctions
-in adjacent fluid regions.
+.. autofunction:: openflash.multi_equations.I_nm
+.. autofunction:: openflash.multi_equations.I_mk
 
-.. autofunction:: I_nm
-.. autofunction:: I_mk
+Radial Eigenfunctions
+---------------------
+These functions define the radial variation of the potential in each type of fluid domain. They include the functions themselves, their derivatives, and optimized vectorized versions used for post-processing.
 
-.. raw:: html
+.. rubric:: Interior Regions (Bessel I)
 
-   <hr>
+.. autofunction:: openflash.multi_equations.R_1n
+.. autofunction:: openflash.multi_equations.diff_R_1n
+.. autofunction:: openflash.multi_equations.R_1n_vectorized
+.. autofunction:: openflash.multi_equations.diff_R_1n_vectorized
 
-Right-Hand Side (b-vector) Terms
---------------------------------
+.. rubric:: Intermediate Regions (Bessel K)
 
-Functions that contribute to the assembly of the right-hand side vector
-(:math:`\mathbf{b}`), representing external excitations or boundary conditions.
+.. autofunction:: openflash.multi_equations.R_2n
+.. autofunction:: openflash.multi_equations.diff_R_2n
+.. autofunction:: openflash.multi_equations.R_2n_vectorized
+.. autofunction:: openflash.multi_equations.diff_R_2n_vectorized
 
-.. autofunction:: b_potential_entry
-.. autofunction:: b_potential_end_entry
-.. autofunction:: b_velocity_entry
-.. autofunction:: b_velocity_end_entry
-.. autofunction:: b_velocity_end_entry_full
+.. rubric:: Exterior Region (Hankel & Bessel K)
 
-.. raw:: html
+.. autofunction:: openflash.multi_equations.Lambda_k
+.. autofunction:: openflash.multi_equations.diff_Lambda_k
+.. autofunction:: openflash.multi_equations.Lambda_k_vectorized
+.. autofunction:: openflash.multi_equations.diff_Lambda_k_vectorized
 
-   <hr>
 
-Particular Solution and Derivatives
------------------------------------
+Vertical Eigenfunctions
+-----------------------
+These functions define the vertical variation of the potential in each type of fluid domain.
 
-Functions for the particular solution of the Laplace equation and its
-derivatives, often related to incident wave potential.
+.. rubric:: Interior & Intermediate Regions
 
-.. autofunction:: phi_p_i
-.. autofunction:: diff_r_phi_p_i
-.. autofunction:: diff_z_phi_p_i
+.. autofunction:: openflash.multi_equations.Z_n_i
+.. autofunction:: openflash.multi_equations.diff_Z_n_i
+.. autofunction:: openflash.multi_equations.Z_n_i_vectorized
+.. autofunction:: openflash.multi_equations.diff_Z_n_i_vectorized
 
-.. raw:: html
+.. rubric:: Exterior Region
 
-   <hr>
+.. autofunction:: openflash.multi_equations.N_k_multi
+.. autofunction:: openflash.multi_equations.Z_k_e
+.. autofunction:: openflash.multi_equations.diff_Z_k_e
+.. autofunction:: openflash.multi_equations.Z_k_e_vectorized
+.. autofunction:: openflash.multi_equations.diff_Z_k_e_vectorized
 
-Radial Eigenfunctions (R1n, R2n, Lambda_k)
-------------------------------------------
 
-Functions defining the radial eigenfunctions for the interior (Bessel I type),
-intermediate (Bessel K type), and exterior (Hankel and Bessel K type) regions.
+Particular Solution & Hydrodynamic Terms
+----------------------------------------
+These functions are related to the non-homogeneous parts of the solution and the final calculation of physical coefficients.
 
-.. autofunction:: R_1n
-.. autofunction:: R_1n_vectorized
-.. autofunction:: diff_R_1n
-.. autofunction:: R_2n
-.. autofunction:: R_2n_vectorized
-.. autofunction:: diff_R_2n
-.. autofunction:: Lambda_k
-.. autofunction:: Lambda_k_vectorized
-.. autofunction:: Lambda_k_full
-.. autofunction:: diff_Lambda_k
-.. autofunction:: diff_Lambda_k_full
-
-.. raw:: html
-
-   <hr>
-
-Vertical Eigenfunctions (Zn, Zk)
---------------------------------
-
-Functions defining the vertical eigenfunctions for the interior/intermediate
-regions (:math:`Z_n^i`) and the exterior region (:math:`Z_k^e`).
-
-.. autofunction:: N_k_multi
-.. autofunction:: N_k_full
-.. autofunction:: Z_n_i
-.. autofunction:: Z_n_i_vectorized
-.. autofunction:: diff_Z_n_i
-.. autofunction:: Z_k_e
-.. autofunction:: Z_k_e_vectorized
-.. autofunction:: diff_Z_k_e
-
-.. raw:: html
-
-   <hr>
-
-Hydrodynamic Coefficient Integrals
-----------------------------------
-
-Functions used in the calculation of hydrodynamic coefficients, involving
-integrals of radial eigenfunctions and other terms.
-
-.. autofunction:: int_R_1n
-.. autofunction:: int_R_2n
-.. autofunction:: z_n_d
-
-.. raw:: html
-
-   <hr>
-
-Excitation Phase
-----------------
-
-Function to calculate the excitation phase.
-
-.. autofunction:: excitation_phase
+.. autofunction:: openflash.multi_equations.phi_p_i
+.. autofunction:: openflash.multi_equations.diff_r_phi_p_i
+.. autofunction:: openflash.multi_equations.diff_z_phi_p_i
+.. autofunction:: openflash.multi_equations.int_R_1n
+.. autofunction:: openflash.multi_equations.int_R_2n
+.. autofunction:: openflash.multi_equations.excitation_force
