@@ -37,6 +37,28 @@ class Domain:
         assert a_outer > a_inner >= 0, "Radii must be valid (a_outer > a_inner >= 0)."
         assert self.d_upper >= d_lower >= 0, "Depths must be valid (d_upper >= d_lower >= 0)."
 
+    @property
+    def h(self):
+        """
+        Return the total water depth (free surface height),
+        which MEEMEngine expects as .h on domain objects.
+        """
+        return self.d_upper
+    
+    @property
+    def di(self):
+        """
+        Lower boundary depth of the domain (used internally in MEEMEngine as .di).
+        """
+        return self.d_lower
+    
+    @property
+    def a(self):
+        """
+        Alias for outer radius (used internally by MEEMEngine as .a).
+        """
+        return self.a_outer
+    
     @staticmethod
     def are_adjacent(d1: "Domain", d2: "Domain", atol: float = 1e-6) -> bool:
         """

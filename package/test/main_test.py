@@ -2,9 +2,6 @@ import logging
 import sys
 import os
 import numpy as np
-import pandas as pd # Can be removed if not used
-from scipy import linalg # Can be removed if not used (only solve is used, not linalg directly)
-from scipy.integrate import quad # Can be removed if not used
 import matplotlib.pyplot as plt
 
 # --- Path Setup ---
@@ -13,114 +10,131 @@ src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src'))
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
-# --- Import core modules ---
+# --- Import updated package modules ---
 from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
-from openflash.geometry import Geometry
-from openflash.multi_equations import *
+from openflash.basic_region_geometry import BasicRegionGeometry
+from openflash.geometry import ConcentricBodyGroup
+from openflash.body import SteppedBody
+from openflash.multi_equations import omega
 from openflash.multi_constants import g
-from openflash.domain import Domain
 
-# Set print options for better visibility in console
+# Set print options for better visibility
 np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
 
-def main(): # Renamed from test_main
+
+def main():
     """
     Main function to set up a multi-region MEEM problem, solve it,
     and visualize the potential and velocity fields.
     """
-    # --- Problem Definition Parameters ---
-    # get an error when NMK[idx] > 89
-    NMK = [100, 100, 100, 100] # Number of terms in approximation of each region (including e).
-    boundary_count = len(NMK) - 1
-    h = 100
-    d = [29, 7, 4]
-    a = [3, 5, 10]
-    heaving = [0, 1, 1]
-    # 0/false if not heaving, 1/true if yes heaving
-    # All computations assume at least 2 regions.
+    # -------------------------
+    # Problem Definition Parameters
+    # -------------------------
+    NMK = [100, 100, 100, 100]  # Number of harmonics per domain
+    h = 100                      # Total water depth
+    a = [3, 5, 10]               # Body radii
+    d = [29, 7, 4]               # Step depths
+    heaving_flags = [False, True, True]  # Heaving flags per body
 
-    # --- Geometry Setup ---
-    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
-    
-    a_recovered = [p['a'] for p in domain_params[:-1]]
-    d_recovered = [p['di'] for p in domain_params[:-1]]
-    heaving_recovered = [p['heaving'] for p in domain_params[:-1]]
-    h_recovered = domain_params[0]['height']
+    # -------------------------
+    # Create SteppedBody objects
+    # -------------------------
+    bodies = []
+    for i in range(len(a)):
+        bodies.append(SteppedBody(
+            a=np.array([a[i]]),
+            d=np.array([d[i]]),
+            slant_angle=np.array([0.0]),  # Flat tops
+            heaving=heaving_flags[i]
+        ))
 
-    assert a_recovered == a
-    assert d_recovered == d
-    assert heaving_recovered == heaving
-    assert h_recovered == h
+    # -------------------------
+    # Create Geometry
+    # -------------------------
+    arrangement = ConcentricBodyGroup(bodies)
+    geometry = BasicRegionGeometry(arrangement, h=h, NMK=NMK)
 
-    # Create Geometry object
-    r_coordinates = Domain.build_r_coordinates_dict(a)
-    z_coordinates = Domain.build_z_coordinates_dict(h)
-
-    geometry = Geometry(r_coordinates, z_coordinates, domain_params)
+    # -------------------------
+    # Create MEEMProblem and MEEMEngine
+    # -------------------------
     problem = MEEMProblem(geometry)
-    m0 = 1
-        
-    # --- MEEM Engine Operations ---
+
+    # --- FIX: Define the frequencies and modes to be solved ---
+    m0 = 1.0  # The non-dimensional frequency parameter
+    
+    # Calculate the physical frequency from m0
+    problem_frequencies = np.array([omega(m0, h, g)])
+    
+    # Identify which bodies are heaving to define the modes
+    # heaving_flags is [False, True, True], so bodies 1 and 2 are heaving.
+    problem_modes = np.array([1, 2])
+    
+    # Set them in the problem object
+    problem.set_frequencies_modes(problem_frequencies, problem_modes)
+    # --- End of FIX ---
+
     engine = MEEMEngine(problem_list=[problem])
 
-    # Solve the linear system A x = b
-    X = engine.solve_linear_system_multi(problem, m0)
-    print(f"System solved. Solution vector X shape: {X.shape}")
+    # The m0 value is now taken from the problem's frequency list, but we can pass it
+    # directly to the engine methods as you were doing.
+    engine._ensure_m_k_and_N_k_arrays(problem, m0)
+    A = engine.assemble_A_multi(problem, m0)
+    b = engine.assemble_b_multi(problem, m0)
 
-    # Compute and print hydrodynamic coefficients
-    hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0)
-    print(f"Type of hydro_coefficients: {type(hydro_coefficients)}")
-    print(f"Value: {hydro_coefficients}")
-
-    print(type(hydro_coefficients[0]["real"]), type(hydro_coefficients[0]["imag"]))
-
-    real = hydro_coefficients[0]["real"]
-    imag = hydro_coefficients[0]["imag"]
-    nondim_real = hydro_coefficients[0]["nondim_real"]
-    nondim_imag = hydro_coefficients[0]["nondim_imag"]
-    excitation_phase = hydro_coefficients[0]["excitation_phase"]
-    excitation_force = hydro_coefficients[0]["excitation_force"]
-
-    print("\n--- Hydrodynamic Coefficient Breakdown ---")
-    print(f"real (added mass): {real:.10f}")
-    print(f"imag (damping): {imag:.10f}")
-    print(f"real/(h^3): {real / h**3:.10f}")
-    print(f"imag/(h^3): {imag / h**3:.10f}")
-    print(f"nondimensional, real: {nondim_real:.10f}")
-    print(f"nondimensional, imag (no omega factor): {nondim_imag:.10f}")
-    print(f"Excitation Phase: {excitation_phase:.10f} radians")
-    print(f"Excitation Force: {excitation_force:.10f} N")
-    # --- Reformat coefficients using the dedicated MEEMEngine method ---
-    reformat_boundary_count = len(NMK) - 1
-    Cs = engine.reformat_coeffs(X, NMK, reformat_boundary_count)
-    print(f"\nCoefficients reformatted into {len(Cs)} regions.")
-    for i, c_region in enumerate(Cs):
-        print(f"  Region {i} (NMK={NMK[i]}): {c_region.shape} coefficients")
-
-    # --- Potential and Velocity Field Calculation ---
+    print("Any NaNs in A?", np.isnan(A).any())
+    print("Any Infs in A?", np.isinf(A).any())
+    print("Any NaNs in b?", np.isnan(b).any())
+    print("Any Infs in b?", np.isinf(b).any())
     
-    # --- Use MEEMEngine to calculate potentials ---
+    print(f"System matrix A assembled. Shape: {A.shape}")
+    print(f"Right-hand side vector b assembled. Shape: {b.shape}")
+    print("Body depths:", d)
+    print("Water depth:", h)
+    print("Body radii:", a)
+
+
+
+    # -------------------------
+    # Solve the linear system
+    # -------------------------
+    X = engine.solve_linear_system_multi(problem, m0)
+    print(f"System solved. Solution vector shape: {X.shape}")
+
+    # -------------------------
+    # Compute hydrodynamic coefficients
+    # -------------------------
+    hydro_coeffs = engine.compute_hydrodynamic_coefficients(problem, X, m0)
+    coeff0 = hydro_coeffs[0]
+    print(f"\nHydrodynamic coefficients (body 0): {coeff0}")
+
+    # -------------------------
+    # Reformat coefficients per region
+    # -------------------------
+    Cs = engine.reformat_coeffs(X, NMK, len(NMK) - 1)
+    for i, c_region in enumerate(Cs):
+        print(f"Region {i} (NMK={NMK[i]}): {c_region.shape} coefficients")
+
+    # -------------------------
+    # Calculate potentials
+    # -------------------------
     potentials = engine.calculate_potentials(problem, X, m0, spatial_res=50, sharp=True)
+    R, Z = potentials["R"], potentials["Z"]
+    phiH, phiP, phi = potentials["phiH"], potentials["phiP"], potentials["phi"]
 
-    # Unpack
-    R = potentials["R"]
-    Z = potentials["Z"]
-    phiH = potentials["phiH"]
-    phiP = potentials["phiP"]
-    phi = potentials["phi"]
-
-    # --- Plot using built-in visualizer ---
+    # -------------------------
+    # Visualize potentials
+    # -------------------------
     engine.visualize_potential(np.real(phiH), R, Z, "Homogeneous Potential (Real)")
     engine.visualize_potential(np.imag(phiH), R, Z, "Homogeneous Potential (Imag)")
     engine.visualize_potential(np.real(phiP), R, Z, "Particular Potential (Real)")
     engine.visualize_potential(np.imag(phiP), R, Z, "Particular Potential (Imag)")
     engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
     engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
-        
-    plt.show()
 
-    print("\nScript finished. Close plot windows to exit.")
+    plt.show()
+    print("Script finished. Close plots to exit.")
+
 
 if __name__ == "__main__":
     main()

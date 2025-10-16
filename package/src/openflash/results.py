@@ -210,20 +210,18 @@ class Results:
         :param damping_matrix: 2D array (frequencies x modes) of damping coefficients.
         """
         # Ensure dimensions match for clarity and correctness
-        if added_mass_matrix.shape != (len(frequencies), len(modes)) or \
-           damping_matrix.shape != (len(frequencies), len(modes)):
-            raise ValueError("Added mass and damping matrices must have shape (num_frequencies, num_modes).")
+        # FIX: Update the validation to expect a 3D shape.
+        expected_shape = (len(frequencies), len(modes), len(modes))
+        
+        if added_mass_matrix.shape != expected_shape or \
+        damping_matrix.shape != expected_shape:
+            raise ValueError(
+                f"Added mass and damping matrices must have shape (num_frequencies, num_modes, num_modes). "
+                f"Expected {expected_shape}, but got {added_mass_matrix.shape}."
+            )
 
-        self.dataset['added_mass'] = xr.DataArray(
-            added_mass_matrix,
-            dims=['frequencies', 'modes'],
-            coords={'frequencies': frequencies, 'modes': modes}
-        )
-        self.dataset['damping'] = xr.DataArray(
-            damping_matrix,
-            dims=['frequencies', 'modes'],
-            coords={'frequencies': frequencies, 'modes': modes}
-        )
+        self.dataset['added_mass'] = (('frequency', 'mode_i', 'mode_j'), added_mass_matrix)
+        self.dataset['damping'] = (('frequency', 'mode_i', 'mode_j'), damping_matrix)
         print("Hydrodynamic coefficients stored in xarray dataset.")
 
     def export_to_netcdf(self, file_path: str):

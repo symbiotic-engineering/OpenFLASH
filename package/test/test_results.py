@@ -72,8 +72,9 @@ def test_store_hydrodynamic_coefficients(results_instance, sample_frequencies, s
     num_freq = len(sample_frequencies)
     num_modes = len(sample_modes)
 
-    added_mass_data = np.random.rand(num_freq, num_modes) * 100
-    damping_data = np.random.rand(num_freq, num_modes) * 50
+    # FIX: Generate 3D data arrays
+    added_mass_data = np.random.rand(num_freq, num_modes, num_modes) * 100
+    damping_data = np.random.rand(num_freq, num_modes, num_modes) * 50
 
     results_instance.store_hydrodynamic_coefficients(
         sample_frequencies, sample_modes, added_mass_data, damping_data
@@ -85,16 +86,18 @@ def test_store_hydrodynamic_coefficients(results_instance, sample_frequencies, s
     added_mass_da = results_instance.dataset['added_mass']
     damping_da = results_instance.dataset['damping']
 
-    assert added_mass_da.dims == ('frequencies', 'modes')
-    assert damping_da.dims == ('frequencies', 'modes')
+    # FIX: Assert the correct 3D dimensions used by the store method
+    assert added_mass_da.dims == ('frequency', 'mode_i', 'mode_j')
+    assert damping_da.dims == ('frequency', 'mode_i', 'mode_j')
 
     np.testing.assert_array_almost_equal(added_mass_da.values, added_mass_data)
     np.testing.assert_array_almost_equal(damping_da.values, damping_data)
 
     # Test ValueError for incorrect shape
     with pytest.raises(ValueError, match="matrices must have shape"):
+        # Pass an incorrectly shaped 2D array to trigger the error
         results_instance.store_hydrodynamic_coefficients(
-            sample_frequencies, sample_modes, np.random.rand(num_freq, 1), damping_data
+            sample_frequencies, sample_modes, np.random.rand(num_freq, num_modes), damping_data
         )
 
 def test_store_results_eigenfunctions(results_instance, mock_geometry, sample_frequencies, sample_modes):
@@ -256,8 +259,9 @@ def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mo
     num_modes = len(sample_modes)
     
     # Hydro coeffs
-    added_mass_data = np.random.rand(num_freq, num_modes)
-    damping_data = np.random.rand(num_freq, num_modes)
+    # FIX: Generate 3D data arrays
+    added_mass_data = np.random.rand(num_freq, num_modes, num_modes)
+    damping_data = np.random.rand(num_freq, num_modes, num_modes)
     results_instance.store_hydrodynamic_coefficients(sample_frequencies, sample_modes, added_mass_data, damping_data)
 
     # Eigenfunctions

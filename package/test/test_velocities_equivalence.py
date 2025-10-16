@@ -11,8 +11,9 @@ if src_dir not in sys.path:
 # --- Import Package Modules ---
 from openflash.meem_engine import MEEMEngine
 from openflash.meem_problem import MEEMProblem
-from openflash.geometry import Geometry
-from openflash.domain import Domain
+from openflash.basic_region_geometry import BasicRegionGeometry
+from openflash.geometry import ConcentricBodyGroup
+from openflash.body import SteppedBody
 
 # --- Path Setup ---
 current_dir = os.path.dirname(__file__)
@@ -118,26 +119,46 @@ def main():
     print("--- Setting up test problem ---")
     NMK = [1, 1, 1, 1]
     h = 100
-    d = [29, 7, 4]
-    a = [3, 5, 10]
-    heaving = [0, 1, 1]
+    # Use np.array for consistency
+    d = np.array([29, 7, 4])
+    a = np.array([3, 5, 10])
+    heaving = np.array([0, 1, 1])
     m0 = 1.0
 
-    domain_params = Domain.build_domain_params(NMK, a, d, heaving, h)
-    geometry = Geometry(
-        Domain.build_r_coordinates_dict(a),
-        Domain.build_z_coordinates_dict(h),
-        domain_params
+    # --- CORRECTED Geometry and Problem Setup ---
+    # 1. Define the physical bodies
+    bodies = []
+    for i in range(len(a)):
+        body = SteppedBody(
+            a=np.array([a[i]]),
+            d=np.array([d[i]]),
+            slant_angle=np.array([0.0]),
+            heaving=bool(heaving[i])
+        )
+        bodies.append(body)
+
+    # 2. Create the body arrangement
+    arrangement = ConcentricBodyGroup(bodies)
+
+    # 3. Instantiate the CONCRETE geometry class
+    geometry = BasicRegionGeometry(
+        body_arrangement=arrangement,
+        h=h,
+        NMK=NMK
     )
+    
+    # 4. Create the problem object
     problem = MEEMProblem(geometry)
     engine = MEEMEngine(problem_list=[problem])
 
+    # --- The rest of your main function continues below ---
     print("--- Solving linear system once ---")
     X = engine.solve_linear_system_multi(problem, m0)
 
     # 2. ACT: Run both the new and old calculation methods
     velocities_new = engine.calculate_velocities(problem, X, m0, spatial_res=50, sharp=True)
-    velocities_old = calculate_velocities_old(X, NMK, h, d, a, m0, heaving)
+    # The old function needs the original list versions of a and d
+    velocities_old = calculate_velocities_old(X, NMK, h, list(d), list(a), m0, list(heaving))
     
     # 3. ASSERT: Compare the results
     print("\n--- Comparing NEW vs OLD Velocity Results ---")

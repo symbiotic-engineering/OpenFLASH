@@ -31,7 +31,20 @@ class BasicRegionGeometry(Geometry):
         # Verify NMK has the correct length (one for each body segment + one for the exterior).
         if len(NMK) != len(all_radii) + 1:
             raise ValueError("Length of NMK must be one greater than the total number of body radii.")
+        # FIX 1: Generate the domains and store the final dictionary ONCE during initialization.
+        # The old line was: self._domain_list: List[Domain] = self.make_fluid_domains()
+        domains_as_list = self.make_fluid_domains()
+        self._domain_dict: dict = {domain.index: domain for domain in domains_as_list}
 
+    @property
+    def domain_list(self) -> dict:
+        """
+        Returns a dictionary of domains keyed by index.
+        Required for MEEMEngine compatibility.
+        """
+        # FIX 2: Simply return the dictionary created during __init__. Do not recalculate.
+        return self._domain_dict
+    
     @classmethod
     def from_vectors(cls,
                      a: np.ndarray,
