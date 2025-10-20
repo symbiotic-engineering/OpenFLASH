@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.cm as cm
 from scipy import stats
+from scipy.optimize import curve_fit
 
 
 import sys
@@ -203,30 +204,44 @@ def scale_by(lst, val):
 
 def generate_log_data(all_prob_dicts):
   hydro_keys = ["am", "dp"]
-  log_data = []
   for data_dict in all_prob_dicts:
-    output = data_dict.copy()
     for m0 in data_dict["m0s"]:
-      m0_output = {}
       for hydro in hydro_keys:
-          if data_dict[m0]["convergence point 0.01 " + hydro] < 150:
-            true_y = data_dict[m0][hydro]
-            ys = [np.log(abs(entry - 1)) for entry in scale_by(data_dict[m0][hydro + "s"], true_y)]
-            slope, intercept, r_value, p_value, std_err = stats.linregress(list(range(1, 151)), ys)
-            m0_output[hydro] = {"ys" : ys,
-                                "slope" : slope,
-                                "intercept" : intercept,
-                                "r2_value" : r_value ** 2,
-                                "p_value" : p_value,
-                                "std_err" : std_err}
-          else: m0_output[hydro] = None # Did not converge
-      output[m0] = m0_output
-    log_data.append(output)
-  return log_data
+          true_y = data_dict[m0][hydro]
+          ys = [np.log(abs(entry - 1)) for entry in scale_by(data_dict[m0][hydro + "s"], true_y)]
+            # slope, intercept, r_value, p_value, std_err = stats.linregress(list(range(1, 151)), ys)
+          data_dict[m0]["log errors " + hydro] = ys
+  return all_prob_dicts
 
 def wrap_m0(f):
   # wraps a function f that only takes data_dict to fit situations where it should intake m0
   return lambda data_dict, m0 : f(data_dict)
+
+def subdivide_lst(data_lst, f, rtol = 0.01):
+  group_dict = {}
+  for data_dict in data_lst:
+    for m0 in data_dict["m0s"]:
+      val = f(data_dict, m0)
+      stored = False
+      keys = ["h", "d", "a", "region", m0]
+      out_dict = {key: data_dict[key] for key in keys}
+      out_dict["m0s"] = [m0]
+      for key in group_dict.keys():
+        if abs((val - key)/key) < rtol:
+          group_dict[key].append(out_dict)
+          stored = True
+          break
+      if not stored:
+        group_dict[val] = [out_dict]
+  return [group_dict[key] for key in group_dict.keys()] # turn dict into lst of lsts
+
+def subdivide_by_constants(data, xlab, variable_funcs):
+  other_funcs = variable_funcs.copy()
+  del other_funcs[xlab]
+  subdivision = [data]
+  for key in other_funcs.keys():
+    subdivision = [entry for sublist in subdivision for entry in subdivide_lst(sublist, other_funcs[key])]
+  return subdivision
 
 ###################################
 # Data plotting functions
@@ -324,8 +339,22 @@ def plot_hydros_against_3(data, hydro, error, xfunc, yfunc, zfunc, xlab, ylab, z
   data = np.column_stack((xs, ys, zs, vals))
   plot_4tuples_3d(data, cmap='plasma', xlab = xlab, ylab = ylab, zlab = zlab,
                         clabel = f"convergence point {error:.2g}", title = hydro)
-  
-# Plots the shapes of the configurations, visually with color corresponding to convergence point.
+
+def plot_hydros_against_1(data, hydro, error, xfunc, xlabel = "X", ylabel = None, title = None):
+  xs = [xfunc(config, m0) for config in data for m0 in config["m0s"]]
+  ys = [config[m0][f"convergence point {error:2g} " + hydro] for config in data for m0 in config["m0s"]]
+  plt.scatter(xs, ys)
+
+  if ylabel is None:
+    ylabel = f"convergence point {error:.2g}"
+  if title is None:
+    title = hydro
+  plt.xlabel(xlabel)
+  plt.ylabel(ylabel)
+  plt.title(title)
+  plt.show()
+
+######## GEOMETRIES, with color corresponding to convergence point.
 def plot_regions_grid(data_dicts, m0s, color_func, plots_per_row=10, figsize_per_plot=(2, 2)):
     """
     Plot a grid of region plots for a list of data_dicts.
@@ -335,10 +364,7 @@ def plot_regions_grid(data_dicts, m0s, color_func, plots_per_row=10, figsize_per
     rows = math.ceil(total / plots_per_row)
     cols = plots_per_row
 
-    fig, axes = plt.subplots(rows, cols,
-                             figsize=(figsize_per_plot[0] * cols,
-                                      figsize_per_plot[1] * rows),
-                             squeeze=False)
+    fig, axes = plt.subplots(rows, cols, figsize=(figsize_per_plot[0] * cols, figsize_per_plot[1] * rows), squeeze=False)
 
     for idx, data_dict in enumerate(data_dicts):
         row = idx // cols
@@ -361,16 +387,15 @@ def plot_regions_grid(data_dicts, m0s, color_func, plots_per_row=10, figsize_per
         body_color = color_func(data_dict, m0)
 
         # Draw regions
-        x_edges = [0, a[0], a[1], a[2]]
-        for i in range(3):
+        x_edges = [0] + [a[i] for i in range(len(d))]
+        for i in range(len(d)):
             if data_dict["region"] == i:
               region_color = (0, 0.7, 0.125) # Green, not in the plasma colormap
             else: region_color = body_color
             x0 = x_edges[i]
             width = x_edges[i+1] - x0
             height = d[i]
-            rect = Rectangle((x0, -height), width, height,
-                             facecolor=region_color, edgecolor=None)
+            rect = Rectangle((x0, -height), width, height, facecolor=region_color, edgecolor=None)
             ax.add_patch(rect)
 
         # Label with m0 value
@@ -425,3 +450,221 @@ def plot_hypothesis(data, hydro, error, prediction, xlab, linerange = 150):
   plt.title(hydro + " " + str(error))
   plt.grid()
   plt.show()
+
+######## HISTOGRAM
+def histogram(data, hydro, error, ylab = "count", title = "convergence"):
+  vals = [data_dict[m0][f"convergence point {error:.2g} " + hydro]
+          for data_dict in data for m0 in data_dict["m0s"]]
+  if min(vals) == max(vals):
+    bins = [vals[0] - 0.5, vals[0] + 0.5]
+  else:
+    bins = np.arange(min(vals)-0.5, max(vals)+1.5, 1)
+  plt.hist(vals, bins = bins, edgecolor = "black")
+  plt.xlabel(f"convergence point {error:.2g} " + hydro)
+  plt.ylabel(ylab)
+  plt.title(hydro + " " + title)
+  plt.show()
+  return vals
+
+######## LOG PLOTS
+def plot_one_convergence_and_log(data_dict, m0, hydro, ax1, ax2, color = "Red", scale = False, alpha = 1,
+                             label = None, error = 0.01, nmk_max = 150, trunc = 0, smooth = False):
+  xs = list(range(1, nmk_max + 1))[trunc:]
+  ys1 = data_dict[m0][hydro + "s"][trunc:]
+  ys2 = data_dict[m0]["log errors " + hydro][trunc:]
+  true_val = data_dict[m0][hydro]
+  if scale:
+    ys1 = scale_by(ys1, true_val)
+    true_val = 1
+  ax1.plot(xs, ys1, color = color, alpha=alpha, label = label)
+  ax1.axhline(true_val, color = color, linestyle='--')
+  if smooth:
+    xs, ys2 = filter_local_maxima(xs, ys2)
+  # if smooth:
+  #   new_xs = []
+  #   new_ys = []
+  #   incumbent = min(ys2)
+  #   for i in range(len(xs) - 1, -1, -1):
+  #     if ys2[i] > incumbent:
+  #       new_ys.append(ys2[i])
+  #       new_xs.append(xs[i])
+  #       incumbent = ys2[i]
+  #   xs, ys2 = new_xs, new_ys
+  ax2.plot(xs, ys2, color = color, alpha=alpha, label = label)
+
+def plot_set_convergence_and_log(data, hydro, colors = None, scale = False, alpha = 1,
+                                 label_func = (lambda data_dict, m0 : None), error = 0.01,
+                                 nmk_max = 150, show_error = False, trunc = 0, smooth = False):
+  fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+  for idx, pair in enumerate(data):
+    data_dict, m0 = pair
+    color = "Red" if colors is None else colors[idx]
+    plot_one_convergence_and_log(data_dict, m0, hydro, ax1, ax2, color = color, scale = scale, alpha = alpha,
+                             label = label_func(data_dict, m0), error = error, nmk_max = nmk_max, trunc = trunc, smooth = smooth)
+  if show_error:
+    ax2.axhline(np.log(error), color = "Black", linestyle = "--")
+  ax1.set_xlabel('NMK')
+  if scale:
+    ax1.set_ylabel("Ratio of computed " + hydro + " to true value")
+  ax1.set_ylabel("Computed " + hydro )
+  ax2.set_title("Raw convergence of " + hydro)
+  ax2.set_xlabel('NMK')
+  ax2.set_ylabel('Log error to true value')
+  ax2.set_title("Log error convergence of " + hydro)
+  ax2.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
+  plt.grid()
+  plt.tight_layout()
+  plt.show()
+
+def selective_m0(f, data_dict, m0 = None, m0s = None, all_m0s = False):
+  if all_m0s:
+    return [f(data_dict, m0) for m0 in data_dict["m0s"]]
+  if m0 is None:
+    if m0s is None:
+      return [f(data_dict, data_dict["m0s"][0])]
+    else:
+      return [f(data_dict, m0) for m0 in m0s]
+  else:
+    return [f(data_dict, m0)]
+
+def data_dict_to_convergence_plot_data(data_dict, m0 = None, m0s = None, all_m0s = False):
+  return selective_m0((lambda data_dict, m0 : (data_dict, m0)), data_dict, m0 = m0, m0s = m0s, all_m0s = all_m0s)
+  
+def many_data_dicts_to_convergence_plot_data(all_dicts, m0 = None, m0s = None, all_m0s = False):
+  lst = []
+  for data_dict in all_dicts:
+    lst = lst + data_dict_to_convergence_plot_data(data_dict, m0 = m0, m0s = m0s, all_m0s = all_m0s)
+  return lst
+
+# generates a [colors] input
+def color_by_f_value(f, all_prob_dicts, m0 = None, m0s = None, all_m0s = False, cmap = "viridis"):
+  f_vals = []
+  for prob in all_prob_dicts:
+    f_vals = f_vals + selective_m0(f, prob, m0 = m0, m0s = m0s, all_m0s = all_m0s)
+  max_val = max(f_vals)
+  min_val = min(f_vals)
+  return [cm.get_cmap(cmap)((f_val - min_val)/(max_val - min_val)) for f_val in f_vals]
+
+####### ERROR FITTING
+def filter_local_maxima(xs, ys):
+  new_xs = []
+  new_ys = []
+  for x in xs:
+    index = x - 1
+    add_entry = False
+    if x == 1:
+      add_entry = ys[index] > ys[index + 1]
+    elif x == xs[-1]:
+      add_entry = ys[index] > ys[index - 1]
+    else:
+      add_entry = ((ys[index] > ys[index + 1]) and (ys[index] > ys[index - 1]))
+    if add_entry:
+      new_xs.append(x)
+      new_ys.append(ys[index])
+  return new_xs, new_ys
+
+def r2(f, xs, ys, a, b):
+    yhat = [f(x, a, b) for x in xs]
+    ys, yhat = np.array(ys), np.array(yhat)
+    ss_res = np.sum((ys - yhat)**2)
+    ss_tot = np.sum((ys - np.mean(ys))**2)
+    return 1 - ss_res / ss_tot
+
+def r2_underestimates(f, xs, ys, a, b):
+    yhat = [f(x, a, b) for x in xs]
+    ys, yhat = np.array(ys), np.array(yhat)
+    ybar = np.mean([ys[i] for i in range(len(xs)) if ys[i] < yhat[i]])
+    ss_res, ss_tot = 0, 0
+    for i in range(len(xs)):
+      if ys[i] < yhat[i]:
+        ss_res += (ys[i] - yhat[i])**2
+        ss_tot += (ys[i] - ybar)**2
+    return 1 - ss_res / ss_tot
+
+def fit_parameters(cf, m0, hydro, local_maxima = False, plot_comparison = False, print_params = True,
+                   nmk_max = 150, linear_model = False, r2_lin = False):
+  full_xs = list(range(1, nmk_max + 1))
+  full_ys = [cf[m0]["log errors " + hydro][i] for i in range(nmk_max)]
+  if local_maxima:
+    xs, ys = filter_local_maxima(full_xs, full_ys)
+  else:
+    xs, ys = full_xs, full_ys
+
+  if not linear_model:
+    f = lambda x, a1, a2 : (- a1 * np.log(x/a2))
+    popt, pcov = curve_fit(f, xs, ys, p0=(1, 1))
+  else:
+    f = lambda x, a1, a2 : (- a1 * x + a2)
+    popt, pcov = curve_fit(f, np.log(xs), ys, p0=(1, 1))
+    popt[1] = np.exp(popt[1]/popt[0])
+
+  if r2_lin:
+    f = lambda x, a1, a2 : (- a1 * x + a2)
+    alpha, beta, xs = popt[0], popt[0] * np.log(popt[1]), np.log(full_xs)
+  else:
+    f = lambda x, a1, a2 : (- a1 * np.log(x/a2))
+    alpha, beta, xs = popt[0], popt[1], full_xs
+  r2_val = r2(f, xs, full_ys, alpha, beta)
+  r2_under = r2_underestimates(f, xs, full_ys, alpha, beta)
+  
+  if print_params: print("Best-fit parameters:", popt)
+  if plot_comparison:
+    ys_calc = [f(x, *popt) for x in full_xs]
+    plt.scatter(full_xs, full_ys, label="Data")
+    plt.plot(full_xs, ys_calc, color="red", label="Fit")
+    plt.legend()
+    plt.show()
+
+  return popt, pcov, r2_val, r2_under
+
+def reorder(lst, order):
+    return [lst[i] for i in order]
+
+def multi_fit_parameters(cfs, sort_func, hydro, sort_label = "No Label", local_maxima = False, plot_comparison = False,
+                         print_params = True, plot_multi_log_comparison = True, plot_multi_params = True, nmk_max = 150,
+                         linear_model = False, r2_lin = False):
+  meta_xs, meta_ys1, meta_ys2, covs, r2s, r2_unders = [], [], [], [], [], []
+  for cf in cfs:
+    for m0 in cf["m0s"]:
+      popt, pcov, r2, r2_under = fit_parameters(cf, cf["m0s"][0], hydro, local_maxima=local_maxima,
+                                                plot_comparison=plot_comparison, print_params = print_params,
+                                                nmk_max = nmk_max, linear_model=linear_model, r2_lin = r2_lin)
+      meta_xs.append(sort_func(cf, m0))
+      meta_ys1.append(popt[0])
+      meta_ys2.append(popt[1])
+      covs.append(pcov)
+      r2s.append(r2)
+      r2_unders.append(r2_under)
+
+  if plot_multi_log_comparison:
+    colors = color_by_f_value(sort_func, cfs, all_m0s = True)
+    f = lambda x, a1, a2 : (- a1 * np.log(x/a2))
+    nmks = list(range(1, nmk_max + 1))
+    for i in range(len(meta_xs)):
+      ys_calc = [f(x, meta_ys1[i], meta_ys2[i]) for x in nmks]
+      plt.plot(nmks, ys_calc, color = colors[i])
+    plt.title("Fitted curves for different " + sort_label)
+    plt.xlabel("NMK")
+    plt.ylabel("Predicted Log Error")
+    plt.show()
+  
+  order = sorted(range(len(meta_xs)), key=lambda i: meta_xs[i])
+  meta_xs, meta_ys1, meta_ys2 = reorder(meta_xs, order), reorder(meta_ys1, order), reorder(meta_ys2, order)
+
+  if plot_multi_params:
+    plt.plot(meta_xs, meta_ys1)
+    plt.xlabel(sort_label)
+    plt.ylabel("alpha")
+    plt.show()
+    result = stats.linregress(meta_xs, meta_ys1)
+    print(f"fitted slope: {result.slope:.3g}, slope/avg: {result.slope/np.mean(meta_ys1):.3g}")
+
+    plt.plot(meta_xs, meta_ys2)
+    plt.xlabel(sort_label)
+    plt.ylabel("beta")
+    plt.show()
+    result = stats.linregress(meta_xs, meta_ys2)
+    print(f"fitted slope: {result.slope:.3g}, slope/avg: {result.slope/np.mean(meta_ys2):.3g}")
+
+  return meta_xs, meta_ys1, meta_ys2, covs, r2s, r2_unders
+      
