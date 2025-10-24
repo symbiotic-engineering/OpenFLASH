@@ -572,7 +572,7 @@ class MEEMEngine:
                 # Vertical velocity (vzH)
                 vz_term1 = Cs[i][:NMK[i], None] * R_1n_vectorized(m[:, None], r[None, :], i, h, d, a)
                 vz_term2 = Cs[i][NMK[i]:, None] * R_2n_vectorized(m[:, None], r[None, :], i, a, h, d)
-                vzH[regions[i]] = np.sum((vz_term1 + vz_term2) * diff_Z_n_i_vectorGized(m[:, None], z[None, :], i, h, d), axis=0)
+                vzH[regions[i]] = np.sum((vz_term1 + vz_term2) * diff_Z_n_i_vectorized(m[:, None], z[None, :], i, h, d), axis=0)
 
         # Exterior Region
         if np.any(regions[-1]):
