@@ -45,7 +45,7 @@ jobs:
           # ⬆️ Add any other packages your docs need, like myst-parser
           
           # Install your project's dependencies if Sphinx needs them
-          # pip install -r requirements.txt 
+          pip install -r requirements.txt 
           
       - name: Build Sphinx documentation
         run: |
