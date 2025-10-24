@@ -4,7 +4,7 @@ on:
   # Run on pushes to your main branch
   push:
     branches:
-      - ci-docs  # Or 'master', whatever your default branch is
+      - main  # Or 'master', whatever your default branch is
   
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
