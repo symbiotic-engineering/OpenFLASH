@@ -24,7 +24,7 @@ There are two ways to run the Streamlit application:
 **Option 1: Use the Web-Based App (Recommended)**
 The app is deployed and can be run directly in your web browser, with no installation required. This is the easiest way to get started.
 
-* **Simply navigate to the following URL:** `https://symbiotic-engineering.github.io/OpenFLASH/`
+* **Click here to launch the: `Interactive OpenFLASH App <app.html>`_**
 
 **Option 2: Run the App Locally**
 Ensure that you have Streamlit and the `openflash` package installed.
