@@ -47,6 +47,7 @@ jobs:
           # Install your project's dependencies if Sphinx needs them
           pip install -r requirements.txt 
           pip install open-flash
+          pip install pandoc
           
       - name: Build Sphinx documentation
         run: |
