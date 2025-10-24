@@ -1,15 +1,11 @@
 name: Deploy Sphinx Docs to GitHub Pages
 
 on:
-  # Run on pushes to your main branch
   push:
     branches:
-      - main  # Or 'master', whatever your default branch is
-  
-  # Allows you to run this workflow manually from the Actions tab
+      - main
   workflow_dispatch:
 
-# Allow only one concurrent deployment...
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -19,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     
     permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to authenticate to Pages
+      pages: write
+      id-token: write
       
     environment:
       name: github-pages
@@ -35,27 +31,26 @@ jobs:
         with:
           python-version: '3.10'
           
-      # --- ADD THIS NEW STEP ---
       - name: Install pandoc (system-level)
         run: |
           sudo apt-get update
           sudo apt-get install -y pandoc
       
-      # --- CLEAN UP THIS STEP ---
       - name: Install Python dependencies and local package
         run: |
           python -m pip install --upgrade pip
-          # Install all dependencies from your requirements file
           pip install -r requirements.txt 
-          # Install your local OpenFLASH package so Sphinx can read its docstrings
-          pip install . 
+          pip install .
           
       - name: Build Sphinx documentation
         run: |
-          # Assumes your docs source is in 'docs/'
-          # The HTML output will be in 'docs/_build/html'
           sphinx-build -b html docs/ docs/_build/html
-          
+
+      # ⬇️ New step to copy Streamlit app to the deployed site root
+      - name: Copy Streamlit app to docs output root
+        run: |
+          cp docs/_static/app_streamlit.html docs/_build/html/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
