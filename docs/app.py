@@ -1,3 +1,5 @@
+# app.py
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -93,7 +95,7 @@ def main():
         hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0_single)
         if hydro_coefficients:
             df_coeffs = pd.DataFrame(hydro_coefficients)
-            st.dataframe(df_coeffs[['mode_i', 'mode_j', 'real', 'imag']])
+            st.dataframe(df_coeffs[['mode', 'real', 'imag']])
         else:
             st.warning("Could not calculate hydrodynamic coefficients.")
 
@@ -109,39 +111,63 @@ def main():
         st.pyplot(fig2)
         
         st.success("Single frequency test complete.")
-
+        
+    # --- REVERTED "Run Frequency Sweep" BLOCK ---
     if col2.button("Run Frequency Sweep & Plot Coefficients"):
         st.info(f"Running frequency sweep for {omega_steps} steps...")
-        ## --- FIX: Use the efficient `run_and_store_results` method ---
+        
         omegas_to_run = np.linspace(omega_start, omega_end, omega_steps)
         problem_modes = np.where(heaving_list)[0]
+        
+        # Set the frequencies and modes on the main problem object
         problem.set_frequencies_modes(omegas_to_run, problem_modes)
         
+        # Create the engine ONCE with the main problem
         engine = MEEMEngine(problem_list=[problem])
+        
         with st.spinner("Running simulation..."):
-            # This single call runs the entire sweep
+            # This single call now works correctly
             results_obj = engine.run_and_store_results(problem_index=0)
         st.success("Frequency sweep complete.")
+        
         # Extract the dataset and convert to a DataFrame for plotting
         dataset = results_obj.get_results()
         df_results = dataset[['added_mass', 'damping']].to_dataframe().reset_index()
+
+        # --- START: FIX FOR DataFrame KeyError ---
+        # This fix is still needed to rename columns for plotting
+        data_cols = ['added_mass', 'damping', 'frequency']
+        dim_cols = [col for col in df_results.columns if col not in data_cols]
+        
+        # 2. Rename the identified dimension columns
+        if len(dim_cols) == 2:
+            rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
+            df_results = df_results.rename(columns=rename_map)
+        elif len(dim_cols) == 0 and len(problem_modes) > 0:
+             st.error("Error: Results data does not contain mode dimensions.")
+             st.stop()
+        elif len(dim_cols) != 0:
+            st.warning(f"Unexpected number of mode dimensions ({len(dim_cols)}). Using first two.")
+            rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
+            df_results = df_results.rename(columns=rename_map)
+        # --- END: FIX FOR KeyError ---
 
         # --- Plotting Hydrodynamic Coefficients vs. Frequency ---
         st.subheader("Hydrodynamic Coefficients vs. Frequency")
         
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True)
         
-        # Plot Added Mass
+        # This groupby should now work
         for (mode_i, mode_j), group in df_results.groupby(['mode_i', 'mode_j']):
-            ax1.plot(group['frequencies'], group['added_mass'], label=f'A({mode_i},{mode_j})')
+            ax1.plot(group['frequency'], group['added_mass'], label=f'A({mode_i},{mode_j})')
         ax1.set_title('Added Mass vs. Frequency')
         ax1.set_ylabel('Added Mass')
         ax1.legend()
         ax1.grid(True, linestyle='--')
 
-        # Plot Damping
+        # This groupby should also now work
         for (mode_i, mode_j), group in df_results.groupby(['mode_i', 'mode_j']):
-            ax2.plot(group['frequencies'], group['damping'], label=f'B({mode_i},{mode_j})')
+            ax2.plot(group['frequency'], group['damping'], label=f'B({mode_i},{mode_j})')
         ax2.set_title('Damping vs. Frequency')
         ax2.set_ylabel('Damping')
         ax2.set_xlabel('Angular Frequency (omega)')
@@ -153,7 +179,7 @@ def main():
         
         with st.expander("View Raw Data"):
             st.dataframe(df_results)
-
+    # --- END: REVERTED BLOCK ---
 
 if __name__ == "__main__":
     # Wrap main execution in a try-catch to handle potential errors gracefully

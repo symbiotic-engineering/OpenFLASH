@@ -10,6 +10,9 @@ from openflash.results import Results
 from scipy import linalg
 from openflash.multi_constants import *
 from functools import partial
+from openflash.body import SteppedBody
+from openflash.geometry import ConcentricBodyGroup
+from openflash.basic_region_geometry import BasicRegionGeometry
 
 class MEEMEngine:
     """
@@ -569,7 +572,7 @@ class MEEMEngine:
                 # Vertical velocity (vzH)
                 vz_term1 = Cs[i][:NMK[i], None] * R_1n_vectorized(m[:, None], r[None, :], i, h, d, a)
                 vz_term2 = Cs[i][NMK[i]:, None] * R_2n_vectorized(m[:, None], r[None, :], i, a, h, d)
-                vzH[regions[i]] = np.sum((vz_term1 + vz_term2) * diff_Z_n_i_vectorized(m[:, None], z[None, :], i, h, d), axis=0)
+                vzH[regions[i]] = np.sum((vz_term1 + vz_term2) * diff_Z_n_i_vectorGized(m[:, None], z[None, :], i, h, d), axis=0)
 
         # Exterior Region
         if np.any(regions[-1]):
@@ -599,79 +602,122 @@ class MEEMEngine:
         """
         Perform the full MEEM computation for all frequencies defined in the selected MEEMProblem,
         and store results in a `Results` object.
-
-        The method:
-        - Assembles and solves the linear system A @ X = b for each frequency in `problem.frequencies`.
-        - Computes hydrodynamic coefficients (added mass and damping).
-        - Stores domain potentials.
-        - Stores all results in a reusable `Results` object.
-
-        Parameters
-        ----------
-        problem_index : int
-            Index of the MEEMProblem instance from `self.problem_list` to run computations for.
-
-        Returns
-        -------
-        Results
-            A `Results` object containing added mass and damping matrices, 
-            and optionally, computed potentials for each frequency and mode.
+        
+        This method correctly solves the N-body radiation problem by:
+        - Looping through each frequency.
+        - Looping through each radiating mode `i`.
+        - Creating a temporary problem where only body `i` heaves.
+        - Solving for the potential `X_i` from this single radiation.
+        - Calculating the forces on all bodies `j` from `X_i` to get column `i`
+          of the hydrodynamic matrices (A_ji, B_ji).
+        - Storing the full N x N matrices.
+        - Storing the potential coefficients `Cs_i` for each radiation problem.
         """
-        problem = self.problem_list[problem_index]
-        geometry = problem.geometry
-        results = Results(geometry, problem.frequencies, problem.modes)
+        # 1. Get original problem setup
+        original_problem = self.problem_list[problem_index]
+        original_geometry = original_problem.geometry
+        original_bodies = original_geometry.body_arrangement.bodies
+        h = original_geometry.h
+        
+        # Get NMK list from the original problem's domains
+        original_domain_list = original_problem.domain_list
+        original_domain_keys = list(original_domain_list.keys())
+        NMK_list = [original_domain_list[idx].number_harmonics for idx in original_domain_keys]
 
-        num_modes = len(problem.modes)
-        num_freqs = len(problem.frequencies)
+        problem_modes = original_problem.modes
+        omegas_to_run = original_problem.frequencies
+        
+        num_modes = len(problem_modes)
+        num_freqs = len(omegas_to_run)
 
-        # FIX 1: Initialize as 3D arrays to hold the (N x N) matrices for each frequency.
+        # Initialize Results object
+        results = Results(original_geometry, omegas_to_run, problem_modes)
+
+        # Initialize 3D arrays to hold the (N x N) matrices for each frequency
         full_added_mass_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
         full_damping_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
         all_potentials_batch_data = []
 
-        for freq_idx, m0 in enumerate(problem.frequencies):
-            self._ensure_m_k_and_N_k_arrays(problem, m0)
+        # --- Loop 1: Over all frequencies ---
+        for freq_idx, omega in enumerate(omegas_to_run):
+            m0 = wavenumber(omega, h)
+            
+            # --- Loop 2: Over all radiating modes (i) ---
+            # We must solve one radiation problem for each moving body
+            for i_idx, radiating_mode in enumerate(problem_modes):
+                
+                try:
+                    # 1. Create a new geometry where ONLY this body is heaving
+                    temp_bodies = []
+                    for body_j, original_body in enumerate(original_bodies):
+                        # This check assumes body index corresponds to mode index
+                        is_heaving = (body_j == radiating_mode)
+                        temp_bodies.append(
+                            SteppedBody(
+                                a=original_body.a, 
+                                d=original_body.d, 
+                                slant_angle=original_body.slant_angle, 
+                                heaving=is_heaving
+                            )
+                        )
+                    
+                    # 2. Create the new problem for this single radiating body
+                    temp_arrangement = ConcentricBodyGroup(temp_bodies)
+                    temp_geometry = BasicRegionGeometry(temp_arrangement, h=h, NMK=NMK_list)
+                    temp_problem = MEEMProblem(temp_geometry)
+                    
+                    # Frequencies: Just this one. Modes: All of them (for force calculation)
+                    temp_problem.set_frequencies_modes(np.array([omega]), problem_modes)
+                    
+                    # 3. Create a temporary engine to build the cache
+                    # This builds the 'b' vector correctly for only body 'i' radiating
+                    temp_engine = MEEMEngine(problem_list=[temp_problem])
+                
+                    # 4. Solve the system for this single mode's potential (X_i)
+                    X_i = temp_engine.solve_linear_system_multi(temp_problem, m0)
+                    
+                    # 5. Calculate forces on ALL modes (j) due to this potential (X_i)
+                    # This returns one column of the matrix
+                    hydro_coeffs_col = temp_engine.compute_hydrodynamic_coefficients(temp_problem, X_i, m0)
+                    
+                    # 6. Populate the full matrices
+                    for coeff_dict in hydro_coeffs_col:
+                        j_mode = coeff_dict['mode'] # This is the 'j' index (force)
+                        j_idx = np.where(problem_modes == j_mode)[0][0]
+                        
+                        # A_ji (force on j, motion from i)
+                        full_added_mass_matrix[freq_idx, j_idx, i_idx] = coeff_dict['real']
+                        # B_ji (force on j, motion from i)
+                        full_damping_matrix[freq_idx, j_idx, i_idx] = coeff_dict['imag']
 
-            try:
-                A = self.assemble_A_multi(problem, m0)
-                b = self.assemble_b_multi(problem, m0)
-                X = np.linalg.solve(A, b)
-            except np.linalg.LinAlgError as e:
-                print(f"  ERROR: Could not solve for m0={m0:.4f}: {e}. Storing NaN for coefficients.")
-                continue
+                    # 7. Store the computed potential coefficients (Cs)
+                    Cs = temp_engine.reformat_coeffs(X_i, NMK_list, len(NMK_list) - 1)
+                    current_mode_potentials = {}
+                    for domain_idx, domain in enumerate(temp_problem.geometry.fluid_domains):
+                        domain_coeffs = Cs[domain_idx]
+                        current_mode_potentials[domain.index] = {
+                            "potentials": domain_coeffs,
+                            "r_coords_dict": {f"r_h{k}": 0.0 for k in range(len(domain_coeffs))}, # Placeholder
+                            "z_coords_dict": {f"z_h{k}": 0.0 for k in range(len(domain_coeffs))}  # Placeholder
+                        }
 
-            # This returns a flat list of (num_modes * num_modes) coefficients
-            hydro_coeffs = self.compute_hydrodynamic_coefficients(problem, X, m0)
+                    all_potentials_batch_data.append({
+                        "frequency_idx": freq_idx,
+                        "mode_idx": i_idx, # Index of the radiating mode
+                        "data": current_mode_potentials,
+                    })
+                        
+                except np.linalg.LinAlgError as e:
+                    print(f"  ERROR: Could not solve for freq={omega:.4f}, mode={radiating_mode}: {e}. Storing NaN.")
+                    # Mark this column as NaN
+                    full_added_mass_matrix[freq_idx, :, i_idx] = np.nan
+                    full_damping_matrix[freq_idx, :, i_idx] = np.nan
+                    continue # Go to the next radiating mode
 
-            # FIX 2: Reshape the flat list of coefficients into (num_modes x num_modes) matrices.
-            added_mass = np.array([hc["real"] for hc in hydro_coeffs]).reshape(num_modes, num_modes)
-            damping = np.array([hc["imag"] for hc in hydro_coeffs]).reshape(num_modes, num_modes)
-
-            # Assign the 2D matrices to the correct slice of the 3D result arrays.
-            full_added_mass_matrix[freq_idx, :, :] = added_mass
-            full_damping_matrix[freq_idx, :, :] = damping
-
-            for mode_idx, _ in enumerate(problem.modes):
-                current_mode_potentials = {}
-                # Using .fluid_domains which is a list, not .domain_list (dict)
-                for domain in problem.geometry.fluid_domains:
-                    nh = domain.number_harmonics
-                    # FIX: Use the unique domain index as the key instead of the non-unique category.
-                    current_mode_potentials[domain.index] = {
-                        "potentials": (np.random.rand(nh) + 1j * np.random.rand(nh)).astype(complex),
-                        "r_coords_dict": {f"r_h{k}": np.random.rand() for k in range(nh)},
-                        "z_coords_dict": {f"z_h{k}": np.random.rand() for k in range(nh)},
-                    }
-
-                all_potentials_batch_data.append({
-                    "frequency_idx": freq_idx,
-                    "mode_idx": mode_idx,
-                    "data": current_mode_potentials,
-                })
-
+        # --- Store all results after loops are complete ---
         results.store_hydrodynamic_coefficients(
-            frequencies=problem.frequencies,
-            modes=problem.modes,
+            frequencies=omegas_to_run,
+            modes=problem_modes,
             added_mass_matrix=full_added_mass_matrix,
             damping_matrix=full_damping_matrix,
         )
