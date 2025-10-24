@@ -9,7 +9,7 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# Allow only one concurrent deployment...
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -18,12 +18,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
-    # Grant permissions for the deploy action
     permissions:
       pages: write      # to deploy to Pages
       id-token: write   # to authenticate to Pages
       
-    # Define the deployment environment
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -35,19 +33,22 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Or any version your docs build with
+          python-version: '3.10'
           
-      - name: Install dependencies
+      # --- ADD THIS NEW STEP ---
+      - name: Install pandoc (system-level)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+      
+      # --- CLEAN UP THIS STEP ---
+      - name: Install Python dependencies and local package
         run: |
           python -m pip install --upgrade pip
-          # Install Sphinx and your theme
-          pip install sphinx sphinx_rtd_theme 
-          # ⬆️ Add any other packages your docs need, like myst-parser
-          
-          # Install your project's dependencies if Sphinx needs them
+          # Install all dependencies from your requirements file
           pip install -r requirements.txt 
-          pip install open-flash
-          pip install pandoc
+          # Install your local OpenFLASH package so Sphinx can read its docstrings
+          pip install . 
           
       - name: Build Sphinx documentation
         run: |
@@ -58,7 +59,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload the built HTML directory
           path: docs/_build/html
           
       - name: Deploy to GitHub Pages
