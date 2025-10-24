@@ -1,0 +1,61 @@
+name: Deploy Sphinx Docs to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      pages: write
+      id-token: write
+      
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          
+      - name: Install pandoc (system-level)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+      
+      - name: Install Python dependencies and local package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt 
+          pip install .
+          
+      - name: Build Sphinx documentation
+        run: |
+          sphinx-build -b html docs/ docs/_build/html
+
+      # ⬇️ New step to copy Streamlit app to the deployed site root
+      - name: Copy Streamlit app to docs output root
+        run: |
+          cp docs/_static/app_streamlit.html docs/_build/html/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build/html
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

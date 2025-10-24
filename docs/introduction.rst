@@ -13,11 +13,11 @@ OpenFLASH implements the **Matched Eigenfunction Expansion Method (MEEM)**, a po
 Why OpenFLASH?
 --------------
 
-* **🚀 High Performance**: Leveraging the semi-analytical nature of MEEM, OpenFLASH is exceptionally fast. Our benchmarks show that it can compute hydrodynamic coefficients up to **10 times faster** than leading open-source BEM packages like Capytaine, especially for frequency sweep analyses. This speed is achieved by an intelligent caching system that minimizes redundant calculations.
+* **High Performance**: Leveraging the semi-analytical nature of MEEM, OpenFLASH is exceptionally fast. Our benchmarks show that it can compute hydrodynamic coefficients up to **10 times faster** than leading open-source BEM packages like Capytaine, especially for frequency sweep analyses. This speed is achieved by an intelligent caching system that minimizes redundant calculations.
 
-* **💡 Intuitive, Object-Oriented API**: Define your physical problem intuitively by creating ``SteppedBody`` objects. The library's object-oriented structure handles the complex task of translating this physical geometry into the mathematical fluid domains required for the solver, making your code cleaner and more readable.
+* **Intuitive, Object-Oriented API**: Define your physical problem intuitively by creating ``SteppedBody`` objects. The library's object-oriented structure handles the complex task of translating this physical geometry into the mathematical fluid domains required for the solver, making your code cleaner and more readable.
 
-* **📊 Structured Data Output**: Simulation results are not just raw numbers. OpenFLASH packages all outputs into an ``xarray.Dataset``, a powerful data structure that provides labeled dimensions (like 'frequencies', 'modes') and coordinates. This makes your data self-describing, easy to analyze with tools like Pandas, and simple to export to standard scientific formats like NetCDF.
+* **Structured Data Output**: Simulation results are not just raw numbers. OpenFLASH packages all outputs into an ``xarray.Dataset``, a powerful data structure that provides labeled dimensions (like 'frequencies', 'modes') and coordinates. This makes your data self-describing, easy to analyze with tools like Pandas, and simple to export to standard scientific formats like NetCDF.
 
 ---
 
