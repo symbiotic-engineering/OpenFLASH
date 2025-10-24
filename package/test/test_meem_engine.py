@@ -318,8 +318,21 @@ def test_run_and_store_results(sample_problem):
     # Check the shape of the stored potential data
     # Shape is (frequencies, modes, domains, harmonics)
     num_domains = len(sample_problem.geometry.fluid_domains)
-    # Get max harmonics from the Domain objects themselves
-    max_harmonics = max(d.number_harmonics for d in sample_problem.geometry.fluid_domains)
+    
+    # --- START: FIX for max_harmonics calculation ---
+    # The test must account for intermediate domains storing 2*NMK coefficients
+    domains = sample_problem.geometry.fluid_domains
+    harmonics_per_domain = []
+    for i, d in enumerate(domains):
+        if 0 < i < len(domains) - 1:
+            # Intermediate domain (stores R1n and R2n)
+            harmonics_per_domain.append(d.number_harmonics * 2)
+        else:
+            # Inner or exterior domain
+            harmonics_per_domain.append(d.number_harmonics)
+    max_harmonics = max(harmonics_per_domain)
+    # --- END: FIX ---
+    
     expected_shape = (num_freqs, num_modes, num_domains, max_harmonics)
     
     assert results.dataset['potentials_real'].shape == expected_shape
