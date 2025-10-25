@@ -68,10 +68,9 @@ def main():
     
     # Identify which bodies are heaving to define the modes
     # heaving_flags is [False, True, True], so bodies 1 and 2 are heaving.
-    problem_modes = np.array([1, 2])
     
     # Set them in the problem object
-    problem.set_frequencies_modes(problem_frequencies, problem_modes)
+    problem.set_frequencies(problem_frequencies)
     # --- End of FIX ---
 
     engine = MEEMEngine(problem_list=[problem])

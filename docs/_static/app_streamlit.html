@@ -15,7 +15,7 @@
         import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.89.1/build/stlite.js"
         mount(
             {
-                requirements: ["matplotlib", "https://files.pythonhosted.org/packages/8b/54/2635200180bb8aedd79bc8ea0f263c7f0435f8604509d80e59b27f19474f/open_flash-0.2.5-py3-none-any.whl", "xarray"],
+                requirements: ["matplotlib", "https://files.pythonhosted.org/packages/7d/00/0fb647cb9108bc6d17e34d487ae535216c719cf84a9fb2894496eac5bbc2/open_flash-0.2.6-py3-none-any.whl", "xarray"],
                 entrypoint: "streamlit_app.py",
                 files: {
                     "streamlit_app.py": `import streamlit as st
@@ -102,7 +102,7 @@ def main():
         # --- Convert single omega to m0 ---
         m0_single = wavenumber(omega_single, h)
         problem_modes = np.where(heaving_list)[0]
-        problem.set_frequencies_modes(np.array([omega_single]), problem_modes)
+        problem.set_frequencies(np.array([omega_single]))
         
         # --- MEEM Engine Operations ---
         engine = MEEMEngine(problem_list=[problem])
@@ -138,7 +138,7 @@ def main():
         problem_modes = np.where(heaving_list)[0]
         
         # Set the frequencies and modes on the main problem object
-        problem.set_frequencies_modes(omegas_to_run, problem_modes)
+        problem.set_frequencies(omegas_to_run)
         
         # Create the engine ONCE with the main problem
         engine = MEEMEngine(problem_list=[problem])
