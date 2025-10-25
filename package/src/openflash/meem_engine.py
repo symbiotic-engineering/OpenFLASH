@@ -313,13 +313,16 @@ class MEEMEngine:
         cs.append(x[row:])
         return cs
 
-    def compute_hydrodynamic_coefficients(self, problem, X, m0):
+    def compute_hydrodynamic_coefficients(self, problem, X, m0, modes_to_calculate: np.ndarray = None):
         """
         Compute hydrodynamic coefficients (added mass and damping) for each mode defined in the problem.
 
         :param problem: Problem object containing the geometry
         :param X: Solution vector from eigenfunction solver
         :param m0: Mode number (used for omega and excitation terms)
+        :param modes_to_calculate: A list of all body indices to calculate forces *for*.
+                                   If None, defaults to `problem.modes` (which infers from the
+                                   problem's *own* geometry's heaving flags).
         :return: List of dictionaries, one per mode, with hydrodynamic properties
         """
         geometry = problem.geometry
@@ -337,9 +340,15 @@ class MEEMEngine:
 
         results_per_mode = []
 
+        # Determine which modes to loop over to calculate forces on
+        if modes_to_calculate is None:
+            modes_to_calculate = problem.modes
+
         # Loop through each mode (degree of freedom)
-        for mode_index in problem.modes:
+        for mode_index in modes_to_calculate:
             # Set heaving vector: only one mode active at a time
+            # This 'heaving' vector is a hypothetical one for the force calculation
+            # (using Haskind relations), NOT the heaving vector that generated the potential X.
             heaving = [0] * len(domain_keys)
             heaving[mode_index] = 1
 
@@ -605,7 +614,7 @@ class MEEMEngine:
         
         This method correctly solves the N-body radiation problem by:
         - Looping through each frequency.
-        - Looping through each radiating mode `i`.
+        - Looping through each radiating mode `i` (inferred from the problem's heaving flags).
         - Creating a temporary problem where only body `i` heaves.
         - Solving for the potential `X_i` from this single radiation.
         - Calculating the forces on all bodies `j` from `X_i` to get column `i`
@@ -624,14 +633,16 @@ class MEEMEngine:
         original_domain_keys = list(original_domain_list.keys())
         NMK_list = [original_domain_list[idx].number_harmonics for idx in original_domain_keys]
 
+        # Get modes and frequencies from the problem
+        # problem.modes is now a property that infers from geometry's heaving flags
         problem_modes = original_problem.modes
         omegas_to_run = original_problem.frequencies
         
         num_modes = len(problem_modes)
         num_freqs = len(omegas_to_run)
 
-        # Initialize Results object
-        results = Results(original_geometry, omegas_to_run, problem_modes)
+        # Initialize Results object (constructor no longer takes modes)
+        results = Results(original_geometry, omegas_to_run)
 
         # Initialize 3D arrays to hold the (N x N) matrices for each frequency
         full_added_mass_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
@@ -666,8 +677,9 @@ class MEEMEngine:
                     temp_geometry = BasicRegionGeometry(temp_arrangement, h=h, NMK=NMK_list)
                     temp_problem = MEEMProblem(temp_geometry)
                     
-                    # Frequencies: Just this one. Modes: All of them (for force calculation)
-                    temp_problem.set_frequencies_modes(np.array([omega]), problem_modes)
+                    # Frequencies: Just this one.
+                    # set_frequencies_modes is now set_frequencies
+                    temp_problem.set_frequencies(np.array([omega]))
                     
                     # 3. Create a temporary engine to build the cache
                     # This builds the 'b' vector correctly for only body 'i' radiating
@@ -678,7 +690,10 @@ class MEEMEngine:
                     
                     # 5. Calculate forces on ALL modes (j) due to this potential (X_i)
                     # This returns one column of the matrix
-                    hydro_coeffs_col = temp_engine.compute_hydrodynamic_coefficients(temp_problem, X_i, m0)
+                    # We must pass 'modes_to_calculate' so it knows all modes from the *original* problem
+                    hydro_coeffs_col = temp_engine.compute_hydrodynamic_coefficients(
+                        temp_problem, X_i, m0, modes_to_calculate=problem_modes
+                    )
                     
                     # 6. Populate the full matrices
                     for coeff_dict in hydro_coeffs_col:
@@ -715,9 +730,9 @@ class MEEMEngine:
                     continue # Go to the next radiating mode
 
         # --- Store all results after loops are complete ---
+        # store_hydrodynamic_coefficients no longer takes modes
         results.store_hydrodynamic_coefficients(
             frequencies=omegas_to_run,
-            modes=problem_modes,
             added_mass_matrix=full_added_mass_matrix,
             damping_matrix=full_damping_matrix,
         )
