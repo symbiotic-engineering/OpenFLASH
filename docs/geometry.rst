@@ -1,45 +1,66 @@
-.. currentmodule:: package.geometry
+.. _geometry-module:
 
+===============
 Geometry Module
 ===============
 
-This module defines the `Geometry` class, which is responsible for creating and managing domain objects within the specified coordinates of a given geometry. Domains within the geometry are characterized by unique radial and vertical coordinates and parameterized to enable computation of eigenfunctions and potentials within each region.
+.. automodule:: openflash.geometry
+   :no-members:
 
-.. automodule:: geometry
-   :members:
-   :undoc-members:
+.. _geometry-overview:
 
-Class:
---------
+Conceptual Overview
+===================
 
-.. autoclass:: geometry.Geometry
-   :members:
-   :noindex:
+The Geometry module provides the classes necessary to define the physical layout of the hydrodynamic problem. It acts as the bridge between the high-level description of physical objects (the :ref:`body-module`) and the low-level fluid sub-regions (the :ref:`domain-module`) used by the solver.
+
+The conceptual hierarchy is as follows:
+
+1.  **Body Objects**: You start by defining one or more physical structures using classes like ``SteppedBody``. Each ``Body`` has its own physical properties (radii, depths, heaving status).
+
+2.  **BodyArrangement**: These individual ``Body`` objects are then grouped into a ``BodyArrangement``. This class organizes the collection of bodies. For most use cases, you will use the concrete ``ConcentricBodyGroup`` class.
+
+3.  **Geometry**: Finally, a ``Geometry`` object is created from a ``BodyArrangement`` and the total water depth (`h`). The primary role of a ``Geometry`` object is to process this physical layout and generate the corresponding list of fluid ``Domain`` objects that the ``MEEMEngine`` can solve.
+
+In summary: **Bodies -> Arrangement -> Geometry -> Domains**
+
+.. _geometry-api:
+
+API Reference
+=============
+
+The module contains three key classes that work together to define the problem's spatial configuration.
+
+The Geometry Class
+------------------
+
+.. autoclass:: openflash.geometry.Geometry
+   :members: fluid_domains, make_fluid_domains
    :undoc-members:
    :show-inheritance:
 
-Attributes:
------------
-- `r_coordinates`: Dict[str, float] — Dictionary of radial coordinates specifying positions within the geometry.
-- `z_coordinates`: Dict[str, float] — Dictionary of vertical coordinates that define height positions within the geometry.
-- `domain_params`: List[Dict] — A list of dictionaries where each dictionary contains parameters for initializing a `Domain` object, including harmonics, boundary conditions, and physical properties.
+   The ``Geometry`` class is an **abstract base class**. You will not use this class directly, but rather one of its concrete implementations, such as ``openflash.basic_region_geometry.BasicRegionGeometry``. It establishes the core responsibility of turning a physical layout into a set of solvable fluid domains.
 
-Methods:
---------
-.. method:: __init__(r_coordinates, z_coordinates, domain_params)
-   :noindex:
-   
-   Initializes the Geometry class with the given coordinates and parameters.
-   
-   :param r_coordinates: The radial coordinates defining the radial positions within the geometry.
-   :type r_coordinates: Dict[str, float]
-   :param z_coordinates: The vertical coordinates defining height positions.
-   :type z_coordinates: Dict[str, float]
-   :param domain_params: A list of dictionaries, each containing parameters for creating a `Domain`.
-   :type domain_params: List[Dict]
+---
 
-.. method:: make_domain_list() -> Dict[int, Domain]
-   
-   Creates a dictionary of `Domain` objects, where each key is an integer index mapping to a `Domain`.
-   
-   :returns: A dictionary of `Domain` objects by index.
+The BodyArrangement Class
+-------------------------
+
+.. autoclass:: openflash.geometry.BodyArrangement
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   Like ``Geometry``, the ``BodyArrangement`` class is an **abstract base class**. It defines the required interface for any class that organizes a collection of ``Body`` objects.
+
+---
+
+The ConcentricBodyGroup Class
+-----------------------------
+
+.. autoclass:: openflash.geometry.ConcentricBodyGroup
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   This is the primary **concrete class** you will use to group your ``SteppedBody`` objects for a standard concentric cylinder problem. It takes a list of ``Body`` objects and automatically concatenates their properties (like radii and depths) into single arrays that can be used by a ``Geometry`` object.

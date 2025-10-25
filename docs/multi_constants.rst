@@ -1,40 +1,31 @@
-Multi Constants Module
-=======================
+.. _multi_constants-module:
 
-This module contains the constants used in the simulation for hydrodynamic calculations.
+=================
+Constants Module
+=================
 
-Constants
----------
+.. automodule:: openflash.multi_constants
 
-- **h**: `1.001`  
-  The value of h used in the simulation.
+.. _multi_constants-overview:
 
-- **d**: `[0.5, 0.25]`  
-  A list of depths.
+Conceptual Overview
+===================
 
-- **a**: `[0.5, 1]`  
-  A list of amplitude values.
+This module defines fundamental physical constants that are utilized throughout the OpenFLASH package. These constants are set to common default values for hydrodynamic simulations in seawater.
 
-- **heaving**: `[1, 1]`  
-  A list indicating whether each component is heaving.  
-  `0` or `false` indicates not heaving, `1` or `true` indicates heaving.
+.. _multi_constants-api:
 
-- **m0**: `1`  
-  The mass value.
+API Reference
+=============
 
-- **g**: `9.81`  
-  The acceleration due to gravity in m/s².
+.. py:data:: g
+   :type: float
+   :value: 9.81
 
-- **rho**: `1023`  
-  The density of the fluid in kg/m³.
+   The acceleration due to gravity, in meters per second squared ($m/s^2$).
 
-- **n**: `3`  
-  The number of components in the model.
+.. py:data:: rho
+   :type: float
+   :value: 1023.0
 
-- **z**: `6`  
-  A constant used in the model.
-
-- **omega**: `2.734109632312753`  
-  The angular frequency, calculated from `m0` and `g`.  
-  Formula:  
-  `omega = sqrt(m0 * g)`
+   The density of water, in kilograms per cubic meter ($kg/m^3$). The default value is typical for seawater.

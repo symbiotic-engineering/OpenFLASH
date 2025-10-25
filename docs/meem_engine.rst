@@ -1,117 +1,60 @@
-.. currentmodule:: package.meem_engine
+.. _meem_engine-module:
 
-MEEMEngine Class
-================
+===========
+MEEM Engine
+===========
 
-The `MEEMEngine` class manages multiple `MEEMProblem` instances and performs actions such as solving systems of equations,
-assembling matrices, and computing hydrodynamic coefficients.
+.. automodule:: openflash.meem_engine
+   :no-members:
 
-Methods
--------
+.. _meem_engine-overview:
 
-__init__(problem_list: List[MEEMProblem])
-------------------------------------------
-Initialize the `MEEMEngine` object.
+Conceptual Overview
+===================
 
-:param problem_list: List of `MEEMProblem` instances.
-:returns: None
+The ``MEEMEngine`` is the central processing unit of the OpenFLASH package. It takes one or more :class:`~openflash.meem_problem.MEEMProblem` objects and orchestrates the entire simulation process, from assembling the mathematical system to calculating the final physical results.
 
-assemble_A(problem: MEEMProblem) -> np.ndarray
-------------------------------------------------
-Assemble the system matrix `A` for a given problem.
+The engine is designed around an internal caching system (``ProblemCache``) that significantly optimizes performance, especially when running simulations over multiple frequencies. It pre-calculates parts of the system that are frequency-independent and stores functions to efficiently compute the frequency-dependent parts.
 
-:param problem: The `MEEMProblem` instance containing the domain information.
-:returns: Assembled matrix `A` of shape (size, size), where `size` is the total number of harmonics across all domains.
+Primary Workflows
+-----------------
 
-assemble_A_multi(problem: MEEMProblem) -> np.ndarray
-------------------------------------------------------
-Assemble the system matrix `A` for a multi-domain problem with multiple boundary conditions.
+There are two primary ways to use the ``MEEMEngine``:
 
-:param problem: The `MEEMProblem` instance containing the domain list and domain parameters.
-:returns: Assembled matrix `A` of shape (size, size), where `size` is the total number of harmonics across all domains.
+1.  **Single Frequency Analysis**: This workflow is ideal for detailed inspection of the system at a single wave frequency. The user typically calls :meth:`~solve_linear_system_multi` to get the solution vector, then uses that vector with post-processing methods like :meth:`~calculate_potentials` or :meth:`~calculate_velocities` to generate spatial field data for visualization.
 
-assemble_b(problem: MEEMProblem) -> np.ndarray
-------------------------------------------------
-Assemble the right-hand side vector `b` for a given problem.
+2.  **Frequency Sweep Analysis**: This is the most common and powerful workflow. The user configures a ``MEEMProblem`` with a range of frequencies and then makes a single call to the :meth:`~run_and_store_results` method. The engine handles the entire loop internally, solving the system for each frequency and packaging all the hydrodynamic coefficients into a convenient :class:`~openflash.results.Results` object.
 
-:param problem: The `MEEMProblem` instance.
-:returns: Assembled vector `b` as a numpy array.
+.. _meem_engine-api:
 
-assemble_b_multi(problem: MEEMProblem) -> np.ndarray
-------------------------------------------------------
-Assemble the right-hand side vector `b` for a given multi-region problem.
+API Reference
+=============
 
-:param problem: The `MEEMProblem` instance.
-:returns: Assembled vector `b` as a numpy array.
+.. autoclass:: openflash.meem_engine.MEEMEngine
 
-compute_hydrodynamic_coefficients(problem: MEEMProblem, X: np.ndarray) -> Dict[str, any]
------------------------------------------------------------------------------------------
-Compute the hydrodynamic coefficients for a given problem and solution vector `X`.
+   Core Solver Methods
+   -------------------
+   These are the main methods for running simulations.
 
-:param problem: The `MEEMProblem` instance.
-:param X: The solution vector `X` obtained from solving `A x = b`.
-:returns: Dictionary containing the hydrodynamic coefficients and related values.
+   .. automethod:: solve_linear_system_multi
 
-Detailed Method Descriptions
------------------------------
+   .. automethod:: run_and_store_results
 
-__init__(problem_list: List[MEEMProblem])
-------------------------------------------
-This method initializes the `MEEMEngine` object with a list of `MEEMProblem` instances. It is used to set up the
-problem set that the engine will manage.
 
-assemble_A(problem: MEEMProblem) -> np.ndarray
-------------------------------------------------
-This method assembles the system matrix `A` for the given problem. The matrix is constructed based on the harmonics
-and domain properties. It calculates matrix entries using the functions `equations.R_1n_1`, `equations.R_1n_2`,
-`equations.Lambda_k_r`, etc., to populate the elements of the matrix.
+   Post-Processing & Analysis Methods
+   ----------------------------------
+   These methods are used after solving the system to compute physical quantities.
 
-assemble_A_multi(problem: MEEMProblem) -> np.ndarray
-------------------------------------------------------
-This method assembles the system matrix `A` for a multi-domain problem. The matrix is constructed similarly to
-`assemble_A`, but with added complexity to account for multiple boundaries and regions.
+   .. automethod:: compute_hydrodynamic_coefficients
 
-assemble_b(problem: MEEMProblem) -> np.ndarray
-------------------------------------------------
-This method assembles the right-hand side vector `b` for the given problem. The vector is computed by integrating
-various functions, including `phi_p_i1_i2_a1`, `Z_n_i1`, `phi_p_a2`, and others across the domains. It considers the
-harmonics and boundary conditions to compute the vector entries.
+   .. automethod:: calculate_potentials
 
-assemble_b_multi(problem: MEEMProblem) -> np.ndarray
-------------------------------------------------------
-This method assembles the right-hand side vector `b` for a multi-domain problem. It calculates entries for boundary
-conditions, velocity matching, and potential matching using the corresponding multi-domain equations.
+   .. automethod:: calculate_velocities
 
-compute_hydrodynamic_coefficients(problem: MEEMProblem, X: np.ndarray) -> Dict[str, any]
------------------------------------------------------------------------------------------
-This method computes the hydrodynamic coefficients for the given problem and solution vector `X`. The coefficients are
-calculated using integrals of various functions over the domains. The method also calculates the real and imaginary
-components of the coefficients and finds the maximum heaving radius for non-dimensionalizing the coefficient.
 
-### Example Usage
+   Utility & Visualization Methods
+   -------------------------------
 
-```python````
-from meem_engine import MEEMEngine
-from meem_problem import MEEMProblem
+   .. automethod:: reformat_coeffs
 
-# Define problems (Example)
-problem_1 = MEEMProblem(...)
-problem_2 = MEEMProblem(...)
-
-# Create engine with a list of problems
-engine = MEEMEngine([problem_1, problem_2])
-
-# Assemble matrix for a single problem
-matrix_A = engine.assemble_A(problem_1)
-
-# Assemble matrix for a multi-domain problem
-matrix_A_multi = engine.assemble_A_multi(problem_1)
-
-# Assemble right-hand side vector for a problem
-vector_b = engine.assemble_b(problem_1)
-
-# Assemble right-hand side vector for a multi-domain problem
-vector_b_multi = engine.assemble_b_multi(problem_1)
-
-# Compute hydrodynamic coefficients for a solution
-hydro_results = engine.compute_hydrodynamic_coefficients(problem_1, X)
+   .. automethod:: visualize_potential

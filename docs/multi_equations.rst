@@ -1,154 +1,105 @@
-Multi Equations 
-================
+.. _multi_equations-module:
 
-This module, `multi_equations.py`, contains a variety of functions for performing computations related to multi-region eigenfunctions, vertical eigenvector coupling, Bessel functions, and other related mathematical operations. It leverages libraries such as `numpy`, `scipy`, and `matplotlib` for efficient scientific computing.
+======================
+Mathematical Equations
+======================
 
-Imports
--------
+.. automodule:: openflash.multi_equations
 
-The following libraries are imported:
+.. _multi_equations-overview:
 
-- `numpy` (as `np`): For numerical computations, including arrays and mathematical operations.
-- `scipy.special`: For special functions such as Bessel functions (`hankel1`, `iv`, `kv`).
-- `scipy.integrate`: For numerical integration.
-- `scipy.linalg`: For linear algebra functions.
-- `matplotlib.pyplot`: For plotting graphs.
-- `scipy.optimize`: For optimization routines.
-- `multi_constants`: Custom constants, such as `a`, `h`, and `m0`, used across the equations.
+Conceptual Overview
+===================
 
-Functions
----------
+The ``multi_equations`` module is the mathematical heart of the OpenFLASH package. It contains the Python implementations of the core analytical functions required for the Matched Eigenfunction Expansion Method (MEEM), including radial and vertical eigenfunctions, their derivatives, coupling integrals, and terms for constructing the final linear system.
 
-### wavenumber(omega)
-Calculates the wavenumber for a given frequency (`omega`), using a root-finding method to solve for `m0` using the equation provided. This function is vital for determining the spatial frequency characteristics of waves.
+.. warning::
+   Most functions in this module are low-level mathematical components used internally by the :class:`~openflash.meem_engine.MEEMEngine`. The average user will typically only need to interact with the **User-Facing Utility Functions** listed below. The other sections are provided for developers and researchers interested in the underlying mathematical theory.
 
-#### Parameters:
-- `omega` (float): The frequency for which the wavenumber is to be calculated.
+.. _multi_equations-user-api:
 
-#### Returns:
-- `float`: The calculated wavenumber corresponding to the given frequency.
+User-Facing Utility Functions
+=============================
 
----
+These are high-level helper functions that you may need to use when setting up a simulation.
 
-### eigenfunction(x, m0)
-Computes the eigenfunction for a given point `x` using the specified `m0` parameter. This function is essential for generating solutions to the multi-region problem.
+.. autofunction:: openflash.multi_equations.omega
+.. autofunction:: openflash.multi_equations.wavenumber
 
-#### Parameters:
-- `x` (float): The spatial coordinate at which to evaluate the eigenfunction.
-- `m0` (float): A parameter related to the system's eigenvalue.
+.. _multi_equations-core-api:
 
-#### Returns:
-- `float`: The value of the eigenfunction evaluated at `x`.
+Core Mathematical Components
+============================
 
----
+This section details the core mathematical building blocks of the MEEM formulation. These functions are primarily called by the ``MEEMEngine`` during the matrix assembly process.
 
-### vertical_eigenvector_coupling(m0, m1, z)
-Calculates the vertical coupling between two eigenvectors, indexed by `m0` and `m1`, at a given height `z`. This coupling plays a role in multi-region solutions where eigenvectors interact at different vertical levels.
+Wavenumber Computations
+-----------------------
+These functions determine the wavenumbers for the exterior fluid domain.
 
-#### Parameters:
-- `m0` (float): The first eigenvector index.
-- `m1` (float): The second eigenvector index.
-- `z` (float): The vertical height where the coupling is evaluated.
+.. autofunction:: openflash.multi_equations.m_k_entry
+.. autofunction:: openflash.multi_equations.lambda_ni
 
-#### Returns:
-- `float`: The vertical coupling value at the specified height.
+Coupling Integrals
+------------------
+These functions compute the integrals that couple the vertical eigenfunctions at the boundaries between adjacent fluid regions.
 
----
+.. autofunction:: openflash.multi_equations.I_nm
+.. autofunction:: openflash.multi_equations.I_mk
 
-### bessel_jv(n, x)
-Computes the Bessel function of the first kind of order `n` at point `x`. This is used in problems involving cylindrical symmetry, such as wave propagation in cylindrical coordinates.
+Radial Eigenfunctions
+---------------------
+These functions define the radial variation of the potential in each type of fluid domain. They include the functions themselves, their derivatives, and optimized vectorized versions used for post-processing.
 
-#### Parameters:
-- `n` (int): The order of the Bessel function.
-- `x` (float): The point at which to evaluate the Bessel function.
+.. rubric:: Interior Regions (Bessel I)
 
-#### Returns:
-- `float`: The value of the Bessel function at the specified point.
+.. autofunction:: openflash.multi_equations.R_1n
+.. autofunction:: openflash.multi_equations.diff_R_1n
+.. autofunction:: openflash.multi_equations.R_1n_vectorized
+.. autofunction:: openflash.multi_equations.diff_R_1n_vectorized
 
----
+.. rubric:: Intermediate Regions (Bessel K)
 
-### bessel_hankel1(n, x)
-Computes the Hankel function of the first kind of order `n` at point `x`. This function is used for modeling wave propagation in open space, particularly for radiation problems.
+.. autofunction:: openflash.multi_equations.R_2n
+.. autofunction:: openflash.multi_equations.diff_R_2n
+.. autofunction:: openflash.multi_equations.R_2n_vectorized
+.. autofunction:: openflash.multi_equations.diff_R_2n_vectorized
 
-#### Parameters:
-- `n` (int): The order of the Hankel function.
-- `x` (float): The point at which to evaluate the Hankel function.
+.. rubric:: Exterior Region (Hankel & Bessel K)
 
-#### Returns:
-- `complex`: The value of the Hankel function at the specified point.
+.. autofunction:: openflash.multi_equations.Lambda_k
+.. autofunction:: openflash.multi_equations.diff_Lambda_k
+.. autofunction:: openflash.multi_equations.Lambda_k_vectorized
+.. autofunction:: openflash.multi_equations.diff_Lambda_k_vectorized
 
----
 
-### bessel_iv(n, x)
-Computes the modified Bessel function of the first kind of order `n` at point `x`. This function is often used in problems involving heat conduction or diffusion in cylindrical geometries.
+Vertical Eigenfunctions
+-----------------------
+These functions define the vertical variation of the potential in each type of fluid domain.
 
-#### Parameters:
-- `n` (int): The order of the Bessel function.
-- `x` (float): The point at which to evaluate the Bessel function.
+.. rubric:: Interior & Intermediate Regions
 
-#### Returns:
-- `float`: The value of the modified Bessel function at the specified point.
+.. autofunction:: openflash.multi_equations.Z_n_i
+.. autofunction:: openflash.multi_equations.diff_Z_n_i
+.. autofunction:: openflash.multi_equations.Z_n_i_vectorized
+.. autofunction:: openflash.multi_equations.diff_Z_n_i_vectorized
 
----
+.. rubric:: Exterior Region
 
-### bessel_kv(n, x)
-Computes the modified Bessel function of the second kind of order `n` at point `x`. This function is often used in problems involving wave propagation or thermal conduction in cylindrical coordinates.
+.. autofunction:: openflash.multi_equations.N_k_multi
+.. autofunction:: openflash.multi_equations.Z_k_e
+.. autofunction:: openflash.multi_equations.diff_Z_k_e
+.. autofunction:: openflash.multi_equations.Z_k_e_vectorized
+.. autofunction:: openflash.multi_equations.diff_Z_k_e_vectorized
 
-#### Parameters:
-- `n` (int): The order of the Bessel function.
-- `x` (float): The point at which to evaluate the Bessel function.
 
-#### Returns:
-- `float`: The value of the modified Bessel function at the specified point.
+Particular Solution & Hydrodynamic Terms
+----------------------------------------
+These functions are related to the non-homogeneous parts of the solution and the final calculation of physical coefficients.
 
----
-
-### solve_integral(func, a, b)
-Numerically integrates a function `func` over the interval `[a, b]` using scipy's `quad` method. This is used for computing integrals that arise in eigenvalue problems or coupling coefficients.
-
-#### Parameters:
-- `func` (function): The function to be integrated.
-- `a` (float): The lower bound of the integration interval.
-- `b` (float): The upper bound of the integration interval.
-
-#### Returns:
-- `float`: The result of the integration.
-
----
-
-### optimize_function(func, x0)
-Optimizes a function `func` starting from an initial guess `x0` using scipy's optimization routines. This is useful for solving for parameters like eigenvalues or minimizing error functions.
-
-#### Parameters:
-- `func` (function): The function to be optimized.
-- `x0` (float): The initial guess for the optimization.
-
-#### Returns:
-- `float`: The optimal value that minimizes the given function.
-
----
-
-### plot_eigenfunction(x_vals, eigenfunction_vals)
-Plots the eigenfunction values against the corresponding spatial coordinates using `matplotlib`. This function is useful for visualizing the solution to the eigenfunction problem.
-
-#### Parameters:
-- `x_vals` (array-like): A list or array of spatial coordinates.
-- `eigenfunction_vals` (array-like): A list or array of eigenfunction values at the corresponding coordinates.
-
-#### Returns:
-- `None`: Displays the plot.
-
----
-
-### constants_setup()
-Initializes and sets up the constants required for solving the equations, such as `a`, `h`, and `m0`. These constants are used across various functions in the module for consistency and efficiency.
-
-#### Returns:
-- `None`: Initializes constants in the module's namespace.
-
----
-
-Conclusion
-----------
-
-This module is designed to handle a variety of operations related to multi-region eigenfunction problems, providing a solid foundation for solving complex mathematical models in physics, engineering, and related fields. By utilizing standard scientific computing libraries like `numpy`, `scipy`, and `matplotlib`, this module provides efficient and accurate tools for solving problems involving waves, eigenvectors, and special functions.
+.. autofunction:: openflash.multi_equations.phi_p_i
+.. autofunction:: openflash.multi_equations.diff_r_phi_p_i
+.. autofunction:: openflash.multi_equations.diff_z_phi_p_i
+.. autofunction:: openflash.multi_equations.int_R_1n
+.. autofunction:: openflash.multi_equations.int_R_2n
+.. autofunction:: openflash.multi_equations.excitation_force

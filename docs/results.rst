@@ -1,68 +1,77 @@
-Results Class
+.. _results-module:
+
+==============
+Results Module
 ==============
 
-The `Results` class is designed to store results in an `xarray` format similar to Capytaine's conventions. It provides methods to store, access, and export results to a `.nc` file, with a focus on eigenfunction data (radial and vertical) across different frequencies and modes.
+.. automodule:: openflash.results
 
-Imports
--------
+.. _results-overview:
 
-The following libraries are imported:
+Conceptual Overview
+===================
 
-- `xarray` (as `xr`): Used for managing multi-dimensional arrays and datasets.
-- `numpy` (as `np`): Provides support for large, multi-dimensional arrays and matrices, along with mathematical functions.
-- `geometry`: The `Geometry` class, which contains domain and body information for the computational model.
+The ``Results`` class is the primary container for storing, managing, and exporting all outputs from an OpenFLASH simulation. It is built on top of the powerful `xarray` library, which provides labeled, multi-dimensional arrays, making the data self-describing and easy to work with.
 
-Class: `Results`
-----------------
+When you run a simulation, especially a frequency sweep using the :meth:`~openflash.meem_engine.MEEMEngine.run_and_store_results` method, the engine will return a fully populated ``Results`` object.
 
-### __init__(self, geometry: Geometry, frequencies: np.ndarray, modes: np.ndarray)
-Initializes the `Results` class, which will store the eigenfunction results in an `xarray` Dataset.
+Key Features
+------------
 
-#### Parameters:
-- `geometry` (`Geometry`): A `Geometry` object that contains domain and body information used for setting up the coordinate system.
-- `frequencies` (`np.ndarray`): An array of frequency values at which the eigenfunctions are evaluated.
-- `modes` (`np.ndarray`): An array of mode shapes or identifiers corresponding to different eigenfunction modes.
+* **Structured Data:** All data is stored in an ``xarray.Dataset`` with named dimensions (like 'frequencies', 'modes', 'r', 'z') and coordinates, eliminating ambiguity.
+* **Comprehensive Storage:** Capable of storing key outputs, including hydrodynamic coefficients (added mass, damping) and detailed spatial field data (potentials, velocities).
+* **NetCDF Export:** Provides a simple method to export the entire dataset to a NetCDF (`.nc`) file, a standard format for scientific data that preserves the data's structure and labels.
 
----
+.. _results-usage:
 
-### store_results(self, domain_index: int, radial_data: np.ndarray, vertical_data: np.ndarray)
-Stores the radial and vertical eigenfunction results for a specific domain. The results are stored in an `xarray` Dataset.
+Example Usage
+=============
 
-#### Parameters:
-- `domain_index` (`int`): The index of the domain, corresponding to a key in the `domain_list` of the `Geometry` object.
-- `radial_data` (`np.ndarray`): An array of radial eigenfunction values for the given domain.
-- `vertical_data` (`np.ndarray`): An array of vertical eigenfunction values for the given domain.
+The most common workflow involves receiving a ``Results`` object from the ``MEEMEngine`` and then accessing or exporting its data.
 
-#### Raises:
-- `ValueError`: If the domain index is not found in the `domain_list`.
+.. code-block:: python
 
----
+   from openflash import MEEMEngine, MEEMProblem
+   import numpy as np
 
-### export_to_netcdf(self, file_path: str)
-Exports the stored results to a NetCDF (.nc) file.
+   # --- Assume 'engine' and 'problem' are already configured ---
+   # problem.set_frequencies_modes(np.linspace(0.5, 4.0, 50), np.array([0, 1]))
 
-#### Parameters:
-- `file_path` (`str`): The path where the `.nc` file will be saved.
+   # 1. Run the simulation to get a populated Results object
+   results = engine.run_and_store_results(problem_index=0)
 
----
+   # 2. Access the underlying xarray.Dataset
+   dataset = results.get_results()
+   print("--- Accessing Added Mass Data ---")
+   print(dataset['added_mass'])
 
-### get_results(self)
-Returns the stored results as an `xarray.Dataset`.
+   # 3. Display a summary of the dataset
+   print("\n--- Dataset Summary ---")
+   results.display_results()
 
-#### Returns:
-- `xarray.Dataset`: The dataset containing the stored eigenfunction results.
+   # 4. Export all results to a file
+   results.export_to_netcdf("my_simulation_output.nc")
+   print("\nResults saved to my_simulation_output.nc")
 
----
 
-### display_results(self)
-Displays the stored results in a readable format. This method returns a string representation of the results.
+.. _results-api:
 
-#### Returns:
-- `str`: A string representation of the results, or a message indicating no results are stored.
+API Reference
+=============
 
----
+.. autoclass:: openflash.results.Results
 
-Conclusion
-----------
+   Data Storage Methods
+   --------------------
+   These methods are used by the ``MEEMEngine`` to populate the dataset. Users typically do not need to call these directly.
 
-The `Results` class is designed to facilitate the storage, access, and export of eigenfunction data for computational models. It leverages the power of `xarray` to handle multi-dimensional data arrays, with support for storing results for multiple domains, frequencies, and modes. The class also includes functionality to export the results to NetCDF files for further analysis or sharing.
+   .. automethod:: store_hydrodynamic_coefficients
+   .. automethod:: store_all_potentials
+
+   Data Access and Export
+   ------------------------
+   These methods are the primary public interface for interacting with a populated ``Results`` object.
+
+   .. automethod:: get_results
+   .. automethod:: display_results
+   .. automethod:: export_to_netcdf

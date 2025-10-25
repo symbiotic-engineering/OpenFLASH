@@ -1,47 +1,59 @@
-.. currentmodule:: package.meem_problem
+.. _meem_problem-module:
 
-MEEMProblem Module
-====================
+==================
+MEEM Problem Module
+==================
 
-This module defines the `MEEMProblem` class, which is responsible for managing individual matched eigenfunction problems. It aggregates domains and checks for boundary condition matches between them to ensure the correct mathematical problem setup.
+.. automodule:: openflash.meem_problem
 
-.. automodule:: meem_problem
-   :members:
-   :undoc-members:
+.. _meem_problem-overview:
 
-Class:
---------
-.. autoclass:: meem_problem.MEEMProblem
-   :members:
-   :noindex:
+Conceptual Overview
+===================
+
+The ``MEEMProblem`` class is a fundamental container in the OpenFLASH workflow. Its primary role is to bundle a fully defined **geometry** with the specific **simulation parameters** you want to investigate.
+
+Think of it as the complete "job description" for a simulation run. It holds two key pieces of information:
+
+1.  **What to Simulate:** A :class:`~openflash.geometry.Geometry` object that describes the physical layout of all the bodies and the surrounding fluid.
+2.  **How to Simulate It:** The specific wave **frequencies** and **modes of motion** (e.g., which bodies are heaving) that the :class:`~openflash.meem_engine.MEEMEngine` should solve for.
+
+You create a `MEEMProblem` instance and then pass it to the `MEEMEngine` to perform the calculations.
+
+.. _meem_problem-usage:
+
+Example Usage
+=============
+
+Creating and configuring a ``MEEMProblem`` is a straightforward process.
+
+.. code-block:: python
+
+   from openflash import MEEMProblem, BasicRegionGeometry
+   import numpy as np
+
+   # --- Assume 'geometry' is an already created BasicRegionGeometry object ---
+   # geometry = BasicRegionGeometry(...)
+
+   # 1. Create the problem instance with the geometry
+   problem = MEEMProblem(geometry)
+
+   # 2. Define the simulation parameters
+   frequencies_to_run = np.array([1.5, 2.0, 2.5]) # Frequencies in rad/s
+   modes_to_solve = np.array([0, 1])               # Heaving motion of bodies 0 and 1
+
+   # 3. Configure the problem with these parameters
+   problem.set_frequencies_modes(frequencies_to_run, modes_to_solve)
+
+   # The 'problem' object is now ready to be passed to the MEEMEngine.
+
+
+.. _meem_problem-api:
+
+API Reference
+=============
+
+.. autoclass:: openflash.meem_problem.MEEMProblem
+   :members: set_frequencies_modes
    :undoc-members:
    :show-inheritance:
-
-Attributes:
------------
-- `domain_list`: List[Domain] — Populated from the Geometry class, this list holds Domain instances to be checked for boundary condition matching.
-
-Methods:
---------
-.. method:: __init__(geometry: Geometry)
-   :noindex:
-
-   Initializes the MEEMProblem instance with a geometry, loading domain information from the Geometry object.
-   
-   :param geometry: An instance of the Geometry class containing domain information.
-   :type geometry: Geometry
-
-.. method:: match_domains() -> Dict[int, Dict[str, bool]]
-
-   Checks boundary condition matching between consecutive domains in the `domain_list`.
-   
-   :returns: A dictionary with information about the matching status of each domain pair, keyed by the index. The dictionary includes a boolean value for each boundary condition check (e.g., 'top_match', 'bottom_match').
-
-.. method:: perform_matching(matching_info: Dict[int, Dict[str, bool]]) -> bool
-
-   Takes matching information from `match_domains` and verifies if all domains match according to the specified boundary conditions.
-   
-   :param matching_info: A dictionary containing the matching status between domain pairs.
-   :returns: True if all domains match successfully, False otherwise.
-   
-   If matching fails, the method prints the index at which matching failed.
