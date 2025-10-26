@@ -21,7 +21,7 @@ References
 
 6. K. Kokkinowrachos, S. Mavrakos, and S. Asorakos, “Behaviour of vertical bodies of revolution in waves,” *Ocean Engineering*, vol. 13, no. 6, pp. 505–538, 1986, doi: 10.1016/0029-8018(86)90037-5.
 
-7. R. McCabe, K. Khanal, and M. Haji, “Open-source toolbox for semi-analytical hydrodynamic coefficients via the matched eigenfunction expansion method,” 2024.
+7. R. McCabe, K. Khanal, and M. Haji, “Open-source toolbox for semi-analytical hydrodynamic coefficients via the matched eigenfunction expansion method,” presented at the UMERC + METS 2024, Duluth, MN, USA, 2024. doi: 10.5281/zenodo.14504016.
 
 8. R. McCabe, K. Khanal, Y. Bimali, E. Lo, C. Treacy, and M. Haji, “Numerics of the matched eigenfunction method for computing wave forces on concentric bodies,” in preparation, 2025.
 

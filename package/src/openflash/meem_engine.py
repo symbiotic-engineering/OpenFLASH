@@ -53,6 +53,7 @@ class MEEMEngine:
         """
         Assemble the system matrix A for a given problem using pre-computed blocks.
         """
+        self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         A = cache._get_A_template()
 
@@ -68,6 +69,7 @@ class MEEMEngine:
         """
         Assemble the right-hand side vector b for a given problem.
         """
+        self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         b = cache._get_b_template()
 
@@ -118,7 +120,6 @@ class MEEMEngine:
             vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
             for m in range(NMK[boundary_count - 1]):
                 for k in range(NMK[boundary_count]):
-                    # FIX: Consistent argument order (h, d)
                     vals[m, k] = I_mk(m, k, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
             return vals
         
@@ -140,7 +141,6 @@ class MEEMEngine:
                 
                 if bd > 0:
                     left_block2 = p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK)
-                    # FIX: Correct order is R1n block, then R2n block
                     block = np.concatenate([left_block1, left_block2], axis=1)
                 else:
                     block = left_block1
@@ -161,7 +161,6 @@ class MEEMEngine:
                 row_height = N if left_diag else M
                 blocks = []
                 
-                # FIX: Correctly ordered R1n/R2n blocks
                 if left_diag:
                     blocks.append(p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK))
                     if bd > 0: blocks.append(p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK))
@@ -197,7 +196,6 @@ class MEEMEngine:
                         cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
                     # Second dense block (R2n) if needed
                     if bd > 0:
-                        # FIX: Correctly place the R2n block after the R1n block
                         r2n_col_start = v_dense_e_col_start + N
                         for k_local in range(N):
                             g_row, g_col = row_offset + m_local, r2n_col_start + k_local
@@ -208,7 +206,6 @@ class MEEMEngine:
                 v_diag_e_col_start = col_offset + (2*N if bd > 0 else N)
                 for k_local in range(M):
                     g_row, g_col = row_offset + k_local, v_diag_e_col_start + k_local
-                    # FIX: Removed unused 'm' argument from lambda signature
                     calc_func = lambda p, m0, mk, Nk, Imk, k=k_local: \
                         v_diagonal_block_e_entry(m, k, bd, m0, mk, a, h)
                     cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
@@ -219,7 +216,6 @@ class MEEMEngine:
                 row_height = N if left_diag else M
                 blocks = []
                 
-                # FIX: Correctly ordered diff_R1n/diff_R2n blocks
                 if left_diag:
                     blocks.append(v_diagonal_block(True, diff_R_1n_func, bd, h, d, NMK, a))
                     if bd > 0: blocks.append(v_diagonal_block(True, diff_R_2n_func, bd, h, d, NMK, a))
@@ -342,7 +338,16 @@ class MEEMEngine:
 
         # Determine which modes to loop over to calculate forces on
         if modes_to_calculate is None:
-            modes_to_calculate = problem.modes
+            # OLD LINE:
+            # modes_to_calculate = problem.modes
+            
+            # NEW, CORRECTED LOGIC:
+            # Default to *all* body indices. The 'problem.modes' property
+            # reflects the 'heaving' flags used to generate the potential 'X' (the "source" mode i).
+            # For the force calculation, we need to iterate over *all* modes 'j'
+            # (including stationary ones) to get the full column (A_ji, B_ji) of the matrix.
+            num_bodies = len(geometry.body_arrangement.bodies)
+            modes_to_calculate = np.arange(num_bodies)
 
         # Loop through each mode (degree of freedom)
         for mode_index in modes_to_calculate:
@@ -420,7 +425,6 @@ class MEEMEngine:
         m_k_arr = cache.m_k_arr
         N_k_arr = cache.N_k_arr
         
-        # --- FIX: Get parameters from the definitive source ---
         # Get geometry parameters directly from the body arrangement and domains
         geometry = problem.geometry
         body_arrangement = geometry.body_arrangement
@@ -528,7 +532,6 @@ class MEEMEngine:
         cache = self.cache_list[problem]
         m_k_arr, N_k_arr = cache.m_k_arr, cache.N_k_arr
 
-        # --- FIX: Get parameters from their definitive sources ---
         geometry = problem.geometry
         body_arrangement = geometry.body_arrangement
         domain_list = problem.domain_list
@@ -642,7 +645,7 @@ class MEEMEngine:
         num_freqs = len(omegas_to_run)
 
         # Initialize Results object (constructor no longer takes modes)
-        results = Results(original_geometry, omegas_to_run)
+        results = Results(original_problem)
 
         # Initialize 3D arrays to hold the (N x N) matrices for each frequency
         full_added_mass_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
