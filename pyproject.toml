@@ -42,6 +42,7 @@ dev = [
     "sphinx>=3.0",
     "sphinx-rtd-theme>=0.5",
     "jupyter>=1.0.0",
+    "ipykernel",
 ]
 hydro = [
     "capytaine>=2.2",

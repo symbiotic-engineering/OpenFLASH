@@ -1,6 +1,6 @@
 package:
   name: open-flash
-  version: "0.2.2"
+  version: {{ GIT_DESCRIBE_TAG }}
 
 source:
   path: ..
@@ -27,6 +27,7 @@ requirements:
     - h5netcdf
     - xarray
     - streamlit
+    - ipykernel
   
 about:
   home: https://github.com/symbiotic-engineering/semi-analytical-hydro

@@ -1,0 +1,74 @@
+name: Publish Python Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on version tags like v1.0
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/open-flash/
+    permissions:
+      id-token: write
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.x' # Specify your Python version
+
+        - name: Install build tools
+          run: pip install build twine
+
+        - name: Build distribution packages
+          run: python -m build
+
+        - name: Publish package to PyPI
+          uses: pypa/gh-action-pypi-publish@release/v1
+          with:
+            password: ${{ secrets.PYPI_API_TOKEN }}
+
+        - name: Setup Miniconda
+          uses: conda-incubator/setup-miniconda@v3
+          with:
+            python-version: 3.11
+            environment-file: path/to/conda/env.yaml    # Replace with the path to your conda environment
+            auto-update-conda: false
+            auto-activate-base: false
+            show-channel-urls: true
+
+        - name: Build and upload conda packages
+          uses: uibcdf/action-build-and-upload-conda-packages@v1.4.0
+          id: conda-build-and-upload
+          with:
+            python-version: 3.11
+            meta_yaml_dir: conda-recipe 
+            user: sea-lab
+            token: ${{ secrets.ANACONDA_TOKEN }}
+
+        - name: Re-format output paths
+          id: reformat-paths
+          # Needed to have the correct newline-separated files format for the following release step
+          run: |
+            paths=$(tr ' ' '\n' <<< "${{steps.conda-build-and-upload.outputs.paths}}")
+            echo "newline-separated-paths=$paths" >> $GITHUB_OUTPUT
+
+        - name: Create GitHub release
+          uses: softprops/action-gh-release@v2
+          with:
+            tag_name: ${{ github.ref_name }}
+            name: ${{ github.ref_name }} # Replace with the name for your release
+            generate_release_notes: true
+            fail_on_unmatched_files: true
+            files: ${{steps.reformat-paths.outputs.newline-separated-paths}}

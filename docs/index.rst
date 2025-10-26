@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to openFlASH's Documentation!
+Welcome to OpenFLASH's Documentation!
 ======================================
 
-This documentation provides an overview of the **openFlASH** package, which is designed to solve mathematical problems related to eigenfunctions and domain matching. The package is structured to allow for efficient geometry management, boundary condition matching, and problem-solving functionalities.
+This documentation provides an overview of the **OpenFLASH** package, which is designed to solve mathematical problems related to eigenfunctions and domain matching. The package is structured to allow for efficient geometry management, boundary condition matching, and problem-solving functionalities.
 
 Modules Overview
 ================
@@ -17,18 +17,10 @@ Modules Overview
 
    introduction
    installation
-   geometry
-   domain
-   meem_problem
-   meem_engine
-   results
-   problem_cache
+   modules/index
    tutorial_walk
-   multi_constants
-   multi_equations
    app_walk
    citations
-   basic_region_geometry
 
 Indices and Tables
 ==================
