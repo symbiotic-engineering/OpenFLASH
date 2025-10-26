@@ -77,26 +77,15 @@ def main():
 
     # The m0 value is now taken from the problem's frequency list, but we can pass it
     # directly to the engine methods as you were doing.
-    engine._ensure_m_k_and_N_k_arrays(problem, m0)
-    A = engine.assemble_A_multi(problem, m0)
-    b = engine.assemble_b_multi(problem, m0)
-
-    print("Any NaNs in A?", np.isnan(A).any())
-    print("Any Infs in A?", np.isinf(A).any())
-    print("Any NaNs in b?", np.isnan(b).any())
-    print("Any Infs in b?", np.isinf(b).any())
-    
-    print(f"System matrix A assembled. Shape: {A.shape}")
-    print(f"Right-hand side vector b assembled. Shape: {b.shape}")
-    print("Body depths:", d)
-    print("Water depth:", h)
-    print("Body radii:", a)
-
-
 
     # -------------------------
     # Solve the linear system
     # -------------------------
+    # This single call now handles everything:
+    # 1. Calls _ensure_m_k_and_N_k_arrays
+    # 2. Calls assemble_A_multi
+    # 3. Calls assemble_b_multi
+    # 4. Solves the system
     X = engine.solve_linear_system_multi(problem, m0)
     print(f"System solved. Solution vector shape: {X.shape}")
 
