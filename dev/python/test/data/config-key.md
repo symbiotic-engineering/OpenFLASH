@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 Parenthetical values are matching points (real, imag), with rtol = 0.03, real atol = 0.01, imag atol = 0.0001. <br> 
 Other values are what was inputted into capytaine for the corresponding configurations, and what the hydro coefficient outputs were. <br>
 Note: Capytaine convention does not multiply hydro coefficients by a factor of h^3.<br>
 The hydro coefficients/point matching in double parenthesis was data given by the code at the bottom of test_potential.py,
 which matches better sometimes.
+=======
+Match is the number of matching potential points for (real, imag), with rtol = 0.01, real/imag atol = 0.01 (2500 max).<br> 
+t_densities and face_units determined the number of panels in the Capytaine mesh.  <br>
+Capytaine added_mass, radiation_damping, and excitation_phase are listed first.<br>
+MEEM added_mass, radiation_damping and excitation_phase with 100 coefficients per region, converted to the capytaine convention, are listed second. <br>
+(Capytaine convention does not multiply hydro coefficients by a factor of h^3).<br>
+>>>>>>> origin/main
 
 config0:<br>
 h = 1.001 <br>
