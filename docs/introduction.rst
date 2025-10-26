@@ -48,9 +48,8 @@ Here is a minimal example of setting up and solving a two-body problem:
 
    # 3. Set up the problem with simulation parameters
    problem = MEEMProblem(geometry)
-   problem.set_frequencies_modes(
+   problem.set_frequencies(
        frequencies=np.array([omega(m0=1.0, h=100.0, g=g)]),
-       modes=np.array([0]) # Only solve for the heaving of body 0
    )
 
    # 4. Run the engine and get results

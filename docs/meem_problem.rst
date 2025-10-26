@@ -40,10 +40,9 @@ Creating and configuring a ``MEEMProblem`` is a straightforward process.
 
    # 2. Define the simulation parameters
    frequencies_to_run = np.array([1.5, 2.0, 2.5]) # Frequencies in rad/s
-   modes_to_solve = np.array([0, 1])               # Heaving motion of bodies 0 and 1
 
    # 3. Configure the problem with these parameters
-   problem.set_frequencies_modes(frequencies_to_run, modes_to_solve)
+   problem.set_frequencies(frequencies_to_run)
 
    # The 'problem' object is now ready to be passed to the MEEMEngine.
 
@@ -54,6 +53,6 @@ API Reference
 =============
 
 .. autoclass:: openflash.meem_problem.MEEMProblem
-   :members: set_frequencies_modes
+   :members: set_frequencies
    :undoc-members:
    :show-inheritance:

@@ -2,32 +2,37 @@ import xarray as xr
 import numpy as np
 from openflash.geometry import Geometry
 
+from openflash.meem_problem import MEEMProblem
+
 class Results:
     """
     Class to store results in an xarray format similar to Capytaine's conventions.
     Provides methods to store, access, and export results to a .nc file.
     """
 
-    def __init__(self, geometry: Geometry, frequencies: np.ndarray):
+    # --- Change the __init__ signature ---
+    # def __init__(self, geometry: Geometry, frequencies: np.ndarray):
+    def __init__(self, problem: MEEMProblem): # Changed argument
         """
-        Initializes the Results class.
+        Initializes the Results class from a MEEMProblem object.
 
-        :param geometry: Geometry object that contains the domain and body information.
-        :param frequencies: Array of frequency values.
+        :param problem: The MEEMProblem instance containing geometry and frequencies. # Updated docstring
         """
-        self.geometry = geometry
-        self.frequencies = frequencies
-        
+        # --- Get geometry and frequencies from the problem object ---
+        self.geometry = problem.geometry
+        self.frequencies = problem.frequencies
+        # --- No other changes needed below this line in __init__ ---
+
         # Infer modes from the geometry's heaving flags
         heaving_bodies = [
             i for i, body in enumerate(self.geometry.body_arrangement.bodies)
             if body.heaving
         ]
         self.modes = np.array(heaving_bodies)
-        
+
         # Initialize dataset with all coordinates
         self.dataset = xr.Dataset(coords={
-            'frequency': frequencies,
+            'frequency': self.frequencies,
             'mode_i': self.modes,
             'mode_j': self.modes
         })
