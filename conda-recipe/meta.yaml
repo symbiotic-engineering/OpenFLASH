@@ -27,6 +27,7 @@ requirements:
     - h5netcdf
     - xarray
     - streamlit
+    - ipykernel
   
 about:
   home: https://github.com/symbiotic-engineering/semi-analytical-hydro
