@@ -10,15 +10,24 @@ When referencing this work, please reference our `citation.cff`.
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ## Installation
+Three common installation options are shown below. For more details, see the [installation](https://symbiotic-engineering.github.io/OpenFLASH/installation.html) section of the docs.
 
-Option 1: via pypi (recommended for users)
+Option 1: via pypi (recommended for users who manage environments with venv or similar)
 
 ```bash
 pip install open-flash
 ```
 
+Option 2: via conda (recommended for users who manage environments with conda)
 
-Option 2: via git (recommended for developers)
+```bash
+conda create -n openflash-env hopeonthestack::open-flash
+conda activate openflash-env
+```
+
+Option 3: via git (recommended for developers)
+
+Note - if you are a developer outside of the SEA Lab, please create a fork and clone your fork.
 1.  **Clone the repository:**
 ```bash
 git clone https://github.com/symbiotic-engineering/OpenFLASH.git
