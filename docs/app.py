@@ -84,7 +84,7 @@ def main():
         # --- Convert single omega to m0 ---
         m0_single = wavenumber(omega_single, h)
         problem_modes = np.where(heaving_list)[0]
-        problem.set_frequencies_modes(np.array([omega_single]), problem_modes)
+        problem.set_frequencies(np.array([omega_single]))
         
         # --- MEEM Engine Operations ---
         engine = MEEMEngine(problem_list=[problem])
@@ -120,7 +120,7 @@ def main():
         problem_modes = np.where(heaving_list)[0]
         
         # Set the frequencies and modes on the main problem object
-        problem.set_frequencies_modes(omegas_to_run, problem_modes)
+        problem.set_frequencies(omegas_to_run)
         
         # Create the engine ONCE with the main problem
         engine = MEEMEngine(problem_list=[problem])
