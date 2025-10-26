@@ -1,6 +1,6 @@
 package:
   name: open-flash
-  version: "0.2.2"
+  version: {{ GIT_DESCRIBE_TAG }}
 
 source:
   path: ..
