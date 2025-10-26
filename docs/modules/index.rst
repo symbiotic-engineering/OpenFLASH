@@ -21,8 +21,5 @@ This section groups the core module documentation pages for OpenFLASH.
 Back to main index
 -------------------
 
-.. toctree::
-   :maxdepth: 1
-
-   ../index
+:doc:`Back to main index <../index>`
 
