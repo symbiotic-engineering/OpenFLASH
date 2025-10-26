@@ -642,7 +642,7 @@ class MEEMEngine:
         num_freqs = len(omegas_to_run)
 
         # Initialize Results object (constructor no longer takes modes)
-        results = Results(original_geometry, omegas_to_run)
+        results = Results(original_problem)
 
         # Initialize 3D arrays to hold the (N x N) matrices for each frequency
         full_added_mass_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)

@@ -35,7 +35,7 @@ The most common workflow involves receiving a ``Results`` object from the ``MEEM
    import numpy as np
 
    # --- Assume 'engine' and 'problem' are already configured ---
-   # problem.set_frequencies_modes(np.linspace(0.5, 4.0, 50), np.array([0, 1]))
+   # problem.set_frequencies(np.linspace(0.5, 4.0, 50))
 
    # 1. Run the simulation to get a populated Results object
    results = engine.run_and_store_results(problem_index=0)

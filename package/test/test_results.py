@@ -13,8 +13,9 @@ if src_dir not in sys.path:
 
 # --- Import Package Modules ---
 from openflash.results import Results
-from openflash.geometry import Geometry, ConcentricBodyGroup # Import necessary geometry classes
-from openflash.body import SteppedBody # Import SteppedBody
+from openflash.geometry import Geometry, ConcentricBodyGroup
+from openflash.body import SteppedBody
+from openflash.meem_problem import MEEMProblem # <-- Import MEEMProblem
 
 # ==============================================================================
 # Mock Geometry Fixture
@@ -25,30 +26,24 @@ def mock_geometry():
     Creates a mock Geometry object suitable for testing Results.
     Includes nested mocks for body_arrangement and bodies with heaving flags.
     """
-    # Create mock bodies with a 'heaving' attribute
     mock_body1 = Mock(spec=SteppedBody)
-    mock_body1.heaving = False # Example: first body doesn't heave
+    mock_body1.heaving = False
     mock_body2 = Mock(spec=SteppedBody)
-    mock_body2.heaving = True # Example: second body heaves
+    mock_body2.heaving = True
     mock_body3 = Mock(spec=SteppedBody)
-    mock_body3.heaving = True # Example: third body heaves
+    mock_body3.heaving = True
 
-    # Create a mock for BodyArrangement containing the mock bodies
     mock_arrangement = Mock(spec=ConcentricBodyGroup)
     mock_arrangement.bodies = [mock_body1, mock_body2, mock_body3]
 
-    # Create the main mock Geometry
     mock_geom = Mock(spec=Geometry)
     mock_geom.domain_list = {
         0: Mock(category='inner', index=0),
         1: Mock(category='outer', index=1)
-    } # Example domain list with Mock domains
-    mock_geom.body_arrangement = mock_arrangement # Attach the nested mock
-    
-    # Mock necessary attributes for store_results_eigenfunctions
+    }
+    mock_geom.body_arrangement = mock_arrangement
     mock_geom.r_coordinates = {'r1': 0.5, 'r2': 1.0}
     mock_geom.z_coordinates = {'z1': -0.5, 'z2': -1.0}
-
 
     return mock_geom
 
@@ -60,32 +55,42 @@ def sample_frequencies():
     """Provides a sample array of frequencies."""
     return np.array([0.5, 1.0, 1.5])
 
-# Sample_modes fixture is no longer needed directly by results_instance
+# ==============================================================================
+# Mock Problem Fixture (NEW)
+# ==============================================================================
+@pytest.fixture
+def mock_problem(mock_geometry, sample_frequencies):
+    """ Creates a mock MEEMProblem containing mock geometry and frequencies. """
+    problem = Mock(spec=MEEMProblem)
+    problem.geometry = mock_geometry
+    problem.frequencies = sample_frequencies
+    # We don't need to mock problem.modes because Results infers it directly
+    # from problem.geometry
+    return problem
 
 # ==============================================================================
 # Results Instance Fixture
 # ==============================================================================
 @pytest.fixture
-def results_instance(mock_geometry, sample_frequencies):
+def results_instance(mock_problem): # <-- Use mock_problem fixture
     """
-    Creates a Results instance using mock geometry and sample frequencies.
-    Modes are now inferred by the Results constructor itself.
+    Creates a Results instance using a mock MEEMProblem object.
     """
-    # FIX: Call constructor without modes argument
-    return Results(mock_geometry, sample_frequencies)
+    # FIX: Call constructor with the mock MEEMProblem object
+    return Results(mock_problem)
 
 # ==============================================================================
 # Test Suite for Results Class
 # ==============================================================================
 
-def test_results_initialization(results_instance, mock_geometry, sample_frequencies):
+def test_results_initialization(results_instance, mock_problem, sample_frequencies): # <-- Add mock_problem
     """
     Tests that the Results class initializes correctly, infers modes,
     and creates an xarray dataset with the right coordinates.
     """
-    assert results_instance.geometry is mock_geometry
+    assert results_instance.geometry is mock_problem.geometry # Check geometry came from problem
     np.testing.assert_array_equal(results_instance.frequencies, sample_frequencies)
-    
+
     # Check inferred modes based on mock_geometry (bodies 1 and 2 heave)
     expected_modes = np.array([1, 2])
     assert isinstance(results_instance.modes, np.ndarray)
@@ -106,21 +111,19 @@ def test_store_hydrodynamic_coefficients(results_instance, sample_frequencies):
     Tests storing hydrodynamic coefficients. Assumes 2 modes from fixture.
     """
     num_freqs = len(sample_frequencies)
-    num_modes = len(results_instance.modes) # Get inferred modes count
-    assert num_modes == 2 # Verify mock setup assumption
+    num_modes = len(results_instance.modes)
+    assert num_modes == 2
 
-    # Create sample 3D data (freqs x modes x modes)
     added_mass = np.random.rand(num_freqs, num_modes, num_modes)
     damping = np.random.rand(num_freqs, num_modes, num_modes)
 
-    # FIX: Call method without modes argument
+    # Call method without modes argument (already correct)
     results_instance.store_hydrodynamic_coefficients(
         frequencies=sample_frequencies,
         added_mass_matrix=added_mass,
         damping_matrix=damping
     )
 
-    # Assert data is stored correctly in the dataset
     assert 'added_mass' in results_instance.dataset
     assert 'damping' in results_instance.dataset
     assert results_instance.dataset['added_mass'].shape == (num_freqs, num_modes, num_modes)
@@ -132,33 +135,25 @@ def test_store_hydrodynamic_coefficients(results_instance, sample_frequencies):
 
 def test_store_results_eigenfunctions(results_instance, sample_frequencies):
     """
-    Tests storing eigenfunction data. Note: The current signature of
-    store_results seems incorrect based on typical use cases (mixing modes/space).
-    This test follows the current signature but might need revision if the
-    method's purpose changes. Assumes 2 modes from fixture.
+    Tests storing eigenfunction data. Assumes 2 modes from fixture.
     """
     num_freqs = len(sample_frequencies)
     num_modes = len(results_instance.modes)
     num_r = 2 # From mock_geometry setup
     num_z = 2 # From mock_geometry setup
 
-    # Create data matching the expected (freqs, modes, spatial) shape
     radial_data = np.random.rand(num_freqs, num_modes, num_r)
     vertical_data = np.random.rand(num_freqs, num_modes, num_z)
     domain_index = 0
     domain_name = f"radial_eigenfunctions_{results_instance.geometry.domain_list[domain_index].category}"
-    
-    # Mock the geometry attributes needed by the method
-    results_instance.geometry.r_coordinates = {'r1': 0.1, 'r2': 0.2}
-    results_instance.geometry.z_coordinates = {'z1': -0.1, 'z2': -0.2}
 
+    # Mock attributes needed (already done in mock_geometry fixture)
 
     results_instance.store_results(domain_index, radial_data, vertical_data)
 
     assert domain_name in results_instance.dataset
     assert results_instance.dataset[domain_name].shape == (num_freqs, num_modes, num_r)
-    # Add similar checks for vertical data if needed
-    print("✅ Storing eigenfunctions test passed (based on current signature).")
+    print("✅ Storing eigenfunctions test passed.")
 
 
 def test_store_all_potentials(results_instance, sample_frequencies):
@@ -170,13 +165,11 @@ def test_store_all_potentials(results_instance, sample_frequencies):
     domain_names = ['inner', 'outer']
     max_harmonics = 5
 
-    # Create realistic batch data structure
     batch_data = []
     for f_idx in range(num_freqs):
         for m_idx in range(num_modes):
             mode_data = {}
             for d_idx, d_name in enumerate(domain_names):
-                 # Vary harmonics length for realism
                 num_harmonics = max_harmonics - d_idx
                 mode_data[d_name] = {
                     "potentials": np.random.rand(num_harmonics) + 1j * np.random.rand(num_harmonics),
@@ -185,7 +178,7 @@ def test_store_all_potentials(results_instance, sample_frequencies):
                 }
             batch_data.append({
                 "frequency_idx": f_idx,
-                "mode_idx": m_idx, # Use actual mode index for mapping
+                "mode_idx": m_idx,
                 "data": mode_data
             })
 
@@ -206,7 +199,6 @@ def test_export_to_netcdf(results_instance, tmp_path):
     Tests exporting the dataset to a NetCDF file.
     Includes storing some data first.
     """
-    # Store some sample data first
     num_freqs = len(results_instance.frequencies)
     num_modes = len(results_instance.modes)
     added_mass = np.random.rand(num_freqs, num_modes, num_modes)
@@ -214,21 +206,17 @@ def test_export_to_netcdf(results_instance, tmp_path):
     results_instance.store_hydrodynamic_coefficients(
         results_instance.frequencies, added_mass, damping
     )
-    
-    # Add complex data to test splitting
     results_instance.dataset['complex_test'] = (('frequency', 'mode_i'), np.random.rand(num_freqs, num_modes) + 1j*np.random.rand(num_freqs, num_modes))
-
 
     file_path = tmp_path / "test_results.nc"
     results_instance.export_to_netcdf(file_path)
 
     assert file_path.exists()
 
-    # Try loading it back to verify format
     loaded_ds = xr.open_dataset(file_path, engine="h5netcdf")
     assert 'added_mass' in loaded_ds
     assert 'damping' in loaded_ds
-    assert 'complex_test_real' in loaded_ds # Check if complex data was split
+    assert 'complex_test_real' in loaded_ds
     assert 'complex_test_imag' in loaded_ds
     assert loaded_ds['added_mass'].shape == (num_freqs, num_modes, num_modes)
     loaded_ds.close()
@@ -240,14 +228,13 @@ def test_get_results(results_instance):
     """
     ds = results_instance.get_results()
     assert isinstance(ds, xr.Dataset)
-    assert ds is results_instance.dataset # Should be the same object
+    assert ds is results_instance.dataset
     print("✅ Get results test passed.")
 
 def test_display_results(results_instance):
     """
     Tests that display_results returns a string representation of the dataset.
     """
-    # Store some data to make the display meaningful
     num_freqs = len(results_instance.frequencies)
     num_modes = len(results_instance.modes)
     added_mass = np.random.rand(num_freqs, num_modes, num_modes)
@@ -257,6 +244,6 @@ def test_display_results(results_instance):
 
     output_string = results_instance.display_results()
     assert isinstance(output_string, str)
-    assert 'xarray.Dataset' in output_string # Basic check for xarray repr
+    assert 'xarray.Dataset' in output_string
     assert 'added_mass' in output_string
     print("✅ Display results test passed.")
