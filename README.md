@@ -21,7 +21,7 @@ pip install open-flash
 Option 2: via conda (recommended for users who manage environments with conda)
 
 ```bash
-conda create -n openflash-env hopeonthestack::open-flash
+conda create -n openflash-env sea-lab::open-flash
 conda activate openflash-env
 ```
 
