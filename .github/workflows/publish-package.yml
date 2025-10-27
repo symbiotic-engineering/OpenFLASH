@@ -51,7 +51,9 @@ jobs:
           run: |
             git add CITATION.cff
             git commit -m "Update CITATION.cff for release ${{ steps.get_version.outputs.VERSION }}"
-            git push origin HEAD:${{ steps.get_version.outputs.VERSION }}
+            git tag ${{ steps.get_version.outputs.VERSION }}
+            git push origin
+            git push origin --tags
 
         - name: Set up Python
           uses: actions/setup-python@v5
