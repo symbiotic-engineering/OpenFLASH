@@ -55,6 +55,7 @@ jobs:
           with:
             python-version: 3.11
             meta_yaml_dir: conda-recipe 
+            label: main
             user: sea-lab
             token: ${{ secrets.ANACONDA_TOKEN }}
 
