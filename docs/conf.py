@@ -23,7 +23,8 @@ copyright = '2025, SEA Lab'
 author = 'SEA Lab'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.9'
+from importlib.metadata import version as get_version
+release: str = get_version("openflash")
 
 
 # -- General configuration ---------------------------------------------------

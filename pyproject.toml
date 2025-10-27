@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0.0", "wheel"]
+requires = ["setuptools>=61.0.0", "wheel", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "open-flash"
-version = "0.2.9"
+dynamic = ["version"]
 authors = [
-  {name = "SEA LAB"} 
+  {name = "SEA Lab"} 
 ]
 description = "A Python package for semi-analytical hydrodynamics modeling including matched eigenfunction expansion method"
 readme = "README.md"

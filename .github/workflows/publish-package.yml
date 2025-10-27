@@ -28,6 +28,24 @@ jobs:
             git config user.name github-actions[bot]
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
+        - name: Update version in citation.cff
+          run: |
+            CURRENT_DATE=$(date +%Y-%m-%d)
+            sed -i "s/^version: .*/version: ${{ github.ref_name }}/" CITATION.cff
+            sed -i "s/^date-released: .*/date-released: '${CURRENT_DATE}'/" CITATION.cff
+
+        - name: Check validity of citation.cff
+          uses: citation-file-format/cffconvert-github-action@2.0.0
+          if: always()
+          with:
+            args: "-i ./CITATION.cff -f zenodo --validate --show-trace"
+
+        - name: Commit updated citation.cff
+          run: |
+            git add CITATION.cff
+            git commit -m "Update CITATION.cff for release ${{ github.ref_name }}"
+            git push origin HEAD:${{ github.ref_name }}
+
         - name: Set up Python
           uses: actions/setup-python@v5
           with:
@@ -68,12 +86,6 @@ jobs:
           run: |
             paths=$(tr ' ' '\n' <<< "${{steps.conda-build-and-upload.outputs.paths}}")
             echo "newline-separated-paths=$paths" >> $GITHUB_OUTPUT
-
-        - name: Check validity of citation.cff
-          uses: citation-file-format/cffconvert-github-action@2.0.0
-          if: always()
-          with:
-            args: "-i ./CITATION.cff -f zenodo --validate --show-trace"
 
         - name: Create GitHub release
           uses: softprops/action-gh-release@v2
