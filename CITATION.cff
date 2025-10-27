@@ -1,10 +1,10 @@
 cff-version: 1.2.0
+title: OpenFLASH
 message: "If you use this software, please cite it using the metadata from this file."
 type: software
 authors:
   - family-names: "Best"
     given-names: "Hope"
-    orcid: ""
   - given-names: Rebecca
     family-names: McCabe
     email: rgm222@cornell.edu
@@ -15,16 +15,12 @@ authors:
     orcid: "https://orcid.org/0000-0002-0327-5945"
   - family-names: "Bimali"
     given-names: "Yinghui"
-    orcid: ""
   - family-names: "Lo"
     given-names: "En"
-    orcid: ""
   - family-names: "Jiang"
     given-names: "Ruiyang"
-    orcid: ""
   - family-names: "Fernandez"
     given-names: "John"
-    orcid: ""
   - family-names: "Treacy"
     given-names: "Collin"
     orcid: "https://orcid.org/0009-0000-9381-2697"
@@ -41,7 +37,7 @@ keywords:
   - hydrodynamics
 license: MIT
 version: v0.2.9
-date-released: '2025-10-26'
+date-released: '2025-10-27'
 
 preferred-citation:
   type: conference-paper
@@ -57,4 +53,4 @@ preferred-citation:
       orcid: "https://orcid.org/0000-0002-2953-7253"
   title: "Open-source toolbox for semi-analytical hydrodynamic coefficients via the matched eigenfunction expansion method"
   year: 2024
-  doi: "https://doi.org/10.5281/zenodo.15168251"
+  doi: "10.5281/zenodo.15168251"
