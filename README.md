@@ -4,8 +4,15 @@ Open-source Flexible Library for Analytical and Semi-analytical Hydrodynamics
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Unit Tests](https://github.com/symbiotic-engineering/OpenFLASH/actions/workflows/ci.yml/badge.svg)](https://github.com/symbiotic-engineering/OpenFLASH/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/symbiotic-engineering/OpenFLASH/graph/badge.svg?token=BKOU81RS8Q)](https://codecov.io/gh/symbiotic-engineering/OpenFLASH)
-![GitHub](https://img.shields.io/github/license/symbiotic-engineering/OpenFLASH)
+[![GitHub](https://img.shields.io/github/license/symbiotic-engineering/OpenFLASH)](https://github.com/symbiotic-engineering/OpenFLASH/blob/main/LICENSE)
+
+
 [![DOI](https://zenodo.org/badge/770086341.svg)](https://doi.org/10.5281/zenodo.17453418)
+![GitHub Release](https://img.shields.io/github/v/release/symbiotic-engineering/OpenFLASH)
+![PyPI - Version](https://img.shields.io/pypi/v/open-flash)
+![Conda Version](https://img.shields.io/conda/v/sea-lab/open-flash)
+
+
 
 ## About The OpenFLASH Project
 
