@@ -65,8 +65,11 @@ Here is a minimal example of setting up and solving a two-body problem:
 Target Audience
 ---------------
 This documentation is intended for:
+
 * Researchers and students in ocean engineering and marine hydrodynamics.
+
 * Engineers working on wave energy converters or offshore platforms.
+
 * Developers interested in contributing to or extending the codebase.
 
 ---
