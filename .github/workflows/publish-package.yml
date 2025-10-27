@@ -6,7 +6,10 @@ on:
       - 'v*.*.*'  # Trigger on version tags like v1.0.0
   workflow_dispatch:
 
-permissions: write-all
+permissions:
+  contents: write
+  packages: write
+  id-token: write
 
 jobs:
   build-and-publish:
@@ -14,8 +17,6 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/project/open-flash/
-    permissions:
-      id-token: write
     steps:
         - name: Checkout code
           uses: actions/checkout@v4
