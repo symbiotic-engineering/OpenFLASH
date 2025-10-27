@@ -3,7 +3,7 @@ name: Publish Python Package
 on:
   push:
     tags:
-      - 'v*.*.*'  # Trigger on version tags like v1.0.0
+      - 'v*.*.*rc'  # Trigger on version tags like v1.0.0rc (release candidates)
   workflow_dispatch:
 
 permissions:
@@ -28,10 +28,17 @@ jobs:
             git config user.name github-actions[bot]
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
+        - name: Derive version
+          id: get_version
+          run: |
+            REF="${{ github.ref_name }}"
+            echo VERSION="${REF::-2}" >> $GITHUB_OUTPUT
+
         - name: Update version in citation.cff
           run: |
             CURRENT_DATE=$(date +%Y-%m-%d)
-            sed -i "s/^version: .*/version: ${{ github.ref_name }}/" CITATION.cff
+            # use the previously-derived trimmed version
+            sed -i "s/^version: .*/version: ${{ steps.get_version.outputs.VERSION }}/" CITATION.cff
             sed -i "s/^date-released: .*/date-released: '${CURRENT_DATE}'/" CITATION.cff
 
         - name: Check validity of citation.cff
@@ -43,8 +50,8 @@ jobs:
         - name: Commit updated citation.cff
           run: |
             git add CITATION.cff
-            git commit -m "Update CITATION.cff for release ${{ github.ref_name }}"
-            git push origin HEAD:${{ github.ref_name }}
+            git commit -m "Update CITATION.cff for release ${{ steps.get_version.outputs.VERSION }}"
+            git push origin HEAD:${{ steps.get_version.outputs.VERSION }}
 
         - name: Set up Python
           uses: actions/setup-python@v5
@@ -90,8 +97,8 @@ jobs:
         - name: Create GitHub release
           uses: softprops/action-gh-release@v2
           with:
-            tag_name: ${{ github.ref_name }}
-            name: ${{ github.ref_name }}
+            tag_name: ${{ steps.get_version.outputs.VERSION }}
+            name: ${{ steps.get_version.outputs.VERSION }}
             generate_release_notes: true
             fail_on_unmatched_files: true
             files: ${{steps.reformat-paths.outputs.newline-separated-paths}}
