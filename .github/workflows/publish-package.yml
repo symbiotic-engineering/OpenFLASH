@@ -26,7 +26,7 @@ jobs:
           run: |
             git config user.name github-actions[bot]
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-            
+
         - name: Set up Python
           uses: actions/setup-python@v5
           with:
@@ -53,10 +53,9 @@ jobs:
             show-channel-urls: true
 
         - name: Build and upload conda packages
-          uses: uibcdf/action-build-and-upload-conda-packages@v1.4.0
+          uses: uibcdf/action-build-and-upload-conda-packages@2a98398b2f382f5ead0feebda695a13474e107f8
           id: conda-build-and-upload
           with:
-            python-version: 3.11
             meta_yaml_dir: conda-recipe 
             label: main
             user: sea-lab
