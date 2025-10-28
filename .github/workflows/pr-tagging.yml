@@ -44,7 +44,7 @@ jobs:
         with:
           tag: ${{ steps.create_rc.outputs.tag_name }}
           message: "Release ${{ steps.create_rc.outputs.tag_name }}"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.ACTIONS_BOT_TOKEN }}
           commit_sha: ${{ github.event.pull_request.head.sha }}
 
       - name: Create final tag
