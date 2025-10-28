@@ -23,9 +23,10 @@ copyright = '2025, SEA Lab'
 author = 'SEA Lab'
 
 # The full version, including alpha/beta/rc tags
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import version as pkg_version, PackageNotFoundError
+
 try:
-    release = version("open-flash")
+    release = pkg_version("open-flash")
 except PackageNotFoundError:
     release = "0+unknown"
 
