@@ -10,10 +10,6 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
   workflow_call:
-  workflow_run:
-    workflows: [PR Tagging and RC Tag Management]
-    types:
-      - completed
 
 permissions:
   contents: write
