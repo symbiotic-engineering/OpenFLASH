@@ -54,3 +54,6 @@ where = ["package/src"]
 
 [tool.setuptools.package-data]
 "openflash" = [] # Explicitly state no package data
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
