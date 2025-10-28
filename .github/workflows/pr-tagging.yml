@@ -1,0 +1,69 @@
+name: PR Tagging and RC Tag Management
+
+# This workflow creates a tag for pull requests into the main branch.
+# The tag for open pull requests is of the form vX.Y.ZrcN.devPRNUM
+# where X.Y.Z is the base version (which is incremented according to the PR title),
+# N is the release candidate number (incremented for each update to the PR), 
+# and PRNUM is the pull request number.
+# By default the Z number is incremented, but if the PR title contains [major] or [minor],
+# the X or Y version numbers are incremented respectively.
+# The tag for merged pull requests is of the form vX.Y.Z with no additions.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+  packages: write
+  id-token: write
+
+jobs:
+  manage-pr-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute base version (bump patch/minor/major from PR title)
+        id: compute_base
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title || '' }}"
+          base=$(bash scripts/compute_base.sh "$PR_TITLE")
+          echo "base=$base" >> $GITHUB_OUTPUT
+
+      - name: Create or bump RC tag (opened/reopened/synchronize)
+        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
+        id: create_rc
+        env:
+          BASE: ${{ steps.compute_base.outputs.base }}
+          PR_NUM: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          newtag=$(bash scripts/create_rc_tag.sh "${BASE}" "${PR_NUM}")
+          echo "tag_name=$newtag" >> $GITHUB_OUTPUT
+
+      - name: Create rc tag
+        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.create_rc.outputs.tag_name }}
+          message: "Release ${{ steps.create_rc.outputs.tag_name }}"
+          github_token: ${{ secrets.ACTIONS_BOT_TOKEN }}
+          commit_sha: ${{ github.event.pull_request.head.sha }}
+
+      - name: Create final tag
+        if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.compute_base.outputs.base }}
+          message: "Release ${{ steps.compute_base.outputs.base }}"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_sha: ${{ github.event.pull_request.merge_commit_sha }}

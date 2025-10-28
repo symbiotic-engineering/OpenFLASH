@@ -4,10 +4,10 @@
 App Module
 ============
 
-.. .. automodule:: app
-..    :members:
-..    :undoc-members:
-..    :show-inheritance:
+.. automodule:: app
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 .. _app-overview:
 
@@ -55,40 +55,40 @@ Functions
 .. autofunction:: main
    :noindex:
 
-   The main function that sets up and runs the Streamlit application.
+The main function that sets up and runs the Streamlit application.
 
-   It configures the sidebar for user inputs, parses them, and sets up the problem geometry using the object-oriented API (`SteppedBody`, `ConcentricBodyGroup`, `BasicRegionGeometry`). The interface is split into two main actions: a single frequency test and a frequency sweep.
+It configures the sidebar for user inputs, parses them, and sets up the problem geometry using the object-oriented API (`SteppedBody`, `ConcentricBodyGroup`, `BasicRegionGeometry`). The interface is split into two main actions: a single frequency test and a frequency sweep.
 
-   **User Inputs (Sidebar):**
+**User Inputs (Sidebar):**
 
-   * **Water Depth (h):** Overall depth of the water.
-   * **Body Step Depths (d):** Comma-separated list of submerged depths, one for each body.
-   * **Body Radii (a):** Comma-separated list of radii, one for each body.
-   * **Heaving Bodies (1/0):** Comma-separated binary list (1=True, 0=False) indicating if each body is heaving.
-   * **Harmonics (NMK):** Comma-separated list specifying the number of series approximation terms for each fluid domain (number of bodies + 1).
-   * **Single Frequency Test:**
-      * **Angular Frequency (omega):** The specific frequency for the potential field visualization.
-      * **Plot Spatial Resolution:** Controls the grid density for the potential plots.
-   * **Frequency Sweep for Coefficients:**
-      * **Start Omega:** The beginning of the frequency range.
-      * **End Omega:** The end of the frequency range.
-      * **Number of Steps:** The number of frequencies to simulate within the range.
+* **Water Depth (h):** Overall depth of the water.
+* **Body Step Depths (d):** Comma-separated list of submerged depths, one for each body.
+* **Body Radii (a):** Comma-separated list of radii, one for each body.
+* **Heaving Bodies (1/0):** Comma-separated binary list (1=True, 0=False) indicating if each body is heaving.
+* **Harmonics (NMK):** Comma-separated list specifying the number of series approximation terms for each fluid domain (number of bodies + 1).
+* **Single Frequency Test:**
+   * **Angular Frequency (omega):** The specific frequency for the potential field visualization.
+   * **Plot Spatial Resolution:** Controls the grid density for the potential plots.
+* **Frequency Sweep for Coefficients:**
+   * **Start Omega:** The beginning of the frequency range.
+   * **End Omega:** The end of the frequency range.
+   * **Number of Steps:** The number of frequencies to simulate within the range.
 
-   **Simulation Workflows:**
+**Simulation Workflows:**
 
-   The application logic is divided into two distinct workflows, triggered by buttons in the main interface.
+The application logic is divided into two distinct workflows, triggered by buttons in the main interface.
 
-   1.  **Run Single Test & Plot Potentials:**
-      * Calculates the non-dimensional wavenumber (`m0`) from the user-provided `omega`.
-      * Configures the `MEEMProblem` with the single frequency and the active modes of motion.
-      * Initializes the `MEEMEngine` and calls `solve_linear_system_multi` to get the solution vector `X`.
-      * Computes and displays the hydrodynamic coefficient matrices for that single frequency.
-      * Calls `calculate_potentials` to compute the total potential field.
-      * Visualizes the real and imaginary parts of the potential field using Matplotlib.
+1.  **Run Single Test & Plot Potentials:**
+   * Calculates the non-dimensional wavenumber (`m0`) from the user-provided `omega`.
+   * Configures the `MEEMProblem` with the single frequency and the active modes of motion.
+   * Initializes the `MEEMEngine` and calls `solve_linear_system_multi` to get the solution vector `X`.
+   * Computes and displays the hydrodynamic coefficient matrices for that single frequency.
+   * Calls `calculate_potentials` to compute the total potential field.
+   * Visualizes the real and imaginary parts of the potential field using Matplotlib.
 
-   2.  **Run Frequency Sweep & Plot Coefficients:**
-      * Creates an array of frequencies based on the user's start, end, and step inputs.
-      * Configures the `MEEMProblem` with the full array of frequencies and active modes.
-      * Initializes the `MEEMEngine` and calls the highly efficient `run_and_store_results` method. This single method handles the entire simulation loop internally.
-      * Extracts the computed `added_mass` and `damping` coefficients from the resulting `xarray.Dataset`.
-      * Generates and displays Matplotlib plots showing how the added mass and damping coefficients vary across the simulated frequency range.
+2.  **Run Frequency Sweep & Plot Coefficients:**
+   * Creates an array of frequencies based on the user's start, end, and step inputs.
+   * Configures the `MEEMProblem` with the full array of frequencies and active modes.
+   * Initializes the `MEEMEngine` and calls the highly efficient `run_and_store_results` method. This single method handles the entire simulation loop internally.
+   * Extracts the computed `added_mass` and `damping` coefficients from the resulting `xarray.Dataset`.
+   * Generates and displays Matplotlib plots showing how the added mass and damping coefficients vary across the simulated frequency range.

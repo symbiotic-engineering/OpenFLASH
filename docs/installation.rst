@@ -88,11 +88,11 @@ Installation via PyPI (pip)
 Installing via Conda
 ---------------------
 
-You can install **OpenFLASH** directly from the `hopeonthestack` channel on Anaconda.org by running:
+You can install **OpenFLASH** directly from the `sea-lab` channel on Anaconda.org by running:
 
 .. code-block:: bash
 
-    conda install hopeonthestack::open-flash
+    conda install sea-lab::open-flash
 
 This will install **OpenFLASH** and all necessary dependencies into your current conda environment.
 

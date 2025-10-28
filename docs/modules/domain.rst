@@ -13,7 +13,7 @@ Conceptual Overview
 
 The ``Domain`` class represents a single, annular (ring-shaped) region of fluid within the simulation. In the Matched Eigenfunction Expansion Method (MEEM), the entire fluid volume is subdivided into these simple domains, each characterized by a constant depth and defined by inner and outer radial boundaries.
 
-.. figure:: _static/domain_drawing.png
+.. figure:: ../_static/domain_drawing.png
    :alt: Example of how domains would look
    :align: center
    :width: 100%
@@ -31,7 +31,7 @@ The typical workflow is:
 
 Each ``Domain`` then holds the necessary information for the ``MEEMEngine`` to construct the mathematical solution within that specific region.
 
-.. figure:: _static/domain_table.png
+.. figure:: ../_static/domain_table.png
    :alt: Table of domains
    :align: center
    :width: 100%
