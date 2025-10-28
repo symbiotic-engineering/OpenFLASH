@@ -1,9 +1,13 @@
 name: Build and Publish on Tag
 
+# This workflow builds and publishes the package to PyPI and Anaconda
+# when a tag is pushed. If the tag is a release candidate (contains 'rc'),
+# it is published to TestPyPI and the Anaconda package is not uploaded.
+
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
   workflow_dispatch:
   workflow_call:
   workflow_run:

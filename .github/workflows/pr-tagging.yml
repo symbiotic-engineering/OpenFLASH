@@ -1,5 +1,14 @@
 name: PR Tagging and RC Tag Management
 
+# This workflow creates a tag for pull requests into the main branch.
+# The tag for open pull requests is of the form vX.Y.ZrcN.devPRNUM
+# where X.Y.Z is the base version (which is incremented according to the PR title),
+# N is the release candidate number (incremented for each update to the PR), 
+# and PRNUM is the pull request number.
+# By default the Z number is incremented, but if the PR title contains [major] or [minor],
+# the X or Y version numbers are incremented respectively.
+# The tag for merged pull requests is of the form vX.Y.Z with no additions.
+
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
@@ -58,51 +67,3 @@ jobs:
           message: "Release ${{ steps.compute_base.outputs.base }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
-
-      # - name: Dispatch build workflow for RC tag (use ACTIONS_BOT_TOKEN if present)
-      #   if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ secrets.ACTIONS_BOT_TOKEN }}
-      #     script: |
-      #       const owner = context.repo.owner;
-      #       const repo = context.repo.repo;
-      #       const workflow_id = 'publish-package.yml';
-      #       const ref = `${{ steps.create_rc.outputs.tag_name }}`;
-      #       await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
-
-      # - name: Dispatch build workflow for RC tag (fallback to GITHUB_TOKEN)
-      #   if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       const owner = context.repo.owner;
-      #       const repo = context.repo.repo;
-      #       const workflow_id = 'publish-package.yml';
-      #       const ref = `${{ steps.create_rc.outputs.tag_name }}`;
-      #       await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
-
-      # - name: Dispatch build workflow for final tag (use ACTIONS_BOT_TOKEN if present)
-      #   if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ secrets.ACTIONS_BOT_TOKEN }}
-      #     script: |
-      #       const owner = context.repo.owner;
-      #       const repo = context.repo.repo;
-      #       const workflow_id = 'publish-package.yml';
-      #       const ref = `${{ steps.compute_base.outputs.base }}`;
-      #       await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
-
-      # - name: Dispatch build workflow for final tag (fallback to GITHUB_TOKEN)
-      #   if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       const owner = context.repo.owner;
-      #       const repo = context.repo.repo;
-      #       const workflow_id = 'publish-package.yml';
-      #       const ref = `${{ steps.compute_base.outputs.base }}`;
-      #       await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
