@@ -3,7 +3,7 @@ name: Build and Publish on Tag
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
   workflow_dispatch:
 
 permissions:
