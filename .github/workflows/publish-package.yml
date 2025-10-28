@@ -33,7 +33,7 @@ jobs:
         run: |
           REF=${{ github.ref_name }}
           echo "ref=${REF}" >> $GITHUB_OUTPUT
-          if [[ "${REF}" == *-rc* ]]; then
+          if [[ "${REF}" == *_rc* ]]; then
             echo "is_rc=true" >> $GITHUB_OUTPUT
           else
             echo "is_rc=false" >> $GITHUB_OUTPUT
