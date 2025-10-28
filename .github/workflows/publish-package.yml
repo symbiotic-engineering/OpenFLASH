@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+  workflow_run:
+    workflows: [PR Tagging and RC Tag Management]
+    types:
+      - completed
 
 permissions:
   contents: read
