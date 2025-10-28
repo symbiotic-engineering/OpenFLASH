@@ -30,7 +30,7 @@ jobs:
           echo "ref=${REF}" >> $GITHUB_OUTPUT
           if [[ "${REF}" == *rc* ]]; then
             echo "is_rc=true" >> $GITHUB_OUTPUT
-            # strip the 'rc' suffix to get the base version (e.g., v1.2.3rc1+pr40 -> v1.2.3)
+            # strip the 'rc' suffix to get the base version (e.g., v1.2.3rc1.dev40 -> v1.2.3)
             echo "version=${REF%%rc*}" >> $GITHUB_OUTPUT
           else
             echo "is_rc=false" >> $GITHUB_OUTPUT
