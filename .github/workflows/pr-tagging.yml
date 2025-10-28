@@ -55,3 +55,51 @@ jobs:
           message: "Release ${{ steps.compute_base.outputs.base }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Dispatch build workflow for RC tag (use ACTIONS_BOT_TOKEN if present)
+        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ACTIONS_BOT_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const workflow_id = 'publish-package.yml';
+            const ref = `${{ steps.create_rc.outputs.tag_name }}`;
+            await github.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+
+      - name: Dispatch build workflow for RC tag (fallback to GITHUB_TOKEN)
+        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const workflow_id = 'publish-package.yml';
+            const ref = `${{ steps.create_rc.outputs.tag_name }}`;
+            await github.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+
+      - name: Dispatch build workflow for final tag (use ACTIONS_BOT_TOKEN if present)
+        if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ACTIONS_BOT_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const workflow_id = 'publish-package.yml';
+            const ref = `${{ steps.compute_base.outputs.base }}`;
+            await github.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+
+      - name: Dispatch build workflow for final tag (fallback to GITHUB_TOKEN)
+        if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const workflow_id = 'publish-package.yml';
+            const ref = `${{ steps.compute_base.outputs.base }}`;
+            await github.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
