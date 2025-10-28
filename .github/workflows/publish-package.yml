@@ -35,8 +35,10 @@ jobs:
           echo "ref=${REF}" >> $GITHUB_OUTPUT
           if [[ "${REF}" == *_rc* ]]; then
             echo "is_rc=true" >> $GITHUB_OUTPUT
+            echo "version=${REF%_*}" >> GITHUB_OUTPUT
           else
             echo "is_rc=false" >> $GITHUB_OUTPUT
+            echo "version=${REF}" >> GITHUB_OUTPUT
           fi
 
       - name: Set up Python
@@ -51,10 +53,10 @@ jobs:
         run: python -m build
 
       - name: Publish package to PyPI
-        if: ${{ steps.derive.outputs.is_rc == 'false' }}
+        if:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          skip-existing: true
+          repository-url:  ${{ steps.derive.outputs.is_rc == 'false' && 'https://upload.pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}
 
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
@@ -73,9 +75,9 @@ jobs:
           label: main
           user: sea-lab
           token: ${{ secrets.ANACONDA_TOKEN }}
+          upload: ${{ steps.derive.outputs.is_rc == 'false' }}
 
       - name: Re-format output paths
-        if: ${{ steps.derive.outputs.is_rc == 'false' }}
         id: reformat-paths
         # Needed to have the correct newline-separated files format for the following release step
         run: |
@@ -92,8 +94,7 @@ jobs:
         if: ${{ steps.derive.outputs.is_rc == 'false' }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          name: ${{ steps.get_version.outputs.VERSION }}
+          tag_name: ${{ steps.derive.outputs.version }}
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: ${{steps.reformat-paths.outputs.newline-separated-paths}}
