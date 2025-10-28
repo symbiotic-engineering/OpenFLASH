@@ -30,10 +30,10 @@ jobs:
           echo "ref=${REF}" >> $GITHUB_OUTPUT
           if [[ "${REF}" == *_rc* ]]; then
             echo "is_rc=true" >> $GITHUB_OUTPUT
-            echo "version=${REF%_*}" >> GITHUB_OUTPUT
+            echo "version=${REF%_*}" >> $GITHUB_OUTPUT
           else
             echo "is_rc=false" >> $GITHUB_OUTPUT
-            echo "version=${REF}" >> GITHUB_OUTPUT
+            echo "version=${REF}" >> $GITHUB_OUTPUT
           fi
   build-and-publish:
     runs-on: ubuntu-latest
