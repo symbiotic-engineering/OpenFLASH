@@ -79,7 +79,7 @@ jobs:
               const repo = context.repo.repo;
               const workflow_id = 'deploy-docs.yml';
               // dispatch on the new tag ref we created
-              const ref = `${{ steps.compute_base.outputs.base }}`;
+              const ref = `${{ steps.create_rc.outputs.tag_name }}`;
               const resp = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
               console.log('docs dispatch response', resp && resp.status ? resp.status : resp);
             } catch (err) {
@@ -97,7 +97,7 @@ jobs:
               const owner = context.repo.owner;
               const repo = context.repo.repo;
               const workflow_id = 'deploy-docs.yml';
-              const ref = `${{ steps.compute_base.outputs.base }}`;
+              const ref = `${{ steps.create_rc.outputs.tag_name }}`;
               const resp = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
               console.log('docs dispatch response', resp && resp.status ? resp.status : resp);
             } catch (err) {
