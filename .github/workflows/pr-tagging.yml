@@ -66,7 +66,7 @@ jobs:
             const repo = context.repo.repo;
             const workflow_id = 'publish-package.yml';
             const ref = `${{ steps.create_rc.outputs.tag_name }}`;
-            await github.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+            await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
 
       - name: Dispatch build workflow for RC tag (fallback to GITHUB_TOKEN)
         if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
@@ -78,7 +78,7 @@ jobs:
             const repo = context.repo.repo;
             const workflow_id = 'publish-package.yml';
             const ref = `${{ steps.create_rc.outputs.tag_name }}`;
-            await github.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+            await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
 
       - name: Dispatch build workflow for final tag (use ACTIONS_BOT_TOKEN if present)
         if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
@@ -90,7 +90,7 @@ jobs:
             const repo = context.repo.repo;
             const workflow_id = 'publish-package.yml';
             const ref = `${{ steps.compute_base.outputs.base }}`;
-            await github.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+            await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
 
       - name: Dispatch build workflow for final tag (fallback to GITHUB_TOKEN)
         if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
@@ -102,4 +102,4 @@ jobs:
             const repo = context.repo.repo;
             const workflow_id = 'publish-package.yml';
             const ref = `${{ steps.compute_base.outputs.base }}`;
-            await github.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+            await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
