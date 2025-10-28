@@ -67,3 +67,40 @@ jobs:
           message: "Release ${{ steps.compute_base.outputs.base }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Dispatch docs deploy workflow (use ACTIONS_BOT_TOKEN if present)
+        # if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ACTIONS_BOT_TOKEN }}
+          script: |
+            try {
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+              const workflow_id = 'deploy-docs.yml';
+              // dispatch on the new tag ref we created
+              const ref = `${{ steps.compute_base.outputs.base }}`;
+              const resp = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+              console.log('docs dispatch response', resp && resp.status ? resp.status : resp);
+            } catch (err) {
+              console.error('docs dispatch failed', err && err.status ? { status: err.status, message: err.message } : err);
+              throw err;
+            }
+
+      - name: Dispatch docs deploy workflow (fallback to GITHUB_TOKEN)
+        # if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+              const workflow_id = 'deploy-docs.yml';
+              const ref = `${{ steps.compute_base.outputs.base }}`;
+              const resp = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
+              console.log('docs dispatch response', resp && resp.status ? resp.status : resp);
+            } catch (err) {
+              console.error('docs dispatch failed', err && err.status ? { status: err.status, message: err.message } : err);
+              throw err;
+            }
