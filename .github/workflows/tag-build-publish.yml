@@ -3,13 +3,8 @@ name: Build and Publish on Tag
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
   workflow_dispatch:
-  workflow_call:
-  workflow_run:
-    workflows: [PR Tagging and RC Tag Management]
-    types:
-      - completed
 
 permissions:
   contents: read
@@ -17,36 +12,27 @@ permissions:
   id-token: write
 
 jobs:
-  determine-rc:
-    runs-on: ubuntu-latest
-    outputs:
-      is_rc: ${{ steps.derive.outputs.is_rc }}
-      version: ${{ steps.derive.outputs.version }}
-    steps:
-      - name: Derive version and is_rc
-        id: derive
-        run: |
-          REF=${{ github.ref_name }}
-          echo "ref=${REF}" >> $GITHUB_OUTPUT
-          if [[ "${REF}" == *rc* ]]; then
-            echo "is_rc=true" >> $GITHUB_OUTPUT
-            # strip the 'rc' suffix to get the base version (e.g., v1.2.3rc1pr40 -> v1.2.3)
-            echo "version=${REF%%rc*}" >> $GITHUB_OUTPUT
-          else
-            echo "is_rc=false" >> $GITHUB_OUTPUT
-            echo "version=${REF}" >> $GITHUB_OUTPUT
-          fi
   build-and-publish:
     runs-on: ubuntu-latest
-    needs: determine-rc
     environment:
-      name: ${{ needs.determine-rc.outputs.is_rc == 'false' && 'pypi' || 'testpypi' }}
+      name: pypi
       url: https://pypi.org/project/open-flash/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Derive ref and is_rc
+        id: derive
+        run: |
+          REF=${{ github.ref_name }}
+          echo "ref=${REF}" >> $GITHUB_OUTPUT
+          if [[ "${REF}" == *rc* ]]; then
+            echo "is_rc=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_rc=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -60,9 +46,10 @@ jobs:
         run: python -m build
 
       - name: Publish package to PyPI
+        if: ${{ steps.derive.outputs.is_rc == 'false' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url:  ${{ needs.determine-rc.outputs.is_rc == 'false' && 'https://upload.pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}
+          skip-existing: true
 
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
@@ -81,8 +68,9 @@ jobs:
           label: main
           user: sea-lab
           token: ${{ secrets.ANACONDA_TOKEN }}
-          upload: ${{ needs.determine-rc.outputs.is_rc == 'false' }}
+
       - name: Re-format output paths
+        if: ${{ steps.derive.outputs.is_rc == 'false' }}
         id: reformat-paths
         # Needed to have the correct newline-separated files format for the following release step
         run: |
@@ -96,10 +84,11 @@ jobs:
           args: "-i ./CITATION.cff -f zenodo --validate --show-trace"
 
       - name: Create GitHub release
-        if: ${{ needs.determine-rc.outputs.is_rc == 'false' }}
+        if: ${{ steps.derive.outputs.is_rc == 'false' }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.determine-rc.outputs.version }}
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: ${{ steps.get_version.outputs.VERSION }}
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: ${{steps.reformat-paths.outputs.newline-separated-paths}}
