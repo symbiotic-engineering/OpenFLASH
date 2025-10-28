@@ -10,6 +10,9 @@ on:
 permissions:
   contents: write
   issues: write
+  actions: write
+  packages: write
+  id-token: write
 
 jobs:
   manage-pr-tags:
