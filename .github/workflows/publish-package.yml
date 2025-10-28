@@ -5,7 +5,7 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
-  on: workflow_call
+  workflow_call:
   workflow_run:
     workflows: [PR Tagging and RC Tag Management]
     types:
