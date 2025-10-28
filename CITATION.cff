@@ -36,8 +36,6 @@ keywords:
   - matched-eigenfunction-expansion
   - hydrodynamics
 license: MIT
-version: v0.2.9
-date-released: '2025-10-27'
 
 preferred-citation:
   type: conference-paper
