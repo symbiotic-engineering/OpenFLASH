@@ -10,6 +10,7 @@ authors = [
 ]
 description = "A Python package for semi-analytical hydrodynamics modeling including matched eigenfunction expansion method"
 readme = "README.md"
+license-files = ["LICENSE*","CITATION.cff"]
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -54,5 +55,5 @@ where = ["package/src"]
 [tool.setuptools.package-data]
 "openflash" = [] # Explicitly state no package data
 
-[tool.setuptools]
-license-files = []
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
