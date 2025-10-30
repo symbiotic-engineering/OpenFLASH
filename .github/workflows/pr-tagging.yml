@@ -1,10 +1,9 @@
 name: PR Tagging and RC Tag Management
 
 # This workflow creates a tag for pull requests into the main branch.
-# The tag for open pull requests is of the form vX.Y.ZrcN.devPRNUM
-# where X.Y.Z is the base version (which is incremented according to the PR title),
-# N is the release candidate number (incremented for each update to the PR), 
-# and PRNUM is the pull request number.
+# The tag for open pull requests is of the form vX.Y.ZrcPRNUM
+# where X.Y.Z is the base version (which is incremented according to the PR title)
+# and PRNUM is the pull request number (to prevent conflicts for multiple PRs open at once).
 # By default the Z number is incremented, but if the PR title contains [major] or [minor],
 # the X or Y version numbers are incremented respectively.
 # The tag for merged pull requests is of the form vX.Y.Z with no additions.
@@ -39,24 +38,15 @@ jobs:
           base=$(bash scripts/compute_base.sh "$PR_TITLE")
           echo "base=$base" >> $GITHUB_OUTPUT
 
-      - name: Create or bump RC tag (opened/reopened/synchronize)
-        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
-        id: create_rc
-        env:
-          BASE: ${{ steps.compute_base.outputs.base }}
-          PR_NUM: ${{ github.event.pull_request.number }}
-        run: |
-          set -euo pipefail
-          newtag=$(bash scripts/create_rc_tag.sh "${BASE}" "${PR_NUM}")
-          echo "tag_name=$newtag" >> $GITHUB_OUTPUT
-
       - name: Create rc tag
+        id: create_rc
         if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{ steps.create_rc.outputs.tag_name }}
-          message: "Release ${{ steps.create_rc.outputs.tag_name }}"
+          tag:  "${{ steps.compute_base.outputs.base }}rc${{ github.event.pull_request.number }}"
+          message: "Release ${{ steps.compute_base.outputs.base }}rc${{ github.event.pull_request.number }}"
           commit_sha: ${{ github.event.pull_request.head.sha }}
+          tag_exists_error: false
 
       - name: Create final tag
         if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
@@ -78,7 +68,13 @@ jobs:
               const workflow_id = 'deploy-docs.yml';
               const workflow_id_2 = 'publish-package.yml';
               if (${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}) {
-                const ref = `${{ steps.create_rc.outputs.tag_name }}`;
+                if (${{ steps.create_rc.outputs.tag_exists}} == 'true') {
+                  const ref = `${{ github.event.pull_request.head.sha }}`;
+                }
+                else {
+                  const ref = `${{ steps.compute_base.outputs.base }}rc${{ github.event.pull_request.number }}`;
+                }
+                
               }
               elseif (${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}) {
                 const ref = `${{ steps.compute_base.outputs.base }}`;

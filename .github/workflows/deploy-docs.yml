@@ -1,9 +1,6 @@
 name: Deploy Sphinx Docs to GitHub Pages
 
 on:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
@@ -56,8 +53,12 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/_build/html
-          
+      
+      - name: Get latest tag to decide whether to deploy
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-tag
+
       - name: Deploy to GitHub Pages
         id: deployment
-        if: contains( github.ref , 'rc') == 'false' || github.ref == 'refs/heads/main'
+        if: contains( ${{steps.get-tag.outputs.tag}} , 'rc') == 'false' || github.ref == 'refs/heads/main'
         uses: actions/deploy-pages@v4
