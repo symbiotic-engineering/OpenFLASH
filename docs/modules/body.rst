@@ -45,5 +45,3 @@ SteppedBody
    :show-inheritance:
 
    This is the primary class for defining bodies with concentric, vertical-walled steps. A single ``SteppedBody`` can be composed of one or more steps, allowing for complex, tiered structures to be defined as a single entity.
-
-   **
