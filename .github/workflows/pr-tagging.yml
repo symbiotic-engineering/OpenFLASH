@@ -79,11 +79,12 @@ jobs:
               const workflow_id_1 = 'deploy-docs.yml';
               const workflow_id_2 = 'publish-package.yml';
 
+              let ref;
               if (${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}) {
-                const ref = '${{ github.ref_name }}';
+                ref = '${{ github.ref_name }}';
               }
               else { 
-                const ref = '${{ github.head_ref  || github.ref }}';
+                ref = '${{ github.head_ref  || github.ref }}';
               }
 
               const resp  = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id: workflow_id_1, ref });
