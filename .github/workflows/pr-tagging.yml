@@ -65,14 +65,45 @@ jobs:
             try {
               const owner = context.repo.owner;
               const repo = context.repo.repo;
-              const workflow_id = 'deploy-docs.yml';
-              const workflow_id_2 = 'publish-package.yml';
+              const workflowA = 'deploy-docs.yml';
+              const workflowB = 'publish-package.yml';
               const ref = '${{ github.head_ref  || github.ref }}';
 
-              const resp  = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
-              const resp2 = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id_2, ref });
-              console.log('docs dispatch response', resp && resp.status ? resp.status : resp);
-              console.log('package dispatch response', resp2 && resp2.status ? resp2.status : resp2);
+              // Verify each workflow exists first to get a clearer error (will 404 if missing)
+              try {
+                const wfA = await github.rest.actions.getWorkflow({ owner, repo, workflow_id: workflowA });
+                console.log('found workflowA', wfA && wfA.data && wfA.data.path ? wfA.data.path : wfA.status || wfA);
+              } catch (err) {
+                console.error('cannot find workflowA', workflowA, err && err.status ? { status: err.status, message: err.message } : err);
+                throw err;
+              }
+
+              try {
+                const wfB = await github.rest.actions.getWorkflow({ owner, repo, workflow_id: workflowB });
+                console.log('found workflowB', wfB && wfB.data && wfB.data.path ? wfB.data.path : wfB.status || wfB);
+              } catch (err) {
+                console.error('cannot find workflowB', workflowB, err && err.status ? { status: err.status, message: err.message } : err);
+                throw err;
+              }
+
+              // Dispatch A
+              try {
+                const resp = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id: workflowA, ref });
+                console.log('docs dispatch response', resp && resp.status ? resp.status : resp);
+              } catch (err) {
+                console.error('docs dispatch failed', err && err.status ? { status: err.status, message: err.message } : err);
+                throw err;
+              }
+
+              // Dispatch B
+              try {
+                const resp2 = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id: workflowB, ref });
+                console.log('package dispatch response', resp2 && resp2.status ? resp2.status : resp2);
+              } catch (err) {
+                console.error('package dispatch failed', err && err.status ? { status: err.status, message: err.message } : err);
+                throw err;
+              }
+
             } catch (err) {
               console.error('dispatch failed', err && err.status ? { status: err.status, message: err.message } : err);
               throw err;
