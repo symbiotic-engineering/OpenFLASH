@@ -23,6 +23,10 @@ jobs:
       publish: ${{ steps.decide.outputs.publish }}
       tag:     ${{ steps.get-tag.outputs.tag }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Get latest tag to decide whether to publish
         uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-tag
@@ -35,6 +39,7 @@ jobs:
     needs: determine-tag
     environment:
       name: ${{ needs.determine-tag.outputs.publish == 'true' && 'pypi' || 'testpypi' }}
+      # the fact that the environment name uses an output is the reason this workflow is split into two jobs
       url: https://pypi.org/project/open-flash/
     steps:
       - name: Checkout
