@@ -25,8 +25,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Get latest tag to decide whether to publish
         uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-tag
