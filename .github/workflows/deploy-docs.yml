@@ -62,5 +62,5 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        if:  ${{ contains(steps.get-tag.outputs.tag , 'rc') == 'false' }}
+        if:  ${{ !contains(steps.get-tag.outputs.tag , 'rc') }}
         uses: actions/deploy-pages@v4
