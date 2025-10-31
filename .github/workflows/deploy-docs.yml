@@ -58,5 +58,5 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        if: contains( ${{steps.get-tag.outputs.tag}} , 'rc') == 'false' || github.ref == 'refs/heads/main'
+        if: contains( ${{steps.get-tag.outputs.tag}} , 'rc') == 'false'
         uses: actions/deploy-pages@v4
