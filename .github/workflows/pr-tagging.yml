@@ -75,7 +75,7 @@ jobs:
 
               let ref = '';
               if (gh_action === 'opened' || gh_action === 'reopened' || gh_action === 'synchronize') {
-                if ( ${{steps.create_rc.outputs.tag_exists}} === 'true' ) {
+                if ( ${{steps.create_rc.outputs.tag_exists}} ) {
                   ref = `${head_sha}`;
                 }
                 else {
