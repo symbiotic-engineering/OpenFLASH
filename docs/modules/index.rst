@@ -18,8 +18,3 @@ This section groups the core module documentation pages for OpenFLASH.
    multi_equations
    basic_region_geometry
 
-Back to main index
--------------------
-
-:doc:`Back to main index <../index>`
-
