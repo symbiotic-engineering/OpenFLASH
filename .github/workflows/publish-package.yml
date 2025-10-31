@@ -8,12 +8,8 @@ on:
   push:
     tags:
       - 'v*.*.*'
-  workflow_dispatch:
+  workflow_dispatch: # gets dispatched from PR tagging workflow or manually
   workflow_call:
-  workflow_run:
-    workflows: [PR Tagging and RC Tag Management]
-    types:
-      - completed
 
 permissions:
   contents: write
@@ -21,30 +17,31 @@ permissions:
   id-token: write
 
 jobs:
-  determine-rc:
+  determine-tag:
     runs-on: ubuntu-latest
     outputs:
-      is_rc: ${{ steps.derive.outputs.is_rc }}
-      version: ${{ steps.derive.outputs.version }}
+      publish: ${{ steps.decide.outputs.publish }}
+      tag:     ${{ steps.get-tag.outputs.tag }}
     steps:
-      - name: Derive version and is_rc
-        id: derive
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get latest tag to decide whether to publish
+        id: get-tag
         run: |
-          REF=${{ github.ref_name }}
-          echo "ref=${REF}" >> $GITHUB_OUTPUT
-          if [[ "${REF}" == *rc* ]]; then
-            echo "is_rc=true" >> $GITHUB_OUTPUT
-            # strip the 'rc' suffix to get the base version (e.g., v1.2.3rc1.dev40 -> v1.2.3)
-            echo "version=${REF%%rc*}" >> $GITHUB_OUTPUT
-          else
-            echo "is_rc=false" >> $GITHUB_OUTPUT
-            echo "version=${REF}" >> $GITHUB_OUTPUT
-          fi
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+      - name: Decide whether to publish
+        id: decide
+        run: |
+          echo "publish=${{ contains(steps.get-tag.outputs.tag, 'rc') == 'false' }}" >> $GITHUB_OUTPUT
+
   build-and-publish:
     runs-on: ubuntu-latest
-    needs: determine-rc
+    needs: determine-tag
     environment:
-      name: ${{ needs.determine-rc.outputs.is_rc == 'false' && 'pypi' || 'testpypi' }}
+      name: ${{ needs.determine-tag.outputs.publish == 'true' && 'pypi' || 'testpypi' }}
+      # the fact that the environment name uses an output is the reason this workflow is split into two jobs
       url: https://pypi.org/project/open-flash/
     steps:
       - name: Checkout
@@ -66,7 +63,7 @@ jobs:
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url:  ${{ needs.determine-rc.outputs.is_rc == 'false' && 'https://upload.pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}
+          repository-url:  ${{ needs.determine-tag.outputs.publish == 'true' && 'https://upload.pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}
           verbose: true
 
       - name: Setup Miniconda
@@ -86,7 +83,8 @@ jobs:
           label: main
           user: sea-lab
           token: ${{ secrets.ANACONDA_TOKEN }}
-          upload: ${{ needs.determine-rc.outputs.is_rc == 'false' }}
+          upload: ${{ needs.determine-tag.outputs.publish }}
+
       - name: Re-format output paths
         id: reformat-paths
         # Needed to have the correct newline-separated files format for the following release step
@@ -101,10 +99,10 @@ jobs:
           args: "-i ./CITATION.cff -f zenodo --validate --show-trace"
 
       - name: Create GitHub release
-        if: ${{ needs.determine-rc.outputs.is_rc == 'false' }}
+        if: ${{ needs.determine-tag.outputs.publish == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.determine-rc.outputs.version }}
+          tag_name: ${{ needs.determine-tag.outputs.tag }}
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: ${{steps.reformat-paths.outputs.newline-separated-paths}}

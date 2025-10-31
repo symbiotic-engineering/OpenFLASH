@@ -1,8 +1,8 @@
 .. _basic_region_geometry-module:
 
-===========================
+============================
 Basic Region Geometry Module
-===========================
+============================
 
 .. automodule:: openflash.basic_region_geometry
 

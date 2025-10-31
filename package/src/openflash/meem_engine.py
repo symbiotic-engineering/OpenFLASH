@@ -616,12 +616,13 @@ class MEEMEngine:
         and store results in a `Results` object.
         
         This method correctly solves the N-body radiation problem by:
+
         - Looping through each frequency.
         - Looping through each radiating mode `i` (inferred from the problem's heaving flags).
         - Creating a temporary problem where only body `i` heaves.
         - Solving for the potential `X_i` from this single radiation.
         - Calculating the forces on all bodies `j` from `X_i` to get column `i`
-          of the hydrodynamic matrices (A_ji, B_ji).
+          of the hydrodynamic matrices (`A_ji`, `B_ji`).
         - Storing the full N x N matrices.
         - Storing the potential coefficients `Cs_i` for each radiation problem.
         """

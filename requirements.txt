@@ -13,8 +13,13 @@ sphinx-tabs>=1.0
 sphinx_design>=0.0.8
 nbsphinx>=0.8
 
+# Notebooks
+jupyter>=1.0.0
+ipykernel
+
 # Testing and packaging
 pytest>=7.0
+pytest-cov
 twine>=4.0
 build>=0.8
 readme_renderer>=30.0

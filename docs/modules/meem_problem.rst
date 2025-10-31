@@ -1,8 +1,8 @@
 .. _meem_problem-module:
 
-==================
+===================
 MEEM Problem Module
-==================
+===================
 
 .. automodule:: openflash.meem_problem
 

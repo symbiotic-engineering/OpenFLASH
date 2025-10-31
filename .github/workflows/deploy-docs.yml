@@ -1,10 +1,7 @@
 name: Deploy Sphinx Docs to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  workflow_dispatch: # gets dispatched from PR tagging workflow or manually
 
 concurrency:
   group: "pages"
@@ -25,6 +22,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
         
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -46,7 +45,6 @@ jobs:
         run: |
           sphinx-build -b html docs/ docs/_build/html
 
-      # ⬇️ New step to copy Streamlit app to the deployed site root
       - name: Copy Streamlit app to docs output root
         run: |
           cp docs/_static/app_streamlit.html docs/_build/html/
@@ -55,7 +53,14 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/_build/html
-          
+      
+      - name: Get latest tag to decide whether to deploy
+        run: |
+          echo "tag=$(git describe --tags --abbrev=0)"
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+        id: get-tag
+
       - name: Deploy to GitHub Pages
         id: deployment
+        if:  ${{ contains(steps.get-tag.outputs.tag , 'rc') == 'false' }}
         uses: actions/deploy-pages@v4

@@ -1,8 +1,8 @@
 .. _app-module:
 
-============
-App Module
-============
+===================
+Interactive Web App
+===================
 
 .. automodule:: app
    :members:
@@ -79,6 +79,7 @@ It configures the sidebar for user inputs, parses them, and sets up the problem 
 The application logic is divided into two distinct workflows, triggered by buttons in the main interface.
 
 1.  **Run Single Test & Plot Potentials:**
+
    * Calculates the non-dimensional wavenumber (`m0`) from the user-provided `omega`.
    * Configures the `MEEMProblem` with the single frequency and the active modes of motion.
    * Initializes the `MEEMEngine` and calls `solve_linear_system_multi` to get the solution vector `X`.
@@ -87,6 +88,7 @@ The application logic is divided into two distinct workflows, triggered by butto
    * Visualizes the real and imaginary parts of the potential field using Matplotlib.
 
 2.  **Run Frequency Sweep & Plot Coefficients:**
+
    * Creates an array of frequencies based on the user's start, end, and step inputs.
    * Configures the `MEEMProblem` with the full array of frequencies and active modes.
    * Initializes the `MEEMEngine` and calls the highly efficient `run_and_store_results` method. This single method handles the entire simulation loop internally.
