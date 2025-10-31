@@ -30,11 +30,12 @@ jobs:
       - name: Get latest tag to decide whether to publish
         id: get-tag
         run: |
+          echo "tag=$(git describe --tags --abbrev=0)"
           echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
       - name: Decide whether to publish
         id: decide
         run: |
-          echo "publish=${{ contains(steps.get-tag.outputs.tag, 'rc') == 'false' }}" >> $GITHUB_OUTPUT
+          echo "publish=${{ !contains(steps.get-tag.outputs.tag, 'rc') }}" >> $GITHUB_OUTPUT
 
   build-and-publish:
     runs-on: ubuntu-latest
