@@ -12,26 +12,30 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../package/src'))
-# sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../package/src/openflash'))
+sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'MEEM'
-copyright = '2024, SEA Lab'
+project = 'OpenFLASH'
+copyright = '2025, SEA Lab'
 author = 'SEA Lab'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+from importlib.metadata import version as pkg_version, PackageNotFoundError
 
+try:
+    release = pkg_version("open-flash")
+except PackageNotFoundError:
+    release = "0+unknown"
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'nbsphinx', 'sphinx.ext.mathjax', 'sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'nbsphinx', 'sphinx.ext.mathjax', 'sphinx_design', 'sphinx.ext.viewcode', 'sphinx_tabs.tabs']
 
 # Ensure Jupyter notebooks are copied as part of the build process
 nbsphinx_allow_errors = True
