@@ -1,7 +1,7 @@
 name: Deploy Sphinx Docs to GitHub Pages
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # gets dispatched from PR tagging workflow or manually
 
 concurrency:
   group: "pages"
@@ -59,11 +59,6 @@ jobs:
           echo "tag=$(git describe --tags --abbrev=0)"
           echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
         id: get-tag
-
-      - name: debug output
-        run: |
-          echo "Latest tag is ${{ steps.get-tag.outputs.tag }}"
-          echo "Contains 'rc': ${{ contains( steps.get-tag.outputs.tag , 'rc') }}"
 
       - name: Deploy to GitHub Pages
         id: deployment
