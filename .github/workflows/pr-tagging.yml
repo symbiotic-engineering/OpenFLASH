@@ -67,24 +67,7 @@ jobs:
               const repo = context.repo.repo;
               const workflow_id = 'deploy-docs.yml';
               const workflow_id_2 = 'publish-package.yml';
-
-              const gh_action = '${{ github.event.action }}';
-              const pr_number = '${{ github.event.pull_request.number }}';
-              const base = '${{ steps.compute_base.outputs.base }}';
-              const head_sha = '${{ github.event.pull_request.head.sha }}';
-
-              let ref = '';
-              if (gh_action === 'opened' || gh_action === 'reopened' || gh_action === 'synchronize') {
-                if ( ${{steps.create_rc.outputs.tag_exists}} ) {
-                  ref = `${head_sha}`;
-                }
-                else {
-                  ref = `${base}rc${pr_number}`;
-                }
-              } else if (gh_action === 'closed' && '${{ github.event.pull_request.merged }}' === 'true') {
-                // Use the final release tag
-                ref = `${base}`;
-              }
+              const ref = '${{ github.head_ref  || github.ref }}';
 
               const resp  = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id, ref });
               const resp2 = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id_2, ref });
