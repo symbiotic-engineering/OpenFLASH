@@ -57,6 +57,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+html_logo = '_static/SEALab_Logo_Light_202101_120ht.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -69,4 +70,8 @@ html_context = {
     "github_repo": "OpenFLASH",
     "github_version": "main",
     "conf_py_path": "/docs/",
+}
+
+html_theme_options = {
+    'version_selector': True,
 }
