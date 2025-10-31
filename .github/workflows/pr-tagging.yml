@@ -80,7 +80,7 @@ jobs:
               const workflow_id_2 = 'publish-package.yml';
 
               if (${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}) {
-                const ref = '${{ github.ref }}';
+                const ref = '${{ github.ref_name }}';
               }
               else { 
                 const ref = '${{ github.head_ref  || github.ref }}';
