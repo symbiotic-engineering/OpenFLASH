@@ -1,5 +1,5 @@
-Modules
-=======
+Module API
+==========
 
 This section groups the core module documentation pages for OpenFLASH.
 

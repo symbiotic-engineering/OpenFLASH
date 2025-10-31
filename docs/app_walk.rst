@@ -1,8 +1,8 @@
 .. _app-module:
 
-============
-App Module
-============
+===================
+Interactive Web App
+===================
 
 .. automodule:: app
    :members:
