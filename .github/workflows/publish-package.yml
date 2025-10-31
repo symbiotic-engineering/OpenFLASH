@@ -34,7 +34,7 @@ jobs:
       - name: Decide whether to publish
         id: decide
         run: |
-          echo "publish=${{ contains(steps.get-tag.outputs.tag, 'rc') }}" >> $GITHUB_OUTPUT
+          echo "publish=${{ contains(steps.get-tag.outputs.tag, 'rc') == 'false' }}" >> $GITHUB_OUTPUT
 
   build-and-publish:
     runs-on: ubuntu-latest
