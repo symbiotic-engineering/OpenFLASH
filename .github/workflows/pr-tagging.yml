@@ -38,15 +38,26 @@ jobs:
           base=$(bash scripts/compute_base.sh "$PR_TITLE")
           echo "base=$base" >> $GITHUB_OUTPUT
 
+      - name: Check if rc tag already exists and if so compute rc-dev tag
+        id: check_rc
+        run: |
+          rc_tag="${{ steps.compute_base.outputs.base }}rc${{ github.event.pull_request.number }}"
+          if git rev-parse "$rc_tag" >/dev/null 2>&1; then
+            devN=$(git rev-list --count $rc_tag..HEAD)
+            rc_dev_tag="${rc_tag}dev${devN}"
+          else
+            rc_dev_tag="${rc_tag}"
+          fi
+          echo "rc_dev_tag=${rc_dev_tag}" >> $GITHUB_OUTPUT
+
       - name: Create rc tag
         id: create_rc
         if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
         uses: rickstaa/action-create-tag@v1
         with:
-          tag:  "${{ steps.compute_base.outputs.base }}rc${{ github.event.pull_request.number }}"
-          message: "Release ${{ steps.compute_base.outputs.base }}rc${{ github.event.pull_request.number }}"
+          tag:  "${{ steps.check_rc.outputs.rc_dev_tag }}"
+          message: "Release ${{ steps.check_rc.outputs.rc_dev_tag }}"
           commit_sha: ${{ github.event.pull_request.head.sha }}
-          tag_exists_error: false
 
       - name: Create final tag
         if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
