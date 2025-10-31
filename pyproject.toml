@@ -57,4 +57,5 @@ where = ["package/src"]
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
+version_scheme = "only-version"
 fallback_version = "0+unknown"
