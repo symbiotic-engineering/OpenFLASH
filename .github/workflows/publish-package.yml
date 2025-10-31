@@ -26,12 +26,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Get latest tag to decide whether to publish
-        uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-tag
+        run: |
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
       - name: Decide whether to publish
         id: decide
         run: |
           echo "publish=${{ contains(steps.get-tag.outputs.tag, 'rc') }}" >> $GITHUB_OUTPUT
+          
   build-and-publish:
     runs-on: ubuntu-latest
     needs: determine-tag

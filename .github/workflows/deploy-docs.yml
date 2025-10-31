@@ -53,7 +53,8 @@ jobs:
           path: docs/_build/html
       
       - name: Get latest tag to decide whether to deploy
-        uses: actions-ecosystem/action-get-latest-tag@v1
+        run: |
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
         id: get-tag
 
       - name: Deploy to GitHub Pages
