@@ -1,8 +1,8 @@
 import xarray as xr
 import numpy as np
 from openflash.geometry import Geometry
-
 from openflash.meem_problem import MEEMProblem
+from .body import CoordinateBody  # <-- ADD THIS IMPORT
 
 class Results:
     """
@@ -10,27 +10,19 @@ class Results:
     Provides methods to store, access, and export results to a .nc file.
     """
 
-    # --- Change the __init__ signature ---
-    # def __init__(self, geometry: Geometry, frequencies: np.ndarray):
-    def __init__(self, problem: MEEMProblem): # Changed argument
+    def __init__(self, problem: MEEMProblem):
         """
         Initializes the Results class from a MEEMProblem object.
-
-        :param problem: The MEEMProblem instance containing geometry and frequencies. # Updated docstring
         """
-        # --- Get geometry and frequencies from the problem object ---
         self.geometry = problem.geometry
         self.frequencies = problem.frequencies
-        # --- No other changes needed below this line in __init__ ---
 
-        # Infer modes from the geometry's heaving flags
         heaving_bodies = [
             i for i, body in enumerate(self.geometry.body_arrangement.bodies)
             if body.heaving
         ]
         self.modes = np.array(heaving_bodies)
 
-        # Initialize dataset with all coordinates
         self.dataset = xr.Dataset(coords={
             'frequency': self.frequencies,
             'mode_i': self.modes,
@@ -47,8 +39,26 @@ class Results:
         if domain is None:
             raise ValueError(f"Domain index {domain_index} not found.")
 
-        r_coords = np.array(list(self.geometry.r_coordinates.values()))
-        z_coords = np.array(list(self.geometry.z_coordinates.values()))
+        # --- THIS IS THE FIX ---
+        # You are correct, r_coords and z_coords are on the Body objects.
+        # We need to iterate through the bodies in the geometry and collect them.
+        all_r_coords = []
+        all_z_coords = []
+        for body in self.geometry.body_arrangement.bodies:
+            if isinstance(body, CoordinateBody):
+                all_r_coords.append(body.r_coords)
+                all_z_coords.append(body.z_coords)
+
+        # This method is designed for CoordinateBody. If none are found
+        # (e.g., if only SteppedBody is used), r_coords will be empty.
+        if not all_r_coords:
+             r_coords = np.array([])
+             z_coords = np.array([])
+        else:
+             # Concatenate all coordinates from all bodies
+             r_coords = np.concatenate(all_r_coords)
+             z_coords = np.concatenate(all_z_coords)
+        # --- END FIX ---
 
         if radial_data.shape != (len(self.frequencies), len(self.modes), len(r_coords)):
             raise ValueError(f"radial_data shape {radial_data.shape} does not match expected "
@@ -79,6 +89,8 @@ class Results:
         )
         print(f"Eigenfunctions for domain {domain_index} stored in dataset.")
 
+    # ... (rest of the file remains the same) ...
+    
     def store_single_potential_field(self, potential_data: dict, frequency_idx: int = 0, mode_idx: int = 0):
         """
         Stores a single, fully computed potential field (R, Z, phi) in the dataset.

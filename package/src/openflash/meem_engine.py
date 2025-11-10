@@ -1,6 +1,6 @@
 #meem_engine.py
 from __future__ import annotations
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import numpy as np
 import matplotlib.pyplot as plt
 from openflash.meem_problem import MEEMProblem
@@ -127,7 +127,7 @@ class MEEMEngine:
         cache._set_m_k_and_N_k_funcs(m_k_entry, N_k_multi)
 
         # 4. Assemble A_template and identify m0-dependent indices
-        
+        # check
         ## --- Potential Matching Blocks ---
         col_offset = 0
         row_offset = 0
@@ -309,7 +309,7 @@ class MEEMEngine:
         cs.append(x[row:])
         return cs
 
-    def compute_hydrodynamic_coefficients(self, problem, X, m0, modes_to_calculate: np.ndarray = None):
+    def compute_hydrodynamic_coefficients(self, problem, X, m0, modes_to_calculate: Optional[np.ndarray] = None):
         """
         Compute hydrodynamic coefficients (added mass and damping) for each mode defined in the problem.
 
@@ -405,8 +405,7 @@ class MEEMEngine:
             })
 
         return results_per_mode
-    
-    def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]:
+    def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None) -> Dict[str, Any]:
         """
         Calculate full spatial potentials phiH, phiP, and total phi on a meshgrid for visualization.
 
@@ -415,6 +414,8 @@ class MEEMEngine:
         - solution_vector: solution vector X from linear system solve
         - spatial_res: resolution of spatial grid for R and Z (default=50)
         - sharp: whether to refine meshgrid near boundaries (default=True)
+        - R_range: optional range for R values
+        - Z_range: optional range for Z values
 
         Returns:
         - Dictionary containing meshgrid arrays R,Z and potentials phiH, phiP, phi
@@ -425,33 +426,38 @@ class MEEMEngine:
         m_k_arr = cache.m_k_arr
         N_k_arr = cache.N_k_arr
         
-        # Get geometry parameters directly from the body arrangement and domains
         geometry = problem.geometry
         body_arrangement = geometry.body_arrangement
         domain_list = problem.domain_list
         
-        # These are the correct physical parameters for meshgrid and particular solution
-        a = body_arrangement.a
-        d = body_arrangement.d
-        heaving = body_arrangement.heaving
+        # --- FIX: Use explicit variable names ---
+        # Body properties (for masking and particular solution)
+        body_a = body_arrangement.a
+        body_d = body_arrangement.d
+        body_heaving = body_arrangement.heaving
         
-        # These are needed for the homogeneous solution and coefficient reformatting
+        # Solver/Domain properties (for eigenfunctions)
         h = geometry.h
         domain_keys = list(domain_list.keys())
-        boundary_count = len(domain_keys) - 1
+        boundary_count = len(domain_keys) - 1 # This is correct, it's num_bodies
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
         
-        # --- The rest of the function remains the same ---
+        domain_a = [domain_list[idx].a for idx in domain_keys]
+        domain_d = [domain_list[idx].di for idx in domain_keys]
+        # --- END FIX ---
+        
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
         # 2. Create Meshgrid and Regions
-        # Now make_R_Z will receive the correct a and d lists
-        R, Z = make_R_Z(a, h, d, sharp, spatial_res)
+        # Use body 'a' and 'd' for grid creation
+        R, Z = make_R_Z(body_a, h, body_d, sharp, spatial_res, R_range=R_range, Z_range=Z_range)
+        
+        # Define regions based ONLY on radius
         regions = []
-        regions.append((R <= a[0]) & (Z < -d[0]))
+        regions.append(R <= body_a[0]) # Region 0
         for i in range(1, boundary_count):
-            regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i]))
-        regions.append(R > a[-1])
+            regions.append((R > body_a[i-1]) & (R <= body_a[i])) # Intermediate regions
+        regions.append(R > body_a[-1]) # Exterior region
 
         # Initialize potential arrays
         phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
@@ -459,13 +465,13 @@ class MEEMEngine:
         phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
 
         # --- 3. Vectorized Calculation of Potentials ---
-
+        # Use DOMAIN properties (domain_d, domain_a) for eigenfunction calcs
         # Region 0 (Inner)
         if np.any(regions[0]):
             r_vals, z_vals = R[regions[0]], Z[regions[0]]
             n_vals = np.arange(NMK[0])
-            R1n_vals = R_1n_vectorized(n_vals[:, None], r_vals[None, :], 0, h, d, a)
-            Zn_vals = Z_n_i_vectorized(n_vals[:, None], z_vals[None, :], 0, h, d)
+            R1n_vals = R_1n_vectorized(n_vals[:, None], r_vals[None, :], 0, h, domain_d, domain_a)
+            Zn_vals = Z_n_i_vectorized(n_vals[:, None], z_vals[None, :], 0, h, domain_d)
             phiH[regions[0]] = np.sum(Cs[0][:, None] * R1n_vals * Zn_vals, axis=0)
 
         # Intermediate Regions
@@ -473,9 +479,9 @@ class MEEMEngine:
             if np.any(regions[i]):
                 r_vals, z_vals = R[regions[i]], Z[regions[i]]
                 m_vals = np.arange(NMK[i])
-                R1n_vals = R_1n_vectorized(m_vals[:, None], r_vals[None, :], i, h, d, a)
-                R2n_vals = R_2n_vectorized(m_vals[:, None], r_vals[None, :], i, a, h, d)
-                Zm_vals = Z_n_i_vectorized(m_vals[:, None], z_vals[None, :], i, h, d)
+                R1n_vals = R_1n_vectorized(m_vals[:, None], r_vals[None, :], i, h, domain_d, domain_a)
+                R2n_vals = R_2n_vectorized(m_vals[:, None], r_vals[None, :], i, domain_a, h, domain_d)
+                Zm_vals = Z_n_i_vectorized(m_vals[:, None], z_vals[None, :], i, h, domain_d)
                 term1 = Cs[i][:NMK[i], None] * R1n_vals
                 term2 = Cs[i][NMK[i]:, None] * R2n_vals
                 phiH[regions[i]] = np.sum((term1 + term2) * Zm_vals, axis=0)
@@ -484,21 +490,28 @@ class MEEMEngine:
         if np.any(regions[-1]):
             r_vals, z_vals = R[regions[-1]], Z[regions[-1]]
             k_vals = np.arange(NMK[-1])
-            Lambda_vals = Lambda_k_vectorized(k_vals[:, None], r_vals[None, :], m0, a, m_k_arr)
+            Lambda_vals = Lambda_k_vectorized(k_vals[:, None], r_vals[None, :], m0, domain_a, m_k_arr)
             Zk_vals = Z_k_e_vectorized(k_vals[:, None], z_vals[None, :], m0, h, m_k_arr, N_k_arr)
             phiH[regions[-1]] = np.sum(Cs[-1][:, None] * Lambda_vals * Zk_vals, axis=0)
         
         # --- 4. Calculate Particular Potential (phiP) ---
-        phiP[regions[0]] = heaving[0] * phi_p_i(d[0], R[regions[0]], Z[regions[0]], h)
+        # Use BODY properties (body_d, body_heaving) for particular solution
+        phiP[regions[0]] = body_heaving[0] * phi_p_i(body_d[0], R[regions[0]], Z[regions[0]], h)
         for i in range(1, boundary_count):
-            phiP[regions[i]] = heaving[i] * phi_p_i(d[i], R[regions[i]], Z[regions[i]], h)
+            phiP[regions[i]] = body_heaving[i] * phi_p_i(body_d[i], R[regions[i]], Z[regions[i]], h)
         phiP[regions[-1]] = 0
 
         # Sum to get total potential phi
         phi = phiH + phiP
 
-        return {"R": R, "Z": Z, "phiH": phiH, "phiP": phiP, "phi": phi}
+        # --- Manually insert NaNs *inside* the body ---
+        # Use BODY properties (body_d) for masking.
+        for i in range(boundary_count):
+            # Find points that are radially in this region AND vertically inside the body
+            body_mask = (regions[i]) & (Z > -body_d[i])
+            phi[body_mask] = np.nan
 
+        return {"R": R, "Z": Z, "phiH": phiH, "phiP": phiP, "phi": phi}
     def visualize_potential(self, field, R, Z, title):
         """
         Creates a contour plot of a potential field.
@@ -524,7 +537,7 @@ class MEEMEngine:
         # Return the figure and axes objects
         return fig, ax
         
-    def calculate_velocities(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]:
+    def calculate_velocities(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None) -> Dict[str, Any]:
         """
         Calculate full spatial velocities vr and vz on a meshgrid for visualization.
         """
@@ -536,41 +549,47 @@ class MEEMEngine:
         body_arrangement = geometry.body_arrangement
         domain_list = problem.domain_list
 
-        # Get physical body parameters for meshgrid and particular solution
-        a = body_arrangement.a
-        d = body_arrangement.d
-        heaving = body_arrangement.heaving
+        # --- FIX: Use explicit variable names ---
+        # Body properties (for masking and particular solution)
+        body_a = body_arrangement.a
+        body_d = body_arrangement.d
+        body_heaving = body_arrangement.heaving
         
-        # Get domain/solver parameters for homogeneous solution and coefficient reformatting
+        # Solver/Domain properties (for eigenfunctions)
         h = geometry.h
         domain_keys = list(domain_list.keys())
-        boundary_count = len(domain_keys) - 1
+        boundary_count = len(domain_keys) - 1 # This is correct, it's num_bodies
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
+        
+        domain_a = [domain_list[idx].a for idx in domain_keys]
+        domain_d = [domain_list[idx].di for idx in domain_keys]
+        # --- END FIX ---
 
-        # --- The rest of the function remains the same ---
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
         # 2. Create Meshgrid and Regions
-        # This will now use the correct 'a' and 'd' arrays
-        R, Z = make_R_Z(a, h, d, sharp, spatial_res)
-        regions = [
-            (R <= a[0]) & (Z < -d[0]),
-            *[(R > a[i-1]) & (R <= a[i]) & (Z < -d[i]) for i in range(1, boundary_count)],
-            (R > a[-1])
-        ]
+        # Use body 'a' and 'd' for grid creation
+        R, Z = make_R_Z(body_a, h, body_d, sharp, spatial_res, R_range=R_range, Z_range=Z_range)
+        
+        # Define regions based ONLY on radius
+        regions = []
+        regions.append(R <= body_a[0]) # Region 0
+        for i in range(1, boundary_count):
+            regions.append((R > body_a[i-1]) & (R <= body_a[i])) # Intermediate regions
+        regions.append(R > body_a[-1]) # Exterior region
         
         # Initialize velocity component arrays
         vrH = np.full(R.shape, np.nan, dtype=complex)
         vzH = np.full(R.shape, np.nan, dtype=complex)
 
         # --- 3. Vectorized Calculation of Homogeneous Velocities (vrH, vzH) ---
-
+        # Use DOMAIN properties (domain_d, domain_a) for eigenfunction calcs
         # Region 0 (Inner)
         if np.any(regions[0]):
             r, z = R[regions[0]], Z[regions[0]]
             n = np.arange(NMK[0])
-            vrH[regions[0]] = np.sum(Cs[0][:, None] * diff_R_1n_vectorized(n[:, None], r[None, :], 0, h, d, a) * Z_n_i_vectorized(n[:, None], z[None, :], 0, h, d), axis=0)
-            vzH[regions[0]] = np.sum(Cs[0][:, None] * R_1n_vectorized(n[:, None], r[None, :], 0, h, d, a) * diff_Z_n_i_vectorized(n[:, None], z[None, :], 0, h, d), axis=0)
+            vrH[regions[0]] = np.sum(Cs[0][:, None] * diff_R_1n_vectorized(n[:, None], r[None, :], 0, h, domain_d, domain_a) * Z_n_i_vectorized(n[:, None], z[None, :], 0, h, domain_d), axis=0)
+            vzH[regions[0]] = np.sum(Cs[0][:, None] * R_1n_vectorized(n[:, None], r[None, :], 0, h, domain_d, domain_a) * diff_Z_n_i_vectorized(n[:, None], z[None, :], 0, h, domain_d), axis=0)
 
         # Intermediate Regions
         for i in range(1, boundary_count):
@@ -578,35 +597,46 @@ class MEEMEngine:
                 r, z = R[regions[i]], Z[regions[i]]
                 m = np.arange(NMK[i])
                 # Radial velocity (vrH)
-                vr_term1 = Cs[i][:NMK[i], None] * diff_R_1n_vectorized(m[:, None], r[None, :], i, h, d, a)
-                vr_term2 = Cs[i][NMK[i]:, None] * diff_R_2n_vectorized(m[:, None], r[None, :], i, h, d, a)
-                vrH[regions[i]] = np.sum((vr_term1 + vr_term2) * Z_n_i_vectorized(m[:, None], z[None, :], i, h, d), axis=0)
+                vr_term1 = Cs[i][:NMK[i], None] * diff_R_1n_vectorized(m[:, None], r[None, :], i, h, domain_d, domain_a)
+                vr_term2 = Cs[i][NMK[i]:, None] * diff_R_2n_vectorized(m[:, None], r[None, :], i, domain_a, h, domain_d)
+                # --- FIXING TYPO ---
+                vrH[regions[i]] = np.sum((vr_term1 + vr_term2) * Z_n_i_vectorized(m[:, None], z[None, :], i, h, domain_d), axis=0)
+                # --- END TYPO FIX ---
                 # Vertical velocity (vzH)
-                vz_term1 = Cs[i][:NMK[i], None] * R_1n_vectorized(m[:, None], r[None, :], i, h, d, a)
-                vz_term2 = Cs[i][NMK[i]:, None] * R_2n_vectorized(m[:, None], r[None, :], i, a, h, d)
-                vzH[regions[i]] = np.sum((vz_term1 + vz_term2) * diff_Z_n_i_vectorized(m[:, None], z[None, :], i, h, d), axis=0)
+                vz_term1 = Cs[i][:NMK[i], None] * R_1n_vectorized(m[:, None], r[None, :], i, h, domain_d, domain_a)
+                vz_term2 = Cs[i][NMK[i]:, None] * R_2n_vectorized(m[:, None], r[None, :], i, domain_a, h, domain_d)
+                vzH[regions[i]] = np.sum((vz_term1 + vz_term2) * diff_Z_n_i_vectorized(m[:, None], z[None, :], i, h, domain_d), axis=0)
 
         # Exterior Region
         if np.any(regions[-1]):
             r, z = R[regions[-1]], Z[regions[-1]]
             k = np.arange(NMK[-1])
-            vrH[regions[-1]] = np.sum(Cs[-1][:, None] * diff_Lambda_k_vectorized(k[:, None], r[None, :], m0, a, m_k_arr) * Z_k_e_vectorized(k[:, None], z[None, :], m0, h, m_k_arr, N_k_arr), axis=0)
-            vzH[regions[-1]] = np.sum(Cs[-1][:, None] * Lambda_k_vectorized(k[:, None], r[None, :], m0, a, m_k_arr) * diff_Z_k_e_vectorized(k[:, None], z[None, :], m0, h, m_k_arr, N_k_arr), axis=0)
+            vrH[regions[-1]] = np.sum(Cs[-1][:, None] * diff_Lambda_k_vectorized(k[:, None], r[None, :], m0, domain_a, m_k_arr) * Z_k_e_vectorized(k[:, None], z[None, :], m0, h, m_k_arr, N_k_arr), axis=0)
+            vzH[regions[-1]] = np.sum(Cs[-1][:, None] * Lambda_k_vectorized(k[:, None], r[None, :], m0, domain_a, m_k_arr) * diff_Z_k_e_vectorized(k[:, None], z[None, :], m0, h, m_k_arr, N_k_arr), axis=0)
         
         # --- 4. Vectorized Calculation of Particular Velocities (vrP, vzP) ---
+        # Use BODY properties (body_d, body_heaving) for particular solution
         vrP = np.full(R.shape, 0.0, dtype=complex)
         vzP = np.full(R.shape, 0.0, dtype=complex)
         
-        vrP[regions[0]] = heaving[0] * diff_r_phi_p_i(d[0], R[regions[0]], h)
-        vzP[regions[0]] = heaving[0] * diff_z_phi_p_i(d[0], Z[regions[0]], h)
+        vrP[regions[0]] = body_heaving[0] * diff_r_phi_p_i(body_d[0], R[regions[0]], h)
+        vzP[regions[0]] = body_heaving[0] * diff_z_phi_p_i(body_d[0], Z[regions[0]], h)
         for i in range(1, boundary_count):
-            if heaving[i]:
-                vrP[regions[i]] = heaving[i] * diff_r_phi_p_i(d[i], R[regions[i]], h)
-                vzP[regions[i]] = heaving[i] * diff_z_phi_p_i(d[i], Z[regions[i]], h)
+            if body_heaving[i]:
+                vrP[regions[i]] = body_heaving[i] * diff_r_phi_p_i(body_d[i], R[regions[i]], h)
+                vzP[regions[i]] = body_heaving[i] * diff_z_phi_p_i(body_d[i], Z[regions[i]], h)
 
         # --- 5. Sum for Total Velocity ---
         vr = vrH + vrP
         vz = vzH + vzP
+        
+        # --- Manually insert NaNs *inside* the body ---
+        # Use BODY properties (body_d) for masking.
+        for i in range(boundary_count):
+            # Find points that are radially in this region AND vertically inside the body
+            body_mask = (regions[i]) & (Z > -body_d[i])
+            vr[body_mask] = np.nan
+            vz[body_mask] = np.nan
 
         return {"R": R, "Z": Z, "vrH": vrH, "vzH": vzH, "vrP": vrP, "vzP": vzP, "vr": vr, "vz": vz}
     
@@ -655,16 +685,25 @@ class MEEMEngine:
 
         # --- Loop 1: Over all frequencies ---
         for freq_idx, omega in enumerate(omegas_to_run):
-            m0 = wavenumber(omega, h)
+            m0 = wavenumber(omega, h) 
             
             # --- Loop 2: Over all radiating modes (i) ---
-            # We must solve one radiation problem for each moving body
             for i_idx, radiating_mode in enumerate(problem_modes):
                 
                 try:
                     # 1. Create a new geometry where ONLY this body is heaving
                     temp_bodies = []
                     for body_j, original_body in enumerate(original_bodies):
+                        
+                        # --- THIS IS THE FIX ---
+                        # Check if the body is a SteppedBody before accessing attributes
+                        if not isinstance(original_body, SteppedBody):
+                            raise TypeError(
+                                "run_and_store_results only supports SteppedBody objects. "
+                                f"Found {type(original_body)}."
+                            )
+                        # --- END FIX ---
+                            
                         # This check assumes body index corresponds to mode index
                         is_heaving = (body_j == radiating_mode)
                         temp_bodies.append(
@@ -675,7 +714,6 @@ class MEEMEngine:
                                 heaving=is_heaving
                             )
                         )
-                    
                     # 2. Create the new problem for this single radiating body
                     temp_arrangement = ConcentricBodyGroup(temp_bodies)
                     temp_geometry = BasicRegionGeometry(temp_arrangement, h=h, NMK=NMK_list)
@@ -702,7 +740,14 @@ class MEEMEngine:
                     # 6. Populate the full matrices
                     for coeff_dict in hydro_coeffs_col:
                         j_mode = coeff_dict['mode'] # This is the 'j' index (force)
-                        j_idx = np.where(problem_modes == j_mode)[0][0]
+                        j_idx_result = np.where(problem_modes == j_mode)[0]
+                        
+                        if j_idx_result.size == 0:
+                            # This should not happen if problem_modes is correct
+                            print(f"Warning: Mode {j_mode} not found in problem_modes. Skipping.")
+                            continue
+                        
+                        j_idx = j_idx_result[0]
                         
                         # A_ji (force on j, motion from i)
                         full_added_mass_matrix[freq_idx, j_idx, i_idx] = coeff_dict['real']
@@ -712,7 +757,16 @@ class MEEMEngine:
                     # 7. Store the computed potential coefficients (Cs)
                     Cs = temp_engine.reformat_coeffs(X_i, NMK_list, len(NMK_list) - 1)
                     current_mode_potentials = {}
-                    for domain_idx, domain in enumerate(temp_problem.geometry.fluid_domains):
+                    
+                    # Ensure fluid_domains is a list, or iterate correctly
+                    domain_list = temp_problem.geometry.domain_list
+                    if isinstance(domain_list, dict):
+                        domain_iterable = domain_list.values()
+                    else:
+                        domain_iterable = domain_list
+
+                    for domain in domain_iterable:
+                        domain_idx = domain.index
                         domain_coeffs = Cs[domain_idx]
                         current_mode_potentials[domain.index] = {
                             "potentials": domain_coeffs,

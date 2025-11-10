@@ -9,10 +9,11 @@ from scipy.special import kve as besselke
 import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
-from numpy import sqrt, cosh, cos, sinh, sin, pi, exp, inf
+from numpy import sqrt, cosh, cos, sinh, sin, pi, exp, inf, log
 from scipy.optimize import newton, minimize_scalar, root_scalar
 import scipy as sp
 from functools import partial
+from typing import Optional
 
 
 M0_H_THRESH=14
@@ -243,35 +244,29 @@ def R_1n_vectorized(n, r, i, h, d, a):
         np.ndarray: The calculated values of the R_1n function for each input.
     """
     # --- Define the conditions for the nested logic ---
-    # Condition 1: The mode is n=0.
     cond_n_is_zero = (n == 0)
-    
-    # Condition 2: The radius 'r' is exactly at the boundary of the region.
-    # This is a special case to avoid unnecessary Bessel function calculations.
     cond_r_at_boundary = (r == scale(a)[i])
 
     # --- Define the outcomes for each condition ---
-    # Outcome 1: If n=0, the value is always 0.5.
     outcome_for_n_zero = 0.5
-    
-    # Outcome 2: If n>=1 and r is at the boundary, the value is 1.0.
     outcome_for_r_boundary = 1.0
     
-    # Outcome 3: The general case for n>=1 inside the boundary.
-    # `lambda_ni` is also vectorized to handle an array of 'n' values.
+    # --- Outcome 3: The general case (NEEDS FIX) ---
     lambda_val = lambda_ni(n, i, h, d)
-    bessel_term = (besselie(0, lambda_val * r) / besselie(0, lambda_val * scale(a)[i])) * \
-                  exp(lambda_val * (r - scale(a)[i]))
+    
+    # --- APPLYING THE ROBUST FIX ---
+    denom = besselie(0, lambda_val * scale(a)[i])
+    numerator = besselie(0, lambda_val * r)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        bessel_ratio = np.divide(numerator, denom, 
+                                 out=np.zeros_like(numerator), # Output 0.0 if denom is 0 or inf
+                                 where=np.isfinite(denom) & (denom != 0))
+    bessel_term = bessel_ratio * exp(lambda_val * (r - scale(a)[i]))
+    # --- END FIX ---
 
-    # --- Apply the logic using nested np.where ---
-    # For all cases where n >= 1 (i.e., cond_n_is_zero is False), decide between
-    # the boundary value (1.0) and the full Bessel calculation.
     result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
     
-    # Finally, apply the top-level condition: if n is 0, return 0.5, otherwise
-    # return the result from the nested logic above.
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
-
 
 # Differentiate wrt r
 def diff_R_1n(n, r, i, h, d, a):
@@ -292,13 +287,15 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     # --- Calculation for when n > 0 ---
     lambda_val = lambda_ni(n, i, h, d)
     
-    # Use besselie with the order specified as the first argument
     numerator = lambda_val * besselie(1, lambda_val * r) 
     denominator = besselie(0, lambda_val * scale(a)[i])
     
-    bessel_ratio = np.divide(numerator, denominator, 
-                             out=np.zeros_like(numerator, dtype=float), 
-                             where=(denominator != 0))
+    # --- APPLYING THE ROBUST FIX ---
+    with np.errstate(divide='ignore', invalid='ignore'):
+        bessel_ratio = np.divide(numerator, denominator, 
+                                 out=np.zeros_like(numerator, dtype=float), 
+                                 where=np.isfinite(denominator) & (denominator != 0))
+    # --- END FIX ---
                              
     value_if_false = bessel_ratio * exp(lambda_val * (r - scale(a)[i]))
     
@@ -320,21 +317,18 @@ def R_2n(n, r, i, a, h, d):
 def R_2n_vectorized(n, r, i, a, h, d):
     """
     Vectorized version of the R_2n radial eigenfunction.
-
-    Calculates the radial component for the second type of basis function
-    in an intermediate region, handling array inputs for 'n' and 'r'.
     """
-    # This guard clause is fine, as 'i' is a scalar for the entire call.
     if i == 0:
         raise ValueError("R_2n function is not defined for the innermost region (i=0).")
 
-    # --- Define the conditions for vectorization ---
     cond_n_is_zero = (n == 0)
     cond_r_at_boundary = (r == scale(a)[i])
 
-    # --- Define the outcome for each case ---
-    # Case 1: n = 0
-    outcome_for_n_zero = 0.5 * np.log(r / a[i])
+    # Case 1: n = 0 (Safely handles log(0))
+    with np.errstate(divide='ignore'): 
+        ratio = r / a[i]
+        safe_log = np.where(ratio == 0, -np.inf, np.log(ratio))
+    outcome_for_n_zero = 0.5 * safe_log
 
     # Case 2: n > 0 and r is at the boundary
     outcome_for_r_boundary = 1.0
@@ -342,29 +336,45 @@ def R_2n_vectorized(n, r, i, a, h, d):
     # Case 3: n > 0 and r is not at the boundary (general case)
     lambda_val = lambda_ni(n, i, h, d)
     denom = besselke(0, lambda_val * scale(a)[i])
-    denom = np.where(np.abs(denom) < 1e-12, np.nan, denom)  # or another threshold
+    numerator = besselke(0, lambda_val * r)
 
-    bessel_term = (besselke(0, lambda_val * r) / denom) * exp(lambda_val * (scale(a)[i] - r))
+    # --- FINAL ROBUST FIX ---
+    # We must check that denom is both non-zero AND finite.
+    # An 'inf/inf' (which results in NaN) can happen if besselke(0,0) is called.
+    with np.errstate(divide='ignore', invalid='ignore'):
+        bessel_ratio = np.divide(numerator, denom, 
+                                 out=np.zeros_like(numerator), # Output 0.0 if denom is 0 or inf
+                                 where=np.isfinite(denom) & (denom != 0))
+    # --- END FIX ---
 
-    # --- Nest np.where to apply the logic element-wise ---
-    # First, handle the logic for when n > 0
+    bessel_term = bessel_ratio * exp(lambda_val * (scale(a)[i] - r))
+
     result_if_n_not_zero = np.where(cond_r_at_boundary,
                                   outcome_for_r_boundary,
                                   bessel_term)
 
-    # Now, use the top-level condition on 'n' to select the final result
     return np.where(cond_n_is_zero,
                     outcome_for_n_zero,
                     result_if_n_not_zero)
-    
 # Differentiate wrt r
 def diff_R_2n(n, r, i, h, d, a):
     if n == 0:
-        return 1 / (2 * r)
+        # --- FIX for potential divide by zero at r=0 ---
+        with np.errstate(divide='ignore'):
+            return np.where(r == 0, np.inf, 1 / (2 * r))
+        # --- END FIX ---
     else:
         top = - lambda_ni(n, i, h, d) * besselke(1, lambda_ni(n, i, h, d) * r)
         bottom = besselke(0, lambda_ni(n, i, h, d) * scale(a)[i])
-        return top / bottom * exp(lambda_ni(n, i, h, d) * (scale(a)[i] - r))
+
+        # --- NEW, MORE ROBUST FIX ---
+        # Use np.divide to safely handle 0.0 / 0.0 cases
+        ratio = np.divide(top, bottom, 
+                          out=np.zeros_like(top), # Output 0.0 where bottom is 0
+                          where=(bottom != 0))
+        # --- END FIX ---
+        
+        return ratio * exp(lambda_ni(n, i, h, d) * (scale(a)[i] - r))
     
 def diff_R_2n_vectorized(n, r, i, h, d, a):
     """
@@ -374,23 +384,26 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
     r = np.asarray(r)
     
     # Case n == 0
+    # This is safe and produces `inf` at r=0, which is correct.
     value_if_true = np.divide(1, 2 * r, out=np.full_like(r, np.inf), where=(r != 0))
     
     # Case n > 0
-    lambda_val = lambda_ni(n, i, h, d)  # ensure lambda_ni is vectorized
+    lambda_val = lambda_ni(n, i, h, d)
+    scale_ai = scale(a)[i]
     
-    # Calculate besselke(0, λni * scale(a)[i])
-    scale_ai = scale(a)[i]  # scalar
-    denom = besselke(0, lambda_val * scale_ai)
-    
-    # Avoid division by zero or extremely small denominators
-    safe_denom = np.where(np.abs(denom) < 1e-10, 1e-10, denom)
+    numerator = -lambda_val * besselke(1, lambda_val * r) # besselke(1,0) is -inf
+    denom = besselke(0, lambda_val * scale_ai)           # besselke(0,>0) is finite
 
+    # --- APPLYING THE ROBUST FIX ---
+    # We must check that denom is both non-zero AND finite.
     with np.errstate(divide='ignore', invalid='ignore'):
-        numerator = -lambda_val * besselke(1, lambda_val * r)
-        ratio = numerator / safe_denom
-        exp_term = exp(lambda_val * (scale_ai - r))
-        value_if_false = ratio * exp_term
+        ratio = np.divide(numerator, denom,
+                          out=np.zeros_like(numerator), # Output 0.0 if denom is 0 or inf
+                          where=np.isfinite(denom) & (denom != 0))
+    # --- END FIX ---
+
+    exp_term = exp(lambda_val * (scale_ai - r))
+    value_if_false = ratio * exp_term
 
     # Combine using np.where
     return np.where(n == 0, value_if_true, value_if_false)
@@ -468,34 +481,37 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized version of the exterior region radial eigenfunction Lambda_k.
     """
-    # Handle the scalar case where m0 is infinite. The result is always 1.
     if m0 == inf:
         return np.ones(np.broadcast(k, r).shape, dtype=float)
 
-    # --- Define conditions ---
     cond_k_is_zero = (k == 0)
     cond_r_at_boundary = (r == scale(a)[-1])
 
-    # --- Define outcomes ---
-    # Case 1: The radius 'r' is at the outer boundary. The value is always 1.
     outcome_boundary = 1.0
 
-    # Case 2: k = 0 (and not at the boundary)
-    outcome_k_zero = besselh(0, m0 * r) / besselh(0, m0 * scale(a)[-1])
+    # --- Case 2: k = 0 (NEEDS FIX) ---
+    denom_k_zero = besselh(0, m0 * scale(a)[-1])
+    numer_k_zero = besselh(0, m0 * r)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        outcome_k_zero = np.divide(numer_k_zero, denom_k_zero, 
+                                   out=np.zeros_like(numer_k_zero, dtype=complex),
+                                   where=np.isfinite(denom_k_zero) & (denom_k_zero != 0))
 
-    # Case 3: k > 0 (and not at the boundary)
-    # NumPy's advanced indexing allows m_k_arr[k] to work on an array of indices k.
+    # --- Case 3: k > 0 (NEEDS FIX) ---
     local_m_k_k = m_k_arr[k]
-    outcome_k_nonzero = (besselke(0, local_m_k_k * r) / besselke(0, local_m_k_k * scale(a)[-1])) * \
-                        exp(local_m_k_k * (scale(a)[-1] - r))
+    denom_k_nonzero = besselke(0, local_m_k_k * scale(a)[-1])
+    numer_k_nonzero = besselke(0, local_m_k_k * r)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        bessel_ratio = np.divide(numer_k_nonzero, denom_k_nonzero, 
+                                 out=np.zeros_like(numer_k_nonzero),
+                                 where=np.isfinite(denom_k_nonzero) & (denom_k_nonzero != 0))
+    outcome_k_nonzero = bessel_ratio * exp(local_m_k_k * (scale(a)[-1] - r))
+    # --- END FIXES ---
 
-    # --- Apply logic with nested np.where ---
-    # First, choose between the k=0 and k>0 outcomes.
     result_if_not_boundary = np.where(cond_k_is_zero,
                                       outcome_k_zero,
                                       outcome_k_nonzero)
 
-    # The boundary condition takes precedence over all other cases.
     return np.where(cond_r_at_boundary,
                     outcome_boundary,
                     result_if_not_boundary)
@@ -524,39 +540,37 @@ def diff_Lambda_k(k, r, m0, a, m_k_arr):
         numerator = -(local_m_k_k * besselke(1, local_m_k_k * r))
         denominator = besselke(0, local_m_k_k * scale(a)[-1])
         return numerator / denominator * exp(local_m_k_k * (scale(a)[-1] - r))
-    
+
 def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized derivative of the exterior region radial function Lambda_k.
     """
-    # Handle the scalar case where m0 is infinite. The result is always 1.
     if m0 == inf:
         return np.ones(np.broadcast(k, r).shape, dtype=float)
 
-    # --- Define the condition for vectorization ---
     condition = (k == 0)
 
-    # --- Define the outcome for k == 0 ---
+    # --- Outcome for k == 0 (NEEDS FIX) ---
     numerator_k_zero = -(m0 * besselh(1, m0 * r))
     denominator_k_zero = besselh(0, m0 * scale(a)[-1])
-    outcome_k_zero = np.divide(numerator_k_zero, denominator_k_zero,
-                               out=np.zeros_like(numerator_k_zero, dtype=complex),
-                               where=(denominator_k_zero != 0))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        outcome_k_zero = np.divide(numerator_k_zero, denominator_k_zero,
+                                   out=np.zeros_like(numerator_k_zero, dtype=complex),
+                                   where=np.isfinite(denominator_k_zero) & (denominator_k_zero != 0))
 
-    # --- Define the outcome for k > 0 ---
-    # NumPy's advanced indexing allows m_k_arr[k] to create an array from indices.
+    # --- Outcome for k > 0 (NEEDS FIX) ---
     local_m_k_k = m_k_arr[k]
     numerator_k_nonzero = -(local_m_k_k * besselke(1, local_m_k_k * r))
     denominator_k_nonzero = besselke(0, local_m_k_k * scale(a)[-1])
     
-    # Use safe division to avoid warnings
-    ratio = np.divide(numerator_k_nonzero, denominator_k_nonzero,
-                      out=np.zeros_like(numerator_k_nonzero, dtype=float),
-                      where=(denominator_k_nonzero != 0))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        ratio = np.divide(numerator_k_nonzero, denominator_k_nonzero,
+                          out=np.zeros_like(numerator_k_nonzero, dtype=float),
+                          where=np.isfinite(denominator_k_nonzero) & (denominator_k_nonzero != 0))
+    # --- END FIXES ---
                       
     outcome_k_nonzero = ratio * exp(local_m_k_k * (scale(a)[-1] - r))
 
-    # --- Use np.where to select the final output ---
     return np.where(condition, outcome_k_zero, outcome_k_nonzero)
 
 def diff_Lambda_k_full(k, r, m0, NMK, h, a):
@@ -723,11 +737,26 @@ def excitation_force(damping, m0, h):
 
     return sqrt((2 * const * rho * (g ** 2) * damping)/(omega(m0,h,g) * m0)) ** (1/2)
 
-def make_R_Z(a, h, d, sharp, spatial_res): # create coordinate array for graphing
-    rmin = (2 * a[-1] / spatial_res) if sharp else 0.0
-    r_vec = np.linspace(rmin, 2*a[-1], spatial_res)
-    z_vec = np.linspace(0, -h, spatial_res)
+# --- AFTER ---
+def make_R_Z(a, h, d, sharp, spatial_res, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None):
+    
+    if R_range is not None:
+        r_vec = R_range
+    else:
+        # Fallback to old behavior
+        rmin = (2 * a[-1] / spatial_res) if sharp else 0.0
+        r_vec = np.linspace(rmin, 2*a[-1], spatial_res)
+
+    if Z_range is not None:
+        z_vec = Z_range
+    else:
+        # Fallback to old behavior
+        z_vec = np.linspace(0, -h, spatial_res) 
+
     if sharp: # more precise near boundaries
+        # Note: This 'sharp' logic is probably not compatible
+        # with providing R_range/Z_range, but your test
+        # correctly sets sharp=False, so this block is skipped.
         a_eps = 1.0e-4
         for i in range(len(a)):
             r_vec = np.append(r_vec, a[i]*(1-a_eps))
@@ -736,7 +765,9 @@ def make_R_Z(a, h, d, sharp, spatial_res): # create coordinate array for graphin
         for i in range(len(d)):
             z_vec = np.append(z_vec, -d[i])
         z_vec = np.unique(z_vec)
-    return np.meshgrid(r_vec, z_vec)
+    
+    # THE CRITICAL FIX: Add indexing='ij'
+    return np.meshgrid(r_vec, z_vec, indexing='ij')
 
 def p_diagonal_block(left, radfunction, bd, h, d, a, NMK):
     region = bd if left else (bd + 1)

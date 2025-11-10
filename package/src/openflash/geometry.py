@@ -60,8 +60,12 @@ class ConcentricBodyGroup(BodyArrangement):
         """Helper to create a heaving flag array based on each body."""
         flags = []
         for body in self.bodies:
-            num_steps = len(body.a)
-            flags.extend([body.heaving] * num_steps)
+            # --- THIS IS THE FIX ---
+            if isinstance(body, SteppedBody):
+                num_steps = len(body.a)
+                flags.extend([body.heaving] * num_steps)
+            # You could add 'elif isinstance(body, CoordinateBody):' here if needed
+            # --- END FIX ---
         return np.array(flags, dtype=bool)
 
     @property
@@ -98,6 +102,23 @@ class Geometry(ABC):
         if not self._fluid_domains:
             self._fluid_domains = self.make_fluid_domains()
         return self._fluid_domains
+
+    # --- ADD THIS PROPERTY ---
+    @property
+    def domain_list(self) -> dict:
+        """
+        Returns a dictionary of domains keyed by index.
+        Required for MEEMProblem/Results compatibility.
+        """
+        # If the property isn't overridden, create the dict from the list.
+        if not self.fluid_domains:
+            return {}
+        # This check handles if a subclass (like BasicRegionGeometry)
+        # has already provided a dict.
+        if isinstance(self.fluid_domains, dict):
+             return self.fluid_domains
+        return {domain.index: domain for domain in self.fluid_domains}
+    # --- END ADDITION ---
 
     @abstractmethod
     def make_fluid_domains(self) -> List[Domain]:

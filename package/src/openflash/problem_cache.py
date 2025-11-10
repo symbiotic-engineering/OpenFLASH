@@ -1,25 +1,25 @@
 # problem_cache.py
 import numpy as np
-from typing import Callable, Dict, Any
+from typing import Callable, Dict, Any, Optional
 
 from openflash.multi_equations import *
 
 class ProblemCache:
     def __init__(self, problem):
         self.problem = problem
-        self.A_template: np.ndarray = None
-        self.b_template: np.ndarray = None
+        self.A_template: Optional[np.ndarray] = None
+        self.b_template: Optional[np.ndarray] = None
         self.m0_dependent_A_indices: list[tuple[int, int, Callable]] = []
         self.m0_dependent_b_indices: list[tuple[int, Callable]] = []
 
         # Attributes to store references to m_k_entry and N_k functions
-        self.m_k_entry_func: Callable = None
-        self.N_k_func: Callable = None
-        self.m_k_arr: np.ndarray = None
-        self.N_k_arr: np.ndarray = None
+        self.m_k_entry_func: Optional[Callable] = None
+        self.N_k_func: Optional[Callable] = None
+        self.m_k_arr: Optional[np.ndarray] = None
+        self.N_k_arr: Optional[np.ndarray] = None
         
         # New attribute to store the m0-independent I_nm_vals matrix
-        self.I_nm_vals: np.ndarray = None
+        self.I_nm_vals: Optional[np.ndarray] = None
 
         self.named_closures: Dict[str, Any] = {}
 
