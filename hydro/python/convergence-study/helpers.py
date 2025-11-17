@@ -161,7 +161,90 @@ class ConvergenceProblemI(Problem):
             c[col + M + m] = heaving[i] * self.int_R_2n(i, m)* self.z_n_d(m)
         col += 2 * M
     return c
+
+# Converging over all regions & heaves
+class ConvergenceProblemNeighbors(ConvergenceProblemI):
+  def get_all_heaves(self):
+    heaves = []
+    for i in range(self.boundary_count):
+      heave = [1 if i == j else 0 for j in range(self.boundary_count)]
+      heaves.append(heave)
+    return heaves
   
+  def e_varied_matrices(self, full_a_matrix, nmk_max):
+    big_nmk = self.NMK[-1]
+    all_a_matrices = []
+    for i in range(1, nmk_max + 1):
+      a_matrix = full_a_matrix[: (self.size - big_nmk + i), : (self.size - big_nmk + i)]
+      all_a_matrices.append(a_matrix)
+    return all_a_matrices
+
+  def e_varied_b_vectors(self, full_b_vector, nmk_max):
+    big_nmk = self.NMK[-1]
+    all_b_vectors = []
+    for i in range(1, nmk_max + 1):
+      b_vector = full_b_vector[: (self.size - big_nmk + i)]
+      all_b_vectors.append(b_vector)
+    return all_b_vectors
+    
+  def full_convergence_study(self, nmk_max, m0s, mks):
+    # Do study convergence across all regions, for all distinct heaves
+    heaves = self.get_all_heaves()
+    full_a_matrix = self.a_matrix()
+    full_bs_across_heaves = []
+    full_cs_across_heaves = []
+    all_cs_across_heaves = []
+    for heave_vector in heaves:
+      self.heaving = heave_vector
+      full_bs_across_heaves.append(self.b_vector())
+      full_c_vector = self.c_vector()
+      full_cs_across_heaves.append(full_c_vector)
+      all_cs_across_regions = []
+      for region in range(self.boundary_count):
+        all_cs_across_regions.append(self.get_c_vectors(full_c_vector, nmk_max, region))
+      all_cs_across_regions.append([full_c_vector for i in range(nmk_max)]) # for the e region
+      all_cs_across_heaves.append(all_cs_across_regions)
+    output = {}
+
+    for idx, m0 in enumerate(m0s):
+      out_for_m0 = {}
+      self.change_m0_mk(m0, mks[idx])
+      omega = self.angular_freq(self.m0)
+
+      full_a_matrix = self.a_matrix_from_old(full_a_matrix) # match the m0
+      all_a_matrices_across_regions = [self.get_sub_matrices(full_a_matrix, nmk_max, region) for region in range(self.boundary_count)]
+      all_a_matrices_across_regions.append(self.e_varied_matrices(full_a_matrix, nmk_max))
+
+      for heaving_region, heave_vector in enumerate(heaves):
+        self.heaving = heave_vector
+        full_b_vector = self.b_vector_from_old(full_bs_across_heaves[heaving_region]) # match the m0
+        full_c_vector = full_cs_across_heaves[heaving_region]
+        particular_contribution = self.int_phi_p_i(heaving_region)
+        out_for_heave = {}
+        for region in range(self.boundary_count + 1):
+          if region == self.boundary_count:
+            all_b_vectors = self.e_varied_b_vectors(full_b_vector, nmk_max)
+          else:
+            all_b_vectors = self.get_b_vectors(full_b_vector, nmk_max, region)
+          all_c_vectors = all_cs_across_heaves[heaving_region][region]
+          am_lst, dp_lst = [], []
+          for nmk in range(1, nmk_max + 1):
+            x = self.get_unknown_coeffs(all_a_matrices_across_regions[region][nmk - 1], all_b_vectors[nmk - 1])
+            sub_x = x[:-nmk] if region == self.boundary_count else x[:-self.NMK[-1]]
+            raw_hydro = 2 * np.pi * (np.dot(all_c_vectors[nmk - 1], sub_x) + particular_contribution)
+            # follow the capytaine convention
+            am_lst.append(raw_hydro.real * self.rho) # added mass
+            dp_lst.append(raw_hydro.imag * omega * self.rho) # damping
+          out_for_region = {"ams" : am_lst,
+                            "dps" : dp_lst}
+          out_for_heave[region] = out_for_region
+        x = self.get_unknown_coeffs(full_a_matrix, full_b_vector)
+        am, dp = self.hydro_coeffs(x, "capytaine")
+        out_for_heave["am"], out_for_heave["dp"] = am, dp
+        out_for_m0[heaving_region] = out_for_heave
+      output[m0] = out_for_m0
+    return output
+
 ###################################
 # Data processing functions
 
