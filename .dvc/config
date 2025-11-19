@@ -2,5 +2,5 @@
     remote = calkit
     autostage = true
 ['remote "calkit"']
-    url = https://api.calkit.io/projects/symbiotic-engineering/OpenFLASH/dvc
+    url = https://api.calkit.io/projects/symbiotic-engineering/openflash/dvc
     auth = custom
