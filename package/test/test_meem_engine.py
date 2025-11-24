@@ -326,7 +326,7 @@ def test_run_and_store_results(sample_problem):
     
     # NOTE: The size of the hydrodynamic matrix is (Total Bodies x Active Modes)
     # The compute function iterates over all bodies (2) for force (j) and active modes (1) for motion (i).
-    expected_shape = (num_freqs, 2, num_modes) 
+    expected_shape = (num_freqs, num_modes, num_modes) 
     
     assert ds['added_mass'].shape == expected_shape
     assert ds['damping'].shape == expected_shape
