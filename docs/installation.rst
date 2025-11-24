@@ -114,7 +114,7 @@ To quickly verify that your installation was successful and core dependencies ar
 
 Troubleshooting
 ---------------
-* **`Command 'python3' not found` or similar errors**: Ensure Python is correctly installed and added to your system's PATH. On some systems, `python` might refer to Python 2, and `python3` to Python 3.
-* **`pip install -r requirements.txt` fails**:
+* ``Command python3 not found`` or similar errors: Ensure Python is correctly installed and added to your system's PATH. On some systems, ``python`` might refer to Python 2, and ``python3`` to Python 3.
+* ``pip install -r requirements.txt`` fails:
     * Check your internet connection.
-    * For specific compilation errors related to scientific packages (e.g., `scipy`), you may need to install system-level build tools (like `build-essential` on Linux or Xcode Command Line Tools on macOS) or refer to the official documentation of the problematic package.
+    * For specific compilation errors related to scientific packages (e.g., ``scipy``), you may need to install system-level build tools (like ``build-essential`` on Linux or Xcode Command Line Tools on macOS) or refer to the official documentation of the problematic package.
