@@ -144,13 +144,14 @@ def test_make_fluid_domains_param(a, d, NMK):
          np.array([1.0, 2.0, 3.0]),
          [2, 3, 4, 5],
          [0, 1, 1],
-         [False, True],
+         [False, True], # One heaving body
          2),
+        # FIXED: Changed heaving_map to have only one True to comply with the new assertion
         (np.array([0.5, 1.5, 3.0, 4.0]),
          np.array([0.5, 1.5, 2.5, 3.5]),
          [1, 2, 3, 4, 5],
          [0, 1, 2, 2],
-         [True, True, True],
+         [True, False, False], # Changed from [True, True, True] to valid one heaving body
          3)
     ]
 )
@@ -168,6 +169,20 @@ def test_from_vectors_body_and_heaving(a, d, NMK, body_map, heaving_map, expecte
 
     combined_radii = np.concatenate([b.a for b in geom.body_arrangement.bodies])
     np.testing.assert_array_equal(combined_radii, a)
+
+# ------------------------------
+# NEW TEST: Invalid heaving map (more than one heaving body)
+# ------------------------------
+def test_from_vectors_invalid_heaving_count():
+    a = np.array([1.0, 2.0, 3.0])
+    d = np.array([1.0, 2.0, 3.0])
+    NMK = [5, 5, 5, 5]
+    body_map = [0, 1, 2] # 3 separate bodies
+    heaving_map_bad = [True, True, False] # Two heaving bodies (violates rule)
+    
+    with pytest.raises(AssertionError, match="Only 0 or 1 body can be marked as heaving"):
+        BasicRegionGeometry.from_vectors(a, d, h=10.0, NMK=NMK,
+                                         body_map=body_map, heaving_map=heaving_map_bad)
 
 # ------------------------------
 # Edge-case tests (near-zero positive radius, single-element, large NMK)
@@ -217,8 +232,12 @@ def test_randomized_stress_valid(seed):
     # Choose a random number of bodies that partitions segments into contiguous blocks
     num_bodies = np.random.randint(1, num_segments + 1)
     body_map = contiguous_body_map(num_segments, num_bodies)
-    heaving_map = np.random.choice([True, False], size=num_bodies).tolist()
-
+    
+    # Ensure only 0 or 1 body is heaving
+    heaving_map = [False] * num_bodies
+    if num_bodies > 0 and np.random.rand() < 0.5: # 50% chance to set one body to heaving
+        heaving_map[np.random.randint(0, num_bodies)] = True
+    
     geom = BasicRegionGeometry.from_vectors(a, d, h=10.0, NMK=NMK,
                                             body_map=body_map, heaving_map=heaving_map)
     domains = geom.make_fluid_domains()
@@ -294,7 +313,11 @@ def test_randomized_extreme_nmk(seed):
     # Use contiguous body_map to preserve monotonicity
     num_bodies = np.random.randint(1, num_segments + 1)
     body_map = contiguous_body_map(num_segments, num_bodies)
-    heaving_map = np.random.choice([True, False], size=num_bodies).tolist()
+    
+    # Ensure only 0 or 1 body is heaving
+    heaving_map = [False] * num_bodies
+    if num_bodies > 0 and np.random.rand() < 0.5:
+        heaving_map[np.random.randint(0, num_bodies)] = True
 
     geom = BasicRegionGeometry.from_vectors(a, d, h=10.0, NMK=NMK,
                                             body_map=body_map, heaving_map=heaving_map)
