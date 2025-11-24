@@ -49,6 +49,13 @@ jobs:
         run: |
           cp docs/_static/app_streamlit.html docs/_build/html/
 
+      # Add _headers for Stlite Cross-Origin Isolation ---
+      - name: Add Cross-Origin Headers for Stlite
+        run: |
+          echo "/*" > docs/_build/html/_headers
+          echo "  Cross-Origin-Opener-Policy: same-origin" >> docs/_build/html/_headers
+          echo "  Cross-Origin-Embedder-Policy: require-corp" >> docs/_build/html/_headers
+
       # Create ZIP Artifact for Download
       - name: Compress Docs to ZIP
         run: zip -r docs-preview.zip docs/_build/html
