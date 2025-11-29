@@ -103,11 +103,11 @@ class MEEMEngine:
         b_template = np.zeros(size, dtype=complex)
 
         # 2. Pre-compute m0-INDEPENDENT values
-        I_nm_vals_precomputed = np.zeros((max(NMK), max(NMK), boundary_count - 1), dtype=complex)
+        I_nm_vals_precomputed = [np.zeros((NMK[bd], NMK[bd+1]), dtype = complex) for bd in range(boundary_count - 1)]
         for bd in range(boundary_count - 1):
             for n in range(NMK[bd]):
                 for m in range(NMK[bd + 1]):
-                    I_nm_vals_precomputed[n, m, bd] = I_nm(n, m, bd, d, h)
+                    I_nm_vals_precomputed[bd][n, m] = I_nm(n, m, bd, d, h)
         cache._set_I_nm_vals(I_nm_vals_precomputed)
 
         R_1n_func = np.vectorize(partial(R_1n, h=h, d=d, a=a))
