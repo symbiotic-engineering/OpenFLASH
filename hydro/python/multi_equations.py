@@ -40,41 +40,31 @@ def m_k_entry(k):
     elif m0 == inf:
         return ((k - 1/2) * pi)/h
 
-    m_k_h_err = (
-        lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
-    )
+    m_k_h_err = (lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h)))
     k_idx = k
 
-    # # original version of bounds in python
-    m_k_h_lower = pi * (k_idx - 1/2) + np.finfo(float).eps
-    m_k_h_upper = pi * k_idx - np.finfo(float).eps
-    # x_0 =  (m_k_upper - m_k_lower) / 2
-    
-    # becca's version of bounds from MDOcean Matlab code
-    m_k_h_lower = pi * (k_idx - 1/2) + (pi/180)* np.finfo(float).eps * (2**(np.floor(np.log(180*(k_idx- 1/2)) / np.log(2))) + 1)
-    m_k_h_upper = pi * k_idx
+    m_k_h_lower = np.nextafter(pi * (k_idx - 1/2), np.inf)
+    m_k_h_upper = np.nextafter(pi * k_idx, np.inf)
+    m_k_initial_guess =  (m_k_h_upper + m_k_h_lower) / 2
 
-    m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
-    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
-    # result = minimize_scalar(
-        # m_k_h_err, bounds=(m_k_h_lower, m_k_h_upper), method="bounded"
-    # )
-
+    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="brentq", bracket=[m_k_h_lower, m_k_h_upper])
     m_k_val = result.root / h
-
-    shouldnt_be_int = np.round(m0 * m_k_val / np.pi - 0.5, 4)
-    # not_repeated = np.unique(m_k_val) == m_k_val
-    assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int))
-
-        # m_k_mat[freq_idx, :] = m_k_vec
     return m_k_val
 
 # create an array of m_k values for each k to avoid recomputation
 m_k = (np.vectorize(m_k_entry, otypes = [float]))(list(range(NMK[-1])))
 
-def m_k_newton(h):
-    res = newton(lambda k: k * np.tanh(k * h) - m0**2 / 9.8, x0=1.0, tol=10 ** (-10))
-    return res
+#############################################
+# Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
+# (Scaling factor for e-region eigenfunctions)
+def N_k_entry(k):
+    if m0 == inf: return 1/2
+    elif k == 0:
+        return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
+    else:
+        return 1 / 2 * (1 + sin(2 * m_k[k] * h) / (2 * m_k[k] * h))
+
+N_k = (np.vectorize(N_k_entry, otypes = [float]))(list(range(NMK[-1])))  
 
 #############################################
 # vertical eigenvector coupling computation
@@ -108,15 +98,15 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
     if m == 0 and k == 0:
         if m0 == inf: return 0
         elif m0 * h < LARGE_M0H:
-            return (1/sqrt(N_k(0))) * sinh(m0 * (h - dj)) / m0
+            return (1/sqrt(N_k[0])) * sinh(m0 * (h - dj)) / m0
         else: # high m0h approximation
             return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
     if m == 0 and k >= 1:
-        return (1/sqrt(N_k(k))) * sin(m_k[k] * (h - dj)) / m_k[k]
+        return (1/sqrt(N_k[k])) * sin(m_k[k] * (h - dj)) / m_k[k]
     if m >= 1 and k == 0:
         if m0 == inf: return 0
         elif m0 * h < LARGE_M0H:
-            num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0))) * m0 * sinh(m0 * (h - dj))
+            num = (-1)**m * sqrt(2) * (1/sqrt(N_k[0])) * m0 * sinh(m0 * (h - dj))
         else: # high m0h approximation
             num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
         denom = (m0**2 + lambda_ni(m, i) **2)
@@ -124,11 +114,11 @@ def I_mk(m, k, i): # coupling integral for i and e-type regions
     else:
         lambda1 = lambda_ni(m, i)
         if abs(m_k[k]) == lambda1:
-            return sqrt(2/N_k(k)) * (h - dj)/2
+            return sqrt(2/N_k[k]) * (h - dj)/2
         else:
             frac1 = sin((m_k[k] + lambda1)*(h-dj))/(m_k[k] + lambda1)
             frac2 = sin((m_k[k] - lambda1)*(h-dj))/(m_k[k] - lambda1)
-            return sqrt(2/N_k(k)) * (frac1 + frac2)/2
+            return sqrt(2/N_k[k]) * (frac1 + frac2)/2
             
 #############################################
 # b-vector computation
@@ -171,11 +161,11 @@ def b_velocity_end_entry(k, i): # between i and e-type regions
     if k == 0:
         if m0 == inf: return 0
         elif m0 * h < LARGE_M0H:
-            return constant * (1/sqrt(N_k(0))) * sinh(m0 * (h - d[i])) / m0
+            return constant * (1/sqrt(N_k[0])) * sinh(m0 * (h - d[i])) / m0
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
     else:
-        return constant * (1/sqrt(N_k(k))) * sin(m_k[k] * (h - d[i])) / m_k[k]
+        return constant * (1/sqrt(N_k[k])) * sin(m_k[k] * (h - d[i])) / m_k[k]
 
 #############################################
 # Phi particular and partial derivatives
@@ -283,38 +273,27 @@ def diff_Lambda_k(k, r):
         denominator = besselke(0, m_k[k] * scale[-1])
         return numerator / denominator * exp(m_k[k] * (scale[-1] - r))
 
-
-#############################################
-# Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
-def N_k(k):
-    if m0 == inf: return 1/2
-    elif k == 0:
-        return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
-    else:
-        return 1 / 2 * (1 + sin(2 * m_k[k] * h) / (2 * m_k[k] * h))
-
-
 #############################################
 # e-region vertical eigenfunctions
 def Z_k_e(k, z):
     if k == 0:
         if m0 == inf: return 0
         elif m0 * h < LARGE_M0H:
-            return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
+            return 1 / sqrt(N_k[k]) * cosh(m0 * (z + h))
         else: # high m0h approximation
             return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
     else:
-        return 1 / sqrt(N_k(k)) * cos(m_k[k] * (z + h))
+        return 1 / sqrt(N_k[k]) * cos(m_k[k] * (z + h))
 
 def diff_Z_k_e(k, z):
     if k == 0:
         if m0 == inf: return 0
         elif m0 * h < LARGE_M0H:
-            return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
+            return 1 / sqrt(N_k[k]) * m0 * sinh(m0 * (z + h))
         else: # high m0h approximation
             return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
     else:
-        return -1 / sqrt(N_k(k)) * m_k[k] * sin(m_k[k] * (z + h))
+        return -1 / sqrt(N_k[k]) * m_k[k] * sin(m_k[k] * (z + h))
 
 #############################################
 # To calculate hydrocoefficients
