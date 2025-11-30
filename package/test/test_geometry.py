@@ -19,26 +19,42 @@ def simple_stepped_body():
     a = np.array([1.0, 2.0])
     d = np.array([0.5, 1.0])
     slant = np.array([0.0, 0.1])
-    return SteppedBody(a, d, slant, heaving=True)
+    # Set to False to ensure other tests don't fail by default
+    return SteppedBody(a, d, slant, heaving=False)
 
 @pytest.fixture
 def concentric_group(simple_stepped_body):
+    # This group only has one body, so it's valid
     return ConcentricBodyGroup([simple_stepped_body])
 
 # -------------------------
 # ConcentricBodyGroup tests
 # -------------------------
 def test_concatenated_properties(concentric_group):
+    # This test uses the simple_stepped_body fixture which is heaving=False
     body = concentric_group.bodies[0]
     np.testing.assert_array_equal(concentric_group.a, body.a)
     np.testing.assert_array_equal(concentric_group.d, body.d)
     np.testing.assert_array_equal(concentric_group.slant_angle, body.slant_angle)
-    np.testing.assert_array_equal(concentric_group.heaving, np.array([True, True]))
+    # Since fixture is heaving=False, heaving array should be all False
+    np.testing.assert_array_equal(concentric_group.heaving, np.array([False, False]))
 
 def test_invalid_body_type():
     with pytest.raises(TypeError):
+        # CoordinateBody is not currently supported by ConcentricBodyGroup
         ConcentricBodyGroup([CoordinateBody(np.array([0,1]), np.array([0,1]))])
 
+# -------------------------
+# NEW TEST: Invalid heaving count
+# -------------------------
+def test_invalid_heaving_count_init():
+    body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
+    body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=True)
+    
+    # This must raise an AssertionError because two bodies are heaving
+    with pytest.raises(AssertionError, match="Only 0 or 1 body can be marked as heaving"):
+        ConcentricBodyGroup([body1, body2])
+        
 # -------------------------
 # Geometry abstract tests
 # -------------------------
@@ -92,7 +108,8 @@ def test_fluid_domain_properties(dummy_geometry, simple_stepped_body):
     for i, domain in enumerate(domains[:-1]):
         assert domain.a_outer == simple_stepped_body.a[i]
         assert domain.d_lower == simple_stepped_body.d[i]
-        assert domain.heaving == simple_stepped_body.heaving
+        # Fixture is heaving=False, so this should be False
+        assert domain.heaving == False
         assert isinstance(domain.slant, bool)
     # Check exterior domain
     ext = domains[-1]
@@ -100,7 +117,7 @@ def test_fluid_domain_properties(dummy_geometry, simple_stepped_body):
     assert ext.a_outer == np.inf
 
 # -------------------------
-# Randomized stress test (fixed)
+# Randomized stress test (fixed to comply with new heaving rule)
 # -------------------------
 def test_randomized_multiple_bodies():
     np.random.seed(42)
@@ -108,13 +125,20 @@ def test_randomized_multiple_bodies():
     bodies = []
     last_max_r = 0.0  # Keep track of last outer radius
 
-    for _ in range(num_bodies):
+    # Randomly select which body (0 to num_bodies-1) will be heaving
+    # -1 means none are heaving
+    heaving_index = np.random.choice(np.arange(num_bodies), size=1, replace=False)[0]
+    
+    for i in range(num_bodies):
         steps = np.random.randint(1, 5)
         # Generate increasing radii relative to last_max_r
         a = np.sort(np.random.rand(steps) * 10 + last_max_r + 0.1)  # shift to avoid overlap
         d = np.random.rand(steps) * 5
         slant = np.random.rand(steps) * 0.5
-        heaving = np.random.choice([True, False])
+        
+        # Only the selected index is True
+        heaving = (i == heaving_index)
+        
         bodies.append(SteppedBody(a, d, slant, heaving))
         last_max_r = a[-1]  # update last_max_r for next body
 
