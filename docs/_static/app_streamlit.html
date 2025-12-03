@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Stlite app</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.89.1/build/stlite.css" />
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="module">
+        import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.89.1/build/stlite.js"
+        mount(
+            {
+                requirements: ["matplotlib", "https://files.pythonhosted.org/packages/1d/20/e2d124f22516b2da7a4cd06ea83cb6e72f1cb04c9ff44a458bad8551ca20/open_flash-1.0.6-py3-none-any.whl", "xarray"],
+                entrypoint: "streamlit_app.py",
+                files: {
+                    "streamlit_app.py": `
+                    # app.py
+
+import streamlit as st
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# --- Import core MEEM modules ---
+try:
+    from openflash import *
+    from openflash.multi_equations import m_k_newton, wavenumber # Needed to convert omega to m0
+except ImportError as e:
+    st.error(f"Error importing core modules from openflash. Error: {e}")
+    st.stop()
+
+# Set print options for better visibility in console
+np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
+
+def main():
+    st.title("OpenFLASH: MEEM Multi-Cylinder Simulation")
+    st.sidebar.header("Configuration Parameters")
+
+    # --- User Inputs for Parameters ---
+    h = st.sidebar.slider("Water Depth (h)", 0.5, 5.0, 1.001, step=0.001)
+    
+    d_input = st.sidebar.text_input("Body Step Depths (d) - comma-separated", "0.5,0.25")
+    a_input = st.sidebar.text_input("Body Radii (a) - comma-separated", "0.5,1.0")
+    heaving_input = st.sidebar.text_input("Heaving Bodies (1=True/0=False) - one per body", "1,0")
+    NMK_input = st.sidebar.text_input("Harmonics (NMK) - one per domain", "30,30,30")
+    
+    # --- UI for Single Point Test ---
+    st.sidebar.subheader("Single Frequency Test")
+    omega_single = st.sidebar.number_input("Angular Frequency (omega)", value=2.0, format="%.3f")
+    spatial_res = st.sidebar.slider("Plot Spatial Resolution", min_value=20, max_value=150, value=75, step=5)
+
+    # --- UI for Frequency Sweep ---
+    st.sidebar.subheader("Frequency Sweep for Coefficients")
+    omega_start = st.sidebar.number_input("Start Omega", value=0.1, format="%.3f")
+    omega_end = st.sidebar.number_input("End Omega", value=4.0, format="%.3f")
+    omega_steps = st.sidebar.slider("Number of Steps", min_value=10, max_value=200, value=50)
+
+
+    # --- Parse and Validate Inputs ---
+    try:
+        d_list = np.array(list(map(float, d_input.split(','))))
+        a_list = np.array(list(map(float, a_input.split(','))))
+        heaving_list = np.array(list(map(bool, heaving_input.split(','))))
+        NMK = list(map(int, NMK_input.split(',')))
+        
+        # Validation
+        if not (len(d_list) == len(a_list) == len(heaving_list)):
+            st.error("The number of depths, radii, and heaving flags must be the same (one for each body).")
+            st.stop()
+        if len(NMK) != len(a_list) + 1:
+            st.error("The number of NMK values must be one greater than the number of bodies (one for each domain).")
+            st.stop()
+    except ValueError:
+        st.error("Invalid input format. Please use comma-separated numbers.")
+        st.stop()
+
+    # --- Modern, Object-Oriented Geometry and Problem Setup ---
+    try:
+        # 1. Create Body objects
+        bodies = [
+            SteppedBody(a=np.array([a_val]), d=np.array([d_val]), slant_angle=np.array([0.0]), heaving=h_flag)
+            for a_val, d_val, h_flag in zip(a_list, d_list, heaving_list)
+        ]
+        # 2. Create Arrangement and Geometry
+        arrangement = ConcentricBodyGroup(bodies)
+        geometry = BasicRegionGeometry(arrangement, h=h, NMK=NMK)
+        # 3. Create the Problem
+        problem = MEEMProblem(geometry)
+        
+    except Exception as e:
+        st.error(f"Error during geometry setup: {e}")
+        st.stop()
+    
+    # --- Main Action Buttons ---
+    st.header("Run Analysis")
+    col1, col2 = st.columns(2)
+
+    if col1.button("Run Single Test & Plot Potentials"):
+        st.info(f"Running simulation for single omega = {omega_single:.2f}")
+        # --- Convert single omega to m0 ---
+        m0_single = wavenumber(omega_single, h)
+        problem_modes = np.where(heaving_list)[0]
+        problem.set_frequencies(np.array([omega_single]))
+        
+        # --- MEEM Engine Operations ---
+        engine = MEEMEngine(problem_list=[problem])
+        X = engine.solve_linear_system_multi(problem, m0_single)
+        
+        # Display Hydrodynamic Coefficients for the single run
+        st.subheader("Hydrodynamic Coefficients (Single Run)")
+        hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0_single)
+        if hydro_coefficients:
+            df_coeffs = pd.DataFrame(hydro_coefficients)
+            st.dataframe(df_coeffs[['mode', 'real', 'imag']])
+        else:
+            st.warning("Could not calculate hydrodynamic coefficients.")
+
+        # --- Visualize Potentials ---
+        st.subheader("Potential Field Plots")
+        potentials = engine.calculate_potentials(problem, X, m0_single, spatial_res, sharp=True)
+        R, Z, phi = potentials["R"], potentials["Z"], potentials["phi"]
+        
+        fig1, _ = engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
+        st.pyplot(fig1)
+
+        fig2, _ = engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
+        st.pyplot(fig2)
+        
+        st.success("Single frequency test complete.")
+        
+    # --- REVERTED "Run Frequency Sweep" BLOCK ---
+    if col2.button("Run Frequency Sweep & Plot Coefficients"):
+        st.info(f"Running frequency sweep for {omega_steps} steps...")
+        
+        omegas_to_run = np.linspace(omega_start, omega_end, omega_steps)
+        problem_modes = np.where(heaving_list)[0]
+        
+        # Set the frequencies and modes on the main problem object
+        problem.set_frequencies(omegas_to_run)
+        
+        # Create the engine ONCE with the main problem
+        engine = MEEMEngine(problem_list=[problem])
+        
+        with st.spinner("Running simulation..."):
+            # This single call now works correctly
+            results_obj = engine.run_and_store_results(problem_index=0)
+        st.success("Frequency sweep complete.")
+        
+        # Extract the dataset and convert to a DataFrame for plotting
+        dataset = results_obj.get_results()
+        df_results = dataset[['added_mass', 'damping']].to_dataframe().reset_index()
+
+        # --- START: FIX FOR DataFrame KeyError ---
+        # This fix is still needed to rename columns for plotting
+        data_cols = ['added_mass', 'damping', 'frequency']
+        dim_cols = [col for col in df_results.columns if col not in data_cols]
+        
+        # 2. Rename the identified dimension columns
+        if len(dim_cols) == 2:
+            rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
+            df_results = df_results.rename(columns=rename_map)
+        elif len(dim_cols) == 0 and len(problem_modes) > 0:
+             st.error("Error: Results data does not contain mode dimensions.")
+             st.stop()
+        elif len(dim_cols) != 0:
+            st.warning(f"Unexpected number of mode dimensions ({len(dim_cols)}). Using first two.")
+            rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
+            df_results = df_results.rename(columns=rename_map)
+        # --- END: FIX FOR KeyError ---
+
+        # --- Plotting Hydrodynamic Coefficients vs. Frequency ---
+        st.subheader("Hydrodynamic Coefficients vs. Frequency")
+        
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True)
+        
+        # This groupby should now work
+        for (mode_i, mode_j), group in df_results.groupby(['mode_i', 'mode_j']):
+            ax1.plot(group['frequency'], group['added_mass'], label=f'A({mode_i},{mode_j})')
+        ax1.set_title('Added Mass vs. Frequency')
+        ax1.set_ylabel('Added Mass')
+        ax1.legend()
+        ax1.grid(True, linestyle='--')
+
+        # This groupby should also now work
+        for (mode_i, mode_j), group in df_results.groupby(['mode_i', 'mode_j']):
+            ax2.plot(group['frequency'], group['damping'], label=f'B({mode_i},{mode_j})')
+        ax2.set_title('Damping vs. Frequency')
+        ax2.set_ylabel('Damping')
+        ax2.set_xlabel('Angular Frequency (omega)')
+        ax2.legend()
+        ax2.grid(True, linestyle='--')
+        
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+        with st.expander("View Raw Data"):
+            st.dataframe(df_results)
+    # --- END: REVERTED BLOCK ---
+
+if __name__ == "__main__":
+    # Wrap main execution in a try-catch to handle potential errors gracefully
+    try:
+        main()
+    except Exception as e:
+        st.error(f"An unexpected error occurred: {e}")`,
+                    "data/logo.png": Uu("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"),
+                    "pages/🎈_subpage.py": `import streamlit as st
+
+st.title("Sub page")
+
+st.markdown("""
+_Stlite_ supports **Multi Page Apps (MPA)**, of course!
+
+Create \`pages/*.py\` like this file to add new pages.
+
+If you are new to MPA, read the official tutorial about it [🔗 here](https://docs.streamlit.io/library/get-started/multipage-apps)
+""")
+`,
+
+                },
+            },
+            document.getElementById("root")
+        )
+
+        function Uu(n) { const a = window.atob(n), i = a.length, l = new Uint8Array(i); for (let u = 0; u < i; u++)l[u] = a.charCodeAt(u); return l }
+    </script>
+</body>
+<!-- Generated from Stlite Sharing (https://edit.share.stlite.net/), and the source version is 8413a8fdd17b840f2870bdb8f43e8781722266bf -->
+
+</html>

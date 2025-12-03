@@ -1,0 +1,97 @@
+name: PR Tagging and RC Tag Management
+
+# This workflow creates a tag for pull requests into the main branch.
+# The tag for open pull requests is of the form vX.Y.ZrcPRNUM
+# where X.Y.Z is the base version (which is incremented according to the PR title)
+# and PRNUM is the pull request number (to prevent conflicts for multiple PRs open at once).
+# By default the Z number is incremented, but if the PR title contains [major] or [minor],
+# the X or Y version numbers are incremented respectively.
+# The tag for merged pull requests is of the form vX.Y.Z with no additions.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+  packages: write
+  id-token: write
+
+jobs:
+  manage-pr-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute base version (bump patch/minor/major from PR title)
+        id: compute_base
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title || '' }}"
+          base=$(bash scripts/compute_base.sh "$PR_TITLE")
+          echo "base=$base" >> $GITHUB_OUTPUT
+
+      - name: Check if rc tag already exists and if so compute rc-dev tag
+        id: check_rc
+        run: |
+          rc_tag="${{ steps.compute_base.outputs.base }}rc${{ github.event.pull_request.number }}"
+          if git rev-parse "$rc_tag" >/dev/null 2>&1; then
+            devN=$(git rev-list --count $rc_tag..HEAD)
+            rc_dev_tag="${rc_tag}dev${devN}"
+          else
+            rc_dev_tag="${rc_tag}"
+          fi
+          echo "rc_dev_tag=${rc_dev_tag}" >> $GITHUB_OUTPUT
+
+      - name: Create rc tag
+        id: create_rc
+        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag:  "${{ steps.check_rc.outputs.rc_dev_tag }}"
+          message: "Release ${{ steps.check_rc.outputs.rc_dev_tag }}"
+          commit_sha: ${{ github.event.pull_request.head.sha }}
+
+      - name: Create final tag
+        if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.compute_base.outputs.base }}
+          message: "Release ${{ steps.compute_base.outputs.base }}"
+          commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Dispatch docs deploy and publish package workflows
+        if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == false }} == false
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+              const workflow_id_1 = 'deploy-docs.yml';
+              const workflow_id_2 = 'publish-package.yml';
+
+              let ref;
+              if (${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}) {
+                ref = '${{ github.ref_name }}';
+              }
+              else { 
+                ref = '${{ github.head_ref  || github.ref }}';
+              }
+
+              const resp  = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id: workflow_id_1, ref });
+              const resp2 = await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id: workflow_id_2, ref });
+              console.log('docs dispatch response', resp && resp.status ? resp.status : resp);
+              console.log('package dispatch response', resp2 && resp2.status ? resp2.status : resp2);
+            } catch (err) {
+              console.error('dispatch failed', err && err.status ? { status: err.status, message: err.message } : err);
+              throw err;
+            }

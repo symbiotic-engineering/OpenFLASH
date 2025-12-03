@@ -53,3 +53,8 @@ publications:
       push_paths:
         - figs
       last_sync_commit: 4644454bbe08107978c58c490eb04ad111a38196
+owner: symbiotic-engineering
+name: openflash
+title: OpenFLASH
+description:
+git_repo_url: https://github.com/symbiotic-engineering/OpenFLASH
