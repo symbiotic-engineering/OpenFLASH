@@ -12,30 +12,29 @@ stages:
     deps:
     - path: requirements.txt
       hash: md5
-      md5: b44da88fec1a5753cdaee521d7359ec9
-      size: 785
+      md5: cc46be4d0ecf84eb0737bc6dc0e78d20
+      size: 460
     outs:
     - path: .calkit/env-locks/jfm.txt
       hash: md5
-      md5: 266c6857bd99b4699959681da0b294b0
-      size: 881
+      md5: da2778aa10b978a61b883bae86c4a4d3
+      size: 3330
   generate-figs:
-    cmd: calkit xenv -n jfm --no-check -- python 
-      hydro/python/analysis/make_fig.py
+    cmd: calkit xenv -n jfm --no-check -- python dev/python/analysis/make_fig.py
     deps:
     - path: .calkit/env-locks/jfm.txt
       hash: md5
-      md5: 266c6857bd99b4699959681da0b294b0
-      size: 881
-    - path: hydro/python/analysis/make_fig.py
+      md5: da2778aa10b978a61b883bae86c4a4d3
+      size: 3330
+    - path: dev/python/analysis/make_fig.py
       hash: md5
       md5: 342457a14ecf071e569ed77bc9b70d5e
       size: 199
     - path: package/src/
       hash: md5
-      md5: 111844610c7f8bf4db568a6b0bfad3e7.dir
-      size: 250048
-      nfiles: 28
+      md5: 9307a8c4c975ac9077cea82c6a094a2b.dir
+      size: 241704
+      nfiles: 27
     outs:
     - path: pubs/JFM/figs/sample_plot.png
       hash: md5

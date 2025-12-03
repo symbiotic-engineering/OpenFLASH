@@ -22,9 +22,9 @@ stages:
       overwritten.
   generate-figs:
     cmd: calkit xenv -n jfm --no-check -- python 
-      hydro/python/analysis/make_fig.py
+      dev/python/analysis/make_fig.py
     deps:
-      - hydro/python/analysis/make_fig.py
+      - dev/python/analysis/make_fig.py
       - package/src/
       - .calkit/env-locks/jfm.txt
     outs:

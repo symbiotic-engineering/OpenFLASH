@@ -11,7 +11,7 @@ pipeline:
   stages:
     generate-figs:
       kind: python-script
-      script_path: hydro/python/analysis/make_fig.py
+      script_path: dev/python/analysis/make_fig.py
       environment: jfm
       inputs:
         - package/src/
