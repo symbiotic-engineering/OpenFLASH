@@ -1,0 +1,89 @@
+schema: '2.0'
+stages:
+  _check-env-tex:
+    cmd: calkit check environment --name tex
+    outs:
+    - path: .calkit/env-locks/tex.json
+      hash: md5
+      md5: cc3231187649b203a8f6c17aad4e5f6e
+      size: 1171
+  _check-env-jfm:
+    cmd: calkit check environment --name jfm
+    deps:
+    - path: requirements.txt
+      hash: md5
+      md5: b44da88fec1a5753cdaee521d7359ec9
+      size: 785
+    outs:
+    - path: .calkit/env-locks/jfm.txt
+      hash: md5
+      md5: 266c6857bd99b4699959681da0b294b0
+      size: 881
+  generate-figs:
+    cmd: calkit xenv -n jfm --no-check -- python 
+      hydro/python/analysis/make_fig.py
+    deps:
+    - path: .calkit/env-locks/jfm.txt
+      hash: md5
+      md5: 266c6857bd99b4699959681da0b294b0
+      size: 881
+    - path: hydro/python/analysis/make_fig.py
+      hash: md5
+      md5: 342457a14ecf071e569ed77bc9b70d5e
+      size: 199
+    - path: package/src/
+      hash: md5
+      md5: 111844610c7f8bf4db568a6b0bfad3e7.dir
+      size: 250048
+      nfiles: 28
+    outs:
+    - path: pubs/JFM/figs/sample_plot.png
+      hash: md5
+      md5: d974aa29cc09cc14918684f48873dda3
+      size: 25165
+  compile-overleaf:
+    cmd: calkit xenv -n tex --no-check -- latexmk -cd -norc 
+      -interaction=nonstopmode -silent -synctex=1 -pdf pubs/JFM/FLMguide.tex
+    deps:
+    - path: .calkit/env-locks/tex.json
+      hash: md5
+      md5: cc3231187649b203a8f6c17aad4e5f6e
+      size: 1171
+    - path: pubs/JFM/FLMguide.tex
+      hash: md5
+      md5: 8bcfe3b5f29aa6d4d79c9d93a0df74df
+      size: 86334
+    - path: pubs/JFM/FLMguide.tex
+      hash: md5
+      md5: 8bcfe3b5f29aa6d4d79c9d93a0df74df
+      size: 86334
+    - path: pubs/JFM/JFM-FLM_Au.cls
+      hash: md5
+      md5: 3c186eafc5523bfaca542e040d306b68
+      size: 77883
+    - path: pubs/JFM/figs/
+      hash: md5
+      md5: 404f55a2bb4f501b30e216fdf9fe0947.dir
+      size: 1088123
+      nfiles: 7
+    - path: pubs/JFM/jfm.bib
+      hash: md5
+      md5: 558bdf4dcddb02fd3ece72325544b804
+      size: 6831
+    - path: pubs/JFM/jfm.bst
+      hash: md5
+      md5: 4905f5a36c36e08bc982133b3dc1d7d2
+      size: 31797
+    - path: pubs/JFM/lineno-FLM.sty
+      hash: md5
+      md5: 99c3d5a9f0bdda44e752563df250e3ed
+      size: 3554
+    - path: pubs/JFM/zotero-meem-refs.bib
+      hash: md5
+      md5: 88c1d0a371266876eb0a74de7e1ffcd0
+      size: 30022
+    outs:
+    - path: pubs/JFM/FLMguide.pdf
+      hash: md5
+      md5: f834a107fae240dcc4ae66b4723ff64a
+      size: 326651

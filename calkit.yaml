@@ -6,16 +6,17 @@ environments:
   jfm:
     kind: uv-venv
     path: requirements.txt
+    prefix: .venv
 pipeline:
   stages:
     generate-figs:
       kind: python-script
-      script_path: hydro/python/analysis.py
+      script_path: hydro/python/analysis/make_fig.py
       environment: jfm
       inputs:
         - package/src/
       outputs:
-        - pubs/JFM/figs/
+        - pubs/JFM/figs/sample_plot.png
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex
