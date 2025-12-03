@@ -3,6 +3,33 @@ environments:
     kind: docker
     image: texlive/texlive:latest-full
     description: TeXlive via Docker.
+  jfm:
+    kind: uv-venv
+    path: requirements.txt
+pipeline:
+  stages:
+    generate-figs:
+      kind: python-script
+      script_path: hydro/python/analysis.py
+      environment: jfm
+      inputs:
+        - package/src/
+      outputs:
+        - pubs/JFM/figs/
+    compile-overleaf:
+      kind: latex
+      target_path: pubs/JFM/FLMguide.tex
+      environment: tex
+      inputs:
+        - pubs/JFM/FLMguide.tex
+        - pubs/JFM/figs/
+        - pubs/JFM/JFM-FLM_Au.cls
+        - pubs/JFM/jfm.bib
+        - pubs/JFM/jfm.bst
+        - pubs/JFM/lineno-FLM.sty
+        - pubs/JFM/zotero-meem-refs.bib
+      outputs:
+        - pubs/JFM/FLMguide.pdf
 publications:
   - path: pubs/JFM/FLMguide.pdf
     title: Numerics of the matched eigenfunction method for computing 
@@ -21,6 +48,7 @@ publications:
         - jfm.bst
         - lineno-FLM.sty
         - zotero-meem-refs.bib
+        - FLMguide.pdf
       push_paths:
         - figs
-      last_sync_commit: 586fb078d14acc9cd3a8c28ea7701cf84a7a8db4
+      last_sync_commit: 4644454bbe08107978c58c490eb04ad111a38196
