@@ -11,7 +11,7 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 
-\lefttitle{A.N. Jones, H.-C. Smith and J.Q. Long}
+\lefttitle{R. McCabe, K. Khanal, Y. Bimali, E. Lo, C. Treacy, and M. N. Haji}
 \righttitle{Journal of Fluid Mechanics}
 
 \title{Numerics of the matched eigen-function method for computing wave forces on concentric bodies}
@@ -22,9 +22,9 @@
 Kapil Khanal\aff{2},
 Yinghui Bimali\aff{3},
 En Lo\aff{4,5},
-Collin Treacy\aff{1},
+Collin Treacy\aff{6},
 \and 
-Maha Haji\aff{1,2}}
+Maha Haji\aff{6}}
 
 \affiliation{
 \aff{1}Sibley School of Mechanical and Aerospace Engineering, Cornell University, 124 Hoy Road, Ithaca, NY 14853, USA
@@ -32,6 +32,7 @@ Maha Haji\aff{1,2}}
 \aff{3} AEP cornell (todo)
 \aff{4} enviro eng cornell (todo)
 \aff{5} oxford (todo)
+\aff{6} meche Michigan (todo)
 }
 
 \corresau{Rebecca McCabe, \email{rgm222@cornell.edu}}
@@ -63,14 +64,44 @@ Authors should not enter keywords on the manuscript, as these must be chosen by 
 
 %{\bf MSC Codes }  {\it(Optional)} Please enter your MSC Codes here
 
-\section{Introduction}
+\section{Introduction (\textcolor{teal}{Becca})}
 \label{sec:Introduction}
-\begin{itemize}
-    \item Literature review. Written by \textcolor{teal}{Becca}.
-    \item Brief introduction of each section of the paper. Written by \textcolor{teal}{Becca}.
-\end{itemize}
+% this is the UMERC abstract copy-pasted
+% Floating body hydrodynamics are typically solved numerically using the boundary element method.
+% The associated code is computationally costly, scaling with the number of mesh panels, and can have accuracy issues at specific frequencies and for thin bodies.
+% In this work, we instead implement a previously-developed matched eigenfunction expansion method to semi-analytically solve the linear potential flow radiation problem for axisymmetric bodies.
+% This method first establishes distinct fluid regions based on the body geometry and expresses the velocity potential as a function of vertical and radial basis functions (eigenfunctions) with unknown coefficients.
+% Eigenfunctions are chosen to automatically enforce several boundary conditions of the problem.
+% The coefficients are found by truncating and solving an infinite linear system representing the matching of potential and radial velocity across fluid region boundaries.
+% This yields a solution for the 3D potential and the hydrodynamic coefficients.
+% We compare the results and computational complexity of the matched eigenfunction expansion method with that of the standard boundary element method.
+% Benefits of the former include 10x faster solve time and lack of meshing, which are particularly appealing in optimization workflows. 
+% Our framework is released as an open-source python package to enable future integration with design tools, implementation of gradients, and democratization of this efficient method.
+% This is a meaningful contribution because prior relevant implementations of the matched eigenfunction expansion method are, to the authors’ knowledge, private and not available open-source or even commercially.
+% Future work will extend this formulation to different kinds of bodies and arrays.
+% end UMERC abstract
+Linear potential flow theory is a simplification of the Navier-Stokes equations widely used to model wave-structure interactions.
+Early analytical solutions for the wave force on vertical cylindrical bodies under linear potential flow theory include Havelock's 1940? solution for infinite cylinders in infinite depth (cite), and McCamy and Fuchs' 1956? solution for bottom-mounted cylinders in finite depth (cite).
+Both take advantage of the separability of the Laplace equation in cylindrical coordinates.
+Fully analytical solutions are not available for truncated cylinders due to the impossibility of analytically enforcing continuity of potential between the water under the body and the water surrounding it.
 
-\section{Mathematical Formulation}
+In 1980, Yeung developed a semi-analytical method called the matched eigen-function expansion method (MEEM) to address this challenge (cite).
+The solution in each fluid region is obtained analytically in terms of unknown coefficients, and these coefficients are found by enforcing continuity of potential and radial velocity at the region boundaries.
+The method has been extended to cover axisymmetric geometries with multiple concentric cylinders (\cite{kokkinowrachos_behaviour_1986}), damping plates (\cite{olaya_hydrodynamic_2015}), two concentric cylinders (\cite{mavrakos_hydrodynamic_2004} and \cite{chau2012inertia}), three concentric cylinders (\cite{zhang_performance_2024}), and has recently been thoroughly covered in an analytical hydrodynamics textbook (\cite{chatzigeorgiou2018analytical}).
+
+Despite this interest from hydrodynamics researchers, MEEM has not been widely adopted by the offshore engineering community, likely due to the complexity of its implementation and the rise of boundary element method (BEM) software packages that are easier to use and applicable to arbitrary geometries, albeit more computationally costly.
+With the growing need for efficient hydrodynamic analysis tools in design optimization of offshore renewable energy, interest in MEEM has resurged, although the lack of an accessible computational implementation and the numerical properties thereof has been a barrier.
+
+We have implemented MEEM for concentric surface-piercing cylinders in an open-source python package called OpenFLASH (Flexible Library for Analytical and Semi-analytical Hydrodynamics).
+This paper serves to document the mathematical formulation, matrix representation, and numerical properties of the method, augmenting the authors' preliminary work \cite{mccabe_open-source_2024}.
+
+Section~\ref{sec:mathematical-formulation} covers the formulation, mainly unifying the aforementioned literature in a consistent notation, explaining the method for an audience unfamiliar with analytical hydrodynamics, clarifying the block matrix structure and asymptotic behavior for small and large frequencies, and discussing numerical subtleties needed to avoid overflow and finite precision effects.
+Section~\ref{sec:convergence} details the novel results of a convergence study and provides guidance on the number of terms required to achieve a desired accuracy for a given geometric configuration.
+Section~\ref{sec:slant} introduces a novel adjustment to the formulation to approximate conically slanted geometries.
+Section~\ref{sec:validation} compares the results of OpenFLASH to those of Capytaine, a widely-used BEM package, and section~\ref{sec:compute-time} benchmarks computational runtime and accuracy.
+We conclude in section~\ref{sec:conclusion} with a summary of findings and outlook on future work.
+
+\section{Mathematical Formulation}\label{sec:mathematical-formulation}
 \subsection{Linear Hydrodynamics and eigen-functions \textcolor{blue}{Collin}}
 
 The floating body dynamics problem of interest is finding the hydrodynamic forces on a series of $M$ heaving surface-piercing compound annular cylinders, as shown in Fig.~\ref{fig:Diagram}. The internal fluid regions underneath each cylindrical ring are denoted by $i_1$, $i_2$, ..., $i_M$. The external fluid region surrounding the body is denoted by $e$. The geometry of the $m$th internal region is defined in terms of the radius $a_m$ measured from the axis of symmetry and the draft $d_m$ measured from the mean free surface. The origin $O$ is located at the intersection of the axis of symmetry of the body and the mean free surface of the fluid. It is assumed that $a_{m+1}>a_m$ and $d_m<h$ for all $m$, where $h$ is the sea depth. 
@@ -476,7 +507,7 @@ where $\vec{f}_{pq}(t) = \mathrm{Re} \{ \vec{\hat{f}}_{pq} e^{- \text{i} \omega 
 \begin{equation}\label{eq:freq domain scalar rad force}
     \hat{f}_{pq} = \vec{\hat{f}}_{pq} \cdot \hat{e}_z = \text{i} \omega \rho \iint_{S_p} \ _{}^{q}\phi(r,z) \ (\hat{n}_p \cdot \hat{e}_z ) \  dS.
 \end{equation}
-Since $\hat{n}_p=\hat{e}_z$ at the horizontal portions of $S_p$ and $\hat{n}_p=\hat{e}_r$ at any vertical portions of $S_p$, integration on only the bottom surface of each region contributes to forces in heave. Note that this will not be the case in Sec.~\ref{sec:Slanted Geometries} when we use a finite number of cylindrical regions to approximate an axisymmetric body with a slanted surface that is not purely vertical or horizontal. Proceeding with integration along the bottom body boundaries, the total heave force on body $p$ will be due to integrating the potential on the bottom boundaries of all regions belonging to body $p$. We will define $\mathcal{M}_p$ as the set of all indices that correspond to regions which form the $p$th body. For example, if body 1 consists of regions $i_1$, $i_3$ and $i_4$, $\mathcal{M}_1 = \{1, 3, 4\}$. Eq.~\ref{eq:freq domain scalar rad force} can be written in terms of the potential at each region by
+Since $\hat{n}_p=\hat{e}_z$ at the horizontal portions of $S_p$ and $\hat{n}_p=\hat{e}_r$ at any vertical portions of $S_p$, integration on only the bottom surface of each region contributes to forces in heave. Note that this will not be the case in Sec.~\ref{sec:slant} when we use a finite number of cylindrical regions to approximate an axisymmetric body with a slanted surface that is not purely vertical or horizontal. Proceeding with integration along the bottom body boundaries, the total heave force on body $p$ will be due to integrating the potential on the bottom boundaries of all regions belonging to body $p$. We will define $\mathcal{M}_p$ as the set of all indices that correspond to regions which form the $p$th body. For example, if body 1 consists of regions $i_1$, $i_3$ and $i_4$, $\mathcal{M}_1 = \{1, 3, 4\}$. Eq.~\ref{eq:freq domain scalar rad force} can be written in terms of the potential at each region by
 \begin{equation}\label{eq:freq domain scalar rad force in terms of regions}
     \hat{f}_{pq} = \text{i} \omega \rho \sum_{m \in \mathcal{M}_p}\int_0^{2 \pi} \int_{a_m}^{a_{m+1}} \ _{}^{q}\phi^{i_m}(r,-d_m) \ r  \ dr\ d\theta
 \end{equation}
@@ -621,7 +652,7 @@ Lastly, damping and excitation phase approach zero as $\lambda_n^e$ approaches i
 \end{itemize}
 
 
-\section{Convergence of Hydrodynamic Coefficients}
+\section{Convergence of Hydrodynamic Coefficients}\label{sec:convergence}
 \subsection{Influential Parameters}
 \begin{itemize}
     \item For cylindrical geometries without slants, discuss what dimensionless parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The dimensionless parameters are $m_0h$, $d_i/h$, $(r_{i}-r_{i-1})/h$, where $i$ indicates the region number of a multi-region geometry. Written by \textcolor{orange}{Bimali}.
@@ -655,7 +686,7 @@ Especially in the case the outer neighboring region the, the impact of fluid hei
 
 
 
-\section{Slanted Geometries}\label{sec:Slanted Geometries}
+\section{Slanted Geometries}\label{sec:slant}
 \subsection{Corrections for Slanted Geometries}
 \begin{itemize}
     \item Discuss ways that the equations in the previous subsections can be modified to better approximate slanted regions. Written by \textcolor{orange}{Bimali}.
@@ -710,7 +741,7 @@ Especially in the case the outer neighboring region the, the impact of fluid hei
     \item Discuss these figures, and explain any errors. Written by \textcolor{orange}{Bimali}.
 \end{itemize}
 
-\section{Computation Time and Accuracy}
+\section{Computation Time and Accuracy}\label{sec:compute-time}
 \begin{itemize}
     \item Figure showing what takes the longest to compute. \textcolor{orange}{Bimali}.
     \item Discussion about reusing things to save computation time. \textcolor{orange}{Bimali}.
@@ -741,7 +772,7 @@ Time complexities for MEEM and BEM are ultimately both cubic (since both involve
 [TODO: MEEM is far better convergence figure (short height? longer spar? unless CPT is glitchy on this, check plots)]
 
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:conclusion}
 \begin{itemize}
     \item Summarize main findings and contributions of this work. Written by \textcolor{teal}{Becca}.
     \item Discuss areas of future work. Written by \textcolor{teal}{Becca}.
