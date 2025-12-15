@@ -181,7 +181,11 @@ def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # b
 
     constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
     if k == 0:
-        if m0 * h < M0_H_THRESH:
+        # --- FIX: Handle infinite m0 ---
+        if m0 == inf:
+            return 0.0
+        # -------------------------------
+        elif m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - d[i])) / m0 # Use N_k_arr[0]
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
@@ -192,7 +196,8 @@ def b_velocity_end_entry_full(k, i, heaving, a, h, d, m0, NMK): # between i and 
     local_m_k = m_k(NMK, m0, h)
     constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
     if k == 0:
-        if m0 * h < M0_H_THRESH:
+        if m0 == inf: return 0.0 # Fix here as well for completeness
+        elif m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_full(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
         else: # high m0h approximation
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
@@ -213,17 +218,24 @@ def diff_z_phi_p_i(d, z, h):
 
 #############################################
 # The "Bessel I" radial eigenfunction
+#############################################
+
 def R_1n(n, r, i, h, d, a):
     if n == 0:
-        return 0.5
+        if i == 0:
+            return 0.5 # Central cylinder: Constant is correct/sufficient
+        else:
+            # Annulus: Use Log anchored at OUTER radius
+            # 1.0 + 0.5 * log(r / outer_r)
+            return 1.0 + 0.5 * np.log(r / scale(a)[i])
     elif n >= 1:
-        if r == scale(a)[i]: # Saves bessel function eval
+        if r == scale(a)[i]: 
             return 1
         else:
             return besselie(0, lambda_ni(n, i, h, d) * r) / besselie(0, lambda_ni(n, i, h, d) * scale(a)[i]) * exp(lambda_ni(n, i, h, d) * (r - scale(a)[i]))
     else: 
         raise ValueError("Invalid value for n")
-    
+
 def R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized version of the R_1n radial eigenfunction.
@@ -244,39 +256,49 @@ def R_1n_vectorized(n, r, i, h, d, a):
         np.ndarray: The calculated values of the R_1n function for each input.
     """
     # --- Define the conditions for the nested logic ---
+    # Condition 1: The mode is n=0.
     cond_n_is_zero = (n == 0)
+    
+    # Condition 2: The radius 'r' is exactly at the boundary of the region.
+    # This is a special case to avoid unnecessary Bessel function calculations.
     cond_r_at_boundary = (r == scale(a)[i])
 
     # --- Define the outcomes for each condition ---
+    # Outcome 1: If n=0, the value is always 0.5.
     outcome_for_n_zero = 0.5
+    
+    # Outcome 2: If n>=1 and r is at the boundary, the value is 1.0.
     outcome_for_r_boundary = 1.0
     
-    # --- Outcome 3: The general case (NEEDS FIX) ---
+    # Outcome 3: The general case for n>=1 inside the boundary.
+    # `lambda_ni` is also vectorized to handle an array of 'n' values.
     lambda_val = lambda_ni(n, i, h, d)
-    
-    # --- APPLYING THE ROBUST FIX ---
-    denom = besselie(0, lambda_val * scale(a)[i])
-    numerator = besselie(0, lambda_val * r)
-    with np.errstate(divide='ignore', invalid='ignore'):
-        bessel_ratio = np.divide(numerator, denom, 
-                                 out=np.zeros_like(numerator), # Output 0.0 if denom is 0 or inf
-                                 where=np.isfinite(denom) & (denom != 0))
-    bessel_term = bessel_ratio * exp(lambda_val * (r - scale(a)[i]))
-    # --- END FIX ---
+    bessel_term = (besselie(0, lambda_val * r) / besselie(0, lambda_val * scale(a)[i])) * \
+                  exp(lambda_val * (r - scale(a)[i]))
 
+    # --- Apply the logic using nested np.where ---
+    # For all cases where n >= 1 (i.e., cond_n_is_zero is False), decide between
+    # the boundary value (1.0) and the full Bessel calculation.
     result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
     
+    # Finally, apply the top-level condition: if n is 0, return 0.5, otherwise
+    # return the result from the nested logic above.
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
 # Differentiate wrt r
 def diff_R_1n(n, r, i, h, d, a):
     if n == 0:
-        return 0
+        if i == 0:
+            return 0.0
+        else:
+            # Derivative of 1.0 + 0.5*ln(r/outer) is 1/(2r)
+            with np.errstate(divide='ignore'):
+                return np.where(r == 0, np.inf, 1 / (2 * r))
     else:
         top = lambda_ni(n, i, h, d) * besselie(1, lambda_ni(n, i, h, d) * r)
         bottom = besselie(0, lambda_ni(n, i, h, d) * scale(a)[i])
         return top / bottom * exp(lambda_ni(n, i, h, d) * (r - scale(a)[i]))
-    
+
 def diff_R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized derivative of the diff_R_1n radial function.
@@ -287,48 +309,61 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     # --- Calculation for when n > 0 ---
     lambda_val = lambda_ni(n, i, h, d)
     
+    # Use besselie with the order specified as the first argument
     numerator = lambda_val * besselie(1, lambda_val * r) 
     denominator = besselie(0, lambda_val * scale(a)[i])
     
-    # --- APPLYING THE ROBUST FIX ---
-    with np.errstate(divide='ignore', invalid='ignore'):
-        bessel_ratio = np.divide(numerator, denominator, 
-                                 out=np.zeros_like(numerator, dtype=float), 
-                                 where=np.isfinite(denominator) & (denominator != 0))
-    # --- END FIX ---
+    bessel_ratio = np.divide(numerator, denominator, 
+                             out=np.zeros_like(numerator, dtype=float), 
+                             where=(denominator != 0))
                              
     value_if_false = bessel_ratio * exp(lambda_val * (r - scale(a)[i]))
     
     return np.where(condition, value_if_true, value_if_false)
 
 #############################################
-# The "Bessel K" radial eigenfunction
+# The "Bessel K" radial eigenfunction (Annular Regions)
+# NORMALIZATION FIX: Anchored at Inner Radius (a[i-1]) + Affine Shift
+#############################################
+
 def R_2n(n, r, i, a, h, d):
     if i == 0:
-        raise ValueError("i cannot be 0")  # this shouldn't be called for i=0, innermost region.
+        raise ValueError("i cannot be 0") 
     elif n == 0:
-        return 0.5 * np.log(r / a[i])
+        # FIX: Shift basis to be 1.0 at inner radius to prevent singular matrix
+        # Old: 0.5 * log(r/inner) -> 0 at inner (Bad)
+        # New: 1.0 + 0.5 * log(r/inner) -> 1.0 at inner (Stable)
+        return 1.0 + 0.5 * np.log(r / a[i-1])
     else:
-        if r == scale(a)[i]:  # Saves bessel function eval
-            return 1
+        lambda_val = lambda_ni(n, i, h, d)
+        inner_r = a[i-1]
+        
+        if r == inner_r:
+            return 1.0
         else:
-            return besselke(0, lambda_ni(n, i, h, d) * r) / besselke(0, lambda_ni(n, i, h, d) * scale(a)[i]) * exp(lambda_ni(n, i, h, d) * (scale(a)[i] - r))
+            # Normalized by K0 at inner radius (Decaying, Stable)
+            num = besselke(0, lambda_val * r)
+            den = besselke(0, lambda_val * inner_r)
+            return (num / den) * exp(lambda_val * (inner_r - r))
 
 def R_2n_vectorized(n, r, i, a, h, d):
     """
     Vectorized version of the R_2n radial eigenfunction.
+
+    Calculates the radial component for the second type of basis function
+    in an intermediate region, handling array inputs for 'n' and 'r'.
     """
+    # This guard clause is fine, as 'i' is a scalar for the entire call.
     if i == 0:
         raise ValueError("R_2n function is not defined for the innermost region (i=0).")
 
+    # --- Define the conditions for vectorization ---
     cond_n_is_zero = (n == 0)
     cond_r_at_boundary = (r == scale(a)[i])
 
-    # Case 1: n = 0 (Safely handles log(0))
-    with np.errstate(divide='ignore'): 
-        ratio = r / a[i]
-        safe_log = np.where(ratio == 0, -np.inf, np.log(ratio))
-    outcome_for_n_zero = 0.5 * safe_log
+    # --- Define the outcome for each case ---
+    # Case 1: n = 0
+    outcome_for_n_zero = 0.5 * np.log(r / a[i])
 
     # Case 2: n > 0 and r is at the boundary
     outcome_for_r_boundary = 1.0
@@ -336,45 +371,39 @@ def R_2n_vectorized(n, r, i, a, h, d):
     # Case 3: n > 0 and r is not at the boundary (general case)
     lambda_val = lambda_ni(n, i, h, d)
     denom = besselke(0, lambda_val * scale(a)[i])
-    numerator = besselke(0, lambda_val * r)
+    denom = np.where(np.abs(denom) < 1e-12, np.nan, denom)  # or another threshold
 
-    # --- FINAL ROBUST FIX ---
-    # We must check that denom is both non-zero AND finite.
-    # An 'inf/inf' (which results in NaN) can happen if besselke(0,0) is called.
-    with np.errstate(divide='ignore', invalid='ignore'):
-        bessel_ratio = np.divide(numerator, denom, 
-                                 out=np.zeros_like(numerator), # Output 0.0 if denom is 0 or inf
-                                 where=np.isfinite(denom) & (denom != 0))
-    # --- END FIX ---
+    bessel_term = (besselke(0, lambda_val * r) / denom) * exp(lambda_val * (scale(a)[i] - r))
 
-    bessel_term = bessel_ratio * exp(lambda_val * (scale(a)[i] - r))
-
+    # --- Nest np.where to apply the logic element-wise ---
+    # First, handle the logic for when n > 0
     result_if_n_not_zero = np.where(cond_r_at_boundary,
                                   outcome_for_r_boundary,
                                   bessel_term)
 
+    # Now, use the top-level condition on 'n' to select the final result
     return np.where(cond_n_is_zero,
                     outcome_for_n_zero,
                     result_if_n_not_zero)
-# Differentiate wrt r
+
+# Differentiate wrt r (Unchanged, as d/dr(1.0) is 0)
 def diff_R_2n(n, r, i, h, d, a):
     if n == 0:
-        # --- FIX for potential divide by zero at r=0 ---
         with np.errstate(divide='ignore'):
             return np.where(r == 0, np.inf, 1 / (2 * r))
-        # --- END FIX ---
     else:
-        top = - lambda_ni(n, i, h, d) * besselke(1, lambda_ni(n, i, h, d) * r)
-        bottom = besselke(0, lambda_ni(n, i, h, d) * scale(a)[i])
-
-        # --- NEW, MORE ROBUST FIX ---
-        # Use np.divide to safely handle 0.0 / 0.0 cases
-        ratio = np.divide(top, bottom, 
-                          out=np.zeros_like(top), # Output 0.0 where bottom is 0
-                          where=(bottom != 0))
-        # --- END FIX ---
+        lambda_val = lambda_ni(n, i, h, d)
+        inner_r = a[i-1]
         
-        return ratio * exp(lambda_ni(n, i, h, d) * (scale(a)[i] - r))
+        top = -lambda_val * besselke(1, lambda_val * r)
+        bottom = besselke(0, lambda_val * inner_r)
+
+        with np.errstate(divide='ignore', invalid='ignore'):
+            ratio = np.divide(top, bottom, 
+                              out=np.zeros_like(top),
+                              where=(bottom != 0))
+        
+        return ratio * exp(lambda_val * (inner_r - r))
     
 def diff_R_2n_vectorized(n, r, i, h, d, a):
     """
@@ -384,30 +413,26 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
     r = np.asarray(r)
     
     # Case n == 0
-    # This is safe and produces `inf` at r=0, which is correct.
     value_if_true = np.divide(1, 2 * r, out=np.full_like(r, np.inf), where=(r != 0))
     
     # Case n > 0
-    lambda_val = lambda_ni(n, i, h, d)
-    scale_ai = scale(a)[i]
+    lambda_val = lambda_ni(n, i, h, d)  # ensure lambda_ni is vectorized
     
-    numerator = -lambda_val * besselke(1, lambda_val * r) # besselke(1,0) is -inf
-    denom = besselke(0, lambda_val * scale_ai)           # besselke(0,>0) is finite
+    # Calculate besselke(0, λni * scale(a)[i])
+    scale_ai = scale(a)[i]  # scalar
+    denom = besselke(0, lambda_val * scale_ai)
+    
+    # Avoid division by zero or extremely small denominators
+    safe_denom = np.where(np.abs(denom) < 1e-10, 1e-10, denom)
 
-    # --- APPLYING THE ROBUST FIX ---
-    # We must check that denom is both non-zero AND finite.
     with np.errstate(divide='ignore', invalid='ignore'):
-        ratio = np.divide(numerator, denom,
-                          out=np.zeros_like(numerator), # Output 0.0 if denom is 0 or inf
-                          where=np.isfinite(denom) & (denom != 0))
-    # --- END FIX ---
-
-    exp_term = exp(lambda_val * (scale_ai - r))
-    value_if_false = ratio * exp_term
+        numerator = -lambda_val * besselke(1, lambda_val * r)
+        ratio = numerator / safe_denom
+        exp_term = exp(lambda_val * (scale_ai - r))
+        value_if_false = ratio * exp_term
 
     # Combine using np.where
     return np.where(n == 0, value_if_true, value_if_false)
-
 #############################################
 # i-region vertical eigenfunctions
 def Z_n_i(n, z, i, h, d):
@@ -545,32 +570,34 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized derivative of the exterior region radial function Lambda_k.
     """
+    # Handle the scalar case where m0 is infinite. The result is always 1.
     if m0 == inf:
         return np.ones(np.broadcast(k, r).shape, dtype=float)
 
+    # --- Define the condition for vectorization ---
     condition = (k == 0)
 
-    # --- Outcome for k == 0 (NEEDS FIX) ---
+    # --- Define the outcome for k == 0 ---
     numerator_k_zero = -(m0 * besselh(1, m0 * r))
     denominator_k_zero = besselh(0, m0 * scale(a)[-1])
-    with np.errstate(divide='ignore', invalid='ignore'):
-        outcome_k_zero = np.divide(numerator_k_zero, denominator_k_zero,
-                                   out=np.zeros_like(numerator_k_zero, dtype=complex),
-                                   where=np.isfinite(denominator_k_zero) & (denominator_k_zero != 0))
+    outcome_k_zero = np.divide(numerator_k_zero, denominator_k_zero,
+                               out=np.zeros_like(numerator_k_zero, dtype=complex),
+                               where=(denominator_k_zero != 0))
 
-    # --- Outcome for k > 0 (NEEDS FIX) ---
+    # --- Define the outcome for k > 0 ---
+    # NumPy's advanced indexing allows m_k_arr[k] to create an array from indices.
     local_m_k_k = m_k_arr[k]
     numerator_k_nonzero = -(local_m_k_k * besselke(1, local_m_k_k * r))
     denominator_k_nonzero = besselke(0, local_m_k_k * scale(a)[-1])
     
-    with np.errstate(divide='ignore', invalid='ignore'):
-        ratio = np.divide(numerator_k_nonzero, denominator_k_nonzero,
-                          out=np.zeros_like(numerator_k_nonzero, dtype=float),
-                          where=np.isfinite(denominator_k_nonzero) & (denominator_k_nonzero != 0))
-    # --- END FIXES ---
+    # Use safe division to avoid warnings
+    ratio = np.divide(numerator_k_nonzero, denominator_k_nonzero,
+                      out=np.zeros_like(numerator_k_nonzero, dtype=float),
+                      where=(denominator_k_nonzero != 0))
                       
     outcome_k_nonzero = ratio * exp(local_m_k_k * (scale(a)[-1] - r))
 
+    # --- Use np.where to select the final output ---
     return np.where(condition, outcome_k_zero, outcome_k_nonzero)
 
 def diff_Lambda_k_full(k, r, m0, NMK, h, a):
@@ -589,9 +616,13 @@ def diff_Lambda_k_full(k, r, m0, NMK, h, a):
 # Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
 # REVISED N_k to accept m_k_arr (as it previously called m_k itself)
 
-def N_k_multi(k, m0, h, m_k_arr): # Added m_k_arr as optional argument
+def N_k_multi(k, m0, h, m_k_arr): 
     if m0 == inf: return 1/2
     elif k == 0:
+        # --- FIX: Prevent overflow for deep water ---
+        if (2 * m0 * h) > 700: 
+            return 1e308 
+        # ------------------------------------------
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
     else:
         return 1 / 2 * (1 + sin(2 * m_k_arr[k] * h) / (2 * m_k_arr[k] * h))
@@ -684,30 +715,75 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
 # To calculate hydrocoefficients
 
 #integrating R_1n * r
+# Integration
 def int_R_1n(i, n, a, h, d):
     if n == 0:
-        inner = (0 if i == 0 else a[i-1]) # central region has inner radius 0
-        return a[i]**2/4 - inner**2/4
+        if i == 0:
+            # Central cylinder: Integral of 0.5 * r
+            return a[i]**2/4 
+        else:
+            # Annulus: Integral of r * (1.0 + 0.5 * ln(r/outer_r))
+            outer_r = scale(a)[i]
+            inner_r = a[i-1]
+            
+            cyl_term = (outer_r**2 - inner_r**2) / 2.0
+            
+            def log_indefinite_int(r):
+                # Integral of 0.5 * r * ln(r/outer)
+                # = 0.5 * [ (r^2/2)*ln(r/outer) - r^2/4 ]
+                log_val = np.log(r/outer_r) if r > 0 else 0
+                return 0.5 * ((r**2 / 2.0) * log_val - (r**2 / 4.0))
+
+            val_outer = log_indefinite_int(outer_r) # log(1)=0, so just -r^2/4 term
+            val_inner = log_indefinite_int(inner_r)
+            
+            return cyl_term + (val_outer - val_inner)
     else:
+        # Standard Bessel I integral (Unchanged)
         lambda0 = lambda_ni(n, i, h, d)
         bottom = lambda0 * besselie(0, lambda0 * scale(a)[i])
         if i == 0: inner_term = 0
         else: inner_term = (a[i-1] * besselie(1, lambda0 * a[i-1]) / bottom) * exp(lambda0 * (a[i-1] - scale(a)[i]))
         outer_term = (a[i] * besselie(1, lambda0 * a[i]) / bottom) * exp(lambda0 * (a[i] - scale(a)[i]))
         return outer_term - inner_term
-
+    
 #integrating R_2n * r
+# Integral must be updated to include the volume of the new "1.0" cylinder
 def int_R_2n(i, n, a, h, d):
     if i == 0:
         raise ValueError("i cannot be 0")
+    
     lambda0 = lambda_ni(n, i, h, d)
+    outer_r = scale(a)[i]
+    inner_r = a[i-1]
+
     if n == 0:
-        return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
+        # Integral of r * (1.0 + 0.5 * ln(r/inner_r))
+        # 1. Cylinder part: Integral of r * 1.0 = (outer^2 - inner^2) / 2
+        # 2. Log part: Same as before
+        
+        cyl_term = (outer_r**2 - inner_r**2) / 2.0
+        
+        def log_indefinite_int(r):
+            log_term = np.log(r/inner_r) if r > 0 else 0
+            return 0.5 * ((r**2 / 2.0) * log_term - (r**2 / 4.0))
+
+        val_outer = log_indefinite_int(outer_r)
+        val_inner = log_indefinite_int(inner_r) 
+        
+        return cyl_term + (val_outer - val_inner)
+
     else:
-        outer_term = a[i] * besselke(1, lambda0 * a[i])
-        inner_term = a[i-1] * besselke(1, lambda0 * a[i-1])
-        bottom = - lambda0 * besselke(0, lambda0 * scale(a)[i])
-        return (outer_term / bottom) * exp(lambda0 * (scale(a)[i] - a[i])) - (inner_term/bottom)* exp(lambda0 * (scale(a)[i] - a[i-1]))
+        # Standard Bessel K integral (Unchanged from previous stable fix)
+        term_outer = outer_r * besselke(1, lambda0 * outer_r)
+        term_inner = inner_r * besselke(1, lambda0 * inner_r)
+        
+        denom = - lambda0 * besselke(0, lambda0 * inner_r)
+        
+        val_outer = (term_outer / denom) * exp(lambda0 * (inner_r - outer_r))
+        val_inner = (term_inner / denom) * 1.0
+        
+        return val_outer - val_inner
 
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
 def int_phi_p_i(i, h, d, a):
@@ -732,6 +808,11 @@ def excitation_phase(x, NMK, m0, a): # x-vector of unknown coefficients
     return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale[-1]))
 
 def excitation_force(damping, m0, h):
+    # --- FIX: Handle infinite m0 ---
+    if m0 == inf:
+        return 0.0
+    # -------------------------------
+
     # Chau 2012 eq 98
     const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
 

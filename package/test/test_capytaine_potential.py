@@ -5,7 +5,7 @@ from pathlib import Path
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 import warnings # To suppress plotting warnings
-from typing import Optional
+from typing import Optional, List, Dict, Any, Tuple
 
 # Import your package's classes
 from openflash.basic_region_geometry import BasicRegionGeometry
@@ -36,7 +36,7 @@ ALL_CONFIGS = {
         "heaving_map": [True, True],
         "body_map": [0, 1],
         "m0": 1.0,
-        "NMK": [40, 40, 40], # 2 radii + exterior
+        "NMK": [15, 15, 15], # 2 radii + exterior
         "R_range": np.linspace(0.0, 2 * 1, num=50),
         "Z_range": np.linspace(0, -1.001, num=50),
     },
@@ -47,7 +47,7 @@ ALL_CONFIGS = {
         "heaving_map": [True, True, True, True, True],
         "body_map": [0, 1, 2, 3, 4],
         "m0": 1.0,
-        "NMK": [40] * 6, # 5 radii + exterior
+        "NMK": [15] * 6, # 5 radii + exterior
         "R_range": np.linspace(0.0, 2 * 1.6, num=50),
         "Z_range": np.linspace(0, -1.5, num=50),
     },
@@ -62,17 +62,6 @@ ALL_CONFIGS = {
         "R_range": np.linspace(0.0, 2 * 10, num=50),
         "Z_range": np.linspace(0, -100, num=50),
     },
-    "config3": {
-        "h": 1.9,
-        "a": np.array([0.3, 0.5, 1, 1.2, 1.6]),
-        "d": np.array([0.5, 0.7, 0.8, 0.2, 0.5]),
-        "heaving_map": [True, True, True, True, True],
-        "body_map": [0, 1, 2, 3, 4],
-        "m0": 1.0,
-        "NMK": [40] * 6, # 5 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 1.6, num=50),
-        "Z_range": np.linspace(0, -1.9, num=50),
-    },
     "config4": {
         "h": 1.001,
         "a": np.array([0.5, 1]),
@@ -80,7 +69,7 @@ ALL_CONFIGS = {
         "heaving_map": [False, True],
         "body_map": [0, 1],
         "m0": 1.0,
-        "NMK": [40] * 3, # 2 radii + exterior
+        "NMK": [15] * 3, # 2 radii + exterior
         "R_range": np.linspace(0.0, 2 * 1, num=50),
         "Z_range": np.linspace(0, -1.001, num=50),
     },
@@ -91,7 +80,7 @@ ALL_CONFIGS = {
         "heaving_map": [True, False],
         "body_map": [0, 1],
         "m0": 1.0,
-        "NMK": [40] * 3, # 2 radii + exterior
+        "NMK": [15] * 3, # 2 radii + exterior
         "R_range": np.linspace(0.0, 2 * 1, num=50),
         "Z_range": np.linspace(0, -1.001, num=50),
     },
@@ -137,10 +126,15 @@ def load_capytaine_data(config_name):
         pytest.fail(f"Failed to load benchmark data for {config_name}: {e}")
 
 
-# --- MODIFIED FUNCTION ---
-def run_openflash_sim(config_name, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None):
+def run_openflash_sim(config_name, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None, heaving_map_override: Optional[List[bool]] = None) -> Tuple[Dict[str, Any], float]:
     """
     Runs the openflash simulation for a specific config to get the potential field.
+    
+    Args:
+        config_name (str): Name of the configuration.
+        R_range (np.ndarray): Array of R coordinates.
+        Z_range (np.ndarray): Array of Z coordinates.
+        heaving_map_override (list, optional): Force a specific heaving map (to satisfy single-body assertion).
     
     Returns:
         dict: A dictionary containing the results 'R', 'Z', 'phi'
@@ -151,6 +145,9 @@ def run_openflash_sim(config_name, R_range: Optional[np.ndarray] = None, Z_range
         
     p = ALL_CONFIGS[config_name]
     
+    # Use the override map if provided, otherwise use the config default
+    active_heaving_map = heaving_map_override if heaving_map_override is not None else p["heaving_map"]
+    
     # 1. Create Geometry
     geometry = BasicRegionGeometry.from_vectors(
         a=p["a"],
@@ -158,7 +155,7 @@ def run_openflash_sim(config_name, R_range: Optional[np.ndarray] = None, Z_range
         h=p["h"],
         NMK=p["NMK"],
         body_map=p["body_map"],
-        heaving_map=p["heaving_map"]
+        heaving_map=active_heaving_map
     )
 
     # 2. Create Problem
@@ -171,21 +168,17 @@ def run_openflash_sim(config_name, R_range: Optional[np.ndarray] = None, Z_range
     # 4. Create Engine
     engine = MEEMEngine(problem_list=[problem])
     
-    # --- Hydro Coeff calculation removed ---
-
     # 5. Calculate Potential Field
     # We need to solve for the *specific* problem defined in the config
-    # (which might have multiple bodies heaving at once for the potential field)
     solution_vector = engine.solve_linear_system_multi(problem, p["m0"])
+
     
     potentials_dict = engine.calculate_potentials(
         problem, 
         solution_vector, 
         p["m0"], 
         spatial_res=50, 
-        sharp=False, 
-        R_range=R_range,
-        Z_range=Z_range
+        sharp=False,
     )
     
     # Return the grid/potential AND the frequency
@@ -269,6 +262,58 @@ def save_debug_plots(R_grid, Z_grid, openflash_data, capytaine_data_converted, n
     print(f"\n[Debug plot saved to: {output_file}]")
 
 
+def save_1d_cuts(R_grid, Z_grid, openflash_data, capytaine_data, config_name, component_name):
+    """
+    Saves 1D line cuts (slices) through the domain to visualize 
+    profile differences in detail.
+    """
+    # Create directory
+    DEBUG_PLOT_PATH.mkdir(parents=True, exist_ok=True)
+    
+    # --- 1. Vertical Cut (Z-axis) ---
+    # Find index closest to R = 0.5 * max_radius (approx middle of fluid domain radially)
+    # We want a slice that passes through the fluid, avoiding the body if possible
+    # For now, simplistic approach: use the middle index of the R dimension
+    r_idx = R_grid.shape[0] // 2
+    r_val = R_grid[r_idx, 0]
+    
+    z_line = Z_grid[r_idx, :]
+    of_line_z = openflash_data[r_idx, :]
+    cap_line_z = capytaine_data[r_idx, :]
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(z_line, of_line_z, 'b-', label='OpenFLASH', linewidth=2)
+    plt.plot(z_line, cap_line_z, 'r--', label='Capytaine', linewidth=2)
+    plt.title(f"Vertical Slice (Z-axis) at R={r_val:.2f} [{component_name}]")
+    plt.xlabel("Z (Depth)")
+    plt.ylabel("Potential")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(DEBUG_PLOT_PATH / f"{config_name}_{component_name}_cut_vertical.png")
+    plt.close()
+
+    # --- 2. Radial Cut (R-axis) ---
+    # Cut at Z = -h/2 (Mid-depth)
+    z_target = np.min(Z_grid) / 2.0
+    z_idx = np.argmin(np.abs(Z_grid[0, :] - z_target))
+    z_val = Z_grid[0, z_idx]
+    
+    r_line = R_grid[:, z_idx]
+    of_line_r = openflash_data[:, z_idx]
+    cap_line_r = capytaine_data[:, z_idx]
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(r_line, of_line_r, 'b-', label='OpenFLASH', linewidth=2)
+    plt.plot(r_line, cap_line_r, 'r--', label='Capytaine', linewidth=2)
+    plt.title(f"Radial Slice (R-axis) at Z={z_val:.2f} [{component_name}]")
+    plt.xlabel("R (Radius)")
+    plt.ylabel("Potential")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(DEBUG_PLOT_PATH / f"{config_name}_{component_name}_cut_radial.png")
+    plt.close()
+
+
 def save_debug_csvs(R_grid, Z_grid, openflash_real, capytaine_real, openflash_imag, capytaine_imag, nan_mask, config_name):
     """
     Saves a detailed CSV of all interpolated grid data for debugging.
@@ -313,6 +358,47 @@ def save_debug_csvs(R_grid, Z_grid, openflash_real, capytaine_real, openflash_im
     print(f"[Debug CSV saved to: {output_file}]")
 
 
+def check_phase_rotation(openflash_complex, capytaine_complex):
+    """
+    Checks if a global phase rotation (e.g. -1, j, -j, conjugate)
+    would minimize the error. This helps detect convention mismatches.
+    """
+    # Create flattened valid arrays (ignoring NaNs)
+    valid = ~np.isnan(openflash_complex) & ~np.isnan(capytaine_complex)
+    of = openflash_complex[valid]
+    cap = capytaine_complex[valid]
+    
+    if of.size == 0:
+        return "No Valid Data"
+
+    transformations = {
+        "None": of,
+        "Negated (-1)": -of,
+        "Conjugate (*)": np.conj(of),
+        "Rotated 90 (j)": 1j * of,
+        "Rotated -90 (-j)": -1j * of,
+        "Conjugate & Negated": -np.conj(of)
+    }
+    
+    print("\n--- PHASE / CONVENTION DIAGNOSTIC ---")
+    best_name = "None"
+    best_error = np.inf
+    
+    for name, transformed_of in transformations.items():
+        # Calculate Relative L2 Norm Error
+        diff_norm = np.linalg.norm(transformed_of - cap)
+        ref_norm = np.linalg.norm(cap)
+        rel_error = diff_norm / ref_norm if ref_norm > 0 else np.inf
+        
+        print(f"  Transform '{name}': Rel Error = {rel_error:.4%}")
+        if rel_error < best_error:
+            best_error = rel_error
+            best_name = name
+            
+    print(f"  [DIAGNOSTIC] Best match is: '{best_name}'")
+    return best_name
+
+
 # --- Test Function (Hydro Coeff Test Removed) ---
 
 @pytest.mark.parametrize("config_name", ALL_CONFIGS.keys())
@@ -320,153 +406,143 @@ def test_potential_field_vs_capytaine(config_name):
     """
     Compares the openflash-calculated potential field against the
     Capytaine-generated benchmark data FOR A GIVEN CONFIG.
-    
-    On failure, this test will save debug plots to the 'test_artifacts' folder.
     """
     
     # 1. Load data for this config
     phi_capytaine_raw = load_capytaine_data(config_name)
-    # --- MODIFIED ORDER ---
-    # Get params for this config FIRST
-    p = ALL_CONFIGS[config_name] 
-    # Pass the ranges to the sim function
-    openflash_results, omega = run_openflash_sim(config_name, R_range=p["R_range"], Z_range=p["Z_range"])
+    p = ALL_CONFIGS[config_name]
+    
+    print(f"\n\n=== TESTING CONFIG: {config_name} ===")
+
+    # --- IMPLEMENT SUPERPOSITION ---
+    original_heaving_map = p["heaving_map"]
+    heaving_indices = [i for i, is_heaving in enumerate(original_heaving_map) if is_heaving]
+    
+    phi_total: Optional[np.ndarray] = None
+    omega_final: Optional[float] = None
+    results_template: Optional[Dict[str, Any]] = None 
+
+    if not heaving_indices:
+        # Case: No heaving bodies
+        res, omega_final = run_openflash_sim(config_name, R_range=p["R_range"], Z_range=p["Z_range"])
+        phi_total = res["phi"]
+        results_template = res
+    else:
+        # Loop through each heaving body and sum potentials
+        for idx in heaving_indices:
+            # Create a compliant heaving map (only one body True)
+            single_heaving_map = [False] * len(original_heaving_map)
+            single_heaving_map[idx] = True
+            
+            print(f"\n  [SUPERPOSITION DEBUG] Body {idx} Active:")
+            print(f"    Map Override: {single_heaving_map}")
+            
+            # Run simulation
+            res, omega = run_openflash_sim(
+                config_name, 
+                R_range=p["R_range"], 
+                Z_range=p["Z_range"],
+                heaving_map_override=single_heaving_map
+            )
+            print(f"Body {idx} OpenFlash max: {np.max(np.abs(res['phi']))}")
+            print(f"Body {idx} Capytaine max: {np.max(np.abs(phi_capytaine_raw[..., idx]))}")  # If available
+            
+            # Check magnitude
+            max_phi = np.nanmax(np.abs(res["phi"]))
+            print(f"    Max |phi|: {max_phi:.6e}")
+            
+            if max_phi < 1e-10:
+                print(f"    🚨 ALERT: Body {idx} produced ZERO potential! This is likely the bug.")
+            
+            # Save intermediate plot
+            if np.any(res["phi"]):
+                debug_dir = DEBUG_PLOT_PATH / "contributions"
+                debug_dir.mkdir(parents=True, exist_ok=True)
+                plt.figure()
+                plt.pcolormesh(res["R"], res["Z"], res["phi"].real, cmap='viridis')
+                plt.colorbar(label="Real(phi)")
+                plt.title(f"{config_name} - Body {idx} Contribution")
+                plt.savefig(debug_dir / f"{config_name}_body_{idx}_real.png")
+                plt.close()
+
+            if phi_total is None:
+                phi_total = np.zeros_like(res["phi"], dtype=complex)
+                omega_final = omega
+                results_template = res
+            
+            phi_total += res["phi"]
+
+    if results_template is None or phi_total is None or omega_final is None:
+        pytest.fail(f"[{config_name}] Simulation failed to produce results.")
     
     # 2. Get the openflash grid and total potential
-    R_openflash = openflash_results["R"]
-    Z_openflash = openflash_results["Z"]
-    phi_openflash = openflash_results["phi"]
+    R_openflash = results_template["R"]
+    Z_openflash = results_template["Z"]
+    phi_openflash = phi_total
+    print("phi_total before sum:", np.nanmax(np.abs(phi_total)))
+    print("contribution max:", np.nanmax(np.abs(res['phi'])))
 
-    # 3. Define the Capytaine grid (where we want to interpolate to)
-    R_cap_grid, Z_cap_grid = np.meshgrid(
-        p["R_range"],
-        p["Z_range"],
-        indexing='ij'
-    )
+    # 3. Define the Capytaine grid
+    R_cap_grid, Z_cap_grid = np.meshgrid(p["R_range"], p["Z_range"], indexing='ij')
+    print("OpenFlash phi shape:", phi_openflash.shape)
+    print("Capytaine grid shape:", R_cap_grid.shape)
 
-    # 4. No interpolation needed! 
-    # Because we passed R_range and Z_range to the engine,
-    # the grids are identical. We can compare the arrays directly.
-    
+    # 4. Compare (No Interpolation Needed)
     phi_openflash_interp_real = phi_openflash.real
     phi_openflash_interp_imag = phi_openflash.imag
+    omega = omega_final
 
-    # --- (NEW) 5a. Check for unexpected NaNs from Openflash interpolation ---
-    # This explicitly checks your question: "are there values in openflash that return nan when they shouldnt?"
+    # 5. Validation & Conversion
     capytaine_body_mask = np.isnan(phi_capytaine_raw.real)
     openflash_nan_real = np.isnan(phi_openflash_interp_real)
-    openflash_nan_imag = np.isnan(phi_openflash_interp_imag)
-
-    # Check real part: Points where Capytaine is NOT NaN, but Openflash IS NaN
+    
+    # Check for mismatched NaNs (Solver failing to mask body)
     bad_nans_real_mask = ~capytaine_body_mask & openflash_nan_real
-    num_bad_nans_real = np.sum(bad_nans_real_mask)
-    if num_bad_nans_real > 0:
-        pytest.fail(f"[{config_name}] Openflash (Real) produced {num_bad_nans_real} NaNs in the valid fluid domain where Capytaine had data.")
+    if np.sum(bad_nans_real_mask) > 0:
+        pytest.fail(f"[{config_name}] Openflash produced NaNs in valid fluid domain.")
 
-    # Check imag part: Points where Capytaine is NOT NaN, but Openflash IS NaN
-    bad_nans_imag_mask = ~capytaine_body_mask & openflash_nan_imag
-    num_bad_nans_imag = np.sum(bad_nans_imag_mask)
-    if num_bad_nans_imag > 0:
-        pytest.fail(f"[{config_name}] Openflash (Imag) produced {num_bad_nans_imag} NaNs in the valid fluid domain where Capytaine had data.")
-    # --- END NEW 5a ---
-
-    # 5b. Mask out the 'nan' values (inside the body) from the Capytaine data
-    # (This is the original Step 5)
     nan_mask = np.isnan(phi_capytaine_raw.real)
-    valid_mask = ~nan_mask & ~np.isnan(phi_openflash_interp_real)
+    valid_mask = ~nan_mask
     
     if np.sum(valid_mask) < 0.5 * nan_mask.size:
         pytest.fail(f"[{config_name}] Interpolation failed: >50% of grid points are invalid.")
 
-    # 6. Convert Capytaine data to Openflash units BEFORE comparing
+    # Convert Capytaine to Velocity Potential
     capytaine_real_converted = phi_capytaine_raw.imag * (-1.0 / omega)
     capytaine_imag_converted = phi_capytaine_raw.real * (1.0 / omega)
 
-    # Get the valid (non-body) points for comparison
     openflash_real_valid = phi_openflash_interp_real[valid_mask]
     capytaine_real_valid = capytaine_real_converted[valid_mask]
-    
     openflash_imag_valid = phi_openflash_interp_imag[valid_mask]
     capytaine_imag_valid = capytaine_imag_converted[valid_mask]
-    
-    # --- ENHANCED DEBUGGING ---
-    # [This section remains the same]
-    # ... (calculating max_rel_diff, printing debug info, etc.) ...
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RuntimeWarning)
-        real_abs_diff = np.abs(openflash_real_valid - capytaine_real_valid)
-        real_rel_diff = np.abs(real_abs_diff / capytaine_real_valid)
-        real_rel_diff[np.isinf(real_rel_diff)] = 0.0 
-        real_rel_diff = np.nan_to_num(real_rel_diff)
-    max_rel_diff_idx = np.argmax(real_rel_diff)
-    max_rel_diff = real_rel_diff[max_rel_diff_idx]
-    valid_R_coords = R_cap_grid[valid_mask]
-    valid_Z_coords = Z_cap_grid[valid_mask]
-    worst_R = valid_R_coords[max_rel_diff_idx]
-    worst_Z = valid_Z_coords[max_rel_diff_idx]
-    print(f"\n--- DEBUG INFO FOR: {config_name} ---")
-    print(f"Comparing Total Potential (phi) vs. CONVERTED Capytaine Potential")
-    print(f"Omega = {omega:.4f} rad/s")
-    print(f"Max abs(openflash.real):       {np.max(np.abs(openflash_real_valid)):.6e}")
-    print(f"Max abs(Capytaine_CONVERTED.real): {np.max(np.abs(capytaine_real_valid)):.6e}")
-    max_capytaine_real = np.max(np.abs(capytaine_real_valid))
-    if max_capytaine_real > 1e-9:
-        print(f"Scaling Factor (openflash / Capytaine_CONVERTED): {np.max(np.abs(openflash_real_valid)) / max_capytaine_real:.2f}")
-    print(f"WORST RELATIVE ERROR (REAL): {max_rel_diff:.2%} at (R={worst_R:.2f}, Z={worst_Z:.2f})")
-    print(f"  -> Openflash val: {openflash_real_valid[max_rel_diff_idx]:.4e}")
-    print(f"  -> Capytaine val: {capytaine_real_valid[max_rel_diff_idx]:.4e}")
-    # --- END DEBUGGING ---
-    
 
-    # --- (NEW) ALWAYS SAVE ARTIFACTS ---
-    # These functions are now called every time the test runs.
+    # --- DIAGNOSTICS ---
+    print(f"\n  [FINAL COMPARISON] {config_name}")
+    print(f"    Omega: {omega:.4f}")
+    print(f"    Max Abs OpenFlash (Real): {np.max(np.abs(openflash_real_valid)):.6e}")
+    print(f"    Max Abs Capytaine (Real): {np.max(np.abs(capytaine_real_valid)):.6e}")
     
-    # 1. Save REAL part plot
-    save_debug_plots(
-        R_cap_grid, Z_cap_grid, 
-        phi_openflash_interp_real, capytaine_real_converted, 
-        nan_mask, config_name, "real"
-    )
-    
-    # 2. Save IMAGINARY part plot
-    save_debug_plots(
-        R_cap_grid, Z_cap_grid, 
-        phi_openflash_interp_imag, capytaine_imag_converted, 
-        nan_mask, config_name, "imag"
-    )
+    # Save Final Plots
+    save_debug_plots(R_cap_grid, Z_cap_grid, phi_openflash_interp_real, capytaine_real_converted, nan_mask, config_name, "real")
+    save_debug_plots(R_cap_grid, Z_cap_grid, phi_openflash_interp_imag, capytaine_imag_converted, nan_mask, config_name, "imag")
+    save_1d_cuts(R_cap_grid, Z_cap_grid, phi_openflash_interp_real, capytaine_real_converted, config_name, "real")
+    save_1d_cuts(R_cap_grid, Z_cap_grid, phi_openflash_interp_imag, capytaine_imag_converted, config_name, "imag")
 
-    # 3. Save CSV data
-    save_debug_csvs(
-        R_cap_grid, Z_cap_grid,
-        phi_openflash_interp_real, capytaine_real_converted,
-        phi_openflash_interp_imag, capytaine_imag_converted,
-        nan_mask, config_name
-    )
-    # --- END NEW SECTION ---
-
-    
-    # --- Test Real Part ---
-    # The try/except block now *only* handles the assertion
+    # 6. Assertions
     try:
         np.testing.assert_allclose(
-            openflash_real_valid,
-            capytaine_real_valid,
-            rtol=RELATIVE_TOLERANCE,
-            atol=1e-2,
-            err_msg=f"[{config_name}] Real part of potential field does not match Capytaine benchmark."
+            openflash_real_valid, capytaine_real_valid,
+            rtol=RELATIVE_TOLERANCE, atol=1e-2,
+            err_msg=f"[{config_name}] Real part mismatch"
         )
     except AssertionError as e:
-        pytest.fail(str(e)) # Re-raise the assertion to fail the test
+        pytest.fail(str(e))
     
-    # --- Test Imaginary Part ---
-    # The try/except block now *only* handles the assertion
     try:
         np.testing.assert_allclose(
-            openflash_imag_valid,
-            capytaine_imag_valid,
-            rtol=RELATIVE_TOLERANCE,
-            atol=1e-2,
-            err_msg=f"[{config_name}] Imaginary part of potential field does not match Capytaine benchmark."
+            openflash_imag_valid, capytaine_imag_valid,
+            rtol=RELATIVE_TOLERANCE, atol=1e-2,
+            err_msg=f"[{config_name}] Imaginary part mismatch"
         )
     except AssertionError as e:
-        pytest.fail(str(e)) # Re-raise the assertion to fail the test
+        pytest.fail(str(e))

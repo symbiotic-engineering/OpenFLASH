@@ -1,18 +1,17 @@
 # geometry.py
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Sequence
 import numpy as np
 
 from .body import Body, SteppedBody, CoordinateBody
 from .domain import Domain
 
-
 class BodyArrangement(ABC):
     """
     Abstract base class for any arrangement.
     """
-    def __init__(self, bodies: List[Body]):
+    def __init__(self, bodies: Sequence[Body]):
         self.bodies = bodies
         # Count the number of bodies marked as heaving (heaving=True)
         heaving_count = sum(body.heaving for body in bodies)
@@ -50,7 +49,7 @@ class ConcentricBodyGroup(BodyArrangement):
     A concrete arrangement of one or more concentric bodies.
     For JOSS, this class assumes all bodies are SteppedBody objects.
     """
-    def __init__(self, bodies: List[Body]):
+    def __init__(self, bodies: Sequence[Body]):
         super().__init__(bodies)
         # For now, we only handle SteppedBody
         for body in self.bodies:
