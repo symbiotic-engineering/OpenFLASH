@@ -56,7 +56,7 @@ def build_manual_matrix_from_snippet():
             # A[n][N+m] = -R_1n_2 * A_nm
             c = I_nm(n, m, 0, d_list, h)
             A[n, N + m] = -1 * R_1n(m, a1, 1, h, d_list, a_list) * c
-            A[n, N + M + m] = -1 * R_2n(m, a1, 1, a_list, h, d_list) * c
+            A[n, N + M + m] = -1 * R_2n(m, a1, 1, h, d_list, a_list) * c
 
     # 2. Row Group 2 (d2)
     for i in range(M):

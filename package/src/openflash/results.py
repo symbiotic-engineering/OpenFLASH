@@ -88,8 +88,6 @@ class Results:
             }
         )
         print(f"Eigenfunctions for domain {domain_index} stored in dataset.")
-
-    # ... (rest of the file remains the same) ...
     
     def store_single_potential_field(self, potential_data: dict, frequency_idx: int = 0, mode_idx: int = 0):
         """
