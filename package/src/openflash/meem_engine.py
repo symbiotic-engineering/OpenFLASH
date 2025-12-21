@@ -344,78 +344,96 @@ class MEEMEngine:
 
         return results_per_mode
     
-    # ... (calculate_potentials, calculate_velocities, visualize_potential remain unchanged)
     def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None) -> Dict[str, Any]:
+        """
+        Calculate full spatial potentials phiH, phiP, and total phi on a meshgrid for visualization.
+
+        Parameters:
+        - problem: MEEMProblem instance containing domain and geometry info
+        - solution_vector: solution vector X from linear system solve
+        - spatial_res: resolution of spatial grid for R and Z (default=50)
+        - sharp: whether to refine meshgrid near boundaries (default=True)
+
+        Returns:
+        - Dictionary containing meshgrid arrays R,Z and potentials phiH, phiP, phi
+        """
+        # Ensure m_k_arr and N_k_arr are computed and retrieved from the cache
         self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         m_k_arr = cache.m_k_arr
         N_k_arr = cache.N_k_arr
         
+        # Get geometry parameters directly from the body arrangement and domains
         geometry = problem.geometry
         body_arrangement = geometry.body_arrangement
         domain_list = problem.domain_list
         
-        body_a = body_arrangement.a
-        body_d = body_arrangement.d
-        body_heaving = body_arrangement.heaving
+        # These are the correct physical parameters for meshgrid and particular solution
+        a = body_arrangement.a
+        d = body_arrangement.d
+        heaving = body_arrangement.heaving
         
+        # These are needed for the homogeneous solution and coefficient reformatting
         h = geometry.h
         domain_keys = list(domain_list.keys())
-        boundary_count = len(domain_keys) - 1 
+        boundary_count = len(domain_keys) - 1
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
         
-        domain_a = [domain_list[idx].a for idx in domain_keys]
-        domain_d = [domain_list[idx].di for idx in domain_keys]
-        
+        # --- The rest of the function remains the same ---
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
-        R, Z = make_R_Z(body_a, h, body_d, sharp, spatial_res, R_range=R_range, Z_range=Z_range)
-        
+        # 2. Create Meshgrid and Regions
+        # Now make_R_Z will receive the correct a and d lists
+        R, Z = make_R_Z(a, h, d, sharp, spatial_res)
         regions = []
-        regions.append(R <= body_a[0]) 
+        regions.append((R <= a[0]) & (Z < -d[0]))
         for i in range(1, boundary_count):
-            regions.append((R > body_a[i-1]) & (R <= body_a[i])) 
-        regions.append(R > body_a[-1]) 
+            regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i]))
+        regions.append(R > a[-1])
 
+        # Initialize potential arrays
         phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
         phiH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
         phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
 
+        # --- 3. Vectorized Calculation of Potentials ---
+
+        # Region 0 (Inner)
         if np.any(regions[0]):
             r_vals, z_vals = R[regions[0]], Z[regions[0]]
             n_vals = np.arange(NMK[0])
-            R1n_vals = R_1n_vectorized(n_vals[:, None], r_vals[None, :], 0, h, domain_d, domain_a)
-            Zn_vals = Z_n_i_vectorized(n_vals[:, None], z_vals[None, :], 0, h, domain_d)
+            R1n_vals = R_1n_vectorized(n_vals[:, None], r_vals[None, :], 0, h, d, a)
+            Zn_vals = Z_n_i_vectorized(n_vals[:, None], z_vals[None, :], 0, h, d)
             phiH[regions[0]] = np.sum(Cs[0][:, None] * R1n_vals * Zn_vals, axis=0)
 
+        # Intermediate Regions
         for i in range(1, boundary_count):
             if np.any(regions[i]):
                 r_vals, z_vals = R[regions[i]], Z[regions[i]]
                 m_vals = np.arange(NMK[i])
-                R1n_vals = R_1n_vectorized(m_vals[:, None], r_vals[None, :], i, h, domain_d, domain_a)
-                R2n_vals = R_2n_vectorized(m_vals[:, None], r_vals[None, :], i, domain_a, h, domain_d)
-                Zm_vals = Z_n_i_vectorized(m_vals[:, None], z_vals[None, :], i, h, domain_d)
+                R1n_vals = R_1n_vectorized(m_vals[:, None], r_vals[None, :], i, h, d, a)
+                R2n_vals = R_2n_vectorized(m_vals[:, None], r_vals[None, :], i, a, h, d)
+                Zm_vals = Z_n_i_vectorized(m_vals[:, None], z_vals[None, :], i, h, d)
                 term1 = Cs[i][:NMK[i], None] * R1n_vals
                 term2 = Cs[i][NMK[i]:, None] * R2n_vals
                 phiH[regions[i]] = np.sum((term1 + term2) * Zm_vals, axis=0)
 
+        # Exterior Region
         if np.any(regions[-1]):
             r_vals, z_vals = R[regions[-1]], Z[regions[-1]]
             k_vals = np.arange(NMK[-1])
-            Lambda_vals = Lambda_k_vectorized(k_vals[:, None], r_vals[None, :], m0, domain_a, m_k_arr)
+            Lambda_vals = Lambda_k_vectorized(k_vals[:, None], r_vals[None, :], m0, a, m_k_arr)
             Zk_vals = Z_k_e_vectorized(k_vals[:, None], z_vals[None, :], m0, h, m_k_arr, N_k_arr)
             phiH[regions[-1]] = np.sum(Cs[-1][:, None] * Lambda_vals * Zk_vals, axis=0)
         
-        phiP[regions[0]] = body_heaving[0] * phi_p_i(body_d[0], R[regions[0]], Z[regions[0]], h)
+        # --- 4. Calculate Particular Potential (phiP) ---
+        phiP[regions[0]] = heaving[0] * phi_p_i(d[0], R[regions[0]], Z[regions[0]], h)
         for i in range(1, boundary_count):
-            phiP[regions[i]] = body_heaving[i] * phi_p_i(body_d[i], R[regions[i]], Z[regions[i]], h)
+            phiP[regions[i]] = heaving[i] * phi_p_i(d[i], R[regions[i]], Z[regions[i]], h)
         phiP[regions[-1]] = 0
 
+        # Sum to get total potential phi
         phi = phiH + phiP
-
-        for i in range(boundary_count):
-            body_mask = (regions[i]) & (Z > -body_d[i])
-            phi[body_mask] = np.nan
 
         return {"R": R, "Z": Z, "phiH": phiH, "phiP": phiP, "phi": phi}
     
