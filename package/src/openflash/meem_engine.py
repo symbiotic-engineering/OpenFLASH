@@ -1,6 +1,4 @@
 # package/src/openflash/meem_engine.py
-# (Keeping imports same, redefining MEEMEngine.build_problem_cache)
-
 from __future__ import annotations
 from typing import List, Dict, Any, Optional
 import numpy as np
@@ -10,7 +8,7 @@ from openflash.problem_cache import ProblemCache
 from openflash.multi_equations import *
 from openflash.results import Results
 from scipy import linalg
-from openflash.multi_constants import *
+from openflash.multi_constants import rho as default_rho, g
 from functools import partial
 from openflash.body import SteppedBody
 from openflash.geometry import ConcentricBodyGroup
@@ -191,10 +189,6 @@ class MEEMEngine:
                 col_offset += (2*N if bd > 0 else N)
 
             else: # Internal i-i boundaries
-                # --- FIX: Velocity matching projects onto the TALLER region ---
-                # d is depth from surface. Larger d means deeper bottom (shorter water column).
-                # Taller region has SMALLER d.
-                # So we project on Left (N) if d[bd] < d[bd+1].
                 project_on_left = d[bd] <= d[bd+1]
                 row_height = N if project_on_left else M
                 blocks = []
@@ -237,7 +231,6 @@ class MEEMEngine:
                     cache._add_m0_dependent_b_entry(index, calc_func)
                     index += 1
             else:
-                # --- FIX: Match b_vector projection to A_matrix projection ---
                 num_entries = NMK[bd] if d[bd] <= d[bd+1] else NMK[bd+1]
                 for n in range(num_entries):
                     b_template[index] = b_velocity_entry(n, bd, heaving, a, h, d)
@@ -248,7 +241,6 @@ class MEEMEngine:
         
         return cache
     
-    # ... (Rest of class methods like solve_linear_system_multi remain unchanged)
     def solve_linear_system_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
         cache = self.cache_list[problem]
         self._ensure_m_k_and_N_k_arrays(problem, m0)
@@ -268,7 +260,16 @@ class MEEMEngine:
         cs.append(x[row:])
         return cs
 
-    def compute_hydrodynamic_coefficients(self, problem, X, m0, modes_to_calculate: Optional[np.ndarray] = None):
+    def compute_hydrodynamic_coefficients(self, problem, X, m0, modes_to_calculate: Optional[np.ndarray] = None, rho: Optional[float] = None):
+        """
+        Computes the hydrodynamic coefficients (Added Mass and Damping) from the solution vector X.
+        
+        Args:
+            rho (float, optional): Density of fluid. Defaults to value from multi_constants.
+        """
+        if rho is None:
+            rho = default_rho
+
         geometry = problem.geometry
         domain_keys = list(geometry.domain_list.keys())
         a = [geometry.domain_list[idx].a for idx in domain_keys]
@@ -288,7 +289,6 @@ class MEEMEngine:
             num_bodies = len(geometry.body_arrangement.bodies)
             modes_to_calculate = np.arange(num_bodies)
 
-        # --- FIX: MAP BODY INDEX TO REGION INDICES ---
         body_to_regions = {}
         current_region = 0
         for b_i, body in enumerate(geometry.body_arrangement.bodies):
@@ -299,17 +299,14 @@ class MEEMEngine:
             else:
                 body_to_regions[b_i] = [current_region]
                 current_region += 1
-        # ---------------------------------------------
 
         for mode_index in modes_to_calculate:
             heaving = [0] * len(domain_keys)
             
-            # --- FIX: ACTIVATE ALL REGIONS FOR THIS BODY ---
             if mode_index in body_to_regions:
                 for r_idx in body_to_regions[mode_index]:
                     if r_idx < len(heaving):
                         heaving[r_idx] = 1
-            # -----------------------------------------------
 
             c_vector = np.zeros((size - NMK[-1]), dtype=complex)
             col = 0
@@ -331,26 +328,23 @@ class MEEMEngine:
 
             hydro_coef = 2 * pi * (np.dot(c_vector, X[:-NMK[-1]]) + sum(hydro_p_term_sum))
 
-            # hydro_coef has units of Volume [L^3]. Multiplied by rho [M/L^3] gives Mass [M].
             hydro_coef_real = hydro_coef.real * rho
             if m0 == np.inf:
                 hydro_coef_imag = 0
             else:
                 hydro_coef_imag = hydro_coef.imag * omega(m0, h, g) * rho
             
-            # Removed redundant/confusing non-dim calculation here. 
-            # Users should non-dimensionalize using their specific norms (e.g. displacement).
-
             results_per_mode.append({
                 "mode": mode_index,
-                "real": hydro_coef_real,      # Dimensional [kg]
-                "imag": hydro_coef_imag,      # Dimensional [kg/s] or [N/(m/s)]
+                "real": hydro_coef_real,      
+                "imag": hydro_coef_imag,      
                 "excitation_phase": excitation_phase(X, NMK, m0, a),
                 "excitation_force": excitation_force(hydro_coef_imag, m0, h)
             })
 
         return results_per_mode
     
+    # ... (calculate_potentials, calculate_velocities, visualize_potential remain unchanged)
     def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None) -> Dict[str, Any]:
         self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]

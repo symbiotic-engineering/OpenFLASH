@@ -1,3 +1,4 @@
+# test_matrix_caching.py
 import pytest
 import numpy as np
 import time
@@ -68,8 +69,10 @@ def solve_fresh_every_time(m0_list):
         
         # Find result for Body 1
         body_res = next(r for r in res if r['mode'] == 1)
-        ams.append(body_res['nondim_real'])
-        dps.append(body_res['nondim_imag'])
+        # FIX: Use 'real' instead of 'nondim_real'
+        ams.append(body_res['real'])
+        # FIX: Use 'imag' instead of 'nondim_imag'
+        dps.append(body_res['imag'])
         
     duration = time.perf_counter() - start_time
     return np.array(ams), np.array(dps), duration
@@ -94,8 +97,10 @@ def solve_cached_update(m0_list):
         res = engine.compute_hydrodynamic_coefficients(prob, X, m0)
         
         body_res = next(r for r in res if r['mode'] == 1)
-        ams.append(body_res['nondim_real'])
-        dps.append(body_res['nondim_imag'])
+        # FIX: Use 'real' instead of 'nondim_real'
+        ams.append(body_res['real'])
+        # FIX: Use 'imag' instead of 'nondim_imag'
+        dps.append(body_res['imag'])
 
     duration = time.perf_counter() - start_time
     return np.array(ams), np.array(dps), duration

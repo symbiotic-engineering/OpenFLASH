@@ -1,9 +1,11 @@
+# package/test/test_excitation_phase.py
 import pytest
 import pandas as pd
 import numpy as np
 import os
 import warnings
-from openflash_utils import run_openflash_phase
+from openflash_utils import run_openflash_case
+from openflash.multi_equations import wavenumber
 
 # Define constants
 H = 300
@@ -53,8 +55,13 @@ def test_excitation_phase_match():
             if omega > 5.1:
                 continue
 
-            # Run OpenFLASH
-            phase = run_openflash_phase(H, D, A, HEAVING, NMK, omega, RHO)
+            # FIX 1: Convert Omega (rad/s) to Wavenumber (rad/m)
+            # OpenFLASH core requires m0, not omega.
+            m0 = wavenumber(omega, H)
+
+            # FIX 2: Unpack the tuple return values
+            # run_openflash_case returns (AddedMass, Damping, Phase)
+            _, _, phase = run_openflash_case(H, D, A, HEAVING, NMK, m0, RHO)
             
             # Compare
             wamit_val = wamit_phases[i]
