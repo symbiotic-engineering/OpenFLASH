@@ -342,18 +342,19 @@ def test_R_2n_i0_raises_error(test_r, h, d, a):
         R_2n(1, test_r, 0, a, h, d)
 
 def test_R_2n_n0(a, test_r, h, d):
-    # Fixed expected value: 1.0 + 0.5 * log(r/inner) anchored at a[i-1]
+    # Fixed expected value: 0.5 * log(r/outer) anchored at a[i]
     i = 1
-    expected = 1.0 + 0.5 * np.log(test_r / a[i-1]) 
+    outer_r = a[i]
+    expected = 0.5 * np.log(test_r / outer_r) 
     assert np.isclose(R_2n(0, test_r, i, a, h, d), expected)
 
 def test_R_2n_n_positive(test_n, a, test_r, h, d):
     if test_n == 0: pytest.skip("Test for n>0")
     i = 1
-    # Fixed expected value: Scaled K0 using besselke and exp decay from inner radius
+    # Fixed expected value: Scaled K0 using besselke and exp decay from OUTER radius (Legacy Mode)
     lambda0 = lambda_ni(test_n, i, h, d)
-    inner_r = a[i-1]
-    expected = (besselke(0, lambda0 * test_r) / besselke(0, lambda0 * inner_r)) * exp(lambda0 * (inner_r - test_r))
+    outer_r = a[i]
+    expected = (besselke(0, lambda0 * test_r) / besselke(0, lambda0 * outer_r)) * exp(lambda0 * (outer_r - test_r))
     assert np.isclose(R_2n(test_n, test_r, i, a, h, d), expected)
 
 def test_diff_R_2n_n0(test_r, h, d, a):
@@ -364,12 +365,12 @@ def test_diff_R_2n_n0(test_r, h, d, a):
 def test_diff_R_2n_n_positive(test_n, test_r, h, d, a):
     if test_n == 0: pytest.skip("Test for n>0")
     i = 1
-    # Fixed expected value: Scaled derivative
+    # Fixed expected value: Scaled derivative anchored at OUTER radius (Legacy Mode)
     lambda0 = lambda_ni(test_n, i, h, d)
-    inner_r = a[i-1]
+    outer_r = a[i]
     top = -lambda0 * besselke(1, lambda0 * test_r)
-    bottom = besselke(0, lambda0 * inner_r)
-    expected = (top / bottom) * exp(lambda0 * (inner_r - test_r))
+    bottom = besselke(0, lambda0 * outer_r)
+    expected = (top / bottom) * exp(lambda0 * (outer_r - test_r))
     assert np.isclose(diff_R_2n(test_n, test_r, i, h, d, a), expected)
 
 # --- i-region vertical eigenfunctions ---
@@ -450,42 +451,45 @@ def test_int_R_2n_i0_raises_error(test_n, a, h, d):
         int_R_2n(0, test_n, a, h, d)
 
 def test_int_R_2n_n0(a, h, d):
-    # Fixed expected value: Integral of r * (1.0 + 0.5 * log(r/inner))
+    # Fixed expected value: Integral of r * (0.5 * log(r/outer)) anchored at outer
     i = 1 
     outer_r = a[i]
     inner_r = a[i-1]
 
-    cyl_term = (outer_r**2 - inner_r**2) / 2.0
+    # Note: No 'cyl_term' here because R_2n(n=0) is just the log term.
     
     def log_indefinite_int(r):
-        log_term = np.log(r/inner_r) if r > 0 else 0
+        if r <= 0: return 0
+        log_term = np.log(r/outer_r)
         return 0.5 * ((r**2 / 2.0) * log_term - (r**2 / 4.0))
 
     val_outer = log_indefinite_int(outer_r)
     val_inner = log_indefinite_int(inner_r) 
     
-    expected = cyl_term + (val_outer - val_inner)
+    expected = val_outer - val_inner
     assert np.isclose(int_R_2n(i, 0, a, h, d), expected)
 
 def test_int_R_2n_n_positive(test_n, a, h, d):
     if test_n == 0: pytest.skip("Test for n>0")
     i = 1 
-    # Fixed expected value: Scaled Bessel K integral
+    # Fixed expected value: Scaled Bessel K integral, anchored at Outer (Legacy Mode)
     lambda0 = lambda_ni(test_n, i, h, d)
     outer_r = a[i]
     inner_r = a[i-1]
     
-    # Normalized by -lambda * K0(lambda * inner_r)
-    denom = - lambda0 * besselke(0, lambda0 * inner_r)
+    # Normalized by lambda * K0(lambda * outer_r)
+    # Denominator matches 'denom = lambda0 * besselke(0, lambda0 * outer_r)' in multi_equations.py
+    denom = lambda0 * besselke(0, lambda0 * outer_r)
     
     term_outer = outer_r * besselke(1, lambda0 * outer_r)
+    # No exp shift needed for outer term because exp(l(a-a)) = 1
+    
     term_inner = inner_r * besselke(1, lambda0 * inner_r)
+    # Apply exponential shift exp(l(a-r)) -> exp(l(a-inner))
+    term_inner *= np.exp(lambda0 * (outer_r - inner_r))
     
-    # Apply exponential shifts
-    val_outer = (term_outer / denom) * exp(lambda0 * (inner_r - outer_r))
-    val_inner = (term_inner / denom) * 1.0 # exp(0)
-    
-    expected = val_outer - val_inner
+    # Result is (inner - outer) / denom, which handles the sign flip from integration
+    expected = (term_inner - term_outer) / denom
     assert np.isclose(int_R_2n(i, test_n, a, h, d), expected) 
 
 def test_z_n_d_n0():
