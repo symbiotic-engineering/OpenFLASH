@@ -4,6 +4,7 @@ import pytest
 import numpy as np
 import sys
 import os
+from typing import List  # Added for type hinting
 
 # make src importable (adjust path if your repository layout differs)
 current_dir = os.path.dirname(__file__)
@@ -12,7 +13,7 @@ if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
 from openflash.basic_region_geometry import BasicRegionGeometry
-from openflash.body import SteppedBody
+from openflash.body import SteppedBody, Body  # Added Body for type hinting
 from openflash.geometry import ConcentricBodyGroup
 
 # ------------------------------
@@ -52,7 +53,8 @@ _EPS = 1e-6
     ]
 )
 def test_basic_region_geometry_init_valid_param(radii_list, NMK):
-    bodies = [
+    # FIX: Explicitly type hint as List[Body] to satisfy invariance
+    bodies: List[Body] = [
         SteppedBody(a=r, d=np.array([1.0] * len(r)), slant_angle=np.zeros_like(r), heaving=False)
         for r in radii_list
     ]
@@ -74,7 +76,8 @@ def test_basic_region_geometry_init_valid_param(radii_list, NMK):
     ]
 )
 def test_basic_region_geometry_init_invalid_radii_param(radii_list):
-    bodies = [
+    # FIX: Explicitly type hint as List[Body]
+    bodies: List[Body] = [
         SteppedBody(a=r, d=np.array([1.0] * len(r)), slant_angle=np.zeros_like(r), heaving=False)
         for r in radii_list
     ]
@@ -95,7 +98,8 @@ def test_basic_region_geometry_init_invalid_radii_param(radii_list):
     ]
 )
 def test_basic_region_geometry_init_invalid_nmk_length_param(radii_list, NMK):
-    bodies = [
+    # FIX: Explicitly type hint as List[Body]
+    bodies: List[Body] = [
         SteppedBody(a=r, d=np.array([1.0] * len(r)), slant_angle=np.zeros_like(r), heaving=False)
         for r in radii_list
     ]
@@ -167,7 +171,9 @@ def test_from_vectors_body_and_heaving(a, d, NMK, body_map, heaving_map, expecte
         else:
             assert body.heaving == False
 
-    combined_radii = np.concatenate([b.a for b in geom.body_arrangement.bodies])
+    # --- FIX: Use the 'a' property of the arrangement instead of manually iterating the list ---
+    # This solves the Pylance error regarding 'b.a' being inaccessible on base class 'Body'
+    combined_radii = geom.body_arrangement.a
     np.testing.assert_array_equal(combined_radii, a)
 
 # ------------------------------

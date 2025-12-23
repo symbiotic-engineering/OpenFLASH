@@ -1,3 +1,4 @@
+# test_meem_engine.py
 import pytest
 import numpy as np
 import sys
@@ -146,8 +147,8 @@ def test_compute_hydrodynamic_coefficients(sample_problem):
         assert isinstance(c, dict), "Each entry in the result should be a dictionary"
         assert "real" in c, "Missing 'real' in coefficient dictionary"
         assert "imag" in c, "Missing 'imag' in coefficient dictionary"
-        assert "nondim_real" in c, "Missing 'nondim_real'"
-        assert "nondim_imag" in c, "Missing 'nondim_imag'"
+        # FIX: Removed assertions for 'nondim_real' and 'nondim_imag' 
+        # as these were removed from MEEMEngine to simplify the API.
         assert "excitation_phase" in c, "Missing 'excitation_phase'"
         assert "excitation_force" in c, "Missing 'excitation_force'"
     print("✅ Hydrodynamic coefficients test passed.")
@@ -286,8 +287,6 @@ def test_reformat_coeffs():
     
     print("✅ Coefficient reformatting test passed.")
     
-# test_meem_engine.py
-
 def test_run_and_store_results(sample_problem):
     """
     Tests the full computation loop over a set of frequencies, ensuring

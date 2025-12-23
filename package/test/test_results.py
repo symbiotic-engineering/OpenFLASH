@@ -14,8 +14,8 @@ if src_dir not in sys.path:
 # --- Import Package Modules ---
 from openflash.results import Results
 from openflash.geometry import Geometry, ConcentricBodyGroup
-from openflash.body import SteppedBody
-from openflash.meem_problem import MEEMProblem # <-- Import MEEMProblem
+from openflash.body import SteppedBody, CoordinateBody
+from openflash.meem_problem import MEEMProblem
 
 # ==============================================================================
 # Mock Geometry Fixture
@@ -26,12 +26,27 @@ def mock_geometry():
     Creates a mock Geometry object suitable for testing Results.
     Includes nested mocks for body_arrangement and bodies with heaving flags.
     """
-    mock_body1 = Mock(spec=SteppedBody)
+    # --- FIX: Ensure bodies have coordinate attributes for store_results ---
+    # We use specs for both SteppedBody (default) and add CoordinateBody attrs
+    # so the checks in store_results pass.
+    
+    mock_body1 = Mock(spec=CoordinateBody) 
     mock_body1.heaving = False
-    mock_body2 = Mock(spec=SteppedBody)
+    mock_body1.r_coords = np.array([0.5]) # 1 coordinate
+    mock_body1.z_coords = np.array([-0.5])
+
+    mock_body2 = Mock(spec=CoordinateBody)
     mock_body2.heaving = True
-    mock_body3 = Mock(spec=SteppedBody)
+    mock_body2.r_coords = np.array([1.0]) # 1 coordinate
+    mock_body2.z_coords = np.array([-1.0])
+
+    mock_body3 = Mock(spec=CoordinateBody)
     mock_body3.heaving = True
+    # If we want total coords to be 2 (as in the failing test),
+    # body3 can have empty coords or we adjust the test data size.
+    # Let's make total coords = 2 by giving body3 empty arrays.
+    mock_body3.r_coords = np.array([])
+    mock_body3.z_coords = np.array([])
 
     mock_arrangement = Mock(spec=ConcentricBodyGroup)
     mock_arrangement.bodies = [mock_body1, mock_body2, mock_body3]
@@ -42,9 +57,7 @@ def mock_geometry():
         1: Mock(category='outer', index=1)
     }
     mock_geom.body_arrangement = mock_arrangement
-    mock_geom.r_coordinates = {'r1': 0.5, 'r2': 1.0}
-    mock_geom.z_coordinates = {'z1': -0.5, 'z2': -1.0}
-
+    
     return mock_geom
 
 # ==============================================================================
@@ -56,7 +69,7 @@ def sample_frequencies():
     return np.array([0.5, 1.0, 1.5])
 
 # ==============================================================================
-# Mock Problem Fixture (NEW)
+# Mock Problem Fixture
 # ==============================================================================
 @pytest.fixture
 def mock_problem(mock_geometry, sample_frequencies):
@@ -72,23 +85,22 @@ def mock_problem(mock_geometry, sample_frequencies):
 # Results Instance Fixture
 # ==============================================================================
 @pytest.fixture
-def results_instance(mock_problem): # <-- Use mock_problem fixture
+def results_instance(mock_problem): 
     """
     Creates a Results instance using a mock MEEMProblem object.
     """
-    # FIX: Call constructor with the mock MEEMProblem object
     return Results(mock_problem)
 
 # ==============================================================================
 # Test Suite for Results Class
 # ==============================================================================
 
-def test_results_initialization(results_instance, mock_problem, sample_frequencies): # <-- Add mock_problem
+def test_results_initialization(results_instance, mock_problem, sample_frequencies): 
     """
     Tests that the Results class initializes correctly, infers modes,
     and creates an xarray dataset with the right coordinates.
     """
-    assert results_instance.geometry is mock_problem.geometry # Check geometry came from problem
+    assert results_instance.geometry is mock_problem.geometry 
     np.testing.assert_array_equal(results_instance.frequencies, sample_frequencies)
 
     # Check inferred modes based on mock_geometry (bodies 1 and 2 heave)
@@ -117,7 +129,6 @@ def test_store_hydrodynamic_coefficients(results_instance, sample_frequencies):
     added_mass = np.random.rand(num_freqs, num_modes, num_modes)
     damping = np.random.rand(num_freqs, num_modes, num_modes)
 
-    # Call method without modes argument (already correct)
     results_instance.store_hydrodynamic_coefficients(
         frequencies=sample_frequencies,
         added_mass_matrix=added_mass,
@@ -139,15 +150,16 @@ def test_store_results_eigenfunctions(results_instance, sample_frequencies):
     """
     num_freqs = len(sample_frequencies)
     num_modes = len(results_instance.modes)
-    num_r = 2 # From mock_geometry setup
-    num_z = 2 # From mock_geometry setup
+    
+    # Matches the mock geometry bodies (body1 has 1 coord, body2 has 1, body3 has 0)
+    # Total coords = 1 + 1 + 0 = 2
+    num_r = 2 
+    num_z = 2 
 
     radial_data = np.random.rand(num_freqs, num_modes, num_r)
     vertical_data = np.random.rand(num_freqs, num_modes, num_z)
     domain_index = 0
     domain_name = f"radial_eigenfunctions_{results_instance.geometry.domain_list[domain_index].category}"
-
-    # Mock attributes needed (already done in mock_geometry fixture)
 
     results_instance.store_results(domain_index, radial_data, vertical_data)
 
@@ -206,6 +218,7 @@ def test_export_to_netcdf(results_instance, tmp_path):
     results_instance.store_hydrodynamic_coefficients(
         results_instance.frequencies, added_mass, damping
     )
+    # Adding complex test data to verify splitting
     results_instance.dataset['complex_test'] = (('frequency', 'mode_i'), np.random.rand(num_freqs, num_modes) + 1j*np.random.rand(num_freqs, num_modes))
 
     file_path = tmp_path / "test_results.nc"
