@@ -63,17 +63,17 @@ ALL_CONFIGS = {
         "R_range": np.linspace(0.0, 2 * 10, num=50),
         "Z_range": np.linspace(0, -100, num=50),
     },
-    "config3": {
-        "h": 1.9,
-        "a": np.array([0.3, 0.5, 1, 1.2, 1.6]),
-        "d": np.array([0.5, 0.7, 0.8, 0.2, 0.5]),
-        "heaving_map": [True, True, True, True, True],
-        "body_map": [0, 1, 2, 3, 4],
-        "m0": 1.0,
-        "NMK": [50] * 6, # 5 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 1.6, num=50),
-        "Z_range": np.linspace(0, -1.9, num=50),
-    },
+    # "config3": {
+    #     "h": 1.9,
+    #     "a": np.array([0.3, 0.5, 1, 1.2, 1.6]),
+    #     "d": np.array([0.5, 0.7, 0.8, 0.2, 0.5]),
+    #     "heaving_map": [True, True, True, True, True],
+    #     "body_map": [0, 1, 2, 3, 4],
+    #     "m0": 1.0,
+    #     "NMK": [50] * 6, # 5 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 1.6, num=50),
+    #     "Z_range": np.linspace(0, -1.9, num=50),
+    # },
     "config4": {
         "h": 1.001,
         "a": np.array([0.5, 1]),
