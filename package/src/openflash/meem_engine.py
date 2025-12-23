@@ -218,7 +218,7 @@ class MEEMEngine:
                     b_template[index] = b_potential_end_entry(n, bd, heaving, h, d, a)
                     index += 1
             else:
-                num_entries = NMK[bd] if d[bd] > d[bd+1] else NMK[bd+1]
+                num_entries = NMK[bd + (d[bd] <= d[bd + 1])]
                 for n in range(num_entries):
                     b_template[index] = b_potential_entry(n, bd, d, heaving, h, a)
                     index += 1
@@ -231,7 +231,7 @@ class MEEMEngine:
                     cache._add_m0_dependent_b_entry(index, calc_func)
                     index += 1
             else:
-                num_entries = NMK[bd] if d[bd] <= d[bd+1] else NMK[bd+1]
+                num_entries = NMK[bd + (d[bd] > d[bd + 1])]
                 for n in range(num_entries):
                     b_template[index] = b_velocity_entry(n, bd, heaving, a, h, d)
                     index += 1

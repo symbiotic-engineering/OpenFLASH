@@ -317,119 +317,101 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
 def R_2n(n, r, i, a, h, d):
     if i == 0:
         raise ValueError("i cannot be 0") 
-    elif n == 0:
-        # FIX: Shift basis to be 1.0 at inner radius to prevent singular matrix
-        # Old: 0.5 * log(r/inner) -> 0 at inner (Bad)
-        # New: 1.0 + 0.5 * log(r/inner) -> 1.0 at inner (Stable)
-        return 1.0 + 0.5 * np.log(r / a[i-1])
+    
+    # LEGACY: Use Outer Radius
+    outer_r = scale(a)[i]
+
+    if n == 0:
+        # LEGACY: 0.5 * log(r / outer)
+        # This is 0 at the outer boundary, not 1.
+        return 0.5 * np.log(r / outer_r)
     else:
         lambda_val = lambda_ni(n, i, h, d)
-        inner_r = a[i-1]
         
-        if r == inner_r:
+        if r == outer_r:
             return 1.0
         else:
-            # Normalized by K0 at inner radius (Decaying, Stable)
+            # LEGACY: Normalized by K0 at OUTER radius
             num = besselke(0, lambda_val * r)
-            den = besselke(0, lambda_val * inner_r)
-            return (num / den) * exp(lambda_val * (inner_r - r))
+            den = besselke(0, lambda_val * outer_r)
+            return (num / den) * exp(lambda_val * (outer_r - r))
 
 def R_2n_vectorized(n, r, i, a, h, d):
     """
     Vectorized version of the R_2n radial eigenfunction.
-    FIXED: Anchored at Inner Radius (a[i-1]) to match scalar implementation.
+    LEGACY MODE: Anchored at Outer Radius (a[i]).
     """
     if i == 0:
         raise ValueError("R_2n function is not defined for the innermost region (i=0).")
 
-    # Access INNER radius (consistent with scalar R_2n)
-    inner_r = scale(a)[i-1]
+    # LEGACY: Use Outer Radius
+    outer_r = scale(a)[i]
 
-    # --- Define the conditions for vectorization ---
     cond_n_is_zero = (n == 0)
-    cond_r_at_boundary = (r == inner_r) # Check against INNER radius
+    cond_r_at_boundary = (r == outer_r)
 
-    # --- Define the outcome for each case ---
     # Case 1: n = 0
-    # FIX: Must match scalar: 1.0 + 0.5 * log(r / inner_r)
-    # Old vectorized was: 0.5 * np.log(r / a[i]) -> Wrong anchor, wrong affine shift
-    outcome_for_n_zero = 1.0 + 0.5 * np.log(r / inner_r)
+    outcome_for_n_zero = 0.5 * np.log(r / outer_r)
 
-    # Case 2: n > 0 and r is at the inner boundary
+    # Case 2: n > 0 and r is at the boundary
     outcome_for_r_boundary = 1.0
 
-    # Case 3: n > 0 and r is not at the boundary (general case)
+    # Case 3: n > 0 and r is not at the boundary
     lambda_val = lambda_ni(n, i, h, d)
     
-    # FIX: Normalizing by K0 at INNER radius
-    # Mask input where n=0 to prevent 'inf' result from besselke(0,0) causing warnings
+    # Mask input where n=0 to prevent 'inf' errors
     lambda_safe = np.where(cond_n_is_zero, 1.0, lambda_val)
-    denom = besselke(0, lambda_safe * inner_r)
+    
+    # LEGACY: Denom uses OUTER radius
+    denom = besselke(0, lambda_safe * outer_r)
     denom = np.where(np.abs(denom) < 1e-12, np.nan, denom)
 
-    # FIX: Exponential decay from INNER radius: exp(lambda * (inner - r))
-    bessel_term = (besselke(0, lambda_safe * r) / denom) * exp(lambda_safe * (inner_r - r))
+    bessel_term = (besselke(0, lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
 
-    # --- Nest np.where to apply the logic element-wise ---
-    result_if_n_not_zero = np.where(cond_r_at_boundary,
-                                  outcome_for_r_boundary,
-                                  bessel_term)
+    result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
 
-    return np.where(cond_n_is_zero,
-                    outcome_for_n_zero,
-                    result_if_n_not_zero)
+    return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
 # Differentiate wrt r (Unchanged, as d/dr(1.0) is 0)
 def diff_R_2n(n, r, i, h, d, a):
+    # LEGACY: Anchored at Outer Radius
     if n == 0:
-        with np.errstate(divide='ignore'):
-            return np.where(r == 0, np.inf, 1 / (2 * r))
+        return 1.0 / (2 * r)
     else:
-        lambda_val = lambda_ni(n, i, h, d)
-        inner_r = a[i-1]
+        lambda0 = lambda_ni(n, i, h, d)
+        outer_r = scale(a)[i]
         
-        top = -lambda_val * besselke(1, lambda_val * r)
-        bottom = besselke(0, lambda_val * inner_r)
-
-        with np.errstate(divide='ignore', invalid='ignore'):
-            ratio = np.divide(top, bottom, 
-                              out=np.zeros_like(top),
-                              where=(bottom != 0))
+        # Derivative of K0(lr)/K0(la) is -l*K1(lr)/K0(la)
+        # Using scaled K:
+        # -l * (ke1(lr)/ke0(la)) * exp(l(a-r))
         
-        return ratio * exp(lambda_val * (inner_r - r))
+        top = - lambda0 * besselke(1, lambda0 * r)
+        bot = besselke(0, lambda0 * outer_r)
+        
+        return (top / bot) * np.exp(lambda0 * (outer_r - r))
     
 def diff_R_2n_vectorized(n, r, i, h, d, a):
-    """
-    Vectorized derivative of the R_2n radial function.
-    FIXED: Anchored at Inner Radius (a[i-1]) to match scalar implementation.
-    """
     n = np.asarray(n)
     r = np.asarray(r)
     
-    # Case n == 0
-    # Derivative of (1.0 + 0.5 * log(r/inner)) is 1/(2r)
+    # Case n == 0: Derivative is still 1/(2r)
     value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r != 0))
     
     # Case n > 0
     lambda_val = lambda_ni(n, i, h, d)
+    outer_r = scale(a)[i] # LEGACY ANCHOR
     
-    # FIX: Access INNER radius
-    inner_r = scale(a)[i-1]
-    
-    # FIX: Mask n=0 inputs for safety
     lambda_safe = np.where(n == 0, 1.0, lambda_val)
     
-    # FIX: Denominator using INNER radius
-    denom = besselke(0, lambda_safe * inner_r)
-    
-    # Avoid division by zero
+    # LEGACY: Denom uses OUTER radius
+    denom = besselke(0, lambda_safe * outer_r)
     safe_denom = np.where(np.abs(denom) < 1e-10, 1e-10, denom)
 
     with np.errstate(divide='ignore', invalid='ignore'):
         numerator = -lambda_safe * besselke(1, lambda_safe * r)
         ratio = numerator / safe_denom
-        # FIX: Exponential decay from INNER radius
-        exp_term = exp(lambda_safe * (inner_r - r))
+        # LEGACY: Exponential decay from OUTER radius
+        exp_term = exp(lambda_safe * (outer_r - r))
         value_if_false = ratio * exp_term
 
     return np.where(n == 0, value_if_true, value_if_false)
@@ -648,6 +630,7 @@ def N_k_full(k, m0, h, NMK):
 def Z_k_e(k, z, m0, h, NMK, m_k_arr):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
+        if m0 == inf: return 0
         if m0 * h < M0_H_THRESH:
             return 1 / sqrt(N_k_multi(k, m0, h, m_k_arr)) * cosh(m0 * (z + h))
         else: # high m0h approximation
@@ -684,7 +667,8 @@ def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
 def diff_Z_k_e(k, z, m0, h, NMK, m_k_arr):
     local_m_k = m_k(NMK, m0, h)
     if k == 0:
-        if m0 * h < M0_H_THRESH:
+        if m0 == inf: return 0
+        elif m0 * h < M0_H_THRESH:
             return 1 / sqrt(N_k_multi(k, m0, h, m_k_arr)) * m0 * sinh(m0 * (z + h))
         else: # high m0h approximation
             return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
@@ -756,41 +740,104 @@ def int_R_1n(i, n, a, h, d):
 #integrating R_2n * r
 # Integral must be updated to include the volume of the new "1.0" cylinder
 def int_R_2n(i, n, a, h, d):
+    """
+    Computes the integral of R_2n(r) * r dr from inner_r to outer_r.
+    LEGACY MODE: Matches old_assembly.py (Outer Radius Anchor).
+    """
     if i == 0:
         raise ValueError("i cannot be 0")
     
-    lambda0 = lambda_ni(n, i, h, d)
+    # LEGACY: Use Outer Radius
     outer_r = scale(a)[i]
-    inner_r = a[i-1]
+    inner_r = a[i-1] # Previous radius is inner
 
     if n == 0:
-        # Integral of r * (1.0 + 0.5 * ln(r/inner_r))
-        # 1. Cylinder part: Integral of r * 1.0 = (outer^2 - inner^2) / 2
-        # 2. Log part: Same as before
+        # Integral of r * (0.5 * ln(r/outer_r))
+        # Analytic result: [ 0.5 * ( (r^2/2)*ln(r/outer_r) - r^2/4 ) ] evaluated from inner to outer
         
-        cyl_term = (outer_r**2 - inner_r**2) / 2.0
-        
-        def log_indefinite_int(r):
-            log_term = np.log(r/inner_r) if r > 0 else 0
-            return 0.5 * ((r**2 / 2.0) * log_term - (r**2 / 4.0))
+        def indefinite(r):
+            if r <= 0: return 0
+            # ln(r/outer_r) is 0 when r=outer_r
+            term_log = np.log(r / outer_r)
+            return 0.5 * ((r**2 / 2) * term_log - (r**2 / 4))
 
-        val_outer = log_indefinite_int(outer_r)
-        val_inner = log_indefinite_int(inner_r) 
-        
-        return cyl_term + (val_outer - val_inner)
-
-    else:
-        # Standard Bessel K integral (Unchanged from previous stable fix)
-        term_outer = outer_r * besselke(1, lambda0 * outer_r)
-        term_inner = inner_r * besselke(1, lambda0 * inner_r)
-        
-        denom = - lambda0 * besselke(0, lambda0 * inner_r)
-        
-        val_outer = (term_outer / denom) * exp(lambda0 * (inner_r - outer_r))
-        val_inner = (term_inner / denom) * 1.0
-        
+        val_outer = indefinite(outer_r)
+        val_inner = indefinite(inner_r)
         return val_outer - val_inner
 
+    else:
+        # Integral of r * K0(lambda*r) / K0(lambda*outer) * exp(...)
+        # The old code handled this via standard Bessel integrals.
+        # We must replicate the specific normalization of old_assembly.
+        
+        lambda0 = lambda_ni(n, i, h, d)
+        
+        # In old_assembly, R_2n = K0(lr)/K0(la) * exp(...)
+        # The integral of x*K0(x) is -x*K1(x).
+        
+        # Numerator term (pure Bessel K integral part)
+        # Int[ r * K0(lambda*r) ] = - (r/lambda) * K1(lambda*r)
+        
+        # We need to evaluate: [ - (r/lambda)*K1(lambda*r) ] from inner to outer
+        # Then multiply by the normalization constant: exp(lambda*outer) / K0(lambda*outer)
+        # Wait, the exponential term in R_2n_old is: exp(lambda * (outer_r - r))
+        # This exponential cancels out the exp inside the scaled Bessel K if we use K_scaled.
+        # But old_assembly likely used raw K. Let's stick to the raw math.
+        
+        # Let's look at the old implementation logic provided in previous turns:
+        # It normalizes by K0(outer).
+        
+        # Exact calculation matching old_assembly:
+        k0_outer = besselke(0, lambda0 * outer_r) # scaled K0
+        
+        # We need the integral of:
+        # ( K0(lr) / K0(la) ) * exp( l(a-r) ) * r
+        # = ( K0(lr)*exp(lr) / (K0(la)*exp(la)) ) * r   <-- exp terms cancel strictly if using scaled K
+        # effectively it is Integral( r * K0_scaled(lr) ) / K0_scaled(la)
+        
+        # Analytic integral of x * K0(x) is -x * K1(x).
+        # So Int( r * K0(lr) ) = - (r/lambda) * K1(lr)
+        
+        # Converting to scaled Bessel K (kve):
+        # K1(x) = kve(1, x) * exp(-x)
+        # So - (r/l) * kve(1, lr) * exp(-lr)
+        
+        # We want: [ - (r/l) * kve(1, lr) * exp(-lr) ] / [ kve(0, la) * exp(-la) ] * exp( l(a-r) )
+        # Notice exp(-lr) * exp(l(a-r)) = exp(-lr + la - lr) ... wait.
+        # R_2n definition: ( kve(0, lr) * exp(-lr) ) / ( kve(0, la) * exp(-la) ) * exp( l(a-r) )
+        # = kve(0, lr) / kve(0, la) * exp( -lr + la + la - lr ) ... no.
+        
+        # SIMPLER PATH:
+        # R_2n_old(r) = K0(lr) / K0(la)  (Unscaled)
+        # Int(r * R_2n) = (1/K0(la)) * [ - (r/l)*K1(lr) ] bounds inner..outer
+        
+        # Upper bound (r=outer):
+        # - (outer/l) * K1(l*outer) / K0(l*outer)
+        
+        # Lower bound (r=inner):
+        # - (inner/l) * K1(l*inner) / K0(l*outer)
+        
+        # Result = Upper - Lower
+        # = (1/lambda0) * ( inner*K1(l*inner) - outer*K1(l*outer) ) / K0(l*outer)
+        
+        # Using Scaled Bessel functions (kve) to match python 'besselke':
+        # K1(x) = ke1(x) * exp(-x)
+        # K0(x) = ke0(x) * exp(-x)
+        # Ratio K1(x)/K0(y) = ke1(x)/ke0(y) * exp(y-x)
+        
+        term_outer = (outer_r * besselke(1, lambda0 * outer_r)) 
+        # exp(la - la) = 1, so no exp factor needed for outer term.
+        
+        term_inner = (inner_r * besselke(1, lambda0 * inner_r))
+        # exp(la - li). We need to multiply by this.
+        term_inner *= np.exp(lambda0 * (outer_r - inner_r))
+        
+        denom = lambda0 * besselke(0, lambda0 * outer_r)
+        
+        # Result = (inner_term - outer_term) / (lambda * K0_scaled(outer))
+        # Note the sign flip from the integration limits (Upper - Lower) vs (-x*K1).
+        
+        return (term_inner - term_outer) / denom
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
 def int_phi_p_i(i, h, d, a):
     denom = 16 * (h - d[i])

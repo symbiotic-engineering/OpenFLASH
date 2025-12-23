@@ -57,7 +57,8 @@ def calculate_potentials_old(X, NMK, a, h, d, m0, heaving):
         return (Cs[0][n] * R_1n_old(n, r, 0, h, d, a)) * Z_n_i_old(n, z, 0, h, d)
 
     def phi_h_m_i_func_old(i, m, r, z):
-        return (Cs[i][m] * R_1n_old(m, r, i, h, d, a) + Cs[i][NMK[i] + m] * R_2n_old(m, r, i, a, h, d)) * Z_n_i_old(m, z, i, h, d)
+        # Fixed argument order: a, h, d
+        return (Cs[i][m] * R_1n_old(m, r, i, a, h, d) + Cs[i][NMK[i] + m] * R_2n_old(m, r, i, a, h, d)) * Z_n_i_old(m, z, i, h, d)
 
     def phi_e_k_func_old(k, r, z):
         return Cs[-1][k] * Lambda_k_old(k, r, m0, a, NMK, h) * Z_k_e_old(k, z, m0, h, NMK)
@@ -213,6 +214,29 @@ def main():
             err_msg=f"Mismatch in values for {name}"
         )
         print(f"  [PASS] {name}: Matched perfectly across {overlap_count} points.")
+        
+    # Helper to check without crashing immediately
+    def check_field(name, new, old):
+        try:
+            compare_valid_intersection(name, new, old)
+            print(f"✅ {name} matches.")
+            return True
+        except AssertionError as e:
+            print(f"❌ {name} MISMATCH.")
+            diff = np.abs(new - old)
+            print(f"   Max Diff: {np.nanmax(diff)}")
+            return False
+
+    # Check components FIRST
+    phiH_ok = check_field('phiH', potentials_new['phiH'], potentials_old['phiH'])
+    phiP_ok = check_field('phiP', potentials_new['phiP'], potentials_old['phiP'])
+    
+    # Check total only if components look reasonable (or just to see the sum error)
+    phi_ok = check_field('phi', potentials_new['phi'], potentials_old['phi'])
+
+    if not (phiH_ok and phiP_ok and phi_ok):
+        print("\n[DEBUG HINT] If phiH matches but phiP fails, check 'phi_p_i' in multi_equations.py.")
+        print("             Verify it includes the 1/2 factor and uses (z+h)^2.")
 
     try:
         compare_valid_intersection('phi', potentials_new['phi'], potentials_old['phi'])
