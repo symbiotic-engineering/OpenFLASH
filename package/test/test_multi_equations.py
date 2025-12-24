@@ -26,8 +26,10 @@ from openflash.multi_equations import (
     b_velocity_entry, b_velocity_end_entry, 
     phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i, R_1n, diff_R_1n, R_2n, diff_R_2n,
     Z_n_i, diff_Z_n_i, Lambda_k, diff_Lambda_k,
-    N_k_multi, Z_k_e, diff_Z_k_e, int_R_1n, int_R_2n,
-    z_n_d, excitation_phase
+    N_k_multi, Z_k_e, int_R_1n, int_R_2n,
+    z_n_d, excitation_phase,
+    # New imports for added coverage
+    Lambda_k_vectorized, diff_Lambda_k_vectorized, make_R_Z
 )
 
 # --- Fixtures for common parameters ---
@@ -397,11 +399,6 @@ def test_Z_k_e_k0_large_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
     expected = sqrt(2 * m0_local * h) * (exp(m0_local * test_z) + exp(-m0_local * (test_z + 2*h)))
     assert np.isclose(Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
 
-def test_diff_Z_k_e_k0_large_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
-    m0_local = 0.2
-    expected = m0_local * sqrt(2 * h * m0_local) * (exp(m0_local * test_z) - exp(-m0_local * (test_z + 2*h)))
-    assert np.isclose(diff_Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
-
 # --- To calculate hydrocoefficients ---
 def test_int_R_1n_n0_i0(a, h, d):
     # i=0 (innermost region), inner radius 0
@@ -499,3 +496,77 @@ def test_z_n_d_n_positive(test_n):
     if test_n == 0: pytest.skip("Test for n>0")
     expected = sqrt(2) * (-1)**test_n
     assert np.isclose(z_n_d(test_n), expected)
+
+# ==============================================================================
+# NEW TEST CASES FOR COVERAGE
+# ==============================================================================
+
+def test_Lambda_k_k0(a, m0, precomputed_m_k_arr):
+    """Test Lambda_k for k=0 (Hankel case)."""
+    r = a[-1] + 2.0
+    k = 0
+    # Expected: besselh(0, m0 * r) / besselh(0, m0 * a[-1])
+    expected = besselh(0, m0 * r) / besselh(0, m0 * scale(a)[-1])
+    assert np.isclose(Lambda_k(k, r, m0, a, precomputed_m_k_arr), expected)
+
+def test_Lambda_k_k_positive(a, m0, precomputed_m_k_arr):
+    """Test Lambda_k for k>0 (Bessel K case)."""
+    r = a[-1] + 2.0
+    k = 1
+    local_mk = precomputed_m_k_arr[k]
+    # Expected: K0(mk*r)/K0(mk*a) * exp(mk*(a-r))
+    term = besselke(0, local_mk * r) / besselke(0, local_mk * scale(a)[-1])
+    expected = term * np.exp(local_mk * (scale(a)[-1] - r))
+    assert np.isclose(Lambda_k(k, r, m0, a, precomputed_m_k_arr), expected)
+
+def test_Lambda_k_vectorized_m0_inf(a, precomputed_m_k_arr):
+    """Test Lambda_k_vectorized returns ones when m0 is infinite."""
+    k_vals = np.array([0, 1])
+    r_vals = np.array([10.0, 10.0])
+    res = Lambda_k_vectorized(k_vals, r_vals, np.inf, a, precomputed_m_k_arr)
+    assert np.allclose(res, 1.0)
+
+def test_diff_Lambda_k_vectorized_m0_inf(a, precomputed_m_k_arr):
+    """Test diff_Lambda_k_vectorized returns ones when m0 is infinite."""
+    k_vals = np.array([0, 1])
+    r_vals = np.array([10.0, 10.0])
+    res = diff_Lambda_k_vectorized(k_vals, r_vals, np.inf, a, precomputed_m_k_arr)
+    assert np.allclose(res, 1.0)
+
+def test_Z_k_e_k0_small_m0h(test_z, h, NMK, precomputed_m_k_arr):
+    """Test Z_k_e for k=0 and small m0 (low frequency approximation)."""
+    m0_small = 0.01 # m0*h = 1.0 < 14
+    k = 0
+    # Expected: 1/sqrt(N_k) * cosh(m0*(z+h))
+    Nk = N_k_multi(k, m0_small, h, precomputed_m_k_arr)
+    expected = (1 / np.sqrt(Nk)) * np.cosh(m0_small * (test_z + h))
+    assert np.isclose(Z_k_e(k, test_z, m0_small, h, NMK, precomputed_m_k_arr), expected)
+
+def test_Z_k_e_k_positive(test_z, m0, h, NMK, precomputed_m_k_arr):
+    """Test Z_k_e for k>0."""
+    k = 1
+    # Z_k_e recalculates m_k internally for the cosine argument
+    local_m_k_fresh = m_k(NMK, m0, h)
+    
+    Nk = N_k_multi(k, m0, h, precomputed_m_k_arr)
+    expected = (1 / np.sqrt(Nk)) * np.cos(local_m_k_fresh[k] * (test_z + h))
+    
+    assert np.isclose(Z_k_e(k, test_z, m0, h, NMK, precomputed_m_k_arr), expected)
+
+def test_make_R_Z_sharp(a, h, d):
+    """Test make_R_Z with sharp=True to ensure refinement points are added."""
+    spatial_res = 10
+    R, Z = make_R_Z(a, h, d, sharp=True, spatial_res=spatial_res)
+    
+    # Check for epsilon points around a[i]
+    r_unique = np.unique(R)
+    a_eps = 1.0e-4
+    for r_val in a:
+        # Check for presence of r * (1 - eps) and r * (1 + eps)
+        assert np.any(np.isclose(r_unique, r_val * (1 - a_eps)))
+        assert np.any(np.isclose(r_unique, r_val * (1 + a_eps)))
+        
+    # Check for -d[i] points in Z
+    z_unique = np.unique(Z)
+    for d_val in d:
+        assert np.any(np.isclose(z_unique, -d_val))

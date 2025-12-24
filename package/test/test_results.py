@@ -260,3 +260,131 @@ def test_display_results(results_instance):
     assert 'xarray.Dataset' in output_string
     assert 'added_mass' in output_string
     print("✅ Display results test passed.")
+
+# ==============================================================================
+# NEW: Error Handling and Edge Case Tests
+# ==============================================================================
+
+def test_store_results_domain_not_found(results_instance):
+    """
+    Coverage for: raise ValueError(f"Domain index {domain_index} not found.")
+    """
+    with pytest.raises(ValueError, match="Domain index 999 not found"):
+        results_instance.store_results(999, np.array([]), np.array([]))
+
+def test_store_results_no_coordinate_body(mock_problem, sample_frequencies):
+    """
+    Coverage for: 
+    r_coords = np.array([])
+    z_coords = np.array([])
+    """
+    # Replace bodies with just SteppedBody (not CoordinateBody)
+    # FIX: Ensure 'heaving' attribute exists on the mock BEFORE passing it to Results,
+    # as Results.__init__ accesses body.heaving immediately.
+    stepped_body_mock = Mock(spec=SteppedBody)
+    stepped_body_mock.heaving = False # Set heaving to False (or True) to allow access
+    
+    mock_problem.geometry.body_arrangement.bodies = [stepped_body_mock] 
+    
+    results = Results(mock_problem)
+    
+    num_freqs = len(sample_frequencies)
+    
+    # Expected shape: (freqs, modes, 0)
+    # Modes list will be empty if heaving=False for all bodies.
+    num_modes = len(results.modes)
+    radial_data = np.zeros((num_freqs, num_modes, 0))
+    vertical_data = np.zeros((num_freqs, num_modes, 0))
+    
+    # Should run without error
+    results.store_results(0, radial_data, vertical_data)
+
+def test_store_results_shape_mismatch(results_instance):
+    """
+    Coverage for:
+    raise ValueError(f"radial_data shape ...")
+    raise ValueError(f"vertical_data shape ...")
+    """
+    # Default fixture has 3 bodies, 2 coordinate bodies, total 2 coordinates.
+    # Expected spatial dim is 2.
+    num_freqs = len(results_instance.frequencies)
+    num_modes = len(results_instance.modes)
+    expected_spatial = 2
+    
+    # Create mismatched data
+    bad_data = np.zeros((num_freqs, num_modes, expected_spatial + 1))
+    good_data = np.zeros((num_freqs, num_modes, expected_spatial))
+    
+    with pytest.raises(ValueError, match="radial_data shape"):
+        results_instance.store_results(0, bad_data, good_data)
+        
+    with pytest.raises(ValueError, match="vertical_data shape"):
+        results_instance.store_results(0, good_data, bad_data)
+
+def test_store_single_potential_field(results_instance):
+    """
+    Coverage for:
+    raise ValueError("potential_data must contain 'R', 'Z', and 'phi' keys.")
+    and the successful execution block.
+    """
+    # Test Exception
+    with pytest.raises(ValueError, match="must contain 'R', 'Z', and 'phi'"):
+        results_instance.store_single_potential_field({'R': []})
+        
+    # Test Success
+    data = {
+        'R': np.zeros((5, 5)),
+        'Z': np.zeros((5, 5)),
+        'phi': np.zeros((5, 5), dtype=complex)
+    }
+    results_instance.store_single_potential_field(data, frequency_idx=0, mode_idx=0)
+    assert 'potential_phi_real_0_0' in results_instance.dataset
+
+def test_store_all_potentials_edge_cases(results_instance, capsys):
+    """
+    Coverage for:
+    print("No potentials data to store.")
+    print("No domain data found in potentials batch.")
+    domain_potentials = domain_potentials.astype(complex)
+    """
+    # 1. Empty Input
+    results_instance.store_all_potentials([])
+    captured = capsys.readouterr()
+    assert "No potentials data to store" in captured.out
+    
+    # 2. Batch with no domain data
+    results_instance.store_all_potentials([{'data': {}}])
+    captured = capsys.readouterr()
+    assert "No domain data found" in captured.out
+    
+    # 3. Real input triggering astype(complex)
+    batch = [{
+        'frequency_idx': 0, 'mode_idx': 0,
+        'data': {
+            'domain_0': {
+                'potentials': np.array([1.0, 2.0]), # Floats, not complex
+                'r_coords_dict': {'r0': 0},
+                'z_coords_dict': {'z0': 0}
+            }
+        }
+    }]
+    results_instance.store_all_potentials(batch)
+    # Verification: Check that the stored data is complex/contains NaNs where appropriate
+    assert 'potentials_real' in results_instance.dataset
+
+def test_store_hydrodynamic_coefficients_shape_mismatch(results_instance, sample_frequencies):
+    """
+    Coverage for:
+    raise ValueError(f"Matrices must have shape ...")
+    """
+    bad_matrix = np.zeros((1, 1, 1)) # Wrong shape
+    with pytest.raises(ValueError, match="Matrices must have shape"):
+        results_instance.store_hydrodynamic_coefficients(sample_frequencies, bad_matrix, bad_matrix)
+
+def test_display_results_none(results_instance):
+    """
+    Coverage for:
+    else: return "No results stored."
+    """
+    results_instance.dataset = None
+    assert results_instance.display_results() == "No results stored."

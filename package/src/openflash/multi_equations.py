@@ -191,19 +191,7 @@ def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # b
             return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
     else:
         return constant * (1/sqrt(N_k_arr[k])) * sin(local_m_k_k * (h - d[i])) / local_m_k_k # Use N_k_arr[k]
-
-def b_velocity_end_entry_full(k, i, heaving, a, h, d, m0, NMK): # between i and e-type regions
-    local_m_k = m_k(NMK, m0, h)
-    constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
-    if k == 0:
-        if m0 == inf: return 0.0 # Fix here as well for completeness
-        elif m0 * h < M0_H_THRESH:
-            return constant * (1/sqrt(N_k_full(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
-        else: # high m0h approximation
-            return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
-    else:
-        return constant * (1/sqrt(N_k_full(k, m0, h, NMK))) * sin(local_m_k[k] * (h - d[i])) / local_m_k[k]
-
+    
 #############################################
 # Phi particular and partial derivatives
 
@@ -525,14 +513,6 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     return np.where(cond_r_at_boundary,
                     outcome_boundary,
                     result_if_not_boundary)
-    
-def Lambda_k_full(k, r, m0, a, NMK, h):
-    local_scale = scale(a)
-    local_m_k = m_k(NMK, m0, h)
-    if k == 0:
-        return besselh(0, m0 * r) / besselh(0, m0 * local_scale[-1])
-    else:
-        return besselk(0, local_m_k[k] * r) / besselk(0, local_m_k[k] * local_scale[-1])
 
 # Differentiate wrt r 
 def diff_Lambda_k(k, r, m0, a, m_k_arr): 
@@ -588,18 +568,6 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     # --- Use np.where to select the final output ---
     return np.where(condition, outcome_k_zero, outcome_k_nonzero)
 
-def diff_Lambda_k_full(k, r, m0, NMK, h, a):
-    local_m_k = m_k(NMK, m0, h)
-    local_scale = scale(a)
-    if k == 0:
-        numerator = -(m0 * besselh(1, m0 * r))
-        denominator = besselh(0, m0 * local_scale[-1])
-    else:
-        numerator = -(local_m_k[k] * besselk(1, local_m_k[k] * r))
-        denominator = besselk(0, local_m_k[k] * local_scale[-1])
-    return numerator / denominator
-
-
 #############################################
 # Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
 # REVISED N_k to accept m_k_arr (as it previously called m_k itself)
@@ -614,16 +582,6 @@ def N_k_multi(k, m0, h, m_k_arr):
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
     else:
         return 1 / 2 * (1 + sin(2 * m_k_arr[k] * h) / (2 * m_k_arr[k] * h))
-    
-def N_k_full(k, m0, h, NMK):
-    local_m_k = m_k(NMK, m0, h)
-    if k == 0:
-        return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
-    elif m0 == 0:
-        return 1.0
-    else:
-        return 1 / 2 * (1 + sin(2 * local_m_k[k] * h) / (2 * local_m_k[k] * h))
-
 
 #############################################
 # e-region vertical eigenfunctions
@@ -664,16 +622,6 @@ def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
         
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
 
-def diff_Z_k_e(k, z, m0, h, NMK, m_k_arr):
-    local_m_k = m_k(NMK, m0, h)
-    if k == 0:
-        if m0 == inf: return 0
-        elif m0 * h < M0_H_THRESH:
-            return 1 / sqrt(N_k_multi(k, m0, h, m_k_arr)) * m0 * sinh(m0 * (z + h))
-        else: # high m0h approximation
-            return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
-    else:
-        return -1 / sqrt(N_k_multi(k, m0, h, m_k_arr)) * local_m_k[k] * sin(local_m_k[k] * (z + h))
 def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
     """
     Vectorized derivative of the e-region vertical eigenfunction Z_k_e.
@@ -920,13 +868,7 @@ def p_dense_block(left, radfunction, bd, NMK, a, I_nm_vals):
     radial_vector = radfunction(list(range(NMK[region])), a[bd], region)
     radial_array = np.outer((np.full((NMK[adj]), 1)), radial_vector)
     return sign * radial_array * I_nm_array
-
-def p_dense_block_e(bd, I_mk_vals, NMK, a):
-    I_mk_array = I_mk_vals
-    radial_vector = (np.vectorize(Lambda_k, otypes = [complex]))(list(range(NMK[bd+1])), a[bd])
-    radial_array = np.outer((np.full((NMK[bd]), 1)), radial_vector)
-    return (-1) * radial_array * I_mk_array
-            
+   
 # arguments: diagonal block on left (T/F), vectorized radial eigenfunction, boundary number
 def v_diagonal_block(left, radfunction, bd, h, d, NMK, a):
     region = bd if left else (bd + 1)
