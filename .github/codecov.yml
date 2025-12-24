@@ -2,6 +2,12 @@ coverage:
   round: up # Options: up, down, nearest
   range: 0..10 # The range of coverage percentage
   precision: 5 # How many decimal places to use
+  status:
+    project:
+      default:
+        target: auto # "auto" means coverage must match or exceed the base commit
+        threshold: 1% # Allow 1% drop in coverage
+
 codecov:
   strict_yaml_branch: default
   max_report_age: off
