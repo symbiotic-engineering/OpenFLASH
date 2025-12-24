@@ -7,20 +7,36 @@ coverage:
       default:
         target: auto
         threshold: 1%
-    # NEW: Add a status check specifically for the 'unit' flag
-  unit_tests_coverage:
-    target: auto
-    threshold: 1%
-    flags:
-      - unit
+      # Indented correctly under project
+      unit_tests_coverage:
+        target: auto
+        threshold: 1%
+        flags:
+          - unit
 
 codecov:
   strict_yaml_branch: default
   max_report_age: off
 
-# NEW: Define the flags and the paths they cover
 flags:
   unit:
     paths:
       - package/src/
-    carryforward: true # Useful if you run different tests on different commits
+    carryforward: true
+
+# NEW: Component Management Configuration
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+        threshold: 1%
+  individual_components:
+    - component_id: source_code
+      name: Source Code
+      paths:
+        - package/src/**
+    - component_id: tests
+      name: Tests
+      paths:
+        - package/test/**
