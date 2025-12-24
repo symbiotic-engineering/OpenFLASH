@@ -1,0 +1,7 @@
+coverage:
+  round: up # Options: up, down, nearest
+  range: 0..10 # The range of coverage percentage
+  precision: 5 # How many decimal places to use
+codecov:
+  strict_yaml_branch: default
+  max_report_age: off
