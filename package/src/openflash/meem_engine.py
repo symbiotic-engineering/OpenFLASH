@@ -183,8 +183,10 @@ class MEEMEngine:
                 v_diag_e_col_start = col_offset + (2*N if bd > 0 else N)
                 for k_local in range(M):
                     g_row, g_col = row_offset + k_local, v_diag_e_col_start + k_local
+                    # --- FIX: Pass 'k' as the first argument 'm' since it's a diagonal block ---
+                    # --- FIX: Ensure 'm' is not used in the lambda definition ---
                     calc_func = lambda p, m0, mk, Nk, Imk, k=k_local: \
-                        v_diagonal_block_e_entry(m, k, bd, m0, mk, a, h)
+                        v_diagonal_block_e_entry(k, k, bd, m0, mk, a, h)
                     cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
                 col_offset += (2*N if bd > 0 else N)
 
