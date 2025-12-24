@@ -1,13 +1,26 @@
 coverage:
-  round: up # Options: up, down, nearest
-  range: 0..10 # The range of coverage percentage
-  precision: 5 # How many decimal places to use
+  round: up
+  range: 0..10
+  precision: 5
   status:
     project:
       default:
-        target: auto # "auto" means coverage must match or exceed the base commit
-        threshold: 1% # Allow 1% drop in coverage
+        target: auto
+        threshold: 1%
+    # NEW: Add a status check specifically for the 'unit' flag
+  unit_tests_coverage:
+    target: auto
+    threshold: 1%
+    flags:
+      - unit
 
 codecov:
   strict_yaml_branch: default
   max_report_age: off
+
+# NEW: Define the flags and the paths they cover
+flags:
+  unit:
+    paths:
+      - package/src/
+    carryforward: true # Useful if you run different tests on different commits
