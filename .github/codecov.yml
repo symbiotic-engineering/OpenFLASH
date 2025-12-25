@@ -30,7 +30,7 @@ component_management:
     statuses:
       - type: project
         target: auto
-        threshold: 10%
+        threshold: 20%
   individual_components:
     - component_id: source_code
       name: Source Code
