@@ -3,63 +3,55 @@ name: CI Test
 on:
   push:
     branches:
-      - main # Listen for pushes to the main branch
+      - main
   pull_request:
     branches:
-      - main # Listen for pull requests targeting the main branch
+      - main
 
 jobs:
   test:
-    runs-on: ubuntu-latest # Use the latest Ubuntu image
+    runs-on: ubuntu-latest
 
     steps:
-      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10" # Use Python 3.10
+          python-version: "3.10"
 
-      # Install dependencies
+      # UPDATED STEP
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-cov
-          pip install -r requirements.txt
+          # Installs the package in editable mode (-e) with "dev" extras from pyproject.toml
+          pip install -e .[dev]
 
-      # Run tests with coverage reports
       - name: Run tests with coverage reports
         run: |
           pytest package/test/ --cov=package/src --cov-report=html:coverage/html --cov-report=xml:coverage/coverage.xml --junitxml=test-results/junit.xml
 
-      # List Coverage Directory
       - name: List Coverage Directory
         run: ls -R coverage/
 
-      # List Test Results Directory
       - name: List Test Results Directory
         run: ls -R test-results/
 
-      # Upload coverage to Codecov
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: coverage/coverage.xml # Specify the path to the coverage XML report
+          files: coverage/coverage.xml
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: unit # <--- ADDED THIS LINE
+          flags: unit
 
-      # Publish test results to GitHub UI
       - name: Publish test report to GitHub UI
         uses: mikepenz/action-junit-report@v5
         if: always()
         with:
           report_paths: "test-results/junit.xml"
 
-      # Upload test and coverage artifacts
       - name: Upload test and coverage artifacts
         if: always()
         uses: actions/upload-artifact@v4
