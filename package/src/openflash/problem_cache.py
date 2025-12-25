@@ -68,3 +68,86 @@ class ProblemCache:
 
     def _get_closure(self, key: str):
         return self.named_closures.get(key, None)
+    def _set_integration_constants(self, int_R1, int_R2, int_phi):
+        self.int_R1_vals = int_R1
+        self.int_R2_vals = int_R2
+        self.int_phi_vals = int_phi
+    
+    def _get_integration_constants(self):
+        if self.int_R1_vals is None:
+             raise ValueError("Integration constants have not been set.")
+        return self.int_R1_vals, self.int_R2_vals, self.int_phi_vals
+    def refresh_forcing_terms(self, problem):
+        """
+        Re-calculates b_template and m0_dependent_b_indices based on the 
+        current heaving configuration of the problem.
+        This allows re-using the cache (and Matrix A) while changing the active mode.
+        """
+        domain_list = problem.domain_list
+        domain_keys = list(domain_list.keys())
+        
+        # Extract geometry params (same as build_problem_cache)
+        h = domain_list[0].h
+        d = [domain_list[idx].di for idx in domain_keys]
+        a = [domain_list[idx].a for idx in domain_keys]
+        NMK = [domain.number_harmonics for domain in domain_list.values()]
+        
+        # Crucial: Get the NEW heaving flags
+        heaving = [domain_list[idx].heaving for idx in domain_keys]
+        
+        boundary_count = len(NMK) - 1
+        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
+
+        # 1. Reset b_template
+        b_template = np.zeros(size, dtype=complex)
+        
+        index = 0
+        for bd in range(boundary_count):
+            if bd == (boundary_count - 1):
+                for n in range(NMK[-2]):
+                    b_template[index] = b_potential_end_entry(n, bd, heaving, h, d, a)
+                    index += 1
+            else:
+                num_entries = NMK[bd + (d[bd] <= d[bd + 1])]
+                for n in range(num_entries):
+                    b_template[index] = b_potential_entry(n, bd, d, heaving, h, a)
+                    index += 1
+        
+        self._set_b_template(b_template)
+
+        # 2. Reset m0_dependent_b_indices
+        self.m0_dependent_b_indices = [] # Clear old indices
+        
+        # Re-populate using the loop logic from build_problem_cache
+        # Note: We must reset 'index' to match the velocity loop start position
+        # The velocity loop starts after the potential loop.
+        
+        # Calculate offset where velocity equations start
+        potential_eq_count = 0
+        for bd in range(boundary_count):
+            if bd == (boundary_count - 1):
+                potential_eq_count += NMK[-2]
+            else:
+                potential_eq_count += NMK[bd + (d[bd] <= d[bd + 1])]
+        
+        index = potential_eq_count 
+
+        for bd in range(boundary_count):
+            if bd == (boundary_count - 1):
+                for n_local in range(NMK[-1]):
+                    # Closure to capture n_local and heaving state
+                    calc_func = lambda p, m0, mk, Nk, Imk, n=n_local: \
+                        b_velocity_end_entry(n, bd, heaving, a, h, d, m0, NMK, mk, Nk)
+                    self._add_m0_dependent_b_entry(index, calc_func)
+                    index += 1
+            else:
+                num_entries = NMK[bd + (d[bd] > d[bd + 1])]
+                for n in range(num_entries):
+                    # b_velocity_entry is not m0 dependent, so it goes into b_template?
+                    # Wait, look at build_problem_cache in original file.
+                    # b_velocity_entry IS put into b_template.
+                    b_template[index] = b_velocity_entry(n, bd, heaving, a, h, d)
+                    index += 1
+        
+        # Update the template again with the velocity entries added
+        self._set_b_template(b_template)
