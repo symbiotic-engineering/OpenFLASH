@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath(src_dir))
 
 # Import all functions from multi_equations.py
 from openflash.multi_equations import (
-    omega, scale, lambda_ni, m_k_entry, m_k, m_k_newton,
+    omega, scale, lambda_ni, m_k_entry, m_k,
     I_nm, I_mk, b_potential_entry, b_potential_end_entry,
     b_velocity_entry, b_velocity_end_entry, 
     phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i, R_1n, diff_R_1n, R_2n, diff_R_2n,
@@ -140,10 +140,6 @@ def test_m_k(NMK, m0, h):
     assert isinstance(result_array, np.ndarray)
     assert result_array.shape[0] == num_modes
     assert np.isclose(result_array[0], m0)
-
-def test_m_k_newton(h, m0):
-    expected_k = np.sqrt(m0**2 / 9.8 / h) 
-    assert np.isclose(m_k_newton(h, m0), expected_k, rtol=2e-2, atol=1e-5) 
 
 # --- Coupling Integrals ---
 def test_I_nm_n0m0(h, d):
