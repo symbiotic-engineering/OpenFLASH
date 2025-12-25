@@ -1,0 +1,42 @@
+coverage:
+  round: up
+  range: 0..10
+  precision: 5
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+      # Indented correctly under project
+      unit_tests_coverage:
+        target: auto
+        threshold: 1%
+        flags:
+          - unit
+
+codecov:
+  strict_yaml_branch: default
+  max_report_age: off
+
+flags:
+  unit:
+    paths:
+      - package/src/
+    carryforward: true
+
+# NEW: Component Management Configuration
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+        threshold: 10%
+  individual_components:
+    - component_id: source_code
+      name: Source Code
+      paths:
+        - package/src/**
+    - component_id: tests
+      name: Tests
+      paths:
+        - package/test/**

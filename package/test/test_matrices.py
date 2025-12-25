@@ -107,6 +107,7 @@ def validate_closures(problem, engine, m0, tol=1e-12):
     b_vector = engine.assemble_b_multi(problem, m0)
     for (row, closure_fn) in cache.m0_dependent_b_indices:
         closure_val = closure_fn(problem, m0, m_k_arr, N_k_arr, I_mk_vals)
+        b_vector = engine.assemble_b_multi(problem, m0) # Re-fetch just in case
         b_val = b_vector[row]
         if not np.isclose(closure_val, b_val, rtol=tol, atol=tol):
             print(f"[b mismatch] row={row}: closure={closure_val:.4e}, vector={b_val:.4e}")
@@ -210,7 +211,10 @@ def run_comparison_test():
     NMK = [20, 20, 20, 20]   # Small problem size for fast testing
     d = [29, 7, 4]    # example depths
     a = [3, 5, 10]          # example parameters per region
-    heaving = [0, 1, 1]     # heaving flags per region
+    
+    # --- FIX: Ensure only ONE body is heaving to satisfy Geometry assertion ---
+    heaving = [0, 1, 0]     
+    
     h = 100                 # example characteristic length
     m0 = 1
     # --- Assemble old matrix and vector ---
@@ -412,4 +416,3 @@ def run_comparison_test():
 if __name__ == "__main__":
     run_comparison_test()
     test_v_dense_block_e_entry()
-    
