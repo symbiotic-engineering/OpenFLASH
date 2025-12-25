@@ -192,7 +192,7 @@ def test_ensure_m_k_and_N_k_arrays(sample_problem):
     # 2. Act: Call the method for the first time
     engine._ensure_m_k_and_N_k_arrays(sample_problem, m0)
 
-    # 3. Assert that cache is now populated
+    # 3. Assert that cache is populated
     assert isinstance(cache.m_k_arr, np.ndarray)
     assert isinstance(cache.N_k_arr, np.ndarray)
     
@@ -489,9 +489,8 @@ def test_run_and_store_results_branches(sample_problem):
         # (Assuming the engine initialized the matrix to NaNs)
         
     # Case C: LinAlgError handling
-    # Patch solve_linear_system_multi to raise LinAlgError
-    # FIX: Patch on the class so the internal temp_engine instance is also patched
-    with patch('openflash.meem_engine.MEEMEngine.solve_linear_system_multi', side_effect=np.linalg.LinAlgError("Singular matrix")):
+    # Patch linalg.lu_factor to raise LinAlgError, as run_and_store_results uses this directly now.
+    with patch('openflash.meem_engine.linalg.lu_factor', side_effect=np.linalg.LinAlgError("Singular matrix")):
         results = engine.run_and_store_results(0)
         # Verify that we got NaNs for the coefficients
         ds = results.get_results()
