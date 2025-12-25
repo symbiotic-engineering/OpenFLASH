@@ -2,7 +2,7 @@ import xarray as xr
 import numpy as np
 from openflash.geometry import Geometry
 from openflash.meem_problem import MEEMProblem
-from .body import CoordinateBody  # <-- ADD THIS IMPORT
+from .body import CoordinateBody
 
 class Results:
     """
@@ -10,18 +10,25 @@ class Results:
     Provides methods to store, access, and export results to a .nc file.
     """
 
-    def __init__(self, problem: MEEMProblem):
+    def __init__(self, problem: MEEMProblem, modes=None):
         """
         Initializes the Results class from a MEEMProblem object.
+        
+        :param problem: The MEEMProblem instance.
+        :param modes: Optional list/array of modes to explicitly define the system dimensions.
+                      If None, modes are inferred from the problem's active heaving bodies.
         """
         self.geometry = problem.geometry
         self.frequencies = problem.frequencies
 
-        heaving_bodies = [
-            i for i, body in enumerate(self.geometry.body_arrangement.bodies)
-            if body.heaving
-        ]
-        self.modes = np.array(heaving_bodies)
+        if modes is not None:
+            self.modes = np.array(modes)
+        else:
+            heaving_bodies = [
+                i for i, body in enumerate(self.geometry.body_arrangement.bodies)
+                if body.heaving
+            ]
+            self.modes = np.array(heaving_bodies)
 
         self.dataset = xr.Dataset(coords={
             'frequency': self.frequencies,
@@ -39,9 +46,6 @@ class Results:
         if domain is None:
             raise ValueError(f"Domain index {domain_index} not found.")
 
-        # --- THIS IS THE FIX ---
-        # You are correct, r_coords and z_coords are on the Body objects.
-        # We need to iterate through the bodies in the geometry and collect them.
         all_r_coords = []
         all_z_coords = []
         for body in self.geometry.body_arrangement.bodies:
@@ -49,16 +53,12 @@ class Results:
                 all_r_coords.append(body.r_coords)
                 all_z_coords.append(body.z_coords)
 
-        # This method is designed for CoordinateBody. If none are found
-        # (e.g., if only SteppedBody is used), r_coords will be empty.
         if not all_r_coords:
              r_coords = np.array([])
              z_coords = np.array([])
         else:
-             # Concatenate all coordinates from all bodies
              r_coords = np.concatenate(all_r_coords)
              z_coords = np.concatenate(all_z_coords)
-        # --- END FIX ---
 
         if radial_data.shape != (len(self.frequencies), len(self.modes), len(r_coords)):
             raise ValueError(f"radial_data shape {radial_data.shape} does not match expected "
@@ -75,7 +75,7 @@ class Results:
             coords={
                 'frequency': self.frequencies,
                 'modes': self.modes,
-                'r': r_coords # These should be constant for the geometry
+                'r': r_coords 
             }
         )
         self.dataset[f'vertical_eigenfunctions_{domain_name}'] = xr.DataArray(
@@ -84,7 +84,7 @@ class Results:
             coords={
                 'frequency': self.frequencies,
                 'modes': self.modes,
-                'z': z_coords # These should be constant for the geometry
+                'z': z_coords 
             }
         )
         print(f"Eigenfunctions for domain {domain_index} stored in dataset.")
@@ -92,16 +92,10 @@ class Results:
     def store_single_potential_field(self, potential_data: dict, frequency_idx: int = 0, mode_idx: int = 0):
         """
         Stores a single, fully computed potential field (R, Z, phi) in the dataset.
-
-        :param potential_data: The dictionary returned by `calculate_potentials`.
-        :param frequency_idx: The index of the frequency for this data.
-        :param mode_idx: The index of the mode for this data.
         """
         if not all(k in potential_data for k in ["R", "Z", "phi"]):
             raise ValueError("potential_data must contain 'R', 'Z', and 'phi' keys.")
 
-        # Store each component of the potential field
-        # We add coordinates to make the data self-describing
         self.dataset[f'potential_R_{mode_idx}_{frequency_idx}'] = xr.DataArray(
             potential_data["R"],
             dims=['z_coord', 'r_coord']
@@ -120,40 +114,30 @@ class Results:
         )
         print(f"Stored single potential field for mode {mode_idx} and frequency {frequency_idx}.")
     
-    # --- METHOD TO STORE BATCHED POTENTIALS ---
     def store_all_potentials(self, all_potentials_batch: list[dict]):
         """
         Store potentials for all frequencies and modes in a structured xarray DataArray.
-
-        :param all_potentials_batch: A list where each element corresponds to a frequency-mode calculation.
-                                    Each element is a dictionary:
-                                    {'frequency_idx': int, 'mode_idx': int,
-                                    'data': {'domain_name': {'potentials': np.ndarray, 'r_coords_dict': dict, 'z_coords_dict': dict}}}
         """
         if not all_potentials_batch:
             print("No potentials data to store.")
             return
 
-        # Determine unique domain names and max harmonics across all batches
         domain_names = sorted(list(set(domain_name for item in all_potentials_batch for domain_name in item['data'].keys())))
         if not domain_names:
             print("No domain data found in potentials batch.")
             return
 
-        # Find the maximum number of harmonics for any potential in any domain/frequency
         max_harmonics = 0
         for item in all_potentials_batch:
             for domain_name in item['data'].keys():
                 max_harmonics = max(max_harmonics, len(item['data'][domain_name]['potentials']))
 
-        # Initialize a 4D array: (frequencies, modes, domains, harmonics)
         potentials_array = np.full(
             (len(self.frequencies), len(self.modes), len(domain_names), max_harmonics),
-            np.nan + 1j * np.nan, # Ensure complex NaNs for fill value
-            dtype=complex # Explicitly define complex dtype
+            np.nan + 1j * np.nan, 
+            dtype=complex 
         )
 
-        # Create coordinate arrays for r and z
         r_coord_values = np.full((len(domain_names), max_harmonics), np.nan, dtype=float) 
         z_coord_values = np.full((len(domain_names), max_harmonics), np.nan, dtype=float) 
 
@@ -167,7 +151,6 @@ class Results:
                 domain_potentials = data['potentials']
                 domain_r_coords = np.concatenate([np.atleast_1d(v) for _, v in sorted(data['r_coords_dict'].items())])
                 domain_z_coords = np.concatenate([np.atleast_1d(v) for _, v in sorted(data['z_coords_dict'].items())])
-
                 
                 if domain_potentials.dtype != complex:
                     domain_potentials = domain_potentials.astype(complex)
@@ -176,12 +159,10 @@ class Results:
                 r_coord_values[domain_idx, :len(domain_r_coords)] = domain_r_coords
                 z_coord_values[domain_idx, :len(domain_z_coords)] = domain_z_coords
         
-        # Add new coordinates to the dataset if they don't exist
         if 'harmonics' not in self.dataset.coords:
             self.dataset.coords['harmonics'] = np.arange(max_harmonics)
         if 'domain_name' not in self.dataset.coords:
             self.dataset.coords['domain_name'] = domain_names
-        # Ensure 'modes' coord is present from __init__
         if 'modes' not in self.dataset.coords:
             self.dataset.coords['modes'] = self.modes
 
@@ -207,7 +188,6 @@ class Results:
             }
         )
 
-        
         self.dataset['potential_r_coords'] = xr.DataArray(
             r_coord_values,
             dims=['domain_name', 'harmonics'],
@@ -231,7 +211,6 @@ class Results:
         :param added_mass_matrix: 3D array (frequencies x modes x modes) of added mass coefficients.
         :param damping_matrix: 3D array (frequencies x modes x modes) of damping coefficients.
         """
-        # Ensure dimensions match
         expected_shape = (len(frequencies), len(self.modes), len(self.modes))
         
         if added_mass_matrix.shape != expected_shape or \
@@ -241,7 +220,6 @@ class Results:
                 f"Expected {expected_shape} (based on heaving flags), but got {added_mass_matrix.shape}."
             )
 
-        # Assign the 3D data with the correct 3D dimension names
         self.dataset['added_mass'] = (('frequency', 'mode_i', 'mode_j'), added_mass_matrix)
         self.dataset['damping'] = (('frequency', 'mode_i', 'mode_j'), damping_matrix)
         print("Hydrodynamic coefficients stored in xarray dataset.")
@@ -266,19 +244,9 @@ class Results:
         safe_ds.to_netcdf(file_path, engine="h5netcdf")
 
     def get_results(self):
-        """
-        Get the stored results as an xarray Dataset.
-
-        :return: xarray.Dataset containing the results.
-        """
         return self.dataset
 
     def display_results(self):
-        """
-        Display the stored results in a readable format.
-
-        :return: String representation of the results.
-        """
         if self.dataset is not None:
             return str(self.dataset)
         else:

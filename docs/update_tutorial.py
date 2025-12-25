@@ -1,5 +1,6 @@
 import json
 import os
+import numpy as np
 
 def update_notebook():
     # Find the notebook in the same directory as this script
@@ -14,11 +15,10 @@ def update_notebook():
         return
 
     # --- Preserve Initial Cells (Header & Imports) ---
-    # We assume Cell 0 is the Markdown Title and Cell 1 is Imports
     new_cells = nb['cells'][:2]
 
-    # --- Cell 2: Problem Parameters (Common) ---
-    cell_params = {
+    # --- Cell 2: Problem Setup ---
+    new_cells.append({
         "cell_type": "code",
         "execution_count": None,
         "metadata": {},
@@ -37,11 +37,10 @@ def update_notebook():
             "problem_omega = omega(m0, h, g)\n",
             "print(f\"Wave number (m0): {m0}, Angular frequency (omega): {problem_omega:.4f}\")"
         ]
-    }
-    new_cells.append(cell_params)
+    })
 
-    # --- Cell 3: Helper Function for Simulation ---
-    cell_helper = {
+    # --- Cell 3: Helper Function ---
+    new_cells.append({
         "cell_type": "code",
         "execution_count": None,
         "metadata": {},
@@ -88,21 +87,14 @@ def update_notebook():
             "    \n",
             "    return problem, X, coeffs\n"
         ]
-    }
-    new_cells.append(cell_helper)
+    })
 
-    # --- Cell 4: Case 1 Markdown ---
+    # --- Cell 4-5: Case 1 ---
     new_cells.append({
         "cell_type": "markdown",
         "metadata": {},
-        "source": [
-            "## 2. Case 1: Inner Body Heaving (Mode 0)\n",
-            "\n",
-            "We simulate the case where only the inner body is heaving (`heaving_list = [True, False]`)."
-        ]
+        "source": ["## 2. Case 1: Inner Body Heaving (Mode 0)\n\nWe simulate the case where only the inner body is heaving (`heaving_list = [True, False]`)."]
     })
-
-    # --- Cell 5: Case 1 Code ---
     new_cells.append({
         "cell_type": "code",
         "execution_count": None,
@@ -117,20 +109,14 @@ def update_notebook():
         ]
     })
 
-    # --- Cell 6: Case 2 Markdown ---
+    # --- Cell 6-7: Case 2 ---
     new_cells.append({
         "cell_type": "markdown",
         "metadata": {},
         "source": [
-            "## 3. Case 2: Outer Body Heaving (Mode 1)\n",
-            "\n",
-            "Now we simulate the case where only the outer body is heaving (`heaving_list = [False, True]`).\n",
-            "\n",
-            "**Note:** Currently, the package calculates the diagonal terms of the hydrodynamic coefficient matrix. Off-diagonal (coupling) terms are not yet implemented, so we run separate problems for each mode."
+            "## 3. Case 2: Outer Body Heaving (Mode 1)\n\nNow we simulate the case where only the outer body is heaving (`heaving_list = [False, True]`).\n\n**Note:** Currently, the package calculates the diagonal terms of the hydrodynamic coefficient matrix. Off-diagonal (coupling) terms are not yet implemented, so we run separate problems for each mode."
         ]
     })
-
-    # --- Cell 7: Case 2 Code ---
     new_cells.append({
         "cell_type": "code",
         "execution_count": None,
@@ -145,47 +131,128 @@ def update_notebook():
         ]
     })
 
-    # --- Cell 8: Visualization Markdown ---
+    # --- Cell 8-9: Visualization ---
     new_cells.append({
         "cell_type": "markdown",
         "metadata": {},
-        "source": [
-            "## 4. Potential Field Visualization\n",
-            "\n",
-            "We can visualize the potential field for one of the cases (e.g., Case 2: Outer Body Heaving)."
-        ]
+        "source": ["## 4. Potential Field Visualization\n\nWe can visualize the potential field for Case 2 (Outer Body Heaving)."]
     })
-
-    # --- Cell 9: Visualization Code ---
-    # Attempt to locate the original visualization code (containing 'plot')
-    orig_viz_source = None
-    for cell in nb['cells']:
-        if cell['cell_type'] == 'code' and 'plot' in str(cell['source']).lower():
-            orig_viz_source = cell['source']
-            break
-    
-    if orig_viz_source is None:
-        # Fallback if not found
-        orig_viz_source = ["# Visualization code missing from original file\n"]
-
-    # Prepend variable binding so the viz code uses the results from Case 2
-    viz_source = [
-        "# Setup variables for visualization using Case 2 results\n",
-        "problem = problem2\n",
-        "X = X2\n",
-        "\n"
-    ]
-    if isinstance(orig_viz_source, list):
-        viz_source.extend(orig_viz_source)
-    else:
-        viz_source.append(orig_viz_source)
-
     new_cells.append({
         "cell_type": "code",
         "execution_count": None,
         "metadata": {},
         "outputs": [],
-        "source": viz_source
+        "source": [
+            "# 1. Re-initialize Engine for Visualization\n",
+            "engine_viz = MEEMEngine([problem2])\n",
+            "\n",
+            "# 2. Calculate Potentials\n",
+            "print(\"Calculating potentials on grid...\")\n",
+            "potentials = engine_viz.calculate_potentials(\n",
+            "    problem=problem2,\n",
+            "    solution_vector=X2,\n",
+            "    m0=m0,\n",
+            "    spatial_res=100,\n",
+            "    sharp=True\n",
+            ")\n",
+            "\n",
+            "# 3. Extract Fields\n",
+            "R = potentials['R']\n",
+            "Z = potentials['Z']\n",
+            "phi_abs = np.abs(potentials['phi'])\n",
+            "\n",
+            "# 4. Plot\n",
+            "print(\"Plotting...\")\n",
+            "fig, ax = engine_viz.visualize_potential(phi_abs, R, Z, \"Total Potential Field (Absolute Magnitude)\")\n",
+            "plt.show()"
+        ]
+    })
+
+    # --- Cell 10-11: Domain Analysis ---
+    new_cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "## 5. Domain Analysis\n\nWe can inspect the fluid domains created by the `BasicRegionGeometry`."
+        ]
+    })
+    new_cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "print(\"\\n--- Inspecting Fluid Domains ---\")\n",
+            "domains = problem2.geometry.domain_list\n",
+            "\n",
+            "for idx, domain in domains.items():\n",
+            "    print(f\"Domain {idx} ({domain.category}):\")\n",
+            "    outer_str = f\"{domain.a_outer:.2f}\" if domain.a_outer != np.inf else \"inf\"\n",
+            "    print(f\"  Radii: {domain.a_inner:.2f} m to {outer_str} m\")\n",
+            "    print(f\"  Lower Depth: {domain.d_lower:.2f} m\")\n",
+            "    print(f\"  Harmonics: {domain.number_harmonics}\")\n"
+        ]
+    })
+
+    # --- Cell 12-13: Results Analysis (THE FIX) ---
+    new_cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "## 6. Storing and Exporting Results\n\nThe `Results` class (based on `xarray`) provides a structured way to store simulation data. Since we ran two separate simulations (one per mode), we will manually aggregate the results into a single dataset containing the full 2x2 added mass and damping matrices."
+        ]
+    })
+    new_cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# 1. Initialize Results object for the FULL system\n",
+            "# We explicitly pass the modes [0, 1] so the container can hold the full matrix,\n",
+            "# even though problem2 only had mode 1 active.\n",
+            "all_modes = np.arange(len(a_list)) # [0, 1]\n",
+            "results = Results(problem2, modes=all_modes)\n",
+            "\n",
+            "# 2. Construct Full Matrices from Separate Mode Results\n",
+            "# Shape: (n_freqs, n_modes, n_modes)\n",
+            "n_freqs = len(problem2.frequencies)\n",
+            "n_modes = len(all_modes) \n",
+            "\n",
+            "added_mass = np.zeros((n_freqs, n_modes, n_modes))\n",
+            "damping = np.zeros((n_freqs, n_modes, n_modes))\n",
+            "\n",
+            "# Helper to fill matrix columns\n",
+            "# coeffs_list contains entries for row_idx (force on body i)\n",
+            "# col_idx (motion of body j) is determined by which case we ran\n",
+            "def fill_matrix_col(coeffs_list, col_idx):\n",
+            "    for c in coeffs_list:\n",
+            "        row_idx = c['mode'] # Force on body i\n",
+            "        added_mass[0, row_idx, col_idx] = c['real']\n",
+            "        damping[0, row_idx, col_idx] = c['imag']\n",
+            "\n",
+            "# Fill Column 0 (Inner Body Heaving results -> Mode 0)\n",
+            "if coeffs1:\n",
+            "    fill_matrix_col(coeffs1, 0)\n",
+            "\n",
+            "# Fill Column 1 (Outer Body Heaving results -> Mode 1)\n",
+            "if coeffs2:\n",
+            "    fill_matrix_col(coeffs2, 1)\n",
+            "\n",
+            "# 3. Store in Results Object\n",
+            "results.store_hydrodynamic_coefficients(\n",
+            "    frequencies=problem2.frequencies,\n",
+            "    added_mass_matrix=added_mass,\n",
+            "    damping_matrix=damping\n",
+            ")\n",
+            "\n",
+            "# 4. View Dataset\n",
+            "print(\"\\n--- Results Dataset (xarray) ---\")\n",
+            "print(results.dataset)\n",
+            "\n",
+            "# 5. Export (Optional)\n",
+            "# results.export_to_netcdf(\"tutorial_results.nc\")\n"
+        ]
     })
 
     # Update and Save
