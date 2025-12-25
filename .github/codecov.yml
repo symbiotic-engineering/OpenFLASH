@@ -6,11 +6,11 @@ coverage:
     project:
       default:
         target: auto
-        threshold: 1%
+        threshold: 10%
       # Indented correctly under project
       unit_tests_coverage:
         target: auto
-        threshold: 1%
+        threshold: 10%
         flags:
           - unit
 

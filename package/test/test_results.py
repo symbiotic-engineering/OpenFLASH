@@ -1,3 +1,5 @@
+# test_results.py
+
 import pytest
 import numpy as np
 import xarray as xr
@@ -388,3 +390,22 @@ def test_display_results_none(results_instance):
     """
     results_instance.dataset = None
     assert results_instance.display_results() == "No results stored."
+
+# ==============================================================================
+# Added Test for Explicit Modes Initialization
+# ==============================================================================
+
+def test_results_initialization_with_explicit_modes(mock_problem, sample_frequencies):
+    """
+    Tests that the Results class uses the provided 'modes' argument when initializing,
+    covering the 'if modes is not None:' branch.
+    """
+    explicit_modes = [0, 1]
+    results = Results(mock_problem, modes=explicit_modes)
+    
+    assert isinstance(results.modes, np.ndarray)
+    np.testing.assert_array_equal(results.modes, np.array(explicit_modes))
+    
+    # Check that dataset coords use the explicit modes
+    np.testing.assert_array_equal(results.dataset.coords['mode_i'], explicit_modes)
+    np.testing.assert_array_equal(results.dataset.coords['mode_j'], explicit_modes)
