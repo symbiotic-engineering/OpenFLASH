@@ -147,11 +147,14 @@ def test_matrix_assembly_consistency(meem_setup):
     N_k_arr = np.array([N_k_multi(k, m0, h, m_k_arr) for k in range(NMK[-1])])
 
     # Coupling integrals
-    I_nm_vals = np.zeros((max(NMK), max(NMK), boundary_count - 1), dtype=complex)
+    # FIX: I_nm_vals is now a list of 2D matrices, not a 3D array
+    I_nm_vals = []
     for bd in range(boundary_count - 1):
+        mat = np.zeros((NMK[bd], NMK[bd+1]), dtype=complex)
         for n in range(NMK[bd]):
             for m in range(NMK[bd + 1]):
-                I_nm_vals[n][m][bd] = I_nm(n, m, bd, d, h)
+                mat[n][m] = I_nm(n, m, bd, d, h)
+        I_nm_vals.append(mat)
 
     I_mk_vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
     for m in range(NMK[boundary_count - 1]):
