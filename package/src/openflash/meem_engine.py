@@ -30,6 +30,11 @@ class MEEMEngine:
 
         for problem in problem_list:
             self.cache_list[problem] = self.build_problem_cache(problem)
+    def update_forcing(self, problem: 'MEEMProblem'):
+        """
+        Updates the b-vector cache for the problem based on new heaving flags.
+        """
+        self.cache_list[problem].refresh_forcing_terms(problem)
     
     def _ensure_m_k_and_N_k_arrays(self, problem: 'MEEMProblem', m0):
         cache = self.cache_list[problem]
@@ -100,7 +105,27 @@ class MEEMEngine:
                 for k in range(NMK[boundary_count]):
                     vals[m, k] = I_mk(m, k, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
             return vals
+        # These are purely geometric and geometry is constant for the problem
+        int_R1_store = {}
+        int_R2_store = {}
+        int_phi_store = np.zeros(boundary_count, dtype=complex)
+
+        # Pre-compute R1 integrals (used in all regions)
+        for i in range(boundary_count):
+            for n in range(NMK[i]):
+                # Store as tuple key (region_idx, harmonic_n)
+                int_R1_store[(i, n)] = int_R_1n(i, n, a, h, d)
         
+        # Pre-compute R2 integrals (used in annular regions i > 0)
+        for i in range(1, boundary_count):
+            for n in range(NMK[i]):
+                int_R2_store[(i, n)] = int_R_2n(i, n, a, h, d)
+
+        # Pre-compute Phi_p integrals (used for Force calculation)
+        for i in range(boundary_count):
+            int_phi_store[i] = int_phi_p_i(i, h, d, a)
+            
+        cache._set_integration_constants(int_R1_store, int_R2_store, int_phi_store)
         cache._set_closure("I_mk_vals", _calculate_I_mk_vals)
         cache._set_m_k_and_N_k_funcs(m_k_entry, N_k_multi)
 
@@ -286,6 +311,9 @@ class MEEMEngine:
         size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
 
         results_per_mode = []
+        
+        cache = self.cache_list[problem]
+        int_R1_store, int_R2_store, int_phi_store = cache._get_integration_constants()
 
         if modes_to_calculate is None:
             num_bodies = len(geometry.body_arrangement.bodies)
@@ -313,20 +341,34 @@ class MEEMEngine:
             c_vector = np.zeros((size - NMK[-1]), dtype=complex)
             col = 0
 
+            # 1. Inner Region (Index 0)
             for n in range(NMK[0]):
-                c_vector[n] = heaving[0] * int_R_1n(0, n, a, h, d) * z_n_d(n)
+                # OLD: heaving[0] * int_R_1n(0, n, a, h, d) * z_n_d(n)
+                # NEW: Use Cache
+                val = int_R1_store[(0, n)]
+                c_vector[n] = heaving[0] * val * z_n_d(n)
             col += NMK[0]
 
+            # 2. Outer Regions
             for i in range(1, boundary_count):
                 M = NMK[i]
                 for m in range(M):
-                    c_vector[col + m] = heaving[i] * int_R_1n(i, m, a, h, d) * z_n_d(m)
-                    c_vector[col + M + m] = heaving[i] * int_R_2n(i, m, a, h, d) * z_n_d(m)
+                    # OLD: heaving[i] * int_R_1n(i, m, a, h, d) * z_n_d(m)
+                    # NEW:
+                    r1_val = int_R1_store[(i, m)]
+                    c_vector[col + m] = heaving[i] * r1_val * z_n_d(m)
+                    
+                    # OLD: heaving[i] * int_R_2n(i, m, a, h, d) * z_n_d(m)
+                    # NEW:
+                    r2_val = int_R2_store[(i, m)]
+                    c_vector[col + M + m] = heaving[i] * r2_val * z_n_d(m)
                 col += 2 * M
 
             hydro_p_term_sum = np.zeros(boundary_count, dtype=complex)
             for i in range(boundary_count):
-                hydro_p_term_sum[i] = heaving[i] * int_phi_p_i(i, h, d, a)
+                # OLD: heaving[i] * int_phi_p_i(i, h, d, a)
+                # NEW:
+                hydro_p_term_sum[i] = heaving[i] * int_phi_store[i]
 
             hydro_coef = 2 * pi * (np.dot(c_vector, X[:-NMK[-1]]) + sum(hydro_p_term_sum))
 
@@ -547,57 +589,109 @@ class MEEMEngine:
         full_damping_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
         all_potentials_batch_data = []
 
+        # 1. Create a SINGLE reusable Geometry/Problem Setup
+        # We create one problem instance that we will mutate inside the loop
+        temp_bodies = []
+        for body_j, original_body in enumerate(original_bodies):
+            if not isinstance(original_body, SteppedBody):
+                raise TypeError("run_and_store_results only supports SteppedBody.")
+            # Initialize with all False heaving, we will toggle this later
+            temp_bodies.append(
+                SteppedBody(
+                    a=original_body.a, 
+                    d=original_body.d, 
+                    slant_angle=original_body.slant_angle, 
+                    heaving=False 
+                )
+            )
+        temp_arrangement = ConcentricBodyGroup(temp_bodies)
+        # Pass by reference: temp_arrangement is now inside temp_geometry
+        temp_geometry = BasicRegionGeometry(temp_arrangement, h=h, NMK=NMK_list)
+        temp_problem = MEEMProblem(temp_geometry)
+        
+        # Initialize one engine for this problem
+        # This builds the ProblemCache once.
+        temp_engine = MEEMEngine(problem_list=[temp_problem])
+
         for freq_idx, omega in enumerate(omegas_to_run):
             m0 = wavenumber(omega, h) 
+            temp_problem.set_frequencies(np.array([omega]))
+
+            # --- OPTIMIZATION: Compute A and Factorize ONCE per frequency ---
+            try:
+                # 1. Ensure Bessel functions/constants are computed for this m0
+                temp_engine._ensure_m_k_and_N_k_arrays(temp_problem, m0)
+                
+                # 2. Assemble Matrix A (Independent of heaving mode)
+                A_matrix = temp_engine.assemble_A_multi(temp_problem, m0)
+                
+                # 3. LU Factorization (O(N^3))
+                # This prepares us to solve Ax=b quickly for different b vectors
+                lu_piv = linalg.lu_factor(A_matrix)
+                
+            except np.linalg.LinAlgError as e:
+                print(f"  ERROR: Matrix assembly/factorization failed for freq={omega:.4f}: {e}")
+                # If A fails, all modes fail for this frequency
+                full_added_mass_matrix[freq_idx, :, :] = np.nan
+                full_damping_matrix[freq_idx, :, :] = np.nan
+                continue
+
             for i_idx, radiating_mode in enumerate(problem_modes):
                 try:
-                    temp_bodies = []
-                    for body_j, original_body in enumerate(original_bodies):
-                        if not isinstance(original_body, SteppedBody):
-                            raise TypeError(
-                                "run_and_store_results only supports SteppedBody objects. "
-                                f"Found {type(original_body)}."
-                            )
-                        is_heaving = (body_j == radiating_mode)
-                        temp_bodies.append(
-                            SteppedBody(
-                                a=original_body.a, 
-                                d=original_body.d, 
-                                slant_angle=original_body.slant_angle, 
-                                heaving=is_heaving
-                            )
-                        )
-                    temp_arrangement = ConcentricBodyGroup(temp_bodies)
-                    temp_geometry = BasicRegionGeometry(temp_arrangement, h=h, NMK=NMK_list)
-                    temp_problem = MEEMProblem(temp_geometry)
-                    temp_problem.set_frequencies(np.array([omega]))
-                    temp_engine = MEEMEngine(problem_list=[temp_problem])
-                    X_i = temp_engine.solve_linear_system_multi(temp_problem, m0)
+                    # --- Update the Problem State for this Mode ---
+                    
+                    # 1. Mutate the heaving flags in the Body objects
+                    current_region_idx = 0
+                    for b_i, body in enumerate(temp_arrangement.bodies):
+                        # FIX: Explicitly check for SteppedBody to access .a safely
+                        if isinstance(body, SteppedBody):
+                            is_active_mode = (b_i == radiating_mode)
+                            
+                            # Update the Body object directly
+                            body.heaving = is_active_mode 
+                            
+                            # Also update the Domain objects in the geometry list
+                            # (The engine reads from problem.domain_list)
+                            steps = len(body.a)
+                            for r in range(steps):
+                                # Update the specific domain
+                                domain = temp_geometry.domain_list[current_region_idx]
+                                domain.heaving = is_active_mode
+                                current_region_idx += 1
+                        else:
+                            # Should be unreachable given init loop, but safe fallback
+                            pass
+
+                    # 2. Refresh the 'b' vector cache in the engine
+                    # This updates b_template and indices without touching A
+                    temp_engine.update_forcing(temp_problem)
+                    
+                    # 3. Assemble just the b vector (O(N))
+                    b_vector = temp_engine.assemble_b_multi(temp_problem, m0)
+                    
+                    # 4. Solve utilizing pre-computed LU factorization (O(N^2))
+                    X_i = linalg.lu_solve(lu_piv, b_vector)
+
+                    # --- Post-Processing (same as before) ---
                     hydro_coeffs_col = temp_engine.compute_hydrodynamic_coefficients(
                         temp_problem, X_i, m0, modes_to_calculate=problem_modes
                     )
+                    
                     for coeff_dict in hydro_coeffs_col:
                         j_mode = coeff_dict['mode']
                         j_idx_result = np.where(problem_modes == j_mode)[0]
-                        if j_idx_result.size == 0:
-                            print(f"Warning: Mode {j_mode} not found in problem_modes. Skipping.")
-                            continue
-                        j_idx = j_idx_result[0]
-                        full_added_mass_matrix[freq_idx, j_idx, i_idx] = coeff_dict['real']
-                        full_damping_matrix[freq_idx, j_idx, i_idx] = coeff_dict['imag']
+                        if j_idx_result.size > 0:
+                            j_idx = j_idx_result[0]
+                            full_added_mass_matrix[freq_idx, j_idx, i_idx] = coeff_dict['real']
+                            full_damping_matrix[freq_idx, j_idx, i_idx] = coeff_dict['imag']
 
                     Cs = temp_engine.reformat_coeffs(X_i, NMK_list, len(NMK_list) - 1)
-                    current_mode_potentials = {}
                     
-                    domain_list = temp_problem.geometry.domain_list
-                    if isinstance(domain_list, dict):
-                        domain_iterable = domain_list.values()
-                    else:
-                        domain_iterable = domain_list
+                    current_mode_potentials = {}
+                    domain_iterable = temp_problem.geometry.domain_list.values()
 
                     for domain in domain_iterable:
-                        domain_idx = domain.index
-                        domain_coeffs = Cs[domain_idx]
+                        domain_coeffs = Cs[domain.index]
                         current_mode_potentials[domain.index] = {
                             "potentials": domain_coeffs,
                             "r_coords_dict": {f"r_h{k}": 0.0 for k in range(len(domain_coeffs))},
@@ -609,9 +703,9 @@ class MEEMEngine:
                         "mode_idx": i_idx,
                         "data": current_mode_potentials,
                     })
-                        
-                except np.linalg.LinAlgError as e:
-                    print(f"  ERROR: Could not solve for freq={omega:.4f}, mode={radiating_mode}: {e}. Storing NaN.")
+
+                except Exception as e:
+                    print(f"  ERROR: Solve failed for freq={omega:.4f}, mode={radiating_mode}: {e}")
                     full_added_mass_matrix[freq_idx, :, i_idx] = np.nan
                     full_damping_matrix[freq_idx, :, i_idx] = np.nan
                     continue 
