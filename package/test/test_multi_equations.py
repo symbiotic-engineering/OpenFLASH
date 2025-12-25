@@ -29,7 +29,7 @@ from openflash.multi_equations import (
     N_k_multi, Z_k_e, int_R_1n, int_R_2n,
     z_n_d, excitation_phase,
     # New imports for added coverage
-    Lambda_k_vectorized, diff_Lambda_k_vectorized, make_R_Z
+    Lambda_k_vectorized, diff_Lambda_k_vectorized, make_R_Z, R_2n_vectorized
 )
 
 # --- Fixtures for common parameters ---
@@ -566,3 +566,10 @@ def test_make_R_Z_sharp(a, h, d):
     z_unique = np.unique(Z)
     for d_val in d:
         assert np.any(np.isclose(z_unique, -d_val))
+
+def test_R_2n_vectorized_i0_raises_error(test_r, h, d, a):
+    """Test that R_2n_vectorized raises ValueError for i=0."""
+    n_vec = np.array([0, 1])
+    r_vec = np.array([test_r, test_r])
+    with pytest.raises(ValueError, match="R_2n function is not defined for the innermost region"):
+        R_2n_vectorized(n_vec, r_vec, 0, a, h, d)
