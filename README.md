@@ -51,7 +51,7 @@ pip install -e .
 ```
 3.  **Install dependencies:**
 ```bash
-pip install -r requirements.txt
+pip install -e .[dev]
 ```
 
 ## Usage
