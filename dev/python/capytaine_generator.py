@@ -119,7 +119,7 @@ class CapytaineSlantSolver:
         # , lid_mesh = meshes.generate_lid() # consider adding lid mesh to above function
         return body, panel_ct, mask
 
-    def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, m0, rho, reps, f_densities = None):
+    def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, omega, rho, reps, f_densities = None):
         pt_lst = self.__get_points(a, d_in, d_out)
         if f_densities is None:
             f_densities = self.__get_f_densities(pt_lst, face_units)
@@ -128,11 +128,12 @@ class CapytaineSlantSolver:
         body.dofs["Heave"] = mask  
         if self.show_mesh: body.show_matplotlib()
         
-        rad_problem = cpt.RadiationProblem(body = body, wavenumber = m0, water_depth = h, rho = rho)
+        rad_problem = cpt.RadiationProblem(body = body, omega = omega, water_depth = h, rho = rho)
         result, t_diff = self.__timed_solve(rad_problem, reps)
 
-        diff_problem = cpt.DiffractionProblem(body = body, wavenumber = m0, water_depth = h, rho = rho)
+        diff_problem = cpt.DiffractionProblem(body = body, omega = omega, water_depth = h, rho = rho)
         result_d, t_diff_d = self.__timed_solve(diff_problem, reps)
+        # print('resultd_d',(cpt.assemble_dataset([result_d]))["excitation_force"][0][0][0])
 
         if self.show_pc: print("Panel Count: ", panel_count)
         if self.show_hydros:
