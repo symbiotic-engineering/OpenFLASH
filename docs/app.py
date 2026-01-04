@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 # --- Import core MEEM modules ---
 try:
     from openflash import *
-    from openflash.multi_equations import m_k_newton, wavenumber # Needed to convert omega to m0
+    from openflash.multi_equations import wavenumber # Needed to convert omega to m0
+    from openflash.basic_region_geometry import BasicRegionGeometry
 except ImportError as e:
     st.error(f"Error importing core modules from openflash. Error: {e}")
     st.stop()
@@ -25,7 +26,7 @@ def main():
     
     d_input = st.sidebar.text_input("Body Step Depths (d) - comma-separated", "0.5,0.25")
     a_input = st.sidebar.text_input("Body Radii (a) - comma-separated", "0.5,1.0")
-    heaving_input = st.sidebar.text_input("Heaving Bodies (1=True/0=False) - one per body", "1,0")
+    heaving_input = st.sidebar.text_input("Heaving Bodies (1=True/0=False) - one per body", "1,1")
     NMK_input = st.sidebar.text_input("Harmonics (NMK) - one per domain", "30,30,30")
     
     # --- UI for Single Point Test ---
@@ -49,10 +50,10 @@ def main():
         
         # Validation
         if not (len(d_list) == len(a_list) == len(heaving_list)):
-            st.error("The number of depths, radii, and heaving flags must be the same (one for each body).")
+            st.error("The number of depths, radii, and heaving flags must be the same (one for each body/step).")
             st.stop()
         if len(NMK) != len(a_list) + 1:
-            st.error("The number of NMK values must be one greater than the number of bodies (one for each domain).")
+            st.error("The number of NMK values must be one greater than the number of steps (one for each domain).")
             st.stop()
     except ValueError:
         st.error("Invalid input format. Please use comma-separated numbers.")
@@ -60,14 +61,40 @@ def main():
 
     # --- Modern, Object-Oriented Geometry and Problem Setup ---
     try:
-        # 1. Create Body objects
-        bodies = [
-            SteppedBody(a=np.array([a_val]), d=np.array([d_val]), slant_angle=np.array([0.0]), heaving=h_flag)
-            for a_val, d_val, h_flag in zip(a_list, d_list, heaving_list)
-        ]
-        # 2. Create Arrangement and Geometry
-        arrangement = ConcentricBodyGroup(bodies)
-        geometry = BasicRegionGeometry(arrangement, h=h, NMK=NMK)
+        # --- FIX: Group adjacent segments into bodies ---
+        # This logic mimics openflash_utils.py. It groups consecutive segments 
+        # with the same heaving status into a SINGLE body.
+        # e.g., heaving=[1, 1] becomes ONE body with TWO steps.
+        
+        body_map = []
+        unique_heaving_map = []
+        
+        if len(heaving_list) > 0:
+            current_body_idx = 0
+            body_map.append(current_body_idx)
+            unique_heaving_map.append(bool(heaving_list[0]))
+
+            for i in range(1, len(heaving_list)):
+                if heaving_list[i] == heaving_list[i - 1]:
+                    # Same heaving state -> same body
+                    body_map.append(current_body_idx)
+                else:
+                    # Different heaving state -> new body
+                    current_body_idx += 1
+                    body_map.append(current_body_idx)
+                    unique_heaving_map.append(bool(heaving_list[i]))
+        
+        # Use from_vectors for robust setup
+        geometry = BasicRegionGeometry.from_vectors(
+            a=a_list,
+            d=d_list,
+            h=h,
+            NMK=NMK,
+            slant_angle=np.zeros_like(a_list),
+            body_map=body_map,
+            heaving_map=unique_heaving_map
+        )
+        
         # 3. Create the Problem
         problem = MEEMProblem(geometry)
         
@@ -83,7 +110,7 @@ def main():
         st.info(f"Running simulation for single omega = {omega_single:.2f}")
         # --- Convert single omega to m0 ---
         m0_single = wavenumber(omega_single, h)
-        problem_modes = np.where(heaving_list)[0]
+        
         problem.set_frequencies(np.array([omega_single]))
         
         # --- MEEM Engine Operations ---
@@ -95,7 +122,7 @@ def main():
         hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0_single)
         if hydro_coefficients:
             df_coeffs = pd.DataFrame(hydro_coefficients)
-            st.dataframe(df_coeffs[['mode', 'real', 'imag']])
+            st.dataframe(df_coeffs[['mode', 'real', 'imag', 'excitation_phase', 'excitation_force']])
         else:
             st.warning("Could not calculate hydrodynamic coefficients.")
 
@@ -112,21 +139,18 @@ def main():
         
         st.success("Single frequency test complete.")
         
-    # --- REVERTED "Run Frequency Sweep" BLOCK ---
     if col2.button("Run Frequency Sweep & Plot Coefficients"):
         st.info(f"Running frequency sweep for {omega_steps} steps...")
         
         omegas_to_run = np.linspace(omega_start, omega_end, omega_steps)
-        problem_modes = np.where(heaving_list)[0]
         
-        # Set the frequencies and modes on the main problem object
+        # Set the frequencies on the main problem object
         problem.set_frequencies(omegas_to_run)
         
         # Create the engine ONCE with the main problem
         engine = MEEMEngine(problem_list=[problem])
         
         with st.spinner("Running simulation..."):
-            # This single call now works correctly
             results_obj = engine.run_and_store_results(problem_index=0)
         st.success("Frequency sweep complete.")
         
@@ -134,43 +158,40 @@ def main():
         dataset = results_obj.get_results()
         df_results = dataset[['added_mass', 'damping']].to_dataframe().reset_index()
 
-        # --- START: FIX FOR DataFrame KeyError ---
-        # This fix is still needed to rename columns for plotting
+        # Handle Xarray/Pandas dimension naming variations
         data_cols = ['added_mass', 'damping', 'frequency']
         dim_cols = [col for col in df_results.columns if col not in data_cols]
         
-        # 2. Rename the identified dimension columns
         if len(dim_cols) == 2:
             rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
             df_results = df_results.rename(columns=rename_map)
-        elif len(dim_cols) == 0 and len(problem_modes) > 0:
-             st.error("Error: Results data does not contain mode dimensions.")
-             st.stop()
         elif len(dim_cols) != 0:
-            st.warning(f"Unexpected number of mode dimensions ({len(dim_cols)}). Using first two.")
-            rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
-            df_results = df_results.rename(columns=rename_map)
-        # --- END: FIX FOR KeyError ---
+            st.warning(f"Unexpected dimensions ({len(dim_cols)}). Renaming first two to mode_i, mode_j.")
+            if len(dim_cols) >= 2:
+                rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
+                df_results = df_results.rename(columns=rename_map)
 
         # --- Plotting Hydrodynamic Coefficients vs. Frequency ---
         st.subheader("Hydrodynamic Coefficients vs. Frequency")
         
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True)
         
-        # This groupby should now work
-        for (mode_i, mode_j), group in df_results.groupby(['mode_i', 'mode_j']):
-            ax1.plot(group['frequency'], group['added_mass'], label=f'A({mode_i},{mode_j})')
+        # Use safe iteration in case groupby keys are empty
+        if 'mode_i' in df_results.columns and 'mode_j' in df_results.columns:
+            for (mode_i, mode_j), group in df_results.groupby(['mode_i', 'mode_j']):
+                ax1.plot(group['frequency'], group['added_mass'], label=f'A({mode_i},{mode_j})')
+                ax2.plot(group['frequency'], group['damping'], label=f'B({mode_i},{mode_j})')
+        else:
+            st.warning("Could not group results by modes. Displaying raw plotting if possible.")
+
         ax1.set_title('Added Mass vs. Frequency')
-        ax1.set_ylabel('Added Mass')
+        ax1.set_ylabel('Added Mass (kg)')
         ax1.legend()
         ax1.grid(True, linestyle='--')
 
-        # This groupby should also now work
-        for (mode_i, mode_j), group in df_results.groupby(['mode_i', 'mode_j']):
-            ax2.plot(group['frequency'], group['damping'], label=f'B({mode_i},{mode_j})')
         ax2.set_title('Damping vs. Frequency')
-        ax2.set_ylabel('Damping')
-        ax2.set_xlabel('Angular Frequency (omega)')
+        ax2.set_ylabel('Damping (kg/s)')
+        ax2.set_xlabel('Angular Frequency (rad/s)')
         ax2.legend()
         ax2.grid(True, linestyle='--')
         
@@ -179,10 +200,8 @@ def main():
         
         with st.expander("View Raw Data"):
             st.dataframe(df_results)
-    # --- END: REVERTED BLOCK ---
 
 if __name__ == "__main__":
-    # Wrap main execution in a try-catch to handle potential errors gracefully
     try:
         main()
     except Exception as e:
