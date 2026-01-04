@@ -155,9 +155,9 @@ def b_velocity_entry(n, i, heaving, a, h, d): # for two i-type regions
 # ADDED m_k_arr, N_k_arr
 def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # between i and e-type regions
     local_m_k_k = m_k_arr[k] # Access directly from array
-
     constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
     if k == 0:
+        if m0 == inf: return 0
         if m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - d[i])) / m0 # Use N_k_arr[0]
         else: # high m0h approximation
@@ -169,6 +169,7 @@ def b_velocity_end_entry_full(k, i, heaving, a, h, d, m0, NMK): # between i and 
     local_m_k = m_k(NMK, m0, h)
     constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
     if k == 0:
+        if m0 == inf: return 0
         if m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_full(0, m0, h, NMK))) * sinh(m0 * (h - d[i])) / m0
         else: # high m0h approximation
@@ -691,14 +692,14 @@ def z_n_d(n):
     
 #############################################
 def excitation_phase(x, NMK, m0, a): # x-vector of unknown coefficients
+    if m0 == inf: return -(pi/2)
     coeff = x[-NMK[-1]] # first coefficient of e-region expansion
     local_scale = scale(a)
     return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale[-1]))
 
 def excitation_force(damping, m0, h):
-    # Chau 2012 eq 98
-    const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
-
+    if m0 == inf: return 0
+    const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2) # Chau 2012 eq 98
     return sqrt((2 * const * rho * (g ** 2) * damping)/(omega(m0,h,g) * m0)) ** (1/2)
 
 def make_R_Z(a, h, d, sharp, spatial_res): # create coordinate array for graphing

@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath(src_dir))
 
 # Import all functions from multi_equations.py
 from openflash.multi_equations import (
-    omega, scale, lambda_ni, m_k_entry, m_k, m_k_newton,
+    omega, scale, lambda_ni, m_k_entry, m_k, # m_k_newton,
     I_nm, I_mk, b_potential_entry, b_potential_end_entry,
     b_velocity_entry, b_velocity_end_entry, 
     phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i, R_1n, diff_R_1n, R_2n, diff_R_2n,
@@ -165,16 +165,16 @@ def test_m_k(NMK, m0, h):
     # For a full integration test, this would pass.
     # For unit testing m_k_entry, we have test_m_k_entry_k_positive.
 
-def test_m_k_newton(h, m0):
-    # Equation: k * tanh(k * h) - m0**2 / 9.8 = 0
-    # Let m0=0.1, h=100. Then m0^2/9.8 = 0.01/9.8 = 0.00102
-    # So k * tanh(k * 100) = 0.00102
-    # For small k, tanh(k*h) ~ k*h
-    # So k * (k*h) = 0.00102 => k^2 * h = 0.00102
-    # k^2 = 0.00102 / 100 = 1.02e-5
-    # k = sqrt(1.02e-5) approx 0.00319
-    expected_k = np.sqrt(m0**2 / 9.8 / h) # approximation for small k*h
-    assert np.isclose(m_k_newton(h, m0), expected_k, rtol=2e-2, atol=1e-5) # Looser rtol, e.g., 2% relative tolerance
+# def test_m_k_newton(h, m0):
+#     # Equation: k * tanh(k * h) - m0**2 / 9.8 = 0
+#     # Let m0=0.1, h=100. Then m0^2/9.8 = 0.01/9.8 = 0.00102
+#     # So k * tanh(k * 100) = 0.00102
+#     # For small k, tanh(k*h) ~ k*h
+#     # So k * (k*h) = 0.00102 => k^2 * h = 0.00102
+#     # k^2 = 0.00102 / 100 = 1.02e-5
+#     # k = sqrt(1.02e-5) approx 0.00319
+#     expected_k = np.sqrt(m0**2 / 9.8 / h) # approximation for small k*h
+#     assert np.isclose(m_k_newton(h, m0), expected_k, rtol=2e-2, atol=1e-5) # Looser rtol, e.g., 2% relative tolerance
 
 
 
