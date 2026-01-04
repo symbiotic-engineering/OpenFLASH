@@ -1,6 +1,6 @@
 # package/src/openflash/problem_cache.py
 import numpy as np
-from typing import Callable, Dict, Any, Optional
+from typing import Callable, Dict, Any, Optional, List
 
 from openflash.multi_equations import *
 
@@ -21,7 +21,7 @@ class ProblemCache:
         self.cached_m0: Optional[float] = None 
         # -----------------------------------------------------------------
 
-        self.I_nm_vals: Optional[np.ndarray] = None
+        self.I_nm_vals: Optional[List[np.ndarray]] = None
         self.named_closures: Dict[str, Any] = {}
 
     def _set_A_template(self, A_template: np.ndarray):
@@ -50,7 +50,7 @@ class ProblemCache:
         self.cached_m0 = m0
     # ------------------------------------------------
 
-    def _set_I_nm_vals(self, I_nm_vals: np.ndarray):
+    def _set_I_nm_vals(self, I_nm_vals: List[np.ndarray]):
         self.I_nm_vals = I_nm_vals
 
     def _get_A_template(self) -> np.ndarray:
