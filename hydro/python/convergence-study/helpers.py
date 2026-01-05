@@ -28,6 +28,7 @@ class ConvergenceProblemI(Problem):
   def change_m0_mk(self, m0, mk):
       self.m0 = m0
       self.m_k = mk
+      self.N_k = self.N_k_array()
 
   def convergence_study_over_m0s(self, nmk_max, m0s, mks):
     region = self.heaving.index(1)

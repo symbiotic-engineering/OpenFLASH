@@ -38,7 +38,7 @@ class Problem:
         self.size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
         self.boundary_count = len(NMK) - 1
         self.m_k = self.m_k_array()
-        self.N_k = self.N_K_array()
+        self.N_k = self.N_k_array()
 
     def angular_freq(self, m0): # omega
         if m0 == inf:
@@ -930,6 +930,7 @@ class Problem:
     def change_m0(self, new_m0):
         self.m0 = new_m0
         self.m_k = self.m_k_array()
+        self.N_k = self.N_k_array()
 
     # Given an A matrix for the same configuration/NMK but possibly different m0, return this problem's A matrix.
     # This reduces computation.
