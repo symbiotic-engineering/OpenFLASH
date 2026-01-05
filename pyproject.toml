@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "open-flash"
+dynamic = ["version"]
+authors = [
+  {name = "SEA Lab"} 
+]
+description = "A Python package for semi-analytical hydrodynamics modeling including matched eigenfunction expansion method"
+readme = "README.md"
+license-files = ["LICENSE*","CITATION.cff"]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+dependencies = [
+    "numpy>=1.21",
+    "scipy>=1.7",
+    "pandas>=1.5",
+    "matplotlib>=3.5",
+    "h5netcdf>=0.12",
+    "xarray>=2023.0",
+    "streamlit>=1.0"
+]
+
+keywords = ["matched eigenfunctions", "hydrodynamics", "semi-analytical"]
+
+urls = { Homepage = "https://github.com/symbiotic-engineering/semi-analytical-hydro.git" }
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "sphinx>=3.0",
+    "sphinx-rtd-theme>=0.5",
+    "sphinx-tabs>=1.0",
+    "sphinx_design>=0.0.8",
+    "sphinx-copybutton",
+    "sphinx-last-updated-by-git",
+    "nbsphinx>=0.8",
+    "jupyter>=1.0.0",
+    "ipykernel",
+    "twine>=4.0",
+    "build>=0.8",
+    "readme_renderer>=30.0",
+    "watchdog>=3.0",
+    "black>=23.0",
+    "ruff>=0.0.280"
+]
+hydro = [
+    "capytaine>=2.2",
+]
+
+[tool.setuptools.packages.find]
+where = ["package/src"]
+
+[tool.setuptools.package-data]
+"openflash" = [] # Explicitly state no package data
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+fallback_version = "0+unknown"
