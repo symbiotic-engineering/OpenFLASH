@@ -42,7 +42,7 @@ class CapytaineSlantSolver:
         tdiff = sum(t_lst)/reps
         return result, tdiff
 
-    def __get_points(self, a, d_in, d_out): # These points define the outline of the body
+    def get_points(self, a, d_in, d_out): # These points define the outline of the body
         pt_lst = [(0, - d_in[0])]
         for i in range(len(a)):
             pt_lst.append((a[i], - d_out[i]))
@@ -120,7 +120,7 @@ class CapytaineSlantSolver:
         return body, panel_ct, mask
 
     def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, omega, rho, reps, f_densities = None):
-        pt_lst = self.__get_points(a, d_in, d_out)
+        pt_lst = self.get_points(a, d_in, d_out)
         if f_densities is None:
             f_densities = self.__get_f_densities(pt_lst, face_units)
         
@@ -172,7 +172,7 @@ class CapytaineSlantSolver:
     # given a body definable by a, d_in, d_out, returns a function that says whether or not a given point is in the body.
     # that function assumes points are at/below the surface.
     def get_body_bounds_from_regions(self, a, d_in, d_out):
-        pt_lst = self.__get_points(a, d_in, d_out)
+        pt_lst = self.get_points(a, d_in, d_out)
 
         def is_inside(r, z):
             region = self. __get_region(a, r)
