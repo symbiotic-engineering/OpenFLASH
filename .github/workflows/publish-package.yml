@@ -1,0 +1,109 @@
+name: Build and Publish on Tag
+
+# This workflow builds and publishes the package to PyPI and Anaconda
+# when a tag is pushed. If the tag is a release candidate (contains 'rc'),
+# it is published to TestPyPI and the Anaconda package is not uploaded.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch: # gets dispatched from PR tagging workflow or manually
+  workflow_call:
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  determine-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.decide.outputs.publish }}
+      tag:     ${{ steps.get-tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get latest tag to decide whether to publish
+        id: get-tag
+        run: |
+          echo "tag=$(git describe --tags --abbrev=0)"
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+      - name: Decide whether to publish
+        id: decide
+        run: |
+          echo "publish=${{ !contains(steps.get-tag.outputs.tag, 'rc') }}" >> $GITHUB_OUTPUT
+
+  build-and-publish:
+    runs-on: ubuntu-latest
+    needs: determine-tag
+    environment:
+      name: ${{ needs.determine-tag.outputs.publish == 'true' && 'pypi' || 'testpypi' }}
+      # the fact that the environment name uses an output is the reason this workflow is split into two jobs
+      url: https://pypi.org/project/open-flash/
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Build distribution packages
+        run: python -m build
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url:  ${{ needs.determine-tag.outputs.publish == 'true' && 'https://upload.pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}
+          verbose: true
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: 3.11
+          environment-file: conda-recipe/build_env.yaml
+          auto-update-conda: false
+          auto-activate-base: false
+          show-channel-urls: true
+
+      - name: Build and upload conda packages
+        uses: uibcdf/action-build-and-upload-conda-packages@2a98398b2f382f5ead0feebda695a13474e107f8
+        id: conda-build-and-upload
+        with:
+          meta_yaml_dir: conda-recipe 
+          label: main
+          user: sea-lab
+          token: ${{ secrets.ANACONDA_TOKEN }}
+          upload: ${{ needs.determine-tag.outputs.publish }}
+
+      - name: Re-format output paths
+        id: reformat-paths
+        # Needed to have the correct newline-separated files format for the following release step
+        run: |
+          paths=$(tr ' ' '\n' <<< "${{steps.conda-build-and-upload.outputs.paths}}")
+          echo "newline-separated-paths=$paths" >> $GITHUB_OUTPUT
+
+      - name: Check validity of citation.cff
+        uses: citation-file-format/cffconvert-github-action@2.0.0
+        if: always()
+        with:
+          args: "-i ./CITATION.cff -f zenodo --validate --show-trace"
+
+      - name: Create GitHub release
+        if: ${{ needs.determine-tag.outputs.publish == 'true' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.determine-tag.outputs.tag }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: ${{steps.reformat-paths.outputs.newline-separated-paths}}

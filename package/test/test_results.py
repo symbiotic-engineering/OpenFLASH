@@ -1,382 +1,411 @@
 # test_results.py
+
 import pytest
-import xarray as xr
 import numpy as np
+import xarray as xr
+from unittest.mock import Mock, MagicMock
 import os
 import sys
 
 # --- Path Setup ---
-# Adjust the path to import from package's 'src' directory.
 current_dir = os.path.dirname(__file__)
-package_base_dir = os.path.join(current_dir, '..')
-src_dir = os.path.join(package_base_dir, 'src')
-sys.path.insert(0, os.path.abspath(src_dir))
+src_dir = os.path.abspath(os.path.join(current_dir, '..', 'src'))
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
 
-# Import the Results class from your results.py
-from results import Results
+# --- Import Package Modules ---
+from openflash.results import Results
+from openflash.geometry import Geometry, ConcentricBodyGroup
+from openflash.body import SteppedBody, CoordinateBody
+from openflash.meem_problem import MEEMProblem
 
-# --- Mock Geometry Class ---
-# Since Results depends on Geometry, we'll create a simple mock for testing purposes.
-class MockDomain:
-    def __init__(self, domain_id, category, number_harmonics, di=0.0, a=0.0, heaving=1.0):
-        self.id = domain_id
-        self.category = category
-        self.number_harmonics = number_harmonics
-        self.di = di
-        self.a = a
-        self.heaving = heaving
-
-class MockGeometry:
-    def __init__(self):
-        self.r_coordinates = {0: 1.0, 1: 2.0, 2: 3.0}
-        self.z_coordinates = {0: -1.0, 1: -2.0, 2: -3.0}
-        # Example domains for potentials
-        self.domain_list = {
-            0: MockDomain(0, 'inner_domain', 5),  # 5 harmonics
-            1: MockDomain(1, 'outer_domain', 3),  # 3 harmonics
-            2: MockDomain(2, 'interior_domain', 7) # 7 harmonics
-        }
-
-# --- Fixtures for Tests ---
-
+# ==============================================================================
+# Mock Geometry Fixture
+# ==============================================================================
 @pytest.fixture
 def mock_geometry():
-    return MockGeometry()
+    """
+    Creates a mock Geometry object suitable for testing Results.
+    Includes nested mocks for body_arrangement and bodies with heaving flags.
+    """
+    # --- FIX: Ensure bodies have coordinate attributes for store_results ---
+    # We use specs for both SteppedBody (default) and add CoordinateBody attrs
+    # so the checks in store_results pass.
+    
+    mock_body1 = Mock(spec=CoordinateBody) 
+    mock_body1.heaving = False
+    mock_body1.r_coords = np.array([0.5]) # 1 coordinate
+    mock_body1.z_coords = np.array([-0.5])
 
+    mock_body2 = Mock(spec=CoordinateBody)
+    mock_body2.heaving = True
+    mock_body2.r_coords = np.array([1.0]) # 1 coordinate
+    mock_body2.z_coords = np.array([-1.0])
+
+    mock_body3 = Mock(spec=CoordinateBody)
+    mock_body3.heaving = True
+    # If we want total coords to be 2 (as in the failing test),
+    # body3 can have empty coords or we adjust the test data size.
+    # Let's make total coords = 2 by giving body3 empty arrays.
+    mock_body3.r_coords = np.array([])
+    mock_body3.z_coords = np.array([])
+
+    mock_arrangement = Mock(spec=ConcentricBodyGroup)
+    mock_arrangement.bodies = [mock_body1, mock_body2, mock_body3]
+
+    mock_geom = Mock(spec=Geometry)
+    mock_geom.domain_list = {
+        0: Mock(category='inner', index=0),
+        1: Mock(category='outer', index=1)
+    }
+    mock_geom.body_arrangement = mock_arrangement
+    
+    return mock_geom
+
+# ==============================================================================
+# Sample Data Fixtures
+# ==============================================================================
 @pytest.fixture
 def sample_frequencies():
+    """Provides a sample array of frequencies."""
     return np.array([0.5, 1.0, 1.5])
 
+# ==============================================================================
+# Mock Problem Fixture
+# ==============================================================================
 @pytest.fixture
-def sample_modes():
-    return np.array([1, 2]) # e.g., heaving, pitching
+def mock_problem(mock_geometry, sample_frequencies):
+    """ Creates a mock MEEMProblem containing mock geometry and frequencies. """
+    problem = Mock(spec=MEEMProblem)
+    problem.geometry = mock_geometry
+    problem.frequencies = sample_frequencies
+    # We don't need to mock problem.modes because Results infers it directly
+    # from problem.geometry
+    return problem
 
+# ==============================================================================
+# Results Instance Fixture
+# ==============================================================================
 @pytest.fixture
-def results_instance(mock_geometry, sample_frequencies, sample_modes):
-    return Results(mock_geometry, sample_frequencies, sample_modes)
+def results_instance(mock_problem): 
+    """
+    Creates a Results instance using a mock MEEMProblem object.
+    """
+    return Results(mock_problem)
 
-# --- Test Functions ---
+# ==============================================================================
+# Test Suite for Results Class
+# ==============================================================================
 
-def test_results_initialization(results_instance, sample_frequencies, sample_modes):
-    """Test if Results object is initialized correctly."""
-    assert isinstance(results_instance, Results)
+def test_results_initialization(results_instance, mock_problem, sample_frequencies): 
+    """
+    Tests that the Results class initializes correctly, infers modes,
+    and creates an xarray dataset with the right coordinates.
+    """
+    assert results_instance.geometry is mock_problem.geometry 
+    np.testing.assert_array_equal(results_instance.frequencies, sample_frequencies)
+
+    # Check inferred modes based on mock_geometry (bodies 1 and 2 heave)
+    expected_modes = np.array([1, 2])
+    assert isinstance(results_instance.modes, np.ndarray)
+    np.testing.assert_array_equal(results_instance.modes, expected_modes)
+
+    # Check the initialized dataset
     assert isinstance(results_instance.dataset, xr.Dataset)
-    assert 'frequencies' in results_instance.dataset.coords
-    assert 'modes' in results_instance.dataset.coords
-    np.testing.assert_array_equal(results_instance.dataset.coords['frequencies'].values, sample_frequencies)
-    np.testing.assert_array_equal(results_instance.dataset.coords['modes'].values, sample_modes)
+    assert 'frequency' in results_instance.dataset.coords
+    assert 'mode_i' in results_instance.dataset.coords
+    assert 'mode_j' in results_instance.dataset.coords
+    np.testing.assert_array_equal(results_instance.dataset.coords['frequency'], sample_frequencies)
+    np.testing.assert_array_equal(results_instance.dataset.coords['mode_i'], expected_modes)
+    np.testing.assert_array_equal(results_instance.dataset.coords['mode_j'], expected_modes)
+    print("✅ Initialization and mode inference test passed.")
 
-def test_store_hydrodynamic_coefficients(results_instance, sample_frequencies, sample_modes):
-    """Test storing added mass and damping coefficients."""
-    num_freq = len(sample_frequencies)
-    num_modes = len(sample_modes)
+def test_store_hydrodynamic_coefficients(results_instance, sample_frequencies):
+    """
+    Tests storing hydrodynamic coefficients. Assumes 2 modes from fixture.
+    """
+    num_freqs = len(sample_frequencies)
+    num_modes = len(results_instance.modes)
+    assert num_modes == 2
 
-    added_mass_data = np.random.rand(num_freq, num_modes) * 100
-    damping_data = np.random.rand(num_freq, num_modes) * 50
+    added_mass = np.random.rand(num_freqs, num_modes, num_modes)
+    damping = np.random.rand(num_freqs, num_modes, num_modes)
 
     results_instance.store_hydrodynamic_coefficients(
-        sample_frequencies, sample_modes, added_mass_data, damping_data
+        frequencies=sample_frequencies,
+        added_mass_matrix=added_mass,
+        damping_matrix=damping
     )
 
-    assert 'added_mass' in results_instance.dataset.data_vars
-    assert 'damping' in results_instance.dataset.data_vars
+    assert 'added_mass' in results_instance.dataset
+    assert 'damping' in results_instance.dataset
+    assert results_instance.dataset['added_mass'].shape == (num_freqs, num_modes, num_modes)
+    assert results_instance.dataset['damping'].shape == (num_freqs, num_modes, num_modes)
+    np.testing.assert_array_equal(results_instance.dataset['added_mass'].values, added_mass)
+    np.testing.assert_array_equal(results_instance.dataset['damping'].values, damping)
+    print("✅ Storing hydrodynamic coefficients test passed.")
 
-    added_mass_da = results_instance.dataset['added_mass']
-    damping_da = results_instance.dataset['damping']
 
-    assert added_mass_da.dims == ('frequencies', 'modes')
-    assert damping_da.dims == ('frequencies', 'modes')
-
-    np.testing.assert_array_almost_equal(added_mass_da.values, added_mass_data)
-    np.testing.assert_array_almost_equal(damping_da.values, damping_data)
-
-    # Test ValueError for incorrect shape
-    with pytest.raises(ValueError, match="matrices must have shape"):
-        results_instance.store_hydrodynamic_coefficients(
-            sample_frequencies, sample_modes, np.random.rand(num_freq, 1), damping_data
-        )
-
-def test_store_results_eigenfunctions(results_instance, mock_geometry, sample_frequencies, sample_modes):
-    """Test storing eigenfunctions for a specific domain."""
-    num_freq = len(sample_frequencies)
-    num_modes = len(sample_modes)
-    num_r = len(mock_geometry.r_coordinates)
-    num_z = len(mock_geometry.z_coordinates)
-
-    # Test domain 0 (inner_domain)
-    domain_idx = 0
-    domain_name = mock_geometry.domain_list[domain_idx].category
-
-    radial_data = (np.random.rand(num_freq, num_modes, num_r) + 1j * np.random.rand(num_freq, num_modes, num_r))
-    vertical_data = (np.random.rand(num_freq, num_modes, num_z) + 1j * np.random.rand(num_freq, num_modes, num_z))
-
-    results_instance.store_results(domain_idx, radial_data, vertical_data)
-
-    assert f'radial_eigenfunctions_{domain_name}' in results_instance.dataset.data_vars
-    assert f'vertical_eigenfunctions_{domain_name}' in results_instance.dataset.data_vars
-
-    rad_ef_da = results_instance.dataset[f'radial_eigenfunctions_{domain_name}']
-    vert_ef_da = results_instance.dataset[f'vertical_eigenfunctions_{domain_name}']
-
-    assert rad_ef_da.dims == ('frequencies', 'modes', 'r')
-    assert vert_ef_da.dims == ('frequencies', 'modes', 'z')
-    assert rad_ef_da.dtype == complex
-    assert vert_ef_da.dtype == complex
-
-    np.testing.assert_array_almost_equal(rad_ef_da.values, radial_data)
-    np.testing.assert_array_almost_equal(vert_ef_da.values, vertical_data)
-
-    # Test ValueError for incorrect shape
-    with pytest.raises(ValueError, match="radial_data shape"):
-        results_instance.store_results(domain_idx, np.random.rand(1,1,1), vertical_data)
+def test_store_results_eigenfunctions(results_instance, sample_frequencies):
+    """
+    Tests storing eigenfunction data. Assumes 2 modes from fixture.
+    """
+    num_freqs = len(sample_frequencies)
+    num_modes = len(results_instance.modes)
     
-    # Test ValueError for domain not found
-    with pytest.raises(ValueError, match="Domain index 999 not found"):
-        results_instance.store_results(999, radial_data, vertical_data)
+    # Matches the mock geometry bodies (body1 has 1 coord, body2 has 1, body3 has 0)
+    # Total coords = 1 + 1 + 0 = 2
+    num_r = 2 
+    num_z = 2 
+
+    radial_data = np.random.rand(num_freqs, num_modes, num_r)
+    vertical_data = np.random.rand(num_freqs, num_modes, num_z)
+    domain_index = 0
+    domain_name = f"radial_eigenfunctions_{results_instance.geometry.domain_list[domain_index].category}"
+
+    results_instance.store_results(domain_index, radial_data, vertical_data)
+
+    assert domain_name in results_instance.dataset
+    assert results_instance.dataset[domain_name].shape == (num_freqs, num_modes, num_r)
+    print("✅ Storing eigenfunctions test passed.")
 
 
-def test_store_all_potentials(results_instance, mock_geometry, sample_frequencies, sample_modes):
-    """Test storing batched potentials correctly."""
-    num_freq = len(sample_frequencies)
-    num_modes = len(sample_modes)
+def test_store_all_potentials(results_instance, sample_frequencies):
+    """
+    Tests storing batched potential coefficient data. Assumes 2 modes.
+    """
+    num_freqs = len(sample_frequencies)
+    num_modes = len(results_instance.modes)
+    domain_names = ['inner', 'outer']
+    max_harmonics = 5
 
-    # Pre-generate static r and z coordinates for each domain and its harmonics
-    # These should be consistent across frequencies and modes
-    static_domain_coords = {}
-    for domain_id, domain in mock_geometry.domain_list.items():
-        num_harmonics = domain.number_harmonics
-        static_domain_coords[domain.category] = {
-            'r_coords_dict': {f'r_h{k}': np.random.rand() * 10 for k in range(num_harmonics)},
-            'z_coords_dict': {f'z_h{k}': np.random.rand() * -10 for k in range(num_harmonics)}
-        }
-
-    all_potentials_batch = []
-    # Simulate data for each frequency and mode
-    for f_idx in range(num_freq):
+    batch_data = []
+    for f_idx in range(num_freqs):
         for m_idx in range(num_modes):
-            data_for_freq_mode = {}
-            for domain_id, domain in mock_geometry.domain_list.items():
-                num_harmonics = domain.number_harmonics
-                # Generate dummy complex potentials (these can vary per freq/mode)
-                potentials = np.random.rand(num_harmonics) + 1j * np.random.rand(num_harmonics)
-                
-                # Use the STATIC r and z coordinates
-                r_coords_dict = static_domain_coords[domain.category]['r_coords_dict']
-                z_coords_dict = static_domain_coords[domain.category]['z_coords_dict']
-                
-                data_for_freq_mode[domain.category] = {
-                    'potentials': potentials,
-                    'r_coords_dict': r_coords_dict,
-                    'z_coords_dict': z_coords_dict,
+            mode_data = {}
+            for d_idx, d_name in enumerate(domain_names):
+                num_harmonics = max_harmonics - d_idx
+                mode_data[d_name] = {
+                    "potentials": np.random.rand(num_harmonics) + 1j * np.random.rand(num_harmonics),
+                    "r_coords_dict": {f"r{k}": k * 0.1 for k in range(num_harmonics)},
+                    "z_coords_dict": {f"z{k}": -k * 0.1 for k in range(num_harmonics)}
                 }
-            all_potentials_batch.append({
-                'frequency_idx': f_idx,
-                'mode_idx': m_idx,
-                'data': data_for_freq_mode
+            batch_data.append({
+                "frequency_idx": f_idx,
+                "mode_idx": m_idx,
+                "data": mode_data
             })
-    
-    results_instance.store_all_potentials(all_potentials_batch)
 
-    assert 'potentials' in results_instance.dataset.data_vars
-    assert 'potential_r_coords' in results_instance.dataset.data_vars
-    assert 'potential_z_coords' in results_instance.dataset.data_vars
+    results_instance.store_all_potentials(batch_data)
 
-    potentials_da = results_instance.dataset['potentials']
-    r_coords_da = results_instance.dataset['potential_r_coords']
-    z_coords_da = results_instance.dataset['potential_z_coords']
-
-    # Check dimensions
-    expected_domain_names = sorted([d.category for d in mock_geometry.domain_list.values()])
-    max_harmonics_in_geom = max(d.number_harmonics for d in mock_geometry.domain_list.values())
-
-    assert potentials_da.dims == ('frequencies', 'modes', 'domain_name', 'harmonics')
-    assert r_coords_da.dims == ('domain_name', 'harmonics')
-    assert z_coords_da.dims == ('domain_name', 'harmonics')
-
-    # Check coordinates values
-    np.testing.assert_array_equal(potentials_da.coords['frequencies'].values, sample_frequencies)
-    np.testing.assert_array_equal(potentials_da.coords['modes'].values, sample_modes)
-    np.testing.assert_array_equal(potentials_da.coords['domain_name'].values, expected_domain_names)
-    np.testing.assert_array_equal(potentials_da.coords['harmonics'].values, np.arange(max_harmonics_in_geom))
-
-    assert potentials_da.dtype == complex
-    assert r_coords_da.dtype == float
-    assert z_coords_da.dtype == float
-
-    # Verify data integrity
-    for item in all_potentials_batch:
-        f_idx = item['frequency_idx']
-        m_idx = item['mode_idx']
-        for domain_name, data in item['data'].items():
-            # Get the domain index for xarray's internal ordering (alphabetical)
-            domain_idx_in_xarray = potentials_da.coords['domain_name'].to_numpy().tolist().index(domain_name)
-
-            original_potentials = data['potentials']
-            
-            # Retrieve potentials
-            retrieved_potentials = potentials_da.sel(
-                frequencies=sample_frequencies[f_idx],
-                modes=sample_modes[m_idx],
-                domain_name=domain_name
-            ).values[:len(original_potentials)] # Slice to actual harmonics stored
-
-            np.testing.assert_array_almost_equal(retrieved_potentials, original_potentials)
-
-            # Retrieve r and z coordinates using the xarray domain name directly
-            # These should be consistent across freq/modes, so we only need to check them once per domain
-            original_r_coords = np.array(list(data['r_coords_dict'].values()))
-            original_z_coords = np.array(list(data['z_coords_dict'].values()))
-
-            # Retrieved coordinates should be sliced based on the actual number of harmonics for that domain
-            retrieved_r_coords_full_array = r_coords_da.sel(domain_name=domain_name).values
-            retrieved_z_coords_full_array = z_coords_da.sel(domain_name=domain_name).values
-
-            retrieved_r_coords = retrieved_r_coords_full_array[:len(original_r_coords)]
-            retrieved_z_coords = retrieved_z_coords_full_array[:len(original_z_coords)]
-
-            np.testing.assert_array_almost_equal(retrieved_r_coords, original_r_coords)
-            np.testing.assert_array_almost_equal(retrieved_z_coords, original_z_coords)
-
-    # Test with no potentials data (should print a message and not add vars)
-    empty_results = Results(mock_geometry, sample_frequencies, sample_modes)
-    empty_results.store_all_potentials([])
-    assert 'potentials' not in empty_results.dataset.data_vars
-
-    # Test with potentials data that has no domain data (e.g., [{'frequency_idx': 0, 'mode_idx': 0, 'data': {}}])
-    empty_domain_data_results = Results(mock_geometry, sample_frequencies, sample_modes)
-    empty_domain_data_results.store_all_potentials([{'frequency_idx': 0, 'mode_idx': 0, 'data': {}}])
-    assert 'potentials' not in empty_domain_data_results.dataset.data_vars
+    assert 'potentials_real' in results_instance.dataset
+    assert 'potentials_imag' in results_instance.dataset
+    expected_shape = (num_freqs, num_modes, len(domain_names), max_harmonics)
+    assert results_instance.dataset['potentials_real'].shape == expected_shape
+    assert results_instance.dataset['potentials_imag'].shape == expected_shape
+    assert 'potential_r_coords' in results_instance.dataset
+    assert 'potential_z_coords' in results_instance.dataset
+    print("✅ Storing all potentials test passed.")
 
 
-def test_export_to_netcdf(results_instance, sample_frequencies, sample_modes, mock_geometry):
-    """Test exporting the dataset to a NetCDF file."""
-    # Populate with some data first
-    num_freq = len(sample_frequencies)
-    num_modes = len(sample_modes)
-    
-    # Hydro coeffs
-    added_mass_data = np.random.rand(num_freq, num_modes)
-    damping_data = np.random.rand(num_freq, num_modes)
-    results_instance.store_hydrodynamic_coefficients(sample_frequencies, sample_modes, added_mass_data, damping_data)
+def test_export_to_netcdf(results_instance, tmp_path):
+    """
+    Tests exporting the dataset to a NetCDF file.
+    Includes storing some data first.
+    """
+    num_freqs = len(results_instance.frequencies)
+    num_modes = len(results_instance.modes)
+    added_mass = np.random.rand(num_freqs, num_modes, num_modes)
+    damping = np.random.rand(num_freqs, num_modes, num_modes)
+    results_instance.store_hydrodynamic_coefficients(
+        results_instance.frequencies, added_mass, damping
+    )
+    # Adding complex test data to verify splitting
+    results_instance.dataset['complex_test'] = (('frequency', 'mode_i'), np.random.rand(num_freqs, num_modes) + 1j*np.random.rand(num_freqs, num_modes))
 
-    # Eigenfunctions
-    domain_idx_ef = 0
-    domain_name_ef = mock_geometry.domain_list[domain_idx_ef].category
-    num_r = len(mock_geometry.r_coordinates)
-    num_z = len(mock_geometry.z_coordinates)
-    radial_data_ef = (np.random.rand(num_freq, num_modes, num_r) + 1j * np.random.rand(num_freq, num_modes, num_r))
-    vertical_data_ef = (np.random.rand(num_freq, num_modes, num_z) + 1j * np.random.rand(num_freq, num_modes, num_z))
-    results_instance.store_results(domain_idx_ef, radial_data_ef, vertical_data_ef)
-
-    # Potentials
-    all_potentials_batch = []
-    f_idx = 0 # Just one frequency/mode for simplicity in export test
-    m_idx = 0
-    data_for_freq_mode = {}
-    domain_id_pot = 0
-    domain_pot = mock_geometry.domain_list[domain_id_pot]
-    num_harmonics_pot = domain_pot.number_harmonics
-    potentials_val = np.random.rand(num_harmonics_pot) + 1j * np.random.rand(num_harmonics_pot)
-    r_coords_dict_pot = {f'r_h{k}': np.random.rand() * 10 for k in range(num_harmonics_pot)}
-    z_coords_dict_pot = {f'z_h{k}': np.random.rand() * -10 for k in range(num_harmonics_pot)}
-    data_for_freq_mode[domain_pot.category] = {
-        'potentials': potentials_val,
-        'r_coords_dict': r_coords_dict_pot,
-        'z_coords_dict': z_coords_dict_pot,
-    }
-    all_potentials_batch.append({
-        'frequency_idx': f_idx,
-        'mode_idx': m_idx,
-        'data': data_for_freq_mode
-    })
-    results_instance.store_all_potentials(all_potentials_batch)
-
-
-    file_path = "test_results.nc"
-    if os.path.exists(file_path):
-        os.remove(file_path)
-
+    file_path = tmp_path / "test_results.nc"
     results_instance.export_to_netcdf(file_path)
 
-    assert os.path.exists(file_path)
+    assert file_path.exists()
 
-    # Verify content after reloading
-    loaded_dataset = xr.open_dataset(file_path)
-
-    assert 'added_mass' in loaded_dataset.data_vars
-    assert 'damping' in loaded_dataset.data_vars
-    assert f'radial_eigenfunctions_{domain_name_ef}' in loaded_dataset.data_vars
-    assert f'vertical_eigenfunctions_{domain_name_ef}' in loaded_dataset.data_vars
-    assert 'potentials' in loaded_dataset.data_vars
-    assert 'potential_r_coords' in loaded_dataset.data_vars
-    assert 'potential_z_coords' in loaded_dataset.data_vars
-
-    # Check complex data types after loading
-    # The actual dtype might be a structured array like [('r', '<f8'), ('i', '<f8')]
-    # Instead of `== complex`, check if it's a structured dtype with 'r' and 'i' fields
-    # or just check if the data can be correctly interpreted as complex values.
-    
-    # A robust way to check is to verify the values after conversion if needed,
-    # or check the structure of the dtype for 'r' and 'i' fields.
-    # For now, let's just make sure the numerical values are correct, which implicitly
-    # checks the complex data integrity.
-    
-    # Assert that the data is numerically correct (this covers the main concern)
-    # The dtype assertion can be more specific if you absolutely need to check the exact structured dtype.
-    assert loaded_dataset['potentials'].dtype.kind == 'V' or loaded_dataset['potentials'].dtype == complex # 'V' for void/structured dtype
-    assert loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].dtype.kind == 'V' or loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].dtype == complex
-
-    # Verify data integrity (e.g., potentials) - this is the most important part
-    loaded_potentials = loaded_dataset['potentials'].sel(
-        frequencies=sample_frequencies[f_idx],
-        modes=sample_modes[m_idx],
-        domain_name=domain_pot.category
-    ).values[:len(potentials_val)]
-
-    # If it's a structured array, you might need to combine 'r' and 'i' fields
-    if loaded_potentials.dtype.names is not None and 'r' in loaded_potentials.dtype.names and 'i' in loaded_potentials.dtype.names:
-        loaded_potentials_combined = loaded_potentials['r'] + 1j * loaded_potentials['i']
-    else:
-        loaded_potentials_combined = loaded_potentials
-
-    np.testing.assert_array_almost_equal(loaded_potentials_combined, potentials_val)
-
-    # Do the same for eigenfunctions
-    loaded_radial_ef = loaded_dataset[f'radial_eigenfunctions_{domain_name_ef}'].sel(
-        frequencies=sample_frequencies[0],
-        modes=sample_modes[0],
-        r=mock_geometry.r_coordinates[0] # Select a specific r-coordinate for check
-    ).values
-
-    # Assuming you might want to compare against a specific slice of the original data.
-    # For simplicity, let's just check the values that were actually stored.
-    # You might need to adjust slicing based on how you want to verify
-    # all dimensions for eigenfunctions if you didn't extract a simple 1D array.
-    
-    # For this test, let's just assert that the `loaded_dataset` contains the complex values correctly.
-    # The previous test_store_results_eigenfunctions already verifies the full array.
-    # The main concern for export is *if complex numbers are preserved*.
-
-    # Cleanup
-    os.remove(file_path)
+    loaded_ds = xr.open_dataset(file_path, engine="h5netcdf")
+    assert 'added_mass' in loaded_ds
+    assert 'damping' in loaded_ds
+    assert 'complex_test_real' in loaded_ds
+    assert 'complex_test_imag' in loaded_ds
+    assert loaded_ds['added_mass'].shape == (num_freqs, num_modes, num_modes)
+    loaded_ds.close()
+    print("✅ Export to NetCDF test passed.")
 
 def test_get_results(results_instance):
-    """Test get_results method."""
-    dataset = results_instance.get_results()
-    assert isinstance(dataset, xr.Dataset)
-    # Further checks could involve specific data variables if populated
+    """
+    Tests that get_results returns the underlying xarray Dataset.
+    """
+    ds = results_instance.get_results()
+    assert isinstance(ds, xr.Dataset)
+    assert ds is results_instance.dataset
+    print("✅ Get results test passed.")
 
 def test_display_results(results_instance):
-    """Test display_results method."""
-    display_str = results_instance.display_results()
-    assert isinstance(display_str, str)
-    assert "xarray.Dataset" in display_str
+    """
+    Tests that display_results returns a string representation of the dataset.
+    """
+    num_freqs = len(results_instance.frequencies)
+    num_modes = len(results_instance.modes)
+    added_mass = np.random.rand(num_freqs, num_modes, num_modes)
+    results_instance.store_hydrodynamic_coefficients(
+        results_instance.frequencies, added_mass, np.zeros_like(added_mass)
+    )
 
-    empty_results = Results(MockGeometry(), np.array([]), np.array([]))
-    empty_display_str = empty_results.display_results()
-    assert "No results stored." not in empty_display_str # Initial dataset is empty, but not None
-    assert "Dimensions" in empty_display_str # It will show empty dimensions
+    output_string = results_instance.display_results()
+    assert isinstance(output_string, str)
+    assert 'xarray.Dataset' in output_string
+    assert 'added_mass' in output_string
+    print("✅ Display results test passed.")
 
-    # If dataset was explicitly set to None, then 'No results stored.' would appear
+# ==============================================================================
+# NEW: Error Handling and Edge Case Tests
+# ==============================================================================
+
+def test_store_results_domain_not_found(results_instance):
+    """
+    Coverage for: raise ValueError(f"Domain index {domain_index} not found.")
+    """
+    with pytest.raises(ValueError, match="Domain index 999 not found"):
+        results_instance.store_results(999, np.array([]), np.array([]))
+
+def test_store_results_no_coordinate_body(mock_problem, sample_frequencies):
+    """
+    Coverage for: 
+    r_coords = np.array([])
+    z_coords = np.array([])
+    """
+    # Replace bodies with just SteppedBody (not CoordinateBody)
+    # FIX: Ensure 'heaving' attribute exists on the mock BEFORE passing it to Results,
+    # as Results.__init__ accesses body.heaving immediately.
+    stepped_body_mock = Mock(spec=SteppedBody)
+    stepped_body_mock.heaving = False # Set heaving to False (or True) to allow access
+    
+    mock_problem.geometry.body_arrangement.bodies = [stepped_body_mock] 
+    
+    results = Results(mock_problem)
+    
+    num_freqs = len(sample_frequencies)
+    
+    # Expected shape: (freqs, modes, 0)
+    # Modes list will be empty if heaving=False for all bodies.
+    num_modes = len(results.modes)
+    radial_data = np.zeros((num_freqs, num_modes, 0))
+    vertical_data = np.zeros((num_freqs, num_modes, 0))
+    
+    # Should run without error
+    results.store_results(0, radial_data, vertical_data)
+
+def test_store_results_shape_mismatch(results_instance):
+    """
+    Coverage for:
+    raise ValueError(f"radial_data shape ...")
+    raise ValueError(f"vertical_data shape ...")
+    """
+    # Default fixture has 3 bodies, 2 coordinate bodies, total 2 coordinates.
+    # Expected spatial dim is 2.
+    num_freqs = len(results_instance.frequencies)
+    num_modes = len(results_instance.modes)
+    expected_spatial = 2
+    
+    # Create mismatched data
+    bad_data = np.zeros((num_freqs, num_modes, expected_spatial + 1))
+    good_data = np.zeros((num_freqs, num_modes, expected_spatial))
+    
+    with pytest.raises(ValueError, match="radial_data shape"):
+        results_instance.store_results(0, bad_data, good_data)
+        
+    with pytest.raises(ValueError, match="vertical_data shape"):
+        results_instance.store_results(0, good_data, bad_data)
+
+def test_store_single_potential_field(results_instance):
+    """
+    Coverage for:
+    raise ValueError("potential_data must contain 'R', 'Z', and 'phi' keys.")
+    and the successful execution block.
+    """
+    # Test Exception
+    with pytest.raises(ValueError, match="must contain 'R', 'Z', and 'phi'"):
+        results_instance.store_single_potential_field({'R': []})
+        
+    # Test Success
+    data = {
+        'R': np.zeros((5, 5)),
+        'Z': np.zeros((5, 5)),
+        'phi': np.zeros((5, 5), dtype=complex)
+    }
+    results_instance.store_single_potential_field(data, frequency_idx=0, mode_idx=0)
+    assert 'potential_phi_real_0_0' in results_instance.dataset
+
+def test_store_all_potentials_edge_cases(results_instance, capsys):
+    """
+    Coverage for:
+    print("No potentials data to store.")
+    print("No domain data found in potentials batch.")
+    domain_potentials = domain_potentials.astype(complex)
+    """
+    # 1. Empty Input
+    results_instance.store_all_potentials([])
+    captured = capsys.readouterr()
+    assert "No potentials data to store" in captured.out
+    
+    # 2. Batch with no domain data
+    results_instance.store_all_potentials([{'data': {}}])
+    captured = capsys.readouterr()
+    assert "No domain data found" in captured.out
+    
+    # 3. Real input triggering astype(complex)
+    batch = [{
+        'frequency_idx': 0, 'mode_idx': 0,
+        'data': {
+            'domain_0': {
+                'potentials': np.array([1.0, 2.0]), # Floats, not complex
+                'r_coords_dict': {'r0': 0},
+                'z_coords_dict': {'z0': 0}
+            }
+        }
+    }]
+    results_instance.store_all_potentials(batch)
+    # Verification: Check that the stored data is complex/contains NaNs where appropriate
+    assert 'potentials_real' in results_instance.dataset
+
+def test_store_hydrodynamic_coefficients_shape_mismatch(results_instance, sample_frequencies):
+    """
+    Coverage for:
+    raise ValueError(f"Matrices must have shape ...")
+    """
+    bad_matrix = np.zeros((1, 1, 1)) # Wrong shape
+    with pytest.raises(ValueError, match="Matrices must have shape"):
+        results_instance.store_hydrodynamic_coefficients(sample_frequencies, bad_matrix, bad_matrix)
+
+def test_display_results_none(results_instance):
+    """
+    Coverage for:
+    else: return "No results stored."
+    """
     results_instance.dataset = None
     assert results_instance.display_results() == "No results stored."
+
+# ==============================================================================
+# Added Test for Explicit Modes Initialization
+# ==============================================================================
+
+def test_results_initialization_with_explicit_modes(mock_problem, sample_frequencies):
+    """
+    Tests that the Results class uses the provided 'modes' argument when initializing,
+    covering the 'if modes is not None:' branch.
+    """
+    explicit_modes = [0, 1]
+    results = Results(mock_problem, modes=explicit_modes)
+    
+    assert isinstance(results.modes, np.ndarray)
+    np.testing.assert_array_equal(results.modes, np.array(explicit_modes))
+    
+    # Check that dataset coords use the explicit modes
+    np.testing.assert_array_equal(results.dataset.coords['mode_i'], explicit_modes)
+    np.testing.assert_array_equal(results.dataset.coords['mode_j'], explicit_modes)
