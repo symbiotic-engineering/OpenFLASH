@@ -13,8 +13,8 @@ pipeline:
   stages:
     generate-figs:
       kind: python-script
-      script_path: dev/python/analysis/make_fig.py
-      environment: jfm
+      script_path: analysis/make_fig.py
+      environment: openflash-on-main
       inputs:
         - package/src/
       outputs:
