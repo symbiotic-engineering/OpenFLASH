@@ -4,6 +4,7 @@ import pytest
 import numpy as np
 import sys
 import os
+from typing import List  # Added for type hinting
 
 # make src importable (adjust path if your repository layout differs)
 current_dir = os.path.dirname(__file__)
@@ -12,7 +13,7 @@ if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
 from openflash.basic_region_geometry import BasicRegionGeometry
-from openflash.body import SteppedBody
+from openflash.body import SteppedBody, Body  # Added Body for type hinting
 from openflash.geometry import ConcentricBodyGroup
 
 # ------------------------------
@@ -52,7 +53,8 @@ _EPS = 1e-6
     ]
 )
 def test_basic_region_geometry_init_valid_param(radii_list, NMK):
-    bodies = [
+    # FIX: Explicitly type hint as List[Body] to satisfy invariance
+    bodies: List[Body] = [
         SteppedBody(a=r, d=np.array([1.0] * len(r)), slant_angle=np.zeros_like(r), heaving=False)
         for r in radii_list
     ]
@@ -74,7 +76,8 @@ def test_basic_region_geometry_init_valid_param(radii_list, NMK):
     ]
 )
 def test_basic_region_geometry_init_invalid_radii_param(radii_list):
-    bodies = [
+    # FIX: Explicitly type hint as List[Body]
+    bodies: List[Body] = [
         SteppedBody(a=r, d=np.array([1.0] * len(r)), slant_angle=np.zeros_like(r), heaving=False)
         for r in radii_list
     ]
@@ -95,7 +98,8 @@ def test_basic_region_geometry_init_invalid_radii_param(radii_list):
     ]
 )
 def test_basic_region_geometry_init_invalid_nmk_length_param(radii_list, NMK):
-    bodies = [
+    # FIX: Explicitly type hint as List[Body]
+    bodies: List[Body] = [
         SteppedBody(a=r, d=np.array([1.0] * len(r)), slant_angle=np.zeros_like(r), heaving=False)
         for r in radii_list
     ]
@@ -167,7 +171,9 @@ def test_from_vectors_body_and_heaving(a, d, NMK, body_map, heaving_map, expecte
         else:
             assert body.heaving == False
 
-    combined_radii = np.concatenate([b.a for b in geom.body_arrangement.bodies])
+    # --- FIX: Use the 'a' property of the arrangement instead of manually iterating the list ---
+    # This solves the Pylance error regarding 'b.a' being inaccessible on base class 'Body'
+    combined_radii = geom.body_arrangement.a
     np.testing.assert_array_equal(combined_radii, a)
 
 # ------------------------------
@@ -331,3 +337,48 @@ def test_randomized_extreme_nmk(seed):
         assert dom.a_outer > last_outer
         last_outer = dom.a_outer
     assert domains[-1].a_outer == np.inf
+    
+# ------------------------------
+# NEW TEST: Heaving map length mismatch
+# ------------------------------
+def test_from_vectors_heaving_map_length_mismatch():
+    """
+    Tests that ValueError is raised when len(heaving_map) != number of unique bodies inferred
+    from body_map (which is max(body_map) + 1).
+    """
+    a = np.array([1.0, 2.0])
+    d = np.array([1.0, 1.0])
+    NMK = [5, 5, 5]
+    
+    # body_map=[0, 1] implies 2 bodies (Body 0 and Body 1)
+    body_map = [0, 1] 
+    
+    # heaving_map has length 1, but we expect length 2
+    heaving_map_short = [False]
+    
+    with pytest.raises(ValueError, match=r"Length of heaving_map \(1\) does not match inferred number of bodies \(2\)"):
+        BasicRegionGeometry.from_vectors(a, d, h=10.0, NMK=NMK,
+                                         body_map=body_map, heaving_map=heaving_map_short)
+
+# ------------------------------
+# NEW TEST: Body declared but has no radii (skipped index)
+# ------------------------------
+def test_from_vectors_missing_body_radii():
+    """
+    Tests that ValueError is raised when a body index is implied by the range 
+    of body_map (0 to max) but no segments are assigned to it.
+    """
+    a = np.array([1.0, 2.0])
+    d = np.array([1.0, 1.0])
+    NMK = [5, 5, 5]
+    
+    # body_map=[0, 2] implies max index is 2, so the code infers 3 bodies: 0, 1, and 2.
+    # However, no segment is assigned to Body 1.
+    body_map = [0, 2]
+    
+    # We provide a valid heaving map for 3 bodies to ensure we don't hit the length error first
+    heaving_map = [False, False, False]
+
+    with pytest.raises(ValueError, match="Body index 1 is declared in body_map but has no assigned radii"):
+        BasicRegionGeometry.from_vectors(a, d, h=10.0, NMK=NMK,
+                                         body_map=body_map, heaving_map=heaving_map)

@@ -130,3 +130,27 @@ def test_set_m_k_and_N_k_funcs(problem_cache, mock_m_k_entry_func, mock_N_k_func
 
     assert problem_cache.m_k_entry_func is mock_m_k_entry_func
     assert problem_cache.N_k_func is mock_N_k_func
+
+# --- New Test Cases Added ---
+
+def test_get_integration_constants_not_set(problem_cache):
+    """Test ValueError is raised if integration constants are accessed before being set."""
+    # Ensure attributes are initialized to None to simulate uninitialized state correctly.
+    problem_cache.int_R1_vals = None
+    
+    with pytest.raises(ValueError, match="Integration constants have not been set."):
+        problem_cache._get_integration_constants()
+
+def test_set_and_get_integration_constants(problem_cache):
+    """Test setting and retrieving integration constants."""
+    mock_R1 = {'key': 1}
+    mock_R2 = {'key': 2}
+    mock_phi = np.array([1.0, 2.0])
+    
+    problem_cache._set_integration_constants(mock_R1, mock_R2, mock_phi)
+    
+    r1, r2, phi = problem_cache._get_integration_constants()
+    
+    assert r1 == mock_R1
+    assert r2 == mock_R2
+    np.testing.assert_array_equal(phi, mock_phi)
