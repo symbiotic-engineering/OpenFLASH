@@ -1,7 +1,5 @@
-name: openflash-openflash-on-branch
+name: openflash-openflash-on-main
 channels:
   - conda-forge
 dependencies:
-  - python
-  - pip:
-      - -e .
+  - sea-lab::open-flash

@@ -3,11 +3,10 @@ environments:
     kind: docker
     image: texlive/texlive:latest-full
     description: TeXlive via Docker.
-  openflash-on-main:
-    kind: uv-venv
-    path: requirements.txt
-    prefix: .venv
   openflash-on-branch:
+    path: environment.yml
+    kind: conda
+  openflash-on-main:
     path: environment.yml
     kind: conda
 pipeline:
