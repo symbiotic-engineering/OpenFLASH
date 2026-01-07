@@ -1,0 +1,7 @@
+name: openflash-openflash-on-branch
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - pip:
+      - -e .

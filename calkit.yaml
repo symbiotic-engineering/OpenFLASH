@@ -3,10 +3,13 @@ environments:
     kind: docker
     image: texlive/texlive:latest-full
     description: TeXlive via Docker.
-  jfm:
+  openflash-on-main:
     kind: uv-venv
     path: requirements.txt
     prefix: .venv
+  openflash-on-branch:
+    path: environment.yml
+    kind: conda
 pipeline:
   stages:
     generate-figs:
