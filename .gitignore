@@ -208,3 +208,5 @@ html/
 .vscode/settings.json
 
 .calkit/overleaf
+
+.calkit/notebooks/cleaned/dev/python/validation_with_capytaine_plots.ipynb

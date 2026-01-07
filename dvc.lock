@@ -20,50 +20,52 @@ stages:
       md5: da2778aa10b978a61b883bae86c4a4d3
       size: 3330
   generate-figs:
-    cmd: calkit xenv -n jfm --no-check -- python dev/python/analysis/make_fig.py
+    cmd: calkit xenv -n openflash-on-main --no-check -- python 
+      analysis/make_fig.py
     deps:
-    - path: .calkit/env-locks/jfm.txt
+    - path: .calkit/env-locks/openflash-on-main
       hash: md5
-      md5: da2778aa10b978a61b883bae86c4a4d3
-      size: 3330
-    - path: dev/python/analysis/make_fig.py
+      md5: e63a7a190bec62bdb13da6c8e0b67882.dir
+      size: 9273
+      nfiles: 1
+    - path: analysis/make_fig.py
       hash: md5
       md5: 342457a14ecf071e569ed77bc9b70d5e
       size: 199
     - path: package/src/
       hash: md5
-      md5: 9307a8c4c975ac9077cea82c6a094a2b.dir
-      size: 241704
+      md5: 06141e77fa824a87f4a23726140e3cc2.dir
+      size: 242590
       nfiles: 27
     outs:
     - path: pubs/JFM/figs/sample_plot.png
       hash: md5
-      md5: d974aa29cc09cc14918684f48873dda3
-      size: 25165
+      md5: 61b69edeadbba2f7dbf8063662ed436d
+      size: 22608
   compile-overleaf:
-    cmd: calkit xenv -n tex --no-check -- latexmk -cd -norc 
-      -interaction=nonstopmode -silent -synctex=1 -pdf pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
     deps:
-    - path: .calkit/env-locks/tex.json
+    - path: .calkit/env-locks/tex
       hash: md5
-      md5: cc3231187649b203a8f6c17aad4e5f6e
-      size: 1171
+      md5: 5335d12b2300755418b74ba5e4bda2a5.dir
+      size: 1147
+      nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 8bcfe3b5f29aa6d4d79c9d93a0df74df
-      size: 86334
+      md5: 1fa9c38f335de794f11256bc1295639a
+      size: 91692
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 8bcfe3b5f29aa6d4d79c9d93a0df74df
-      size: 86334
+      md5: 1fa9c38f335de794f11256bc1295639a
+      size: 91692
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 404f55a2bb4f501b30e216fdf9fe0947.dir
-      size: 1088123
+      md5: e39b9d98847f26b0247be5cdf6821526.dir
+      size: 1085566
       nfiles: 7
     - path: pubs/JFM/jfm.bib
       hash: md5
@@ -84,5 +86,30 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: f834a107fae240dcc4ae66b4723ff64a
-      size: 326651
+      md5: a7af9cb584e8f808c29d1954d3acc98c
+      size: 331413
+  validate-w-capy:
+    cmd: calkit nb execute --environment openflash-on-main --no-check --language
+      python --to html "dev/python/validation_with_capytaine_plots.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-main
+      hash: md5
+      md5: e63a7a190bec62bdb13da6c8e0b67882.dir
+      size: 9273
+      nfiles: 1
+    - path: 
+        .calkit/notebooks/cleaned/dev/python/validation_with_capytaine_plots.ipynb
+      hash: md5
+      md5: 0d929ddf0c15a3c9d972f98fed673b97
+      size: 19017
+    outs:
+    - path: 
+        .calkit/notebooks/executed/dev/python/validation_with_capytaine_plots.ipynb
+      hash: md5
+      md5: 9213e50d66dd41622d10900b3fb0a2d1
+      size: 287785
+    - path: 
+        .calkit/notebooks/html/dev/python/validation_with_capytaine_plots.html
+      hash: md5
+      md5: 7f4380ab2ab68b4f927abb523b24f988
+      size: 578736

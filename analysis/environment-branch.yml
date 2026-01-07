@@ -1,0 +1,20 @@
+name: openflash-openflash-on-branch
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - pip
+  - setuptools
+  - wheel
+  - python
+  - numpy
+  - scipy
+  - matplotlib
+  - pandas
+  - h5netcdf
+  - xarray
+  - streamlit
+  - ipykernel
+  - capytaine
+  - pip:
+      - -e .

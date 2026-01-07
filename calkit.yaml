@@ -3,20 +3,26 @@ environments:
     kind: docker
     image: texlive/texlive:latest-full
     description: TeXlive via Docker.
-  jfm:
-    kind: uv-venv
-    path: requirements.txt
-    prefix: .venv
+  openflash-on-branch:
+    path: analysis/environment-branch.yml
+    kind: conda
+  openflash-on-main:
+    path: analysis/environment-main.yml
+    kind: conda
 pipeline:
   stages:
     generate-figs:
       kind: python-script
-      script_path: dev/python/analysis/make_fig.py
-      environment: jfm
+      script_path: analysis/make_fig.py
+      environment: openflash-on-main
       inputs:
         - package/src/
       outputs:
         - pubs/JFM/figs/sample_plot.png
+    validate-w-capy:
+      kind: jupyter-notebook
+      notebook_path: dev/python/validation_with_capytaine_plots.ipynb
+      environment: openflash-on-branch
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex
