@@ -4,10 +4,10 @@ environments:
     image: texlive/texlive:latest-full
     description: TeXlive via Docker.
   openflash-on-branch:
-    path: environment.yml
+    path: analysis/environment-branch.yml
     kind: conda
   openflash-on-main:
-    path: environment.yml
+    path: analysis/environment-main.yml
     kind: conda
 pipeline:
   stages:
@@ -19,6 +19,10 @@ pipeline:
         - package/src/
       outputs:
         - pubs/JFM/figs/sample_plot.png
+    validate-w-capy:
+      kind: jupyter-notebook
+      notebook_path: dev/python/validation_with_capytaine_plots.ipynb
+      environment: openflash-on-branch
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex

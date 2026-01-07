@@ -40,6 +40,7 @@ dependencies:
   - cached_property=1.5.2=pyha770c72_1
   - cachetools=6.2.4=pyhd8ed1ab_0
   - cairo=1.18.4=he90730b_1
+  - capytaine=2.3.1=py314hacf7208_0
   - certifi=2026.1.4=pyhd8ed1ab_0
   - charset-normalizer=3.4.4=pyhd8ed1ab_0
   - click=8.3.1=pyh8f84b5b_1
@@ -168,10 +169,12 @@ dependencies:
   - libxslt=1.1.43=h711ed8c_1
   - libzlib=1.3.1=hb9d3cd8_2
   - lz4-c=1.10.0=h5888daf_1
+  - markdown-it-py=4.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.3=pyh7db6752_0
   - matplotlib=3.10.8=py314hdafbbf9_0
   - matplotlib-base=3.10.8=py314h1194b4b_0
   - matplotlib-inline=0.2.1=pyhd8ed1ab_0
+  - mdurl=0.1.2=pyhd8ed1ab_1
   - munkres=1.1.4=pyhd8ed1ab_1
   - narwhals=2.15.0=pyhcf101f3_0
   - ncurses=6.5=h2d0b736_3
@@ -220,6 +223,7 @@ dependencies:
   - readline=8.3=h853b02a_0
   - referencing=0.37.0=pyhcf101f3_0
   - requests=2.32.5=pyhcf101f3_1
+  - rich=14.2.0=pyhcf101f3_0
   - rpds-py=0.30.0=py314h2e6c369_0
   - s2n=1.6.2=he8a4886_1
   - scipy=1.16.3=py314hf07bd8e_2
