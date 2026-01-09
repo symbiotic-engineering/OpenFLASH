@@ -19,7 +19,7 @@ class CapytaineSlantSolver:
       self.show_hydros = hydros
       self.show_times = times
       self.show_phase = phase
-      self.solver = cpt.BEMSolver()
+      self.solver = cpt.BEMSolver(engine=cpt.HierarchicalToeplitzMatrixEngine())
       logging.getLogger("capytaine").setLevel(logging.ERROR)
 
     # use to get rid of prints
@@ -119,7 +119,7 @@ class CapytaineSlantSolver:
         # , lid_mesh = meshes.generate_lid() # consider adding lid mesh to above function
         return body, panel_ct, mask
 
-    def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, m0, rho, reps, f_densities = None):
+    def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, m0, rho, reps = 1, f_densities = None):
         pt_lst = self.__get_points(a, d_in, d_out)
         if f_densities is None:
             f_densities = self.__get_f_densities(pt_lst, face_units)
