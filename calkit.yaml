@@ -23,6 +23,10 @@ pipeline:
       kind: jupyter-notebook
       notebook_path: dev/python/validation_with_capytaine_plots.ipynb
       environment: openflash-on-branch
+    timing-figs:
+      kind: jupyter-notebook
+      notebook_path: dev/python/timing_for_paper.ipynb
+      environment: openflash-on-branch
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex
