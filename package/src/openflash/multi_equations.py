@@ -189,15 +189,16 @@ def R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized version of the R_1n radial eigenfunction.
     """
-    # --- FIX: Ensure inputs are FLOAT arrays to prevent dtype casting errors ---
+    # --- FIX: Ensure inputs are FLOAT arrays to prevent casting errors on int arrays ---
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------
+    # ---------------------------------------------------------------------------------
 
     cond_n_is_zero = (n == 0)
     cond_r_at_boundary = (r == scale(a)[i])
 
     # --- Define the outcomes for each condition ---
+    # FIX: n=0 logic must match scalar version
     if i == 0:
         outcome_for_n_zero = np.full_like(r, 0.5)
     else:
@@ -207,15 +208,19 @@ def R_1n_vectorized(n, r, i, h, d, a):
             val = 1.0 + 0.5 * np.log(np.divide(r, scale(a)[i]))
         outcome_for_n_zero = val
     
+    # Outcome 2: If n>=1 and r is at the boundary, the value is 1.0.
     outcome_for_r_boundary = 1.0
     
-    # Calculate lambda. Mask n=0 to prevent divide by zero in Bessel if lambda becomes 0
+    # Outcome 3: The general case for n>=1 inside the boundary.
     lambda_val = lambda_ni(n, i, h, d)
+    
+    # Safety against divide by zero if n=0 (masked anyway)
     safe_lambda = np.where(cond_n_is_zero, 1.0, lambda_val)
     
     bessel_term = (besselie(0, safe_lambda * r) / besselie(0, safe_lambda * scale(a)[i])) * \
                   exp(safe_lambda * (r - scale(a)[i]))
 
+    # --- Apply the logic using nested np.where ---
     result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
     
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
@@ -228,15 +233,17 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------
+    # -------------------------------------------
     
     condition = (n == 0)
     
     if i == 0:
         value_if_true = np.zeros_like(r)
     else:
+        # Derivative is 1/(2r)
         value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r!=0))
     
+    # --- Calculation for when n > 0 ---
     lambda_val = lambda_ni(n, i, h, d)
     safe_lambda = np.where(condition, 1.0, lambda_val)
     
@@ -266,7 +273,7 @@ def R_2n_vectorized(n, r, i, a, h, d):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------
+    # -------------------------------------------
 
     # LEGACY: Use Outer Radius
     outer_r = scale(a)[i]
@@ -302,7 +309,7 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------
+    # -------------------------------------------
     
     # Case n == 0: Derivative is still 1/(2r)
     value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r != 0))
@@ -335,7 +342,7 @@ def Z_n_i_vectorized(n, z, i, h, d):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     z = np.asarray(z, dtype=float)
-    # -------------------------------------
+    # -------------------------------------------
 
     condition = (n == 0)
     
@@ -355,7 +362,7 @@ def diff_Z_n_i_vectorized(n, z, i, h, d):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     z = np.asarray(z, dtype=float)
-    # -------------------------------------
+    # -------------------------------------------
     
     condition = (n == 0)
     value_if_true = 0.0
@@ -376,10 +383,7 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     k = np.asarray(k, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------
-
-    if m0 == inf:
-        return np.ones(np.broadcast(k, r).shape, dtype=float)
+    # -------------------------------------------
 
     cond_k_is_zero = (k == 0)
     cond_r_at_boundary = (r == scale(a)[-1])
@@ -387,20 +391,31 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     outcome_boundary = 1.0
 
     # --- Case 2: k = 0 ---
-    denom_k_zero = besselh(0, m0 * scale(a)[-1])
-    numer_k_zero = besselh(0, m0 * r)
-    with np.errstate(divide='ignore', invalid='ignore'):
-        outcome_k_zero = np.divide(numer_k_zero, denom_k_zero, 
-                                   out=np.zeros_like(numer_k_zero, dtype=complex),
-                                   where=np.isfinite(denom_k_zero) & (denom_k_zero != 0))
+    if m0 == inf:
+        # Prevent Singularity: Return a dummy 1.0 to ensure matrix diagonal is non-zero
+        # even if mode is physically decoupled (I_mk returns 0, so this 1.0 is multiplied by 0 in dense blocks)
+        outcome_k_zero = np.ones_like(r, dtype=float) 
+    else:
+        denom_k_zero = besselh(0, m0 * scale(a)[-1])
+        numer_k_zero = besselh(0, m0 * r)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            outcome_k_zero = np.divide(numer_k_zero, denom_k_zero, 
+                                       out=np.zeros_like(numer_k_zero, dtype=complex),
+                                       where=np.isfinite(denom_k_zero) & (denom_k_zero != 0))
 
     # --- Case 3: k > 0 ---
-    # Mask input where k=0 to prevent errors
-    # Note: k is float array, m_k_arr needs integer indexing if we index into it.
-    # However, k comes in as float from np.asarray. We must cast back to int for indexing.
+    # Cast k back to int for indexing into m_k_arr
+    # NOTE: m_k_arr contains valid finite values for k>0 even if m0=inf (see m_k_entry)
     k_int = k.astype(int)
+    
+    # We must be careful not to index out of bounds if k contains invalid indices (though in context it shouldn't)
+    # To be safe for vectorization, we mask the lookup.
+    # However, k comes from NMK range, so it should be valid.
+    
+    # Use 'safe' indexing (just use 0 where k=0 to avoid errors if m_k_arr has issues at 0, though m_k_arr[0] is handled)
     local_m_k_k = m_k_arr[k_int]
     
+    # Mask input where k=0 (handled by outcome_k_zero)
     safe_m_k = np.where(cond_k_is_zero, 1.0, local_m_k_k)
     
     denom_k_nonzero = besselke(0, safe_m_k * scale(a)[-1])
@@ -427,24 +442,23 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     k = np.asarray(k, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------
-
-    # Handle the scalar case where m0 is infinite. The result is always 1.
-    if m0 == inf:
-        return np.ones(np.broadcast(k, r).shape, dtype=float)
+    # -------------------------------------------
 
     # --- Define the condition for vectorization ---
     condition = (k == 0)
 
     # --- Define the outcome for k == 0 ---
-    numerator_k_zero = -(m0 * besselh(1, m0 * r))
-    denominator_k_zero = besselh(0, m0 * scale(a)[-1])
-    outcome_k_zero = np.divide(numerator_k_zero, denominator_k_zero,
-                               out=np.zeros_like(numerator_k_zero, dtype=complex),
-                               where=(denominator_k_zero != 0))
+    if m0 == inf:
+        # Prevent Singularity: Return 1.0 to ensure matrix pivot exists
+        outcome_k_zero = np.ones_like(r, dtype=float)
+    else:
+        numerator_k_zero = -(m0 * besselh(1, m0 * r))
+        denominator_k_zero = besselh(0, m0 * scale(a)[-1])
+        outcome_k_zero = np.divide(numerator_k_zero, denominator_k_zero,
+                                out=np.zeros_like(numerator_k_zero, dtype=complex),
+                                where=(denominator_k_zero != 0))
 
     # --- Define the outcome for k > 0 ---
-    # Cast k back to int for indexing
     k_int = k.astype(int)
     local_m_k_k = m_k_arr[k_int]
     
@@ -489,7 +503,7 @@ def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     k = np.asarray(k, dtype=float)
     z = np.asarray(z, dtype=float)
-    # -------------------------------------
+    # -------------------------------------------
     
     # This outer conditional is fine because it operates on scalar inputs.
     if m0 * h < M0_H_THRESH:
@@ -522,7 +536,7 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
     # --- FIX: Ensure inputs are FLOAT arrays ---
     k = np.asarray(k, dtype=float)
     z = np.asarray(z, dtype=float)
-    # -------------------------------------
+    # -------------------------------------------
 
     # This outer conditional is fine because it operates on scalar inputs.
     if m0 * h < M0_H_THRESH:
