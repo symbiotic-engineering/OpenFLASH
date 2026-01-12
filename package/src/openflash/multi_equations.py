@@ -156,7 +156,6 @@ def b_velocity_entry(n, i, heaving, a, h, d): # for two i-type regions
 # ADDED m_k_arr, N_k_arr
 def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # between i and e-type regions
     local_m_k_k = m_k_arr[k] # Access directly from array
-
     constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
     if k == 0:
         # --- FIX: Handle infinite m0 ---
@@ -782,6 +781,7 @@ def z_n_d(n):
     
 #############################################
 def excitation_phase(x, NMK, m0, a): # x-vector of unknown coefficients
+    if m0 == inf: return -(pi/2)
     coeff = x[-NMK[-1]] # first coefficient of e-region expansion
     local_scale = scale(a)
     return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale[-1]))
