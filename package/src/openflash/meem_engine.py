@@ -94,10 +94,10 @@ class MEEMEngine:
                     I_nm_vals_precomputed[bd][n, m] = I_nm(n, m, bd, d, h)
         cache._set_I_nm_vals(I_nm_vals_precomputed)
 
-        R_1n_func = np.vectorize(partial(R_1n, h=h, d=d, a=a))
-        R_2n_func = np.vectorize(partial(R_2n, a=a, h=h, d=d))
-        diff_R_1n_func = np.vectorize(partial(diff_R_1n, h=h, d=d, a=a), otypes=[complex])
-        diff_R_2n_func = np.vectorize(partial(diff_R_2n, h=h, d=d, a=a), otypes=[complex])
+        R_1n_func = partial(R_1n_vectorized, h=h, d=d, a=a)
+        R_2n_func = partial(R_2n_vectorized, a=a, h=h, d=d)
+        diff_R_1n_func = partial(diff_R_1n_vectorized, h=h, d=d, a=a)
+        diff_R_2n_func = partial(diff_R_2n_vectorized, h=h, d=d, a=a)
 
         def _calculate_I_mk_vals(m0, m_k_arr, N_k_arr):
             vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)

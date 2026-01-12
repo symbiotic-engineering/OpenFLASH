@@ -14,7 +14,7 @@ from openflash.geometry import Geometry
 from openflash.meem_problem import MEEMProblem
 from openflash.meem_engine import MEEMEngine
 from openflash.domain import Domain
-from openflash.multi_equations import I_mk, N_k_multi, diff_R_1n, diff_Lambda_k, scale, v_dense_block_e_entry, v_diagonal_block_e, v_diagonal_block_e_entry
+from openflash.multi_equations import I_mk, N_k_multi, scale, v_dense_block_e_entry, v_diagonal_block_e_entry
 from openflash.geometry import ConcentricBodyGroup
 from openflash.body import SteppedBody
 from openflash.basic_region_geometry import BasicRegionGeometry
@@ -166,36 +166,6 @@ def summarize_array_differences(arr1, arr2, name1="arr1", name2="arr2", rtol=1e-
     for i, (v1, v2) in enumerate(zip(arr1, arr2)):
         print(f"{i}: {v1:.15f} vs {v2:.15f} => close? {np.isclose(v1, v2, rtol=rtol, atol=atol)}")
 
-
-def compare_v_diagonal_block_e(bd, NMK, a, h, m0, m_k_arr, atol=1e-12, rtol=1e-8):
-    print(f"--- Comparing v_diagonal_block_e vs. v_diagonal_block_e_entry at bd={bd} ---")
-    
-    # Generate the full diagonal block using the block function
-    block = v_diagonal_block_e(bd, h, NMK, a, m0, m_k_arr) # Call without k,r as fixed args
-
-    num_k_modes = NMK[bd+1] # Number of modes for this block (M)
-    all_close = True
-
-    for m in range(num_k_modes): # m is the local row index, corresponds to k mode in diag
-        # The diagonal entry from the block
-        val_matrix = block[m, m] 
-        
-        # The scalar entry from the entry function for the diagonal
-        # Here, 'k' in v_diagonal_block_e_entry is the mode index, which is 'm' for diagonal.
-        # This function takes the individual parameters needed.
-        val_entry = v_diagonal_block_e_entry(m, m, bd, m0, m_k_arr, a, h) # k=m for diagonal
-        
-        if not np.isclose(val_matrix, val_entry, atol=atol, rtol=rtol):
-            print(f"Mismatch at index {m}:")
-            print(f"  matrix: {val_matrix}")
-            print(f"  entry : {val_entry}")
-            all_close = False
-
-    if all_close:
-        print("✅ All entries match!")
-    else:
-        print("❌ Some entries did not match. See above for details.")
-        
 def test_v_dense_block_e_entry():
     m, k, bd = 0, 0, 2
     # Setup dummy I_mk_vals of appropriate shape
@@ -333,33 +303,6 @@ def run_comparison_test():
     bd_test = 2 
      
     validate_closures(problem, engine, m0)
-    
-    # In test_matrices.py, somewhere after parameters are defined
-    n_test = 18
-    r_test = a[2] # which is 10
-    i_test = 2
-
-    old_diff_R_1n_val = diff_R_1n_old(n_test, r_test, i_test, h, d, a)
-    new_diff_R_1n_val = diff_R_1n(n_test, r_test, i_test, h, d, a) # Pass 'a' to new diff_R_1n
-
-    print(f"\n--- Direct Comparison for diff_R_1n (n={n_test}, r={r_test}, i={i_test}) ---")
-    print(f"Old diff_R_1n_old result: {old_diff_R_1n_val}")
-    print(f"New diff_R_1n result: {new_diff_R_1n_val}")
-    print(f"Are they close? {np.isclose(old_diff_R_1n_val, new_diff_R_1n_val, atol=1e-10)}")
-    
-    k_test = 0
-    
-    compare_v_diagonal_block_e(bd_test, NMK, a, h, m0, m_k_arr)
-
-
-    old_diff_Lambda_k_val = diff_Lambda_k_old(k_test, r_test, m0, a, NMK, h)
-    new_diff_Lambda_k_val = diff_Lambda_k(k_test, r_test, m0, a, m_k_arr)
-    print(f"\n--- Direct Comparison for diff_Lambda_k (k={k_test}, r={r_test}, m0={m0}, a={a}, m_k_arr={m_k_arr}, NMK={NMK}, h={h}) ---")
-    print(f"Old diff_Lamda_k_old result: {old_diff_Lambda_k_val}")
-    print(f"New diff_Lambda_k result: {new_diff_Lambda_k_val}")
-    print(f"Are they close? {np.isclose(old_diff_Lambda_k_val, new_diff_Lambda_k_val, atol=1e-10)}")
-    print(f"Are they close (real)? {np.isclose(old_diff_Lambda_k_val.real, new_diff_Lambda_k_val.real, atol=1e-10)}")
-    print(f"Are they close (imag)? {np.isclose(old_diff_Lambda_k_val.imag, new_diff_Lambda_k_val.imag, atol=1e-10)}")
     
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 

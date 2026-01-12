@@ -15,7 +15,6 @@ import scipy as sp
 from functools import partial
 from typing import Optional
 
-
 M0_H_THRESH=14
 
 def omega(m0,h,g):
@@ -186,22 +185,6 @@ def diff_z_phi_p_i(d, z, h):
 # The "Bessel I" radial eigenfunction
 #############################################
 
-def R_1n(n, r, i, h, d, a):
-    if n == 0:
-        if i == 0:
-            return 0.5 # Central cylinder: Constant is correct/sufficient
-        else:
-            # Annulus: Use Log anchored at OUTER radius
-            # 1.0 + 0.5 * log(r / outer_r)
-            return 1.0 + 0.5 * np.log(r / scale(a)[i])
-    elif n >= 1:
-        if r == scale(a)[i]: 
-            return 1
-        else:
-            return besselie(0, lambda_ni(n, i, h, d) * r) / besselie(0, lambda_ni(n, i, h, d) * scale(a)[i]) * exp(lambda_ni(n, i, h, d) * (r - scale(a)[i]))
-    else: 
-        raise ValueError("Invalid value for n")
-
 def R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized version of the R_1n radial eigenfunction.
@@ -234,19 +217,6 @@ def R_1n_vectorized(n, r, i, h, d, a):
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
 # Differentiate wrt r
-def diff_R_1n(n, r, i, h, d, a):
-    if n == 0:
-        if i == 0:
-            return 0.0
-        else:
-            # Derivative of 1.0 + 0.5*ln(r/outer) is 1/(2r)
-            with np.errstate(divide='ignore'):
-                return np.where(r == 0, np.inf, 1 / (2 * r))
-    else:
-        top = lambda_ni(n, i, h, d) * besselie(1, lambda_ni(n, i, h, d) * r)
-        bottom = besselie(0, lambda_ni(n, i, h, d) * scale(a)[i])
-        return top / bottom * exp(lambda_ni(n, i, h, d) * (r - scale(a)[i]))
-
 def diff_R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized derivative of the diff_R_1n radial function.
@@ -279,29 +249,6 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
 # The "Bessel K" radial eigenfunction (Annular Regions)
 # NORMALIZATION FIX: Anchored at Inner Radius (a[i-1]) + Affine Shift
 #############################################
-
-def R_2n(n, r, i, a, h, d):
-    if i == 0:
-        raise ValueError("i cannot be 0") 
-    
-    # LEGACY: Use Outer Radius
-    outer_r = scale(a)[i]
-
-    if n == 0:
-        # LEGACY: 0.5 * log(r / outer)
-        # This is 0 at the outer boundary, not 1.
-        return 0.5 * np.log(r / outer_r)
-    else:
-        lambda_val = lambda_ni(n, i, h, d)
-        
-        if r == outer_r:
-            return 1.0
-        else:
-            # LEGACY: Normalized by K0 at OUTER radius
-            num = besselke(0, lambda_val * r)
-            den = besselke(0, lambda_val * outer_r)
-            return (num / den) * exp(lambda_val * (outer_r - r))
-
 def R_2n_vectorized(n, r, i, a, h, d):
     """
     Vectorized version of the R_2n radial eigenfunction.
@@ -338,24 +285,7 @@ def R_2n_vectorized(n, r, i, a, h, d):
 
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
-# Differentiate wrt r (Unchanged, as d/dr(1.0) is 0)
-def diff_R_2n(n, r, i, h, d, a):
-    # LEGACY: Anchored at Outer Radius
-    if n == 0:
-        return 1.0 / (2 * r)
-    else:
-        lambda0 = lambda_ni(n, i, h, d)
-        outer_r = scale(a)[i]
-        
-        # Derivative of K0(lr)/K0(la) is -l*K1(lr)/K0(la)
-        # Using scaled K:
-        # -l * (ke1(lr)/ke0(la)) * exp(l(a-r))
-        
-        top = - lambda0 * besselke(1, lambda0 * r)
-        bot = besselke(0, lambda0 * outer_r)
-        
-        return (top / bot) * np.exp(lambda0 * (outer_r - r))
-    
+# Differentiate wrt r (Unchanged, as d/dr(1.0) is 0) 
 def diff_R_2n_vectorized(n, r, i, h, d, a):
     n = np.asarray(n)
     r = np.asarray(r)
@@ -383,12 +313,6 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
     return np.where(n == 0, value_if_true, value_if_false)
 #############################################
 # i-region vertical eigenfunctions
-def Z_n_i(n, z, i, h, d):
-    if n == 0:
-        return 1
-    else:
-        return np.sqrt(2) * np.cos(lambda_ni(n, i, h, d) * (z + h))
-    
 def Z_n_i_vectorized(n, z, i, h, d):
     """
     Vectorized version of the i-region vertical eigenfunction Z_n_i.
@@ -405,13 +329,6 @@ def Z_n_i_vectorized(n, z, i, h, d):
     # Otherwise, return the result of the calculation.
     return np.where(condition, 1.0, value_if_false)
 
-def diff_Z_n_i(n, z, i, h, d):
-    if n == 0:
-        return 0
-    else:
-        lambda0 = lambda_ni(n, i, h, d)
-        return - lambda0 * np.sqrt(2) * np.sin(lambda0 * (z + h))
-    
 def diff_Z_n_i_vectorized(n, z, i, h, d):
     """
     Vectorized derivative of the Z_n_i vertical function.
@@ -431,25 +348,7 @@ def diff_Z_n_i_vectorized(n, z, i, h, d):
     return np.where(condition, value_if_true, value_if_false)
 
 #############################################
-# Region e radial eigenfunction
-# REVISED Lambda_k to accept m_k_arr and N_k_arr
-def Lambda_k(k, r, m0, a, m_k_arr): # ADDED m_k_arr, N_k_arr
-    local_m_k_k = m_k_arr[k]
-    if k == 0:
-        if m0 == inf:
-        # the true limit is not well-defined, but whatever value this returns will be multiplied by zero
-            return 1
-        else:
-            if r == scale(a)[-1]:  # Saves bessel function eval
-                return 1
-            else:
-                return besselh(0, m0 * r) / besselh(0, m0 * scale(a)[-1])
-    else:
-        if r == scale(a)[-1]:  # Saves bessel function eval
-            return 1
-        else:
-            return besselke(0, local_m_k_k * r) / besselke(0, local_m_k_k * scale(a)[-1]) * exp(local_m_k_k * (scale(a)[-1] - r))
-        
+# Region e radial eigenfunction    
 def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized version of the exterior region radial eigenfunction Lambda_k.
@@ -493,22 +392,6 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
                     result_if_not_boundary)
 
 # Differentiate wrt r 
-def diff_Lambda_k(k, r, m0, a, m_k_arr): 
-    local_m_k_k = m_k_arr[k] # Access directly from array
-    if k == 0:
-        if m0 == inf:
-        # the true limit is not well-defined, but this makes the assigned coefficient zero
-            return 1
-        else:
-            numerator = -(m0 * besselh(1, m0 * r))
-            denominator = besselh(0, m0 * scale(a)[-1])
-         
-            return numerator / denominator
-    else:
-        numerator = -(local_m_k_k * besselke(1, local_m_k_k * r))
-        denominator = besselke(0, local_m_k_k * scale(a)[-1])
-        return numerator / denominator * exp(local_m_k_k * (scale(a)[-1] - r))
-
 def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized derivative of the exterior region radial function Lambda_k.
@@ -563,17 +446,6 @@ def N_k_multi(k, m0, h, m_k_arr):
 
 #############################################
 # e-region vertical eigenfunctions
-def Z_k_e(k, z, m0, h, NMK, m_k_arr):
-    local_m_k = m_k(NMK, m0, h)
-    if k == 0:
-        if m0 == inf: return 0
-        if m0 * h < M0_H_THRESH:
-            return 1 / sqrt(N_k_multi(k, m0, h, m_k_arr)) * cosh(m0 * (z + h))
-        else: # high m0h approximation
-            return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
-    else:
-        return 1 / sqrt(N_k_multi(k, m0, h, m_k_arr)) * cos(local_m_k[k] * (z + h))
-    
 def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
     """
     Vectorized version of the e-region vertical eigenfunction Z_k_e.
@@ -867,22 +739,6 @@ def v_dense_block(left, radfunction, bd, I_nm_vals, NMK, a):
     radial_array = np.outer((np.full((NMK[adj]), 1)), radial_vector)
     return sign * radial_array * I_nm_array
 
-def v_diagonal_block_e(bd, h, NMK, a, m0, m_k_arr): # Added m0, m_k_arr to signature
-    # Create the vectorized version of diff_Lambda_k, specifically for this block's needs
-    # This partial application ensures diff_Lambda_k has access to necessary fixed parameters
-    # The 'k' and 'r' for diff_Lambda_k are provided by np.vectorize in the call below.
-    vectorized_diff_Lambda_k_func = np.vectorize(
-        partial(diff_Lambda_k, m0=m0, a=a, m_k_arr=m_k_arr),
-        otypes=[complex]
-    )
-    
-    # Calculate the diagonal elements by applying the vectorized function
-    # 'a[bd]' is the fixed 'r' value for this boundary (radius)
-    diagonal_elements = vectorized_diff_Lambda_k_func(list(range(NMK[bd+1])), a[bd]) # NMK[bd+1] is M
-
-    # Create the diagonal matrix and ensure complex dtype
-    return h * np.diag(diagonal_elements).astype(complex)
-
 def v_dense_block_e(radfunction, bd, I_mk_vals, NMK, a): # for region adjacent to e-type region
     I_km_array = np.transpose(I_mk_vals)
     radial_vector = radfunction(list(range(NMK[bd])), a[bd], bd)
@@ -893,107 +749,35 @@ def v_dense_block_e(radfunction, bd, I_mk_vals, NMK, a): # for region adjacent t
 def p_dense_block_e_entry(m, k, bd, I_mk_vals, NMK, a, m0, h, m_k_arr, N_k_arr):
     """
     Compute individual entry (m, k) of the p_dense_block_e matrix at boundary `bd`.
-
-    Parameters:
-        m: int – row index (0 <= m < NMK[bd])
-        k: int – col index (0 <= k < NMK[bd+1])
-        bd: int – boundary index
-        I_mk_vals: ndarray – array of shape (NMK[bd], NMK[bd+1]) with precomputed I_mk values
-        NMK: list[int] – number of harmonics for each region
-        a: list[float] – cylinder radii for each region
-
-    Returns:
-        complex – the matrix entry value
+    Updated to use vectorized radial function for consistency.
     """
+    # Use Lambda_k_vectorized (it handles scalar inputs perfectly via broadcasting)
+    radial_val = Lambda_k_vectorized(k, a[bd], m0, a, m_k_arr)
+    
+    return -1 * radial_val * I_mk_vals[m, k]
 
-    return -1 * Lambda_k(k, a[bd], m0, a, m_k_arr) * I_mk_vals[m, k]
-
-def v_dense_block_e_entry(m, k, bd, I_mk_vals, a, h, d): # Added h,d,NMK
+def v_dense_block_e_entry(m, k, bd, I_mk_vals, a, h, d):
     """
     Compute individual entry (m, k) of the v_dense_block_e matrix at boundary `bd`.
+    Updated to use vectorized radial derivative.
     """
+    # Use diff_R_1n_vectorized instead of diff_R_1n
+    radial_term = diff_R_1n_vectorized(k, a[bd], bd, h, d, a)
     
-    # In the old code's v_dense_block_e:
-    # radial_vector = radfunction(list(range(NMK[bd])), a[bd], bd)
-    # radfunction would be diff_R_1n_func or diff_R_2n_func
-    # For a given (m,k) entry, 'k' corresponds to the n in diff_R_1n/diff_R_2n.
-    # The 'r' argument for diff_R_1n/diff_R_2n is a[bd].
-    # The 'i' argument for diff_R_1n/diff_R_2n is bd.
-
-    # Determine which radial function to call based on the original logic
-    # This might depend on 'bd' or other conditions that determine R_1n vs R_2n use
-    # For the i-e boundary (bd == boundary_count - 1), typically R_1n is used for the inner region.
-    radial_term = diff_R_1n(k, a[bd], bd, h, d, a) # diff_R_1n is the correct one for this block
-    
-    # I_mk_vals is correctly defined as (NMK[prev_region], NMK[current_region])
-    # The old code used I_km_array = np.transpose(I_mk_vals) and then indexed it as I_km_array[m, k] (local row, local col)
-    # So, if I_mk_vals is (rows_of_prev_region, cols_of_current_region),
-    # then I_km_array[m, k] corresponds to I_mk_vals_untransposed[k, m]
-    imk_term = I_mk_vals[k, m] # k is the 'col' index of current block, m is the 'row' index of current block
-
-    # The outer sign is (-1) from v_dense_block_e
-    result = -1 * radial_term * imk_term
-
-    return result
+    imk_term = I_mk_vals[k, m]
+    return -1 * radial_term * imk_term
 
 def v_diagonal_block_e_entry(m, k, bd, m0, m_k_arr, a, h):
-    """
-    Compute individual (m,k) entry of the velocity diagonal block e at boundary bd.
-    """
-    
-    #  need access to 'h' here. It's available in the outer scope
-    # through the problem object, or pass it directly.
-    # Since NMK and a are passed, h should be too if it's not a global constant.
-    # retrieve h from the problem object or pass it.
-    
-    # If h is always domain_list[0].h, can pass it from build_problem_cache
-    # For now, let's explicitly pass h from build_problem_cache to this function
-    # via the closure.
-    
     radius = a[bd]
     
-    # Call diff_Lambda_k, ensure it's the correct new version from multi_equations.py
-    # (it is, from code snippet)
-    val = diff_Lambda_k(k, radius, m0, a, m_k_arr)
+    # FIX: Use diff_Lambda_k_vectorized
+    val = diff_Lambda_k_vectorized(k, radius, m0, a, m_k_arr)
  
-    result =  h * val 
+    return h * val
+
+def v_dense_block_e_entry_R2(m, k, bd, I_mk_vals, a, h, d):
+    # Use diff_R_2n_vectorized instead of diff_R_2n
+    radial_term = diff_R_2n_vectorized(k, a[bd], bd, h, d, a)
     
-    return result
-
-def v_dense_block_e_entry_R2(m: int, k: int, bd: int, I_mk_vals: np.ndarray, a: list, h: float, d: list) -> complex:
-    """
-    Computes a single entry for the m0-dependent velocity block at the i-e 
-    boundary, using the R_2n radial eigenfunctions.
-
-    This is used for the second part of the dense coupling block at the final
-    boundary when there are more than two regions.
-
-    Args:
-        m (int): The local row index within the block, corresponding to a mode
-                 in the external region.
-        k (int): The local column index within the block, corresponding to a mode
-                 'n' in the adjacent internal region.
-        bd (int): The boundary index, which should be the final boundary.
-        I_mk_vals (np.ndarray): The m0-dependent coupling integral matrix, I_mk.
-        a (list): A list of the cylinder radii.
-        h (float): The total water depth.
-        d (list): A list of the depths for each region.
-
-    Returns:
-        complex: The computed complex value for the matrix entry A[row, col].
-    """
-    # 1. Calculate the radial term using the derivative of the R_2n function.
-    #    - 'k' is the mode 'n' for the internal region.
-    #    - 'a[bd]' is the radius 'r' at the boundary.
-    #    - 'bd' is the region index 'i'.
-    radial_term = diff_R_2n(k, a[bd], bd, h, d, a)
-    
-    # 2. Get the corresponding coupling integral value.
-    #    The original implementation used a transposed I_mk matrix. An entry
-    #    at [m, k] in the final block corresponds to the entry at [k, m]
-    #    in the non-transposed I_mk_vals matrix.
     imk_term = I_mk_vals[k, m]
-
-    # 3. Apply the leading sign and return the result.
-    #    The physics of the problem formulation gives this block a -1 sign.
     return -1 * radial_term * imk_term

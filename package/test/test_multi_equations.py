@@ -24,9 +24,8 @@ from openflash.multi_equations import (
     omega, scale, lambda_ni, m_k_entry, m_k,
     I_nm, I_mk, b_potential_entry, b_potential_end_entry,
     b_velocity_entry, b_velocity_end_entry, 
-    phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i, R_1n, diff_R_1n, R_2n, diff_R_2n,
-    Z_n_i, diff_Z_n_i, Lambda_k, diff_Lambda_k,
-    N_k_multi, Z_k_e, int_R_1n, int_R_2n,
+    phi_p_i, diff_r_phi_p_i, diff_z_phi_p_i,
+    N_k_multi, int_R_1n, int_R_2n,
     z_n_d, excitation_phase,
     # New imports for added coverage
     Lambda_k_vectorized, diff_Lambda_k_vectorized, make_R_Z, R_2n_vectorized
@@ -294,107 +293,7 @@ def test_diff_z_phi_p_i(d, test_z, h):
     d_val = d[1]
     expected = ((test_z + h) / (h - d_val))
     assert np.isclose(diff_z_phi_p_i(d_val, test_z, h), expected)
-
-# --- Bessel I Radial Eigenfunction ---
-def test_R_1n_n0(test_i, test_r, h, d, a):
-    # Fixed expected value to match stable implementation: 1.0 + 0.5 * log(r/outer)
-    if test_i == 0:
-        expected = 0.5
-    else:
-        expected = 1.0 + 0.5 * np.log(test_r / a[test_i])
-    assert np.isclose(R_1n(0, test_r, test_i, h, d, a), expected)
-
-def test_R_1n_n_positive(test_n, test_i, test_r, h, d, a):
-    if test_n == 0: pytest.skip("Test for n>0")
-    local_scale = scale(a)
-    # Fixed to use scaled Bessel I (besselie) and exp term
-    lambda0 = lambda_ni(test_n, test_i, h, d)
-    expected = besselie(0, lambda0 * test_r) / besselie(0, lambda0 * local_scale[test_i]) * exp(lambda0 * (test_r - local_scale[test_i]))
-    assert np.isclose(R_1n(test_n, test_r, test_i, h, d, a), expected)
-
-def test_R_1n_n_negative(test_i, test_r, h, d, a):
-    with pytest.raises(ValueError, match="Invalid value for n"):
-        R_1n(-1, test_r, test_i, h, d, a)
-
-def test_diff_R_1n_n0(test_i, test_r, h, d, a):
-    # Fixed expected derivative for log term: 1/(2r)
-    if test_i == 0:
-        expected = 0.0
-    else:
-        expected = 1 / (2 * test_r)
-    assert np.isclose(diff_R_1n(0, test_r, test_i, h, d, a), expected)
-
-def test_diff_R_1n_n_positive(test_n, test_i, test_r, h, d, a):
-    if test_n == 0: pytest.skip("Test for n>0")
-    local_scale = scale(a)
-    # Fixed to match scaled derivative
-    lambda0 = lambda_ni(test_n, test_i, h, d)
-    top = lambda0 * besselie(1, lambda0 * test_r)
-    bottom = besselie(0, lambda0 * local_scale[test_i])
-    expected = top / bottom * exp(lambda0 * (test_r - local_scale[test_i]))
-    assert np.isclose(diff_R_1n(test_n, test_r, test_i, h, d, a), expected)
-
-# --- Bessel K Radial Eigenfunction ---
-def test_R_2n_i0_raises_error(test_r, h, d, a):
-    with pytest.raises(ValueError, match="i cannot be 0"):
-        R_2n(1, test_r, 0, a, h, d)
-
-def test_R_2n_n0(a, test_r, h, d):
-    # Fixed expected value: 0.5 * log(r/outer) anchored at a[i]
-    i = 1
-    outer_r = a[i]
-    expected = 0.5 * np.log(test_r / outer_r) 
-    assert np.isclose(R_2n(0, test_r, i, a, h, d), expected)
-
-def test_R_2n_n_positive(test_n, a, test_r, h, d):
-    if test_n == 0: pytest.skip("Test for n>0")
-    i = 1
-    # Fixed expected value: Scaled K0 using besselke and exp decay from OUTER radius (Legacy Mode)
-    lambda0 = lambda_ni(test_n, i, h, d)
-    outer_r = a[i]
-    expected = (besselke(0, lambda0 * test_r) / besselke(0, lambda0 * outer_r)) * exp(lambda0 * (outer_r - test_r))
-    assert np.isclose(R_2n(test_n, test_r, i, a, h, d), expected)
-
-def test_diff_R_2n_n0(test_r, h, d, a):
-    i = 1
-    expected = 1 / (2 * test_r)
-    assert np.isclose(diff_R_2n(0, test_r, i, h, d, a), expected)
-
-def test_diff_R_2n_n_positive(test_n, test_r, h, d, a):
-    if test_n == 0: pytest.skip("Test for n>0")
-    i = 1
-    # Fixed expected value: Scaled derivative anchored at OUTER radius (Legacy Mode)
-    lambda0 = lambda_ni(test_n, i, h, d)
-    outer_r = a[i]
-    top = -lambda0 * besselke(1, lambda0 * test_r)
-    bottom = besselke(0, lambda0 * outer_r)
-    expected = (top / bottom) * exp(lambda0 * (outer_r - test_r))
-    assert np.isclose(diff_R_2n(test_n, test_r, i, h, d, a), expected)
-
-# --- i-region vertical eigenfunctions ---
-def test_Z_n_i_n0(test_z, test_i, h, d):
-    assert np.isclose(Z_n_i(0, test_z, test_i, h, d), 1)
-
-def test_Z_n_i_n_positive(test_n, test_z, test_i, h, d):
-    if test_n == 0: pytest.skip("Test for n>0")
-    expected = sqrt(2) * np.cos(lambda_ni(test_n, test_i, h, d) * (test_z + h))
-    assert np.isclose(Z_n_i(test_n, test_z, test_i, h, d), expected)
-
-def test_diff_Z_n_i_n0(test_z, test_i, h, d):
-    assert np.isclose(diff_Z_n_i(0, test_z, test_i, h, d), 0)
-
-def test_diff_Z_n_i_n_positive(test_n, test_z, test_i, h, d):
-    if test_n == 0: pytest.skip("Test for n>0")
-    lambda0 = lambda_ni(test_n, test_i, h, d)
-    expected = - lambda0 * sqrt(2) * np.sin(lambda0 * (test_z + h))
-    assert np.isclose(diff_Z_n_i(test_n, test_z, test_i, h, d), expected)
-
-# --- e-region vertical eigenfunctions ---
-def test_Z_k_e_k0_large_m0h(test_z, m0, h, NMK, precomputed_m_k_arr):
-    m0_local = 0.2
-    expected = sqrt(2 * m0_local * h) * (exp(m0_local * test_z) + exp(-m0_local * (test_z + 2*h)))
-    assert np.isclose(Z_k_e(0, test_z, m0_local, h, NMK, precomputed_m_k_arr), expected)
-
+    
 # --- To calculate hydrocoefficients ---
 def test_int_R_1n_n0_i0(a, h, d):
     # i=0 (innermost region), inner radius 0
@@ -493,28 +392,6 @@ def test_z_n_d_n_positive(test_n):
     expected = sqrt(2) * (-1)**test_n
     assert np.isclose(z_n_d(test_n), expected)
 
-# ==============================================================================
-# NEW TEST CASES FOR COVERAGE
-# ==============================================================================
-
-def test_Lambda_k_k0(a, m0, precomputed_m_k_arr):
-    """Test Lambda_k for k=0 (Hankel case)."""
-    r = a[-1] + 2.0
-    k = 0
-    # Expected: besselh(0, m0 * r) / besselh(0, m0 * a[-1])
-    expected = besselh(0, m0 * r) / besselh(0, m0 * scale(a)[-1])
-    assert np.isclose(Lambda_k(k, r, m0, a, precomputed_m_k_arr), expected)
-
-def test_Lambda_k_k_positive(a, m0, precomputed_m_k_arr):
-    """Test Lambda_k for k>0 (Bessel K case)."""
-    r = a[-1] + 2.0
-    k = 1
-    local_mk = precomputed_m_k_arr[k]
-    # Expected: K0(mk*r)/K0(mk*a) * exp(mk*(a-r))
-    term = besselke(0, local_mk * r) / besselke(0, local_mk * scale(a)[-1])
-    expected = term * np.exp(local_mk * (scale(a)[-1] - r))
-    assert np.isclose(Lambda_k(k, r, m0, a, precomputed_m_k_arr), expected)
-
 def test_Lambda_k_vectorized_m0_inf(a, precomputed_m_k_arr):
     """Test Lambda_k_vectorized returns ones when m0 is infinite."""
     k_vals = np.array([0, 1])
@@ -528,26 +405,6 @@ def test_diff_Lambda_k_vectorized_m0_inf(a, precomputed_m_k_arr):
     r_vals = np.array([10.0, 10.0])
     res = diff_Lambda_k_vectorized(k_vals, r_vals, np.inf, a, precomputed_m_k_arr)
     assert np.allclose(res, 1.0)
-
-def test_Z_k_e_k0_small_m0h(test_z, h, NMK, precomputed_m_k_arr):
-    """Test Z_k_e for k=0 and small m0 (low frequency approximation)."""
-    m0_small = 0.01 # m0*h = 1.0 < 14
-    k = 0
-    # Expected: 1/sqrt(N_k) * cosh(m0*(z+h))
-    Nk = N_k_multi(k, m0_small, h, precomputed_m_k_arr)
-    expected = (1 / np.sqrt(Nk)) * np.cosh(m0_small * (test_z + h))
-    assert np.isclose(Z_k_e(k, test_z, m0_small, h, NMK, precomputed_m_k_arr), expected)
-
-def test_Z_k_e_k_positive(test_z, m0, h, NMK, precomputed_m_k_arr):
-    """Test Z_k_e for k>0."""
-    k = 1
-    # Z_k_e recalculates m_k internally for the cosine argument
-    local_m_k_fresh = m_k(NMK, m0, h)
-    
-    Nk = N_k_multi(k, m0, h, precomputed_m_k_arr)
-    expected = (1 / np.sqrt(Nk)) * np.cos(local_m_k_fresh[k] * (test_z + h))
-    
-    assert np.isclose(Z_k_e(k, test_z, m0, h, NMK, precomputed_m_k_arr), expected)
 
 def test_make_R_Z_sharp(a, h, d):
     """Test make_R_Z with sharp=True to ensure refinement points are added."""
