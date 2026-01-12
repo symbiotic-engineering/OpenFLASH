@@ -132,9 +132,9 @@ class MEEMEngine:
         ## --- Potential Matching Blocks ---
         col_offset = 0
         row_offset = 0
-        for bd in range(boundary_count):
-            N = NMK[bd]
-            M = NMK[bd + 1]
+        for bd in range(boundary_count): # loops thru block columns
+            N = NMK[bd] # rename to NMK_inner
+            M = NMK[bd + 1] # rename to NMK_outer
 
             if bd == (boundary_count - 1): 
                 row_height = N
@@ -149,12 +149,14 @@ class MEEMEngine:
                 A_template[row_offset : row_offset + row_height, col_offset : col_offset + block.shape[1]] = block
                 
                 p_dense_e_col_start = col_offset + block.shape[1]
-                for m_local in range(N):
-                    for k_local in range(M):
+                for m_local in range(N): # row
+                    for k_local in range(M): # col
                         g_row, g_col = row_offset + m_local, p_dense_e_col_start + k_local
                         calc_func = lambda p, m0, mk, Nk, Imk, m=m_local, k=k_local: \
                             p_dense_block_e_entry(m, k, bd, Imk, NMK, a, m0, h, mk, Nk)
-                        cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
+                        cache._add_m0_dependent_Az_entry(g_row, g_col, calc_func) # coupling integral part
+                    cache._add_m0_dependent_Ar_entry(g_row, g_col, calc_func) # bessel part, depends on row not on col
+                A = np.dot(cache._get_m0_dependent_Az_entry, cache._get_m0_dependent_Ar_entry)
                 col_offset += block.shape[1]
 
             else: 
