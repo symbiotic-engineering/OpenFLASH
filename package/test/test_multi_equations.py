@@ -393,18 +393,34 @@ def test_z_n_d_n_positive(test_n):
     assert np.isclose(z_n_d(test_n), expected)
 
 def test_Lambda_k_vectorized_m0_inf(a, precomputed_m_k_arr):
-    """Test Lambda_k_vectorized returns ones when m0 is infinite."""
+    """Test Lambda_k_vectorized for infinite m0."""
     k_vals = np.array([0, 1])
     r_vals = np.array([10.0, 10.0])
     res = Lambda_k_vectorized(k_vals, r_vals, np.inf, a, precomputed_m_k_arr)
-    assert np.allclose(res, 1.0)
+    
+    # k=0 should be 1.0 (dummy value to avoid singularity)
+    assert np.isclose(res[0], 1.0)
+    
+    # k=1 should correspond to the Bessel function logic
+    # Lambda_k = (K0(mk*r)/K0(mk*a)) * exp(...)
+    # Since r=10, a[2]=15 (outer), mk > 0, result should > 1 or < 1 depending on physics, but definitely NOT 1.0 identically unless r=a
+    # Here r < a, so K0(r) > K0(a), so ratio > 1.
+    # The previous faulty implementation returned 1.0 for all k.
+    assert not np.isclose(res[1], 1.0)
+    assert np.isfinite(res[1])
 
 def test_diff_Lambda_k_vectorized_m0_inf(a, precomputed_m_k_arr):
-    """Test diff_Lambda_k_vectorized returns ones when m0 is infinite."""
+    """Test diff_Lambda_k_vectorized for infinite m0."""
     k_vals = np.array([0, 1])
     r_vals = np.array([10.0, 10.0])
     res = diff_Lambda_k_vectorized(k_vals, r_vals, np.inf, a, precomputed_m_k_arr)
-    assert np.allclose(res, 1.0)
+    
+    # k=0 should be 1.0 (dummy value)
+    assert np.isclose(res[0], 1.0)
+    
+    # k=1 should NOT be 1.0 (it's a derivative of Bessel functions)
+    assert not np.isclose(res[1], 1.0)
+    assert np.isfinite(res[1])
 
 def test_make_R_Z_sharp(a, h, d):
     """Test make_R_Z with sharp=True to ensure refinement points are added."""
