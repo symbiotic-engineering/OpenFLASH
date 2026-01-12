@@ -188,30 +188,34 @@ def diff_z_phi_p_i(d, z, h):
 def R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized version of the R_1n radial eigenfunction.
-    FIXED: Handles i!=0 case for n=0 to match scalar R_1n.
     """
-    # --- Define the conditions for the nested logic ---
+    # --- FIX: Ensure inputs are arrays ---
+    n = np.asarray(n)
+    r = np.asarray(r)
+    # -------------------------------------
+
     cond_n_is_zero = (n == 0)
     cond_r_at_boundary = (r == scale(a)[i])
 
     # --- Define the outcomes for each condition ---
-    # FIX: n=0 logic must match scalar version
     if i == 0:
         outcome_for_n_zero = np.full_like(r, 0.5)
     else:
         # Annulus: 1.0 + 0.5 * log(r / outer)
-        # Handle r=0 if necessary, though in annulus r > 0.
-        outcome_for_n_zero = 1.0 + 0.5 * np.log(r / scale(a)[i])
+        # Use np.divide to handle r=0 gracefully just in case
+        with np.errstate(divide='ignore', invalid='ignore'):
+            val = 1.0 + 0.5 * np.log(np.divide(r, scale(a)[i]))
+        outcome_for_n_zero = val
     
-    # Outcome 2: If n>=1 and r is at the boundary, the value is 1.0.
     outcome_for_r_boundary = 1.0
     
-    # Outcome 3: The general case for n>=1 inside the boundary.
+    # Calculate lambda. Mask n=0 to prevent divide by zero in Bessel if lambda becomes 0
     lambda_val = lambda_ni(n, i, h, d)
-    bessel_term = (besselie(0, lambda_val * r) / besselie(0, lambda_val * scale(a)[i])) * \
-                  exp(lambda_val * (r - scale(a)[i]))
+    safe_lambda = np.where(cond_n_is_zero, 1.0, lambda_val)
+    
+    bessel_term = (besselie(0, safe_lambda * r) / besselie(0, safe_lambda * scale(a)[i])) * \
+                  exp(safe_lambda * (r - scale(a)[i]))
 
-    # --- Apply the logic using nested np.where ---
     result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
     
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
@@ -220,28 +224,30 @@ def R_1n_vectorized(n, r, i, h, d, a):
 def diff_R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized derivative of the diff_R_1n radial function.
-    FIXED: Handles i!=0 case for n=0 to match scalar version.
     """
+    # --- FIX: Ensure inputs are arrays ---
+    n = np.asarray(n)
+    r = np.asarray(r)
+    # -------------------------------------
+    
     condition = (n == 0)
     
-    # FIX: n=0 derivative logic
     if i == 0:
         value_if_true = np.zeros_like(r)
     else:
-        # Derivative is 1/(2r)
         value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r!=0))
     
-    # --- Calculation for when n > 0 ---
     lambda_val = lambda_ni(n, i, h, d)
+    safe_lambda = np.where(condition, 1.0, lambda_val)
     
-    numerator = lambda_val * besselie(1, lambda_val * r) 
-    denominator = besselie(0, lambda_val * scale(a)[i])
+    numerator = safe_lambda * besselie(1, safe_lambda * r) 
+    denominator = besselie(0, safe_lambda * scale(a)[i])
     
     bessel_ratio = np.divide(numerator, denominator, 
                              out=np.zeros_like(numerator, dtype=float), 
                              where=(denominator != 0))
                              
-    value_if_false = bessel_ratio * exp(lambda_val * (r - scale(a)[i]))
+    value_if_false = bessel_ratio * exp(safe_lambda * (r - scale(a)[i]))
     
     return np.where(condition, value_if_true, value_if_false)
 
@@ -256,6 +262,11 @@ def R_2n_vectorized(n, r, i, a, h, d):
     """
     if i == 0:
         raise ValueError("R_2n function is not defined for the innermost region (i=0).")
+    
+    # --- FIX: Ensure inputs are arrays ---
+    n = np.asarray(n)
+    r = np.asarray(r)
+    # -------------------------------------
 
     # LEGACY: Use Outer Radius
     outer_r = scale(a)[i]
@@ -264,7 +275,8 @@ def R_2n_vectorized(n, r, i, a, h, d):
     cond_r_at_boundary = (r == outer_r)
 
     # Case 1: n = 0
-    outcome_for_n_zero = 0.5 * np.log(r / outer_r)
+    with np.errstate(divide='ignore', invalid='ignore'):
+         outcome_for_n_zero = 0.5 * np.log(np.divide(r, outer_r))
 
     # Case 2: n > 0 and r is at the boundary
     outcome_for_r_boundary = 1.0
@@ -287,8 +299,10 @@ def R_2n_vectorized(n, r, i, a, h, d):
 
 # Differentiate wrt r (Unchanged, as d/dr(1.0) is 0) 
 def diff_R_2n_vectorized(n, r, i, h, d, a):
+    # --- FIX: Ensure inputs are arrays ---
     n = np.asarray(n)
     r = np.asarray(r)
+    # -------------------------------------
     
     # Case n == 0: Derivative is still 1/(2r)
     value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r != 0))
@@ -311,40 +325,46 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
         value_if_false = ratio * exp_term
 
     return np.where(n == 0, value_if_true, value_if_false)
+
 #############################################
 # i-region vertical eigenfunctions
 def Z_n_i_vectorized(n, z, i, h, d):
     """
     Vectorized version of the i-region vertical eigenfunction Z_n_i.
     """
-    # Define the condition to check for each element in the 'n' array
+    # --- FIX: Ensure inputs are arrays ---
+    n = np.asarray(n)
+    z = np.asarray(z)
+    # -------------------------------------
+
     condition = (n == 0)
     
-    # Define the calculation for when n != 0
+    lambda_val = lambda_ni(n, i, h, d)
+    safe_lambda = np.where(condition, 0.0, lambda_val)
+
     # This part is already vectorized thanks to NumPy
-    value_if_false = np.sqrt(2) * np.cos(lambda_ni(n, i, h, d) * (z + h))
+    value_if_false = np.sqrt(2) * np.cos(safe_lambda * (z + h))
     
     # Use np.where to choose the output:
-    # If condition is True (n==0), return 1.0.
-    # Otherwise, return the result of the calculation.
     return np.where(condition, 1.0, value_if_false)
 
 def diff_Z_n_i_vectorized(n, z, i, h, d):
     """
     Vectorized derivative of the Z_n_i vertical function.
     """
-    # Define the condition to be applied element-wise.
-    condition = (n == 0)
+    # --- FIX: Ensure inputs are arrays ---
+    n = np.asarray(n)
+    z = np.asarray(z)
+    # -------------------------------------
     
-    # Define the value if the condition is True (when n=0).
+    condition = (n == 0)
     value_if_true = 0.0
     
-    # Define the calculation for when the condition is False (when n > 0).
-    # This part is already vectorized.
     lambda_val = lambda_ni(n, i, h, d)
-    value_if_false = -lambda_val * np.sqrt(2) * np.sin(lambda_val * (z + h))
+    safe_lambda = np.where(condition, 0.0, lambda_val)
+
+    value_if_false = -safe_lambda * np.sqrt(2) * np.sin(safe_lambda * (z + h))
     
-    # Use np.where to select the output based on the condition.
     return np.where(condition, value_if_true, value_if_false)
 
 #############################################
@@ -353,6 +373,11 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized version of the exterior region radial eigenfunction Lambda_k.
     """
+    # --- FIX: Ensure inputs are arrays ---
+    k = np.asarray(k)
+    r = np.asarray(r)
+    # -------------------------------------
+
     if m0 == inf:
         return np.ones(np.broadcast(k, r).shape, dtype=float)
 
@@ -361,7 +386,7 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
 
     outcome_boundary = 1.0
 
-    # --- Case 2: k = 0 (NEEDS FIX) ---
+    # --- Case 2: k = 0 ---
     denom_k_zero = besselh(0, m0 * scale(a)[-1])
     numer_k_zero = besselh(0, m0 * r)
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -369,7 +394,7 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
                                    out=np.zeros_like(numer_k_zero, dtype=complex),
                                    where=np.isfinite(denom_k_zero) & (denom_k_zero != 0))
 
-    # --- Case 3: k > 0 (NEEDS FIX) ---
+    # --- Case 3: k > 0 ---
     # Mask input where k=0 to prevent errors
     local_m_k_k = m_k_arr[k]
     safe_m_k = np.where(cond_k_is_zero, 1.0, local_m_k_k)
@@ -381,7 +406,6 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
                                  out=np.zeros_like(numer_k_nonzero),
                                  where=np.isfinite(denom_k_nonzero) & (denom_k_nonzero != 0))
     outcome_k_nonzero = bessel_ratio * exp(safe_m_k * (scale(a)[-1] - r))
-    # --- END FIXES ---
 
     result_if_not_boundary = np.where(cond_k_is_zero,
                                       outcome_k_zero,
@@ -396,6 +420,11 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized derivative of the exterior region radial function Lambda_k.
     """
+    # --- FIX: Ensure inputs are arrays ---
+    k = np.asarray(k)
+    r = np.asarray(r)
+    # -------------------------------------
+
     # Handle the scalar case where m0 is infinite. The result is always 1.
     if m0 == inf:
         return np.ones(np.broadcast(k, r).shape, dtype=float)
@@ -451,6 +480,11 @@ def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
     Vectorized version of the e-region vertical eigenfunction Z_k_e.
     This version uses pre-calculated m_k_arr and N_k_arr for efficiency.
     """
+    # --- FIX: Ensure inputs are arrays ---
+    k = np.asarray(k)
+    z = np.asarray(z)
+    # -------------------------------------
+    
     # This outer conditional is fine because it operates on scalar inputs.
     if m0 * h < M0_H_THRESH:
         # --- Logic for the standard case ---
@@ -477,6 +511,11 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
     Vectorized derivative of the e-region vertical eigenfunction Z_k_e.
     This version uses pre-calculated m_k_arr and N_k_arr for efficiency.
     """
+    # --- FIX: Ensure inputs are arrays ---
+    k = np.asarray(k)
+    z = np.asarray(z)
+    # -------------------------------------
+
     # This outer conditional is fine because it operates on scalar inputs.
     if m0 * h < M0_H_THRESH:
         # --- Logic for the standard case ---
@@ -564,64 +603,7 @@ def int_R_2n(i, n, a, h, d):
         return val_outer - val_inner
 
     else:
-        # Integral of r * K0(lambda*r) / K0(lambda*outer) * exp(...)
-        # The old code handled this via standard Bessel integrals.
-        # We must replicate the specific normalization of old_assembly.
-        
         lambda0 = lambda_ni(n, i, h, d)
-        
-        # In old_assembly, R_2n = K0(lr)/K0(la) * exp(...)
-        # The integral of x*K0(x) is -x*K1(x).
-        
-        # Numerator term (pure Bessel K integral part)
-        # Int[ r * K0(lambda*r) ] = - (r/lambda) * K1(lambda*r)
-        
-        # We need to evaluate: [ - (r/lambda)*K1(lambda*r) ] from inner to outer
-        # Then multiply by the normalization constant: exp(lambda*outer) / K0(lambda*outer)
-        # Wait, the exponential term in R_2n_old is: exp(lambda * (outer_r - r))
-        # This exponential cancels out the exp inside the scaled Bessel K if we use K_scaled.
-        # But old_assembly likely used raw K. Let's stick to the raw math.
-        
-        # Let's look at the old implementation logic provided in previous turns:
-        # It normalizes by K0(outer).
-        
-        # Exact calculation matching old_assembly:
-        k0_outer = besselke(0, lambda0 * outer_r) # scaled K0
-        
-        # We need the integral of:
-        # ( K0(lr) / K0(la) ) * exp( l(a-r) ) * r
-        # = ( K0(lr)*exp(lr) / (K0(la)*exp(la)) ) * r   <-- exp terms cancel strictly if using scaled K
-        # effectively it is Integral( r * K0_scaled(lr) ) / K0_scaled(la)
-        
-        # Analytic integral of x * K0(x) is -x * K1(x).
-        # So Int( r * K0(lr) ) = - (r/lambda) * K1(lr)
-        
-        # Converting to scaled Bessel K (kve):
-        # K1(x) = kve(1, x) * exp(-x)
-        # So - (r/l) * kve(1, lr) * exp(-lr)
-        
-        # We want: [ - (r/l) * kve(1, lr) * exp(-lr) ] / [ kve(0, la) * exp(-la) ] * exp( l(a-r) )
-        # Notice exp(-lr) * exp(l(a-r)) = exp(-lr + la - lr) ... wait.
-        # R_2n definition: ( kve(0, lr) * exp(-lr) ) / ( kve(0, la) * exp(-la) ) * exp( l(a-r) )
-        # = kve(0, lr) / kve(0, la) * exp( -lr + la + la - lr ) ... no.
-        
-        # SIMPLER PATH:
-        # R_2n_old(r) = K0(lr) / K0(la)  (Unscaled)
-        # Int(r * R_2n) = (1/K0(la)) * [ - (r/l)*K1(lr) ] bounds inner..outer
-        
-        # Upper bound (r=outer):
-        # - (outer/l) * K1(l*outer) / K0(l*outer)
-        
-        # Lower bound (r=inner):
-        # - (inner/l) * K1(l*inner) / K0(l*outer)
-        
-        # Result = Upper - Lower
-        # = (1/lambda0) * ( inner*K1(l*inner) - outer*K1(l*outer) ) / K0(l*outer)
-        
-        # Using Scaled Bessel functions (kve) to match python 'besselke':
-        # K1(x) = ke1(x) * exp(-x)
-        # K0(x) = ke0(x) * exp(-x)
-        # Ratio K1(x)/K0(y) = ke1(x)/ke0(y) * exp(y-x)
         
         term_outer = (outer_r * besselke(1, lambda0 * outer_r)) 
         # exp(la - la) = 1, so no exp factor needed for outer term.
@@ -631,9 +613,6 @@ def int_R_2n(i, n, a, h, d):
         term_inner *= np.exp(lambda0 * (outer_r - inner_r))
         
         denom = lambda0 * besselke(0, lambda0 * outer_r)
-        
-        # Result = (inner_term - outer_term) / (lambda * K0_scaled(outer))
-        # Note the sign flip from the integration limits (Upper - Lower) vs (-x*K1).
         
         return (term_inner - term_outer) / denom
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
