@@ -189,9 +189,9 @@ def R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized version of the R_1n radial eigenfunction.
     """
-    # --- FIX: Ensure inputs are arrays ---
-    n = np.asarray(n)
-    r = np.asarray(r)
+    # --- FIX: Ensure inputs are FLOAT arrays to prevent dtype casting errors ---
+    n = np.asarray(n, dtype=float)
+    r = np.asarray(r, dtype=float)
     # -------------------------------------
 
     cond_n_is_zero = (n == 0)
@@ -225,9 +225,9 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized derivative of the diff_R_1n radial function.
     """
-    # --- FIX: Ensure inputs are arrays ---
-    n = np.asarray(n)
-    r = np.asarray(r)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    n = np.asarray(n, dtype=float)
+    r = np.asarray(r, dtype=float)
     # -------------------------------------
     
     condition = (n == 0)
@@ -263,9 +263,9 @@ def R_2n_vectorized(n, r, i, a, h, d):
     if i == 0:
         raise ValueError("R_2n function is not defined for the innermost region (i=0).")
     
-    # --- FIX: Ensure inputs are arrays ---
-    n = np.asarray(n)
-    r = np.asarray(r)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    n = np.asarray(n, dtype=float)
+    r = np.asarray(r, dtype=float)
     # -------------------------------------
 
     # LEGACY: Use Outer Radius
@@ -299,9 +299,9 @@ def R_2n_vectorized(n, r, i, a, h, d):
 
 # Differentiate wrt r (Unchanged, as d/dr(1.0) is 0) 
 def diff_R_2n_vectorized(n, r, i, h, d, a):
-    # --- FIX: Ensure inputs are arrays ---
-    n = np.asarray(n)
-    r = np.asarray(r)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    n = np.asarray(n, dtype=float)
+    r = np.asarray(r, dtype=float)
     # -------------------------------------
     
     # Case n == 0: Derivative is still 1/(2r)
@@ -332,9 +332,9 @@ def Z_n_i_vectorized(n, z, i, h, d):
     """
     Vectorized version of the i-region vertical eigenfunction Z_n_i.
     """
-    # --- FIX: Ensure inputs are arrays ---
-    n = np.asarray(n)
-    z = np.asarray(z)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    n = np.asarray(n, dtype=float)
+    z = np.asarray(z, dtype=float)
     # -------------------------------------
 
     condition = (n == 0)
@@ -352,9 +352,9 @@ def diff_Z_n_i_vectorized(n, z, i, h, d):
     """
     Vectorized derivative of the Z_n_i vertical function.
     """
-    # --- FIX: Ensure inputs are arrays ---
-    n = np.asarray(n)
-    z = np.asarray(z)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    n = np.asarray(n, dtype=float)
+    z = np.asarray(z, dtype=float)
     # -------------------------------------
     
     condition = (n == 0)
@@ -373,9 +373,9 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized version of the exterior region radial eigenfunction Lambda_k.
     """
-    # --- FIX: Ensure inputs are arrays ---
-    k = np.asarray(k)
-    r = np.asarray(r)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    k = np.asarray(k, dtype=float)
+    r = np.asarray(r, dtype=float)
     # -------------------------------------
 
     if m0 == inf:
@@ -396,7 +396,11 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
 
     # --- Case 3: k > 0 ---
     # Mask input where k=0 to prevent errors
-    local_m_k_k = m_k_arr[k]
+    # Note: k is float array, m_k_arr needs integer indexing if we index into it.
+    # However, k comes in as float from np.asarray. We must cast back to int for indexing.
+    k_int = k.astype(int)
+    local_m_k_k = m_k_arr[k_int]
+    
     safe_m_k = np.where(cond_k_is_zero, 1.0, local_m_k_k)
     
     denom_k_nonzero = besselke(0, safe_m_k * scale(a)[-1])
@@ -420,9 +424,9 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     """
     Vectorized derivative of the exterior region radial function Lambda_k.
     """
-    # --- FIX: Ensure inputs are arrays ---
-    k = np.asarray(k)
-    r = np.asarray(r)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    k = np.asarray(k, dtype=float)
+    r = np.asarray(r, dtype=float)
     # -------------------------------------
 
     # Handle the scalar case where m0 is infinite. The result is always 1.
@@ -440,8 +444,10 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
                                where=(denominator_k_zero != 0))
 
     # --- Define the outcome for k > 0 ---
-    # NumPy's advanced indexing allows m_k_arr[k] to create an array from indices.
-    local_m_k_k = m_k_arr[k]
+    # Cast k back to int for indexing
+    k_int = k.astype(int)
+    local_m_k_k = m_k_arr[k_int]
+    
     # Mask input where k=0
     safe_m_k = np.where(condition, 1.0, local_m_k_k)
     
@@ -480,9 +486,9 @@ def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
     Vectorized version of the e-region vertical eigenfunction Z_k_e.
     This version uses pre-calculated m_k_arr and N_k_arr for efficiency.
     """
-    # --- FIX: Ensure inputs are arrays ---
-    k = np.asarray(k)
-    z = np.asarray(z)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    k = np.asarray(k, dtype=float)
+    z = np.asarray(z, dtype=float)
     # -------------------------------------
     
     # This outer conditional is fine because it operates on scalar inputs.
@@ -492,8 +498,9 @@ def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
         outcome_k_zero = (1 / sqrt(N_k_arr[0])) * cosh(m0 * (z + h))
         
         # Value for k > 0
-        # NumPy's advanced indexing handles using an array 'k' to index other arrays.
-        outcome_k_nonzero = (1 / sqrt(N_k_arr[k])) * cos(m_k_arr[k] * (z + h))
+        # Cast k back to int for indexing
+        k_int = k.astype(int)
+        outcome_k_nonzero = (1 / sqrt(N_k_arr[k_int])) * cos(m_k_arr[k_int] * (z + h))
 
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
     else:
@@ -502,7 +509,8 @@ def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
         outcome_k_zero = sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2 * h)))
         
         # Value for k > 0 (this part is the same as the standard case)
-        outcome_k_nonzero = (1 / sqrt(N_k_arr[k])) * cos(m_k_arr[k] * (z + h))
+        k_int = k.astype(int)
+        outcome_k_nonzero = (1 / sqrt(N_k_arr[k_int])) * cos(m_k_arr[k_int] * (z + h))
         
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
 
@@ -511,9 +519,9 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
     Vectorized derivative of the e-region vertical eigenfunction Z_k_e.
     This version uses pre-calculated m_k_arr and N_k_arr for efficiency.
     """
-    # --- FIX: Ensure inputs are arrays ---
-    k = np.asarray(k)
-    z = np.asarray(z)
+    # --- FIX: Ensure inputs are FLOAT arrays ---
+    k = np.asarray(k, dtype=float)
+    z = np.asarray(z, dtype=float)
     # -------------------------------------
 
     # This outer conditional is fine because it operates on scalar inputs.
@@ -523,8 +531,8 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
         outcome_k_zero = (1 / sqrt(N_k_arr[0])) * m0 * sinh(m0 * (z + h))
         
         # Value for k > 0
-        # NumPy's advanced indexing handles using an array 'k' to index other arrays.
-        outcome_k_nonzero = -(1 / sqrt(N_k_arr[k])) * m_k_arr[k] * sin(m_k_arr[k] * (z + h))
+        k_int = k.astype(int)
+        outcome_k_nonzero = -(1 / sqrt(N_k_arr[k_int])) * m_k_arr[k_int] * sin(m_k_arr[k_int] * (z + h))
         
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
     
@@ -534,7 +542,8 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
         outcome_k_zero = m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2 * h)))
         
         # Value for k > 0 (this part is the same as the standard case)
-        outcome_k_nonzero = -(1 / sqrt(N_k_arr[k])) * m_k_arr[k] * sin(m_k_arr[k] * (z + h))
+        k_int = k.astype(int)
+        outcome_k_nonzero = -(1 / sqrt(N_k_arr[k_int])) * m_k_arr[k_int] * sin(m_k_arr[k_int] * (z + h))
         
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
 
