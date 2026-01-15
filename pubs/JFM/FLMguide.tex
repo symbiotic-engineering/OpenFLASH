@@ -656,12 +656,12 @@ Lastly, damping and excitation phase approach zero as $\lambda_n^e$ approaches i
 
 
 \subsection{Validation}
-The added mass and radiation damping from MEEM and Capytaine, an open-source BEM software, were compared over a range of frequencies for a CorPower-like WEC geometry from \cite{faedo2021energy}. This is shown in Fig.~\ref{fig:MEEM nonslant validation}. Note that the geometry is simplified in the MEEM and Capytaine models so that the geometry consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. In reality, the Cor-power WEC geometry also consists of a slanted section. This will be accounted for later in Sec.~\ref{sec:slant}. The geometry settings of this comparison were set as follows: $a_1=1.25 \text{m}$, $a_2=4.2 \text{m}$, $d_1=14.45 \text{m}$, $d_2=2.05 \text{m}$, and $h=50 \text{m}$. The series in each region was truncated to 150 for MEEM ($N^{i_1}=N^{i_2}=N^{e}=150$) and 6840 panels were used in Capytaine. The hydrodynamic coefficients from MEEM and Capytaine are on average within 1\% of one another. Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. In Sec.~\ref{sec:convergence}, the dependence of MEEM's convergence on the geometry will be discussed more in depth.
+The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation magnitude $|X_1(\omega)|$, and excitation phase $\angle X_1(\omega)$ from MEEM and Capytaine, an open-source BEM software, were compared over a range of frequencies for a heaving CorPower-like WEC geometry from \cite{faedo2021energy}. This is shown in Fig.~\ref{fig:MEEM nonslant validation}. Note that the geometry is simplified in the MEEM and Capytaine models so that the geometry consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. In reality, the Cor-power WEC geometry also consists of a slanted section. This will be accounted for later in Sec.~\ref{sec:slant}. The geometry settings of this comparison were set as follows: $a_1=1.25 \text{m}$, $a_2=4.2 \text{m}$, $d_1=14.45 \text{m}$, $d_2=2.05 \text{m}$, and $h=50 \text{m}$. The series in each region was truncated to 150 for MEEM ($N^{i_1}=N^{i_2}=N^{e}=150$) and 1060 panels were used in Capytaine. The hydrodynamic coefficients from MEEM and Capytaine are on average within 1\% of one another. Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. In Sec.~\ref{sec:convergence}, the dependence of MEEM's convergence on the geometry will be discussed more in depth.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.6\linewidth]{figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf}
-    \caption{Added mass and radiation damping coefficients from MEEM and Capytaine for CorPower-like WEC geometry without slanted region.}
+    \includegraphics[width=0.95\linewidth]{figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf}
+    \caption{Added mass, radiation damping, excitation magnitude, and excitation phase from MEEM and Capytaine for CorPower-like WEC geometry without slanted region.}
     \label{fig:MEEM nonslant validation}
 \end{figure} 
 
@@ -774,22 +774,10 @@ For steeply slanted configurations, the corrected formulation is observed to con
 
 \begin{figure}[htbp]
     \centering
-    \begin{subfigure}[b]{0.48\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figs/MEEM_vs_Capytaine_Slant_Validation.pdf}
-        \caption{Validation results.}
-        \label{fig:validation_sub}
-    \end{subfigure}
-    \hfill % This adds horizontal space between the two images
-    \begin{subfigure}[b]{0.48\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figs/Slant_Convergence.pdf}
-        \caption{Convergence of each method for $\omega=?$.}
-        \label{fig:convergence_sub}
-    \end{subfigure}    
-    \caption{Comparison of hydrodynamic coefficients for the CorPower-like WEC. Note, this is dummy data.}
-    \label{fig:combined_hydro_results}
-\end{figure}
+    \includegraphics[width=0.95\linewidth]{figs/MEEM_vs_Capytaine_Slant_Validation_and_Convergence.pdf}
+    \caption{Added mass and radiation damping coefficients from MEEM and Capytaine for CorPower-like WEC geometry with slanted region. $\textbf{Replace dummy data with real data.}$}
+    \label{fig:MEEM nonslant validation}
+\end{figure} 
 
 % \begin{itemize}
 %     \item Given a specified profile $z=f(r)$ that is revolved around the axis of symmetry and a specified number of regions to approximate the slanted geometry, determine a way to discretize the slanted geometry. That is, find $r_i$ and $d_i$ that best approximate the geometry. If this has already been done in literature, we can just use their method. Written by \textcolor{orange}{Bimali}.
@@ -978,25 +966,25 @@ Open source (check JFM)
 
 \section{Citations and references}
 
-All papers included in the References section must be cited in the article, and vice versa. Citations should be included as, for example ``It has been shown \citep{Rogallo81} that...'' (using the {\verb}\citep}} command, part of the natbib package) ``recent work by \citet{Dennis85}...'' (using {\verb}\citet}}).
-The natbib package can be used to generate citation variations, as shown below.\\
-\verb#\citet[pp. 2-4]{Hwang70}#:\\
-\citet[pp. 2-4]{Hwang70} \\
-\verb#\citep[p. 6]{Worster92}#:\\
-\citep[p. 6]{Worster92}\\
-\verb#\citep[see][]{Koch83, Lee71, Linton92}#:\\
-\citep[see][]{Koch83, Lee71, Linton92}\\
-\verb#\citep[see][p. 18]{Martin80}#:\\
-\citep[see][p. 18]{Martin80}\\
-\verb#\citep{Brownell04,Brownell07,Ursell50,Wijngaarden68,Miller91}#:\\
-\citep{Brownell04,Brownell07,Ursell50,Wijngaarden68,Miller91}\\
-\citep{Briukhanovetal1967}\\
-\cite{Bouguet01}\\
-\citep{JosephSaut1990}\\
+% All papers included in the References section must be cited in the article, and vice versa. Citations should be included as, for example ``It has been shown \citep{Rogallo81} that...'' (using the {\verb}\citep}} command, part of the natbib package) ``recent work by \citet{Dennis85}...'' (using {\verb}\citet}}).
+% The natbib package can be used to generate citation variations, as shown below.\\
+% \verb#\citet[pp. 2-4]{Hwang70}#:\\
+% \citet[pp. 2-4]{Hwang70} \\
+% \verb#\citep[p. 6]{Worster92}#:\\
+% \citep[p. 6]{Worster92}\\
+% \verb#\citep[see][]{Koch83, Lee71, Linton92}#:\\
+% \citep[see][]{Koch83, Lee71, Linton92}\\
+% \verb#\citep[see][p. 18]{Martin80}#:\\
+% \citep[see][p. 18]{Martin80}\\
+% \verb#\citep{Brownell04,Brownell07,Ursell50,Wijngaarden68,Miller91}#:\\
+% \citep{Brownell04,Brownell07,Ursell50,Wijngaarden68,Miller91}\\
+% \citep{Briukhanovetal1967}\\
+% \cite{Bouguet01}\\
+% \citep{JosephSaut1990}\\
 
-The References section can either be built from individual \verb#\bibitem# commands, or can be built using BibTex. The BibTex files used to generate the references in this document can be found in the JFM {\LaTeX} template files folder provided on the website \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions/preparing-your-materials}{here}.
+% The References section can either be built from individual \verb#\bibitem# commands, or can be built using BibTex. The BibTex files used to generate the references in this document can be found in the JFM {\LaTeX} template files folder provided on the website \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions/preparing-your-materials}{here}.
 
-Where there are up to ten authors, all authors' names should be given in the reference list. Where there are more than ten authors, only the first name should appear, followed by {\it {et al.}}
+% Where there are up to ten authors, all authors' names should be given in the reference list. Where there are more than ten authors, only the first name should appear, followed by {\it {et al.}}
 
 
 \section{Miscellaneous section heads}
