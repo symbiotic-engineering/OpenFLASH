@@ -48,23 +48,22 @@ publications:
     description:
     kind: journal-article
     stage: build-pubs-jfm
-    overleaf:
-      project_id: 685318d5f36d3cd58760e69b
-      wdir: pubs/JFM
-      sync_paths:
-        - FLMguide.tex
-        - figs
-        - JFM-FLM_Au.cls
-        - jfm.bib
-        - jfm.bst
-        - lineno-FLM.sty
-        - zotero-meem-refs.bib
-        - FLMguide.pdf
-      push_paths:
-        - figs
-      last_sync_commit: 4644454bbe08107978c58c490eb04ad111a38196
 owner: symbiotic-engineering
 name: openflash
 title: OpenFLASH
 description:
 git_repo_url: https://github.com/symbiotic-engineering/OpenFLASH
+overleaf_sync:
+  pubs/JFM:
+    url: https://www.overleaf.com/project/685318d5f36d3cd58760e69b
+    sync_paths:
+      - FLMguide.tex
+      - figs
+      - JFM-FLM_Au.cls
+      - jfm.bib
+      - jfm.bst
+      - lineno-FLM.sty
+      - zotero-meem-refs.bib
+      - FLMguide.pdf
+    push_paths:
+      - figs
