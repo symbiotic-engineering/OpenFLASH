@@ -588,6 +588,11 @@ class MEEMEngine:
 
         full_added_mass_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
         full_damping_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
+        # --- NEW: Initialize matrices for Excitation Force and Phase ---
+        # Note: These are vectors (one value per mode per frequency), not NxN matrices like added mass
+        full_excitation_force = np.full((num_freqs, num_modes), np.nan)
+        full_excitation_phase = np.full((num_freqs, num_modes), np.nan)
+        # ---------------------------------------------------------------
         all_potentials_batch_data = []
 
         # 1. Create a SINGLE reusable Geometry/Problem Setup
@@ -685,6 +690,13 @@ class MEEMEngine:
                             j_idx = j_idx_result[0]
                             full_added_mass_matrix[freq_idx, j_idx, i_idx] = coeff_dict['real']
                             full_damping_matrix[freq_idx, j_idx, i_idx] = coeff_dict['imag']
+                            # --- NEW: Capture Excitation Force & Phase ---
+                            # We only need to store this when i_idx (radiating mode) == j_idx (force mode)
+                            # or just capture it for the active mode.
+                            if i_idx == j_idx:
+                                full_excitation_force[freq_idx, j_idx] = coeff_dict.get('excitation_force', np.nan)
+                                full_excitation_phase[freq_idx, j_idx] = coeff_dict.get('excitation_phase', np.nan)
+                            # ---------------------------------------------
 
                     Cs = temp_engine.reformat_coeffs(X_i, NMK_list, len(NMK_list) - 1)
                     
@@ -711,10 +723,13 @@ class MEEMEngine:
                     full_damping_matrix[freq_idx, :, i_idx] = np.nan
                     continue 
 
+        # --- UPDATED: Pass the new matrices to store_hydrodynamic_coefficients ---
         results.store_hydrodynamic_coefficients(
             frequencies=omegas_to_run,
             added_mass_matrix=full_added_mass_matrix,
             damping_matrix=full_damping_matrix,
+            excitation_force=full_excitation_force, # <--- Add this
+            excitation_phase=full_excitation_phase  # <--- Add this
         )
 
         if all_potentials_batch_data:

@@ -383,7 +383,6 @@ def test_visualize_potential_coverage():
         ax_mock = MagicMock()
         mock_subplots.return_value = (fig_mock, ax_mock)
         
-        # Return a mock contour object so fig.colorbar doesn't crash
         ax_mock.contourf.return_value = MagicMock()
         
         fig, ax = engine.visualize_potential(field, R, Z, "Test Title")
@@ -405,7 +404,6 @@ def test_run_and_store_results_branches(sample_problem):
     engine = MEEMEngine([sample_problem])
     
     # Case A: TypeError for non-SteppedBody
-    # Construct a new problem with CoordinateBody to properly trigger the error
     mock_body = CoordinateBody(np.array([1]), np.array([1]))
     mock_arrangement = MagicMock()
     mock_arrangement.bodies = [mock_body]
@@ -419,9 +417,8 @@ def test_run_and_store_results_branches(sample_problem):
     mock_domain.di = 10.0
     mock_domain.a = 5.0
     mock_domain.heaving = False
-    mock_domain.h = 100.0 # Required for h = domain_list[0].h in build_problem_cache
+    mock_domain.h = 100.0
     
-    # Create valid domain list (dict)
     mock_domain_list = {0: mock_domain, 1: mock_domain}
     
     mock_problem = MagicMock()
@@ -448,11 +445,6 @@ def test_run_and_store_results_branches(sample_problem):
         assert np.isnan(ds['damping']).all()
 
     # Case D: domain_list is a list (not a dict)
-    # The requirement is to hit the 'else' block where 'isinstance(domain_list, dict)' is False.
-    # However, 'MEEMEngine.build_problem_cache' requires domain_list to behave like a dict (has .keys(), .values()).
-    # Solution: Pass a custom object that behaves like a list (fails isinstance dict) 
-    # BUT has .keys() and .values() methods to satisfy the engine setup.
-    
     class DictLikeList(list):
         def keys(self):
             return list(range(len(self)))
