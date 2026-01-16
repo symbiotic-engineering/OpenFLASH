@@ -11,12 +11,12 @@ stages:
     desc: Automatically generated from the 'generate-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-main --no-check 
-      --language python --to html 
+    cmd: calkit nb execute --environment openflash-on-branch 
+      --no-check --language python --to html 
       "dev/python/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/dev/python/validation_with_capytaine_plots.ipynb
-      - .calkit/env-locks/openflash-on-main
+      - .calkit/env-locks/openflash-on-branch
     outs:
       - .calkit/notebooks/executed/dev/python/validation_with_capytaine_plots.ipynb:
           cache: true
