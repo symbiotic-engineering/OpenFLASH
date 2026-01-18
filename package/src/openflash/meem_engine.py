@@ -21,19 +21,13 @@ class MEEMEngine:
     """
 
     def __init__(self, problem_list: List[MEEMProblem]):
-        """
-        Initialize the MEEMEngine object.
-        :param problem_list: List of MEEMProblem instances.
-        """
         self.problem_list = problem_list
         self.cache_list = {} 
 
         for problem in problem_list:
             self.cache_list[problem] = self.build_problem_cache(problem)
+            
     def update_forcing(self, problem: 'MEEMProblem'):
-        """
-        Updates the b-vector cache for the problem based on new heaving flags.
-        """
         self.cache_list[problem].refresh_forcing_terms(problem)
     
     def _ensure_m_k_and_N_k_arrays(self, problem: 'MEEMProblem', m0):
@@ -52,8 +46,17 @@ class MEEMEngine:
         cache = self.cache_list[problem]
         A = cache._get_A_template()
         I_mk_vals = cache._get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
+        
+        # 1. Fill scalar entries (if any exist)
         for row, col, calc_func in cache.m0_dependent_A_indices:
             A[row, col] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
+            
+        # 2. Fill vectorized blocks [NEW]
+        for row_start, col_start, calc_func in cache.m0_dependent_blocks:
+            block = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
+            h_block, w_block = block.shape
+            A[row_start : row_start + h_block, col_start : col_start + w_block] = block
+            
         return A
                 
     def assemble_b_multi(self, problem: 'MEEMProblem', m0) -> np.ndarray:
@@ -67,8 +70,8 @@ class MEEMEngine:
 
     def build_problem_cache(self, problem: 'MEEMProblem') -> ProblemCache:
         """
-        Analyzes the problem and pre-computes m0-independent parts of A and b,
-        and identifies indices for m0-dependent parts, storing them in a cache.
+        Analyzes the problem and pre-computes m0-independent parts of A and b.
+        Includes optimized vectorized block generators for m0-dependent sections.
         """
         cache = ProblemCache(problem)
         domain_list = problem.domain_list
@@ -100,28 +103,25 @@ class MEEMEngine:
         diff_R_2n_func = partial(diff_R_2n_vectorized, h=h, d=d, a=a)
 
         def _calculate_I_mk_vals(m0, m_k_arr, N_k_arr):
+            # Optimized to use vectorized ops if possible, but keep loop for now as I_mk is complex
             vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
             for m in range(NMK[boundary_count - 1]):
                 for k in range(NMK[boundary_count]):
                     vals[m, k] = I_mk(m, k, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
             return vals
-        # These are purely geometric and geometry is constant for the problem
+
         int_R1_store = {}
         int_R2_store = {}
         int_phi_store = np.zeros(boundary_count, dtype=complex)
 
-        # Pre-compute R1 integrals (used in all regions)
         for i in range(boundary_count):
             for n in range(NMK[i]):
-                # Store as tuple key (region_idx, harmonic_n)
                 int_R1_store[(i, n)] = int_R_1n(i, n, a, h, d)
         
-        # Pre-compute R2 integrals (used in annular regions i > 0)
         for i in range(1, boundary_count):
             for n in range(NMK[i]):
                 int_R2_store[(i, n)] = int_R_2n(i, n, a, h, d)
 
-        # Pre-compute Phi_p integrals (used for Force calculation)
         for i in range(boundary_count):
             int_phi_store[i] = int_phi_p_i(i, h, d, a)
             
@@ -137,6 +137,7 @@ class MEEMEngine:
             NMK_outer = NMK[bd + 1]
 
             if bd == (boundary_count - 1): 
+                # Exterior Boundary (m0-dependent)
                 row_height = NMK_inner
                 left_block1 = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
                 
@@ -150,32 +151,29 @@ class MEEMEngine:
                 
                 p_dense_e_col_start = col_offset + block.shape[1]
                 
-                # --- OPTIMIZATION START: Vectorized Potential Block ---
-                # Replaces O(N*M) lambda registrations with O(1) block registration
+                # --- OPTIMIZED POTENTIAL BLOCK ---
+                # A[m, k] = -1 * Lambda_k(k) * I_mk(m, k)
+                # This broadcasts a row vector (Lambda) against the matrix (I_mk)
                 
-                # Define slice for the block location
-                row_slice = slice(row_offset, row_offset + row_height)
-                col_slice = slice(p_dense_e_col_start, p_dense_e_col_start + NMK_outer)
-                
-                # Define optimized block calculator
-                def p_block_calc(p, m0, mk, Nk, Imk, bd=bd, M=NMK_outer):
-                    # 1. Compute Lambda vector for all k (size M)
-                    k_vec = np.arange(M)
-                    r_vec = np.array([a[bd]])
-                    # Lambda_k_vectorized handles broadcasting: k[:, None], r[None, :]
-                    L_vals = Lambda_k_vectorized(k_vec[:, None], r_vec[None, :], m0, a, mk).flatten()
+                # We define a function that will be called in assemble_A_multi
+                def potential_block_func(p, m0, mk, Nk, Imk):
+                    # Imk is shape (N, M). 
+                    # Calculate vector Lambda for all k (0..M-1)
+                    k_indices = np.arange(M)
+                    # Use vectorized function. a[bd] is the boundary radius.
+                    lambda_vec = Lambda_k_vectorized(k_indices, a[bd], m0, a, mk)
                     
-                    # 2. Broadcast multiply: Imk (NxM) * L_vals (1xM)
-                    # Note: We apply -1 because dense block represents Outer region terms moved to LHS
-                    return -1 * Imk * L_vals[None, :]
+                    # Broadcast: -1 * Imk * lambda_row
+                    # Imk[m,k] * lambda[k]
+                    return -1 * Imk * lambda_vec[None, :]
 
-                cache._add_m0_dependent_A_entry(row_slice, col_slice, p_block_calc)
-                # --- OPTIMIZATION END ---
-
+                cache._add_m0_dependent_block(row_offset, p_dense_e_col_start, potential_block_func)
+                # ---------------------------------
+                
                 col_offset += block.shape[1]
 
             else: 
-                # Potential Match: Project onto SHORTER region
+                # Internal Boundary
                 project_on_left = d[bd] > d[bd+1]
                 row_height = NMK_inner if project_on_left else NMK_outer
                 blocks = []
@@ -207,46 +205,45 @@ class MEEMEngine:
                 row_height = M
                 v_dense_e_col_start = col_offset
                 
-                # --- OPTIMIZATION START: Vectorized Velocity Block ---
-                # Pre-compute R' vectors (Independent of m0)
-                n_vec = np.arange(N)
-                r_vec_boundary = np.array([a[bd]])
+                # --- OPTIMIZED VELOCITY BLOCKS ---
                 
-                # R1' vector (used for both dense blocks)
-                dR1_vals = diff_R_1n_vectorized(n_vec[:, None], r_vec_boundary[None, :], bd, h, d, a).flatten()
+                # 1. R1 Block (always exists)
+                # A[m, k] = - diff_R1(k) * I_mk(k, m)  <-- Note indices: k is interior (N), m is exterior (M)
+                # Therefore we need (I_mk)^T
                 
-                # Helper Factory to create closure with explicit vector binding
-                # This prevents "NoneType not subscriptable" errors by forcing capture
-                def make_v_block_calc(vector):
-                     if vector is None:
-                         raise ValueError("Vector passed to make_v_block_calc cannot be None")
-                     # Return the function signature expected by ProblemCache/assemble_A
-                     return lambda p, m0, mk, Nk, Imk: Imk.T * vector[None, :]
+                # Precompute geometric derivatives (m0-independent!)
+                k_indices_N = np.arange(N)
+                diff_r1_vec = diff_R_1n_vectorized(k_indices_N, a[bd], bd, h, d, a)
+                
+                def velocity_block_R1_func(p, m0, mk, Nk, Imk):
+                    # Imk is (N, M). Transpose to (M, N) to match [row=m, col=k]
+                    # Multiply columns k by diff_r1_vec[k]
+                    return -1 * Imk.T * diff_r1_vec[None, :]
+                
+                cache._add_m0_dependent_block(row_offset, v_dense_e_col_start, velocity_block_R1_func)
 
-                # Block 1: R1 terms
-                row_slice = slice(row_offset, row_offset + M)
-                col_slice_1 = slice(v_dense_e_col_start, v_dense_e_col_start + N)
-                
-                # Register Block 1
-                cache._add_m0_dependent_A_entry(row_slice, col_slice_1, make_v_block_calc(dR1_vals))
-
+                # 2. R2 Block (if bd > 0)
                 if bd > 0:
-                    # Calculate dR2_vals ONLY if bd > 0
-                    dR2_vals = diff_R_2n_vectorized(n_vec[:, None], r_vec_boundary[None, :], bd, h, d, a).flatten()
+                    r2n_col_start = v_dense_e_col_start + N
+                    diff_r2_vec = diff_R_2n_vectorized(k_indices_N, a[bd], bd, h, d, a)
                     
-                    # Block 2: R2 terms
-                    col_slice_2 = slice(v_dense_e_col_start + N, v_dense_e_col_start + 2*N)
-                    
-                    # Register Block 2
-                    cache._add_m0_dependent_A_entry(row_slice, col_slice_2, make_v_block_calc(dR2_vals))
-                # --- OPTIMIZATION END ---
+                    def velocity_block_R2_func(p, m0, mk, Nk, Imk):
+                        return -1 * Imk.T * diff_r2_vec[None, :]
+
+                    cache._add_m0_dependent_block(row_offset, r2n_col_start, velocity_block_R2_func)
                 
+                # 3. Diagonal Block (Exterior wave maker)
                 v_diag_e_col_start = col_offset + (2*N if bd > 0 else N)
-                for k_local in range(M):
-                    g_row, g_col = row_offset + k_local, v_diag_e_col_start + k_local
-                    calc_func = lambda p, m0, mk, Nk, Imk, k=k_local: \
-                        v_diagonal_block_e_entry(k, k, bd, m0, mk, a, h)
-                    cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
+                
+                def velocity_diag_func(p, m0, mk, Nk, Imk):
+                    k_indices_M = np.arange(M)
+                    # diff_Lambda_k is m0-dependent
+                    val_vec = diff_Lambda_k_vectorized(k_indices_M, a[bd], m0, a, mk)
+                    return np.diag(h * val_vec)
+                
+                cache._add_m0_dependent_block(row_offset, v_diag_e_col_start, velocity_diag_func)
+                # ---------------------------------
+                
                 col_offset += (2*N if bd > 0 else N)
 
             else: # Internal i-i boundaries
@@ -412,9 +409,7 @@ class MEEMEngine:
         return results_per_mode
     
     def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None) -> Dict[str, Any]:
-        """
-        Calculate full spatial potentials phiH, phiP, and total phi on a meshgrid for visualization.
-        """
+        # Ensure m_k_arr and N_k_arr are computed and retrieved from the cache
         self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         m_k_arr = cache.m_k_arr
@@ -447,6 +442,7 @@ class MEEMEngine:
         phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
 
         # --- 3. Vectorized Calculation of Potentials ---
+
         # Region 0 (Inner)
         if np.any(regions[0]):
             r_vals, z_vals = R[regions[0]], Z[regions[0]]
@@ -594,7 +590,7 @@ class MEEMEngine:
         full_damping_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
         full_excitation_force = np.full((num_freqs, num_modes), np.nan)
         full_excitation_phase = np.full((num_freqs, num_modes), np.nan)
-
+        
         all_potentials_batch_data = []
 
         temp_bodies = []

@@ -1,6 +1,6 @@
 # package/src/openflash/problem_cache.py
 import numpy as np
-from typing import Callable, Dict, Any, Optional, List, Union, Tuple
+from typing import Callable, Dict, Any, Optional, List, Tuple
 
 from openflash.multi_equations import *
 
@@ -10,9 +10,13 @@ class ProblemCache:
         self.A_template: Optional[np.ndarray] = None
         self.b_template: Optional[np.ndarray] = None
         
-        # FIX: Updated type hint to accept slice objects for block operations
-        self.m0_dependent_A_indices: List[Tuple[Union[int, slice], Union[int, slice], Callable]] = []
-        self.m0_dependent_b_indices: List[Tuple[int, Callable]] = []
+        # Scalar entries (legacy/sparse)
+        self.m0_dependent_A_indices: list[tuple[int, int, Callable]] = []
+        
+        # [NEW] Vectorized blocks (row_start, col_start, calculator_func)
+        self.m0_dependent_blocks: list[tuple[int, int, Callable]] = []
+        
+        self.m0_dependent_b_indices: list[tuple[int, Callable]] = []
 
         self.m_k_entry_func: Optional[Callable] = None
         self.N_k_func: Optional[Callable] = None
@@ -23,6 +27,11 @@ class ProblemCache:
 
         self.I_nm_vals: Optional[List[np.ndarray]] = None
         self.named_closures: Dict[str, Any] = {}
+        
+        # Integration constants
+        self.int_R1_vals = None
+        self.int_R2_vals = None
+        self.int_phi_vals = None
 
     def _set_A_template(self, A_template: np.ndarray):
         self.A_template = A_template
@@ -30,13 +39,15 @@ class ProblemCache:
     def _set_b_template(self, b_template: np.ndarray):
         self.b_template = b_template
 
-    # FIX: Updated input types to Union[int, slice]
-    def _add_m0_dependent_A_entry(self, row: Union[int, slice], col: Union[int, slice], calc_func: Callable):
-        """
-        Registers a function to calculate an entry (or block of entries) in Matrix A 
-        that depends on m0.
-        """
+    def _add_m0_dependent_A_entry(self, row: int, col: int, calc_func: Callable):
         self.m0_dependent_A_indices.append((row, col, calc_func))
+
+    def _add_m0_dependent_block(self, row_start: int, col_start: int, calc_func: Callable):
+        """
+        Registers a function that returns a dense sub-matrix (block) to be inserted 
+        into A at [row_start:..., col_start:...].
+        """
+        self.m0_dependent_blocks.append((row_start, col_start, calc_func))
 
     def _add_m0_dependent_b_entry(self, row: int, calc_func: Callable):
         self.m0_dependent_b_indices.append((row, calc_func))
@@ -46,9 +57,6 @@ class ProblemCache:
         self.N_k_func = N_k_func
 
     def _set_precomputed_m_k_N_k(self, m_k_arr: np.ndarray, N_k_arr: np.ndarray, m0: float):
-        """
-        Sets the pre-computed m_k and N_k arrays for a specific m0.
-        """
         self.m_k_arr = m_k_arr
         self.N_k_arr = N_k_arr
         self.cached_m0 = m0
@@ -71,7 +79,7 @@ class ProblemCache:
 
     def _get_closure(self, key: str):
         return self.named_closures.get(key, None)
-    
+
     def _set_integration_constants(self, int_R1, int_R2, int_phi):
         self.int_R1_vals = int_R1
         self.int_R2_vals = int_R2
@@ -84,20 +92,16 @@ class ProblemCache:
 
     def refresh_forcing_terms(self, problem):
         """
-        Re-calculates b_template and m0_dependent_b_indices based on the 
-        current heaving configuration of the problem.
-        This allows re-using the cache (and Matrix A) while changing the active mode.
+        Re-calculates b_template and m0_dependent_b_indices.
         """
         domain_list = problem.domain_list
         domain_keys = list(domain_list.keys())
         
-        # Extract geometry params (same as build_problem_cache)
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys]
         a = [domain_list[idx].a for idx in domain_keys]
         NMK = [domain.number_harmonics for domain in domain_list.values()]
         
-        # Crucial: Get the NEW heaving flags
         heaving = [domain_list[idx].heaving for idx in domain_keys]
         
         boundary_count = len(NMK) - 1
@@ -121,11 +125,7 @@ class ProblemCache:
         self._set_b_template(b_template)
 
         # 2. Reset m0_dependent_b_indices
-        self.m0_dependent_b_indices = [] # Clear old indices
-        
-        # Re-populate using the loop logic from build_problem_cache
-        # Note: We must reset 'index' to match the velocity loop start position
-        # The velocity loop starts after the potential loop.
+        self.m0_dependent_b_indices = [] 
         
         # Calculate offset where velocity equations start
         potential_eq_count = 0
@@ -140,7 +140,6 @@ class ProblemCache:
         for bd in range(boundary_count):
             if bd == (boundary_count - 1):
                 for n_local in range(NMK[-1]):
-                    # Closure to capture n_local and heaving state
                     calc_func = lambda p, m0, mk, Nk, Imk, n=n_local: \
                         b_velocity_end_entry(n, bd, heaving, a, h, d, m0, NMK, mk, Nk)
                     self._add_m0_dependent_b_entry(index, calc_func)
@@ -150,6 +149,5 @@ class ProblemCache:
                 for n in range(num_entries):
                     b_template[index] = b_velocity_entry(n, bd, heaving, a, h, d)
                     index += 1
-        
-        # Update the template again with the velocity entries added
+                    
         self._set_b_template(b_template)
