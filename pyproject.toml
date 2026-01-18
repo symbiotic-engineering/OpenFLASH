@@ -30,6 +30,7 @@ dependencies = [
     "pandas>=1.5",
     "matplotlib>=3.5",
     "h5netcdf>=0.12",
+    "h5py>=3.0",
     "xarray>=2023.0",
     "streamlit>=1.0"
 ]

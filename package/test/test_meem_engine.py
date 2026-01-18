@@ -1,4 +1,4 @@
-# test_meem_engine.py
+# package/test/test_meem_engine.py
 import pytest
 import numpy as np
 import sys
@@ -236,11 +236,14 @@ def test_build_problem_cache(sample_problem):
     assert np.any(cache.b_template != 0)
 
     # 4. Verify that the lists for m0-dependent parts are populated
-    assert len(cache.m0_dependent_A_indices) > 0
+    # [FIX]: Optimization replaced scalar entries (m0_dependent_A_indices) 
+    # with vectorized blocks (m0_dependent_blocks).
+    assert len(cache.m0_dependent_blocks) > 0
     assert len(cache.m0_dependent_b_indices) > 0
 
     # 5. Check a specific m0-dependent entry to ensure it's a callable
-    assert callable(cache.m0_dependent_A_indices[0][2])
+    # m0_dependent_blocks format: (row_start, col_start, calc_func)
+    assert callable(cache.m0_dependent_blocks[0][2])
     assert callable(cache.m0_dependent_b_indices[0][1])
     
     print("✅ Problem cache build test passed.")
