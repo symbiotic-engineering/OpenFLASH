@@ -31,11 +31,8 @@ CONFIGS = {
 }
 
 RHO = 1023
-# FIX: Use a safe "high" wavenumber. 
-# m0=50 implies wavelength ~ 0.12m, which is << body size (3.0m+)
-# m0=1e6 causes exp(-m0*d) underflow and singular matrices.
-M0_MAX = 50.0  
-TOLERANCE = 0.05 # Slightly relaxed for asymptotic convergence
+M0_MAX = 1e6  
+TOLERANCE = 0.01
 
 @pytest.mark.parametrize("name, cfg", CONFIGS.items())
 def test_high_frequency_limit(name, cfg):
@@ -45,10 +42,8 @@ def test_high_frequency_limit(name, cfg):
     """
     print(f"\nRunning {name}...")
     
-    # --- FIX: Reduced NMK to prevent Matrix Ill-Conditioning ---
-    # 20-30 modes is standard and sufficient. 100 is unstable.
     num_regions = len(cfg['heaving']) + 1
-    NMK = [30] * num_regions 
+    NMK = [100] * num_regions 
     # -----------------------------------------------------------
 
     # 1. Solve for m0 = inf

@@ -1,6 +1,6 @@
 # package/src/openflash/problem_cache.py
 import numpy as np
-from typing import Callable, Dict, Any, Optional, List
+from typing import Callable, Dict, Any, Optional, List, Union, Tuple
 
 from openflash.multi_equations import *
 
@@ -9,17 +9,17 @@ class ProblemCache:
         self.problem = problem
         self.A_template: Optional[np.ndarray] = None
         self.b_template: Optional[np.ndarray] = None
-        self.m0_dependent_A_indices: list[tuple[int, int, Callable]] = []
-        self.m0_dependent_b_indices: list[tuple[int, Callable]] = []
+        
+        # FIX: Updated type hint to accept slice objects for block operations
+        self.m0_dependent_A_indices: List[Tuple[Union[int, slice], Union[int, slice], Callable]] = []
+        self.m0_dependent_b_indices: List[Tuple[int, Callable]] = []
 
         self.m_k_entry_func: Optional[Callable] = None
         self.N_k_func: Optional[Callable] = None
         self.m_k_arr: Optional[np.ndarray] = None
         self.N_k_arr: Optional[np.ndarray] = None
         
-        # --- FIX: Track the m0 value associated with the current cache ---
         self.cached_m0: Optional[float] = None 
-        # -----------------------------------------------------------------
 
         self.I_nm_vals: Optional[List[np.ndarray]] = None
         self.named_closures: Dict[str, Any] = {}
@@ -30,7 +30,12 @@ class ProblemCache:
     def _set_b_template(self, b_template: np.ndarray):
         self.b_template = b_template
 
-    def _add_m0_dependent_A_entry(self, row: int, col: int, calc_func: Callable):
+    # FIX: Updated input types to Union[int, slice]
+    def _add_m0_dependent_A_entry(self, row: Union[int, slice], col: Union[int, slice], calc_func: Callable):
+        """
+        Registers a function to calculate an entry (or block of entries) in Matrix A 
+        that depends on m0.
+        """
         self.m0_dependent_A_indices.append((row, col, calc_func))
 
     def _add_m0_dependent_b_entry(self, row: int, calc_func: Callable):
@@ -40,7 +45,6 @@ class ProblemCache:
         self.m_k_entry_func = m_k_entry_func
         self.N_k_func = N_k_func
 
-    # --- FIX: Accept m0 as an argument to store it ---
     def _set_precomputed_m_k_N_k(self, m_k_arr: np.ndarray, N_k_arr: np.ndarray, m0: float):
         """
         Sets the pre-computed m_k and N_k arrays for a specific m0.
@@ -48,7 +52,6 @@ class ProblemCache:
         self.m_k_arr = m_k_arr
         self.N_k_arr = N_k_arr
         self.cached_m0 = m0
-    # ------------------------------------------------
 
     def _set_I_nm_vals(self, I_nm_vals: List[np.ndarray]):
         self.I_nm_vals = I_nm_vals
@@ -68,6 +71,7 @@ class ProblemCache:
 
     def _get_closure(self, key: str):
         return self.named_closures.get(key, None)
+    
     def _set_integration_constants(self, int_R1, int_R2, int_phi):
         self.int_R1_vals = int_R1
         self.int_R2_vals = int_R2
@@ -77,6 +81,7 @@ class ProblemCache:
         if self.int_R1_vals is None:
              raise ValueError("Integration constants have not been set.")
         return self.int_R1_vals, self.int_R2_vals, self.int_phi_vals
+
     def refresh_forcing_terms(self, problem):
         """
         Re-calculates b_template and m0_dependent_b_indices based on the 
@@ -143,9 +148,6 @@ class ProblemCache:
             else:
                 num_entries = NMK[bd + (d[bd] > d[bd + 1])]
                 for n in range(num_entries):
-                    # b_velocity_entry is not m0 dependent, so it goes into b_template?
-                    # Wait, look at build_problem_cache in original file.
-                    # b_velocity_entry IS put into b_template.
                     b_template[index] = b_velocity_entry(n, bd, heaving, a, h, d)
                     index += 1
         
