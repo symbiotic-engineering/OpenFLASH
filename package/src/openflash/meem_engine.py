@@ -133,11 +133,11 @@ class MEEMEngine:
         col_offset = 0
         row_offset = 0
         for bd in range(boundary_count):
-            N = NMK[bd]
-            M = NMK[bd + 1]
+            NMK_inner = NMK[bd]
+            NMK_outer = NMK[bd + 1]
 
             if bd == (boundary_count - 1): 
-                row_height = N
+                row_height = NMK_inner
                 left_block1 = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
                 
                 if bd > 0:
@@ -155,10 +155,10 @@ class MEEMEngine:
                 
                 # Define slice for the block location
                 row_slice = slice(row_offset, row_offset + row_height)
-                col_slice = slice(p_dense_e_col_start, p_dense_e_col_start + M)
+                col_slice = slice(p_dense_e_col_start, p_dense_e_col_start + NMK_outer)
                 
                 # Define optimized block calculator
-                def p_block_calc(p, m0, mk, Nk, Imk, bd=bd, M=M):
+                def p_block_calc(p, m0, mk, Nk, Imk, bd=bd, M=NMK_outer):
                     # 1. Compute Lambda vector for all k (size M)
                     k_vec = np.arange(M)
                     r_vec = np.array([a[bd]])
@@ -177,7 +177,7 @@ class MEEMEngine:
             else: 
                 # Potential Match: Project onto SHORTER region
                 project_on_left = d[bd] > d[bd+1]
-                row_height = N if project_on_left else M
+                row_height = NMK_inner if project_on_left else NMK_outer
                 blocks = []
                 
                 if project_on_left:
@@ -193,7 +193,7 @@ class MEEMEngine:
 
                 full_block = np.concatenate(blocks, axis=1)
                 A_template[row_offset : row_offset + row_height, col_offset : col_offset + full_block.shape[1]] = full_block
-                col_offset += 2*N if bd > 0 else N
+                col_offset += 2*NMK_inner if bd > 0 else NMK_inner
             
             row_offset += row_height
 
