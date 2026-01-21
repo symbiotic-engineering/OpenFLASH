@@ -21,19 +21,13 @@ class MEEMEngine:
     """
 
     def __init__(self, problem_list: List[MEEMProblem]):
-        """
-        Initialize the MEEMEngine object.
-        :param problem_list: List of MEEMProblem instances.
-        """
         self.problem_list = problem_list
         self.cache_list = {} 
 
         for problem in problem_list:
             self.cache_list[problem] = self.build_problem_cache(problem)
+            
     def update_forcing(self, problem: 'MEEMProblem'):
-        """
-        Updates the b-vector cache for the problem based on new heaving flags.
-        """
         self.cache_list[problem].refresh_forcing_terms(problem)
     
     def _ensure_m_k_and_N_k_arrays(self, problem: 'MEEMProblem', m0):
@@ -52,8 +46,17 @@ class MEEMEngine:
         cache = self.cache_list[problem]
         A = cache._get_A_template()
         I_mk_vals = cache._get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
+        
+        # 1. Fill scalar entries (if any exist)
         for row, col, calc_func in cache.m0_dependent_A_indices:
             A[row, col] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
+            
+        # 2. Fill vectorized blocks [NEW]
+        for row_start, col_start, calc_func in cache.m0_dependent_blocks:
+            block = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
+            h_block, w_block = block.shape
+            A[row_start : row_start + h_block, col_start : col_start + w_block] = block
+            
         return A
                 
     def assemble_b_multi(self, problem: 'MEEMProblem', m0) -> np.ndarray:
@@ -67,8 +70,8 @@ class MEEMEngine:
 
     def build_problem_cache(self, problem: 'MEEMProblem') -> ProblemCache:
         """
-        Analyzes the problem and pre-computes m0-independent parts of A and b,
-        and identifies indices for m0-dependent parts, storing them in a cache.
+        Analyzes the problem and pre-computes m0-independent parts of A and b.
+        Includes optimized vectorized block generators for m0-dependent sections.
         """
         cache = ProblemCache(problem)
         domain_list = problem.domain_list
@@ -94,34 +97,31 @@ class MEEMEngine:
                     I_nm_vals_precomputed[bd][n, m] = I_nm(n, m, bd, d, h)
         cache._set_I_nm_vals(I_nm_vals_precomputed)
 
-        R_1n_func = np.vectorize(partial(R_1n, h=h, d=d, a=a))
-        R_2n_func = np.vectorize(partial(R_2n, a=a, h=h, d=d))
-        diff_R_1n_func = np.vectorize(partial(diff_R_1n, h=h, d=d, a=a), otypes=[complex])
-        diff_R_2n_func = np.vectorize(partial(diff_R_2n, h=h, d=d, a=a), otypes=[complex])
+        R_1n_func = partial(R_1n_vectorized, h=h, d=d, a=a)
+        R_2n_func = partial(R_2n_vectorized, a=a, h=h, d=d)
+        diff_R_1n_func = partial(diff_R_1n_vectorized, h=h, d=d, a=a)
+        diff_R_2n_func = partial(diff_R_2n_vectorized, h=h, d=d, a=a)
 
         def _calculate_I_mk_vals(m0, m_k_arr, N_k_arr):
+            # Optimized to use vectorized ops if possible, but keep loop for now as I_mk is complex
             vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
             for m in range(NMK[boundary_count - 1]):
                 for k in range(NMK[boundary_count]):
                     vals[m, k] = I_mk(m, k, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
             return vals
-        # These are purely geometric and geometry is constant for the problem
+
         int_R1_store = {}
         int_R2_store = {}
         int_phi_store = np.zeros(boundary_count, dtype=complex)
 
-        # Pre-compute R1 integrals (used in all regions)
         for i in range(boundary_count):
             for n in range(NMK[i]):
-                # Store as tuple key (region_idx, harmonic_n)
                 int_R1_store[(i, n)] = int_R_1n(i, n, a, h, d)
         
-        # Pre-compute R2 integrals (used in annular regions i > 0)
         for i in range(1, boundary_count):
             for n in range(NMK[i]):
                 int_R2_store[(i, n)] = int_R_2n(i, n, a, h, d)
 
-        # Pre-compute Phi_p integrals (used for Force calculation)
         for i in range(boundary_count):
             int_phi_store[i] = int_phi_p_i(i, h, d, a)
             
@@ -133,11 +133,12 @@ class MEEMEngine:
         col_offset = 0
         row_offset = 0
         for bd in range(boundary_count):
-            N = NMK[bd]
-            M = NMK[bd + 1]
+            NMK_inner = NMK[bd]
+            NMK_outer = NMK[bd + 1]
 
             if bd == (boundary_count - 1): 
-                row_height = N
+                # Exterior Boundary (m0-dependent)
+                row_height = NMK_inner
                 left_block1 = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
                 
                 if bd > 0:
@@ -149,20 +150,32 @@ class MEEMEngine:
                 A_template[row_offset : row_offset + row_height, col_offset : col_offset + block.shape[1]] = block
                 
                 p_dense_e_col_start = col_offset + block.shape[1]
-                for m_local in range(N):
-                    for k_local in range(M):
-                        g_row, g_col = row_offset + m_local, p_dense_e_col_start + k_local
-                        calc_func = lambda p, m0, mk, Nk, Imk, m=m_local, k=k_local: \
-                            p_dense_block_e_entry(m, k, bd, Imk, NMK, a, m0, h, mk, Nk)
-                        cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
+                
+                # --- OPTIMIZED POTENTIAL BLOCK ---
+                # A[m, k] = -1 * Lambda_k(k) * I_mk(m, k)
+                # This broadcasts a row vector (Lambda) against the matrix (I_mk)
+                
+                # We define a function that will be called in assemble_A_multi
+                def potential_block_func(p, m0, mk, Nk, Imk):
+                    # Imk is shape (N, M). 
+                    # Calculate vector Lambda for all k (0..M-1)
+                    k_indices = np.arange(M)
+                    # Use vectorized function. a[bd] is the boundary radius.
+                    lambda_vec = Lambda_k_vectorized(k_indices, a[bd], m0, a, mk)
+                    
+                    # Broadcast: -1 * Imk * lambda_row
+                    # Imk[m,k] * lambda[k]
+                    return -1 * Imk * lambda_vec[None, :]
+
+                cache._add_m0_dependent_block(row_offset, p_dense_e_col_start, potential_block_func)
+                # ---------------------------------
+                
                 col_offset += block.shape[1]
 
             else: 
-                # Potential Match: Project onto SHORTER region (Standard MEEM)
-                # d is depth from surface. Larger d means deeper bottom, so SMALLER height.
-                # If d[bd] > d[bd+1], Region Left is shorter. Project on Left.
+                # Internal Boundary
                 project_on_left = d[bd] > d[bd+1]
-                row_height = N if project_on_left else M
+                row_height = NMK_inner if project_on_left else NMK_outer
                 blocks = []
                 
                 if project_on_left:
@@ -178,7 +191,7 @@ class MEEMEngine:
 
                 full_block = np.concatenate(blocks, axis=1)
                 A_template[row_offset : row_offset + row_height, col_offset : col_offset + full_block.shape[1]] = full_block
-                col_offset += 2*N if bd > 0 else N
+                col_offset += 2*NMK_inner if bd > 0 else NMK_inner
             
             row_offset += row_height
 
@@ -191,28 +204,46 @@ class MEEMEngine:
             if bd == (boundary_count - 1): # Final i-e boundary
                 row_height = M
                 v_dense_e_col_start = col_offset
-                for m_local in range(M):
-                    for k_local in range(N):
-                        g_row, g_col = row_offset + m_local, v_dense_e_col_start + k_local
-                        calc_func = lambda p, m0, mk, Nk, Imk, m=m_local, k=k_local: \
-                            v_dense_block_e_entry(m, k, bd, Imk, a, h, d)
-                        cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
-                    if bd > 0:
-                        r2n_col_start = v_dense_e_col_start + N
-                        for k_local in range(N):
-                            g_row, g_col = row_offset + m_local, r2n_col_start + k_local
-                            calc_func = lambda p, m0, mk, Nk, Imk, m=m_local, k=k_local: \
-                                v_dense_block_e_entry_R2(m, k, bd, Imk, a, h, d)
-                            cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
                 
+                # --- OPTIMIZED VELOCITY BLOCKS ---
+                
+                # 1. R1 Block (always exists)
+                # A[m, k] = - diff_R1(k) * I_mk(k, m)  <-- Note indices: k is interior (N), m is exterior (M)
+                # Therefore we need (I_mk)^T
+                
+                # Precompute geometric derivatives (m0-independent!)
+                k_indices_N = np.arange(N)
+                diff_r1_vec = diff_R_1n_vectorized(k_indices_N, a[bd], bd, h, d, a)
+                
+                def velocity_block_R1_func(p, m0, mk, Nk, Imk):
+                    # Imk is (N, M). Transpose to (M, N) to match [row=m, col=k]
+                    # Multiply columns k by diff_r1_vec[k]
+                    return -1 * Imk.T * diff_r1_vec[None, :]
+                
+                cache._add_m0_dependent_block(row_offset, v_dense_e_col_start, velocity_block_R1_func)
+
+                # 2. R2 Block (if bd > 0)
+                if bd > 0:
+                    r2n_col_start = v_dense_e_col_start + N
+                    diff_r2_vec = diff_R_2n_vectorized(k_indices_N, a[bd], bd, h, d, a)
+                    
+                    def velocity_block_R2_func(p, m0, mk, Nk, Imk):
+                        return -1 * Imk.T * diff_r2_vec[None, :]
+
+                    cache._add_m0_dependent_block(row_offset, r2n_col_start, velocity_block_R2_func)
+                
+                # 3. Diagonal Block (Exterior wave maker)
                 v_diag_e_col_start = col_offset + (2*N if bd > 0 else N)
-                for k_local in range(M):
-                    g_row, g_col = row_offset + k_local, v_diag_e_col_start + k_local
-                    # --- FIX: Pass 'k' as the first argument 'm' since it's a diagonal block ---
-                    # --- FIX: Ensure 'm' is not used in the lambda definition ---
-                    calc_func = lambda p, m0, mk, Nk, Imk, k=k_local: \
-                        v_diagonal_block_e_entry(k, k, bd, m0, mk, a, h)
-                    cache._add_m0_dependent_A_entry(g_row, g_col, calc_func)
+                
+                def velocity_diag_func(p, m0, mk, Nk, Imk):
+                    k_indices_M = np.arange(M)
+                    # diff_Lambda_k is m0-dependent
+                    val_vec = diff_Lambda_k_vectorized(k_indices_M, a[bd], m0, a, mk)
+                    return np.diag(h * val_vec)
+                
+                cache._add_m0_dependent_block(row_offset, v_diag_e_col_start, velocity_diag_func)
+                # ---------------------------------
+                
                 col_offset += (2*N if bd > 0 else N)
 
             else: # Internal i-i boundaries
@@ -291,9 +322,6 @@ class MEEMEngine:
     def compute_hydrodynamic_coefficients(self, problem, X, m0, modes_to_calculate: Optional[np.ndarray] = None, rho: Optional[float] = None):
         """
         Computes the hydrodynamic coefficients (Added Mass and Damping) from the solution vector X.
-        
-        Args:
-            rho (float, optional): Density of fluid. Defaults to value from multi_constants.
         """
         if rho is None:
             rho = default_rho
@@ -344,8 +372,6 @@ class MEEMEngine:
 
             # 1. Inner Region (Index 0)
             for n in range(NMK[0]):
-                # OLD: heaving[0] * int_R_1n(0, n, a, h, d) * z_n_d(n)
-                # NEW: Use Cache
                 val = int_R1_store[(0, n)]
                 c_vector[n] = heaving[0] * val * z_n_d(n)
             col += NMK[0]
@@ -354,21 +380,15 @@ class MEEMEngine:
             for i in range(1, boundary_count):
                 M = NMK[i]
                 for m in range(M):
-                    # OLD: heaving[i] * int_R_1n(i, m, a, h, d) * z_n_d(m)
-                    # NEW:
                     r1_val = int_R1_store[(i, m)]
                     c_vector[col + m] = heaving[i] * r1_val * z_n_d(m)
                     
-                    # OLD: heaving[i] * int_R_2n(i, m, a, h, d) * z_n_d(m)
-                    # NEW:
                     r2_val = int_R2_store[(i, m)]
                     c_vector[col + M + m] = heaving[i] * r2_val * z_n_d(m)
                 col += 2 * M
 
             hydro_p_term_sum = np.zeros(boundary_count, dtype=complex)
             for i in range(boundary_count):
-                # OLD: heaving[i] * int_phi_p_i(i, h, d, a)
-                # NEW:
                 hydro_p_term_sum[i] = heaving[i] * int_phi_store[i]
 
             hydro_coef = 2 * pi * (np.dot(c_vector, X[:-NMK[-1]]) + sum(hydro_p_term_sum))
@@ -390,45 +410,27 @@ class MEEMEngine:
         return results_per_mode
     
     def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None) -> Dict[str, Any]:
-        """
-        Calculate full spatial potentials phiH, phiP, and total phi on a meshgrid for visualization.
-
-        Parameters:
-        - problem: MEEMProblem instance containing domain and geometry info
-        - solution_vector: solution vector X from linear system solve
-        - spatial_res: resolution of spatial grid for R and Z (default=50)
-        - sharp: whether to refine meshgrid near boundaries (default=True)
-
-        Returns:
-        - Dictionary containing meshgrid arrays R,Z and potentials phiH, phiP, phi
-        """
         # Ensure m_k_arr and N_k_arr are computed and retrieved from the cache
         self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         m_k_arr = cache.m_k_arr
         N_k_arr = cache.N_k_arr
         
-        # Get geometry parameters directly from the body arrangement and domains
         geometry = problem.geometry
         body_arrangement = geometry.body_arrangement
         domain_list = problem.domain_list
         
-        # These are the correct physical parameters for meshgrid and particular solution
         a = body_arrangement.a
         d = body_arrangement.d
         heaving = body_arrangement.heaving
         
-        # These are needed for the homogeneous solution and coefficient reformatting
         h = geometry.h
         domain_keys = list(domain_list.keys())
         boundary_count = len(domain_keys) - 1
         NMK = [domain_list[idx].number_harmonics for idx in domain_keys]
         
-        # --- The rest of the function remains the same ---
         Cs = self.reformat_coeffs(solution_vector, NMK, boundary_count)
 
-        # 2. Create Meshgrid and Regions
-        # Now make_R_Z will receive the correct a and d lists
         R, Z = make_R_Z(a, h, d, sharp, spatial_res)
         regions = []
         regions.append((R <= a[0]) & (Z < -d[0]))
@@ -436,7 +438,6 @@ class MEEMEngine:
             regions.append((R > a[i-1]) & (R <= a[i]) & (Z < -d[i]))
         regions.append(R > a[-1])
 
-        # Initialize potential arrays
         phi = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
         phiH = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
         phiP = np.full_like(R, np.nan + np.nan*1j, dtype=complex) 
@@ -588,20 +589,15 @@ class MEEMEngine:
 
         full_added_mass_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
         full_damping_matrix = np.full((num_freqs, num_modes, num_modes), np.nan)
-        # --- NEW: Initialize matrices for Excitation Force and Phase ---
-        # Note: These are vectors (one value per mode per frequency), not NxN matrices like added mass
         full_excitation_force = np.full((num_freqs, num_modes), np.nan)
         full_excitation_phase = np.full((num_freqs, num_modes), np.nan)
-        # ---------------------------------------------------------------
+        
         all_potentials_batch_data = []
 
-        # 1. Create a SINGLE reusable Geometry/Problem Setup
-        # We create one problem instance that we will mutate inside the loop
         temp_bodies = []
         for body_j, original_body in enumerate(original_bodies):
             if not isinstance(original_body, SteppedBody):
                 raise TypeError("run_and_store_results only supports SteppedBody.")
-            # Initialize with all False heaving, we will toggle this later
             temp_bodies.append(
                 SteppedBody(
                     a=original_body.a, 
@@ -611,74 +607,45 @@ class MEEMEngine:
                 )
             )
         temp_arrangement = ConcentricBodyGroup(temp_bodies)
-        # Pass by reference: temp_arrangement is now inside temp_geometry
         temp_geometry = BasicRegionGeometry(temp_arrangement, h=h, NMK=NMK_list)
         temp_problem = MEEMProblem(temp_geometry)
         
-        # Initialize one engine for this problem
-        # This builds the ProblemCache once.
         temp_engine = MEEMEngine(problem_list=[temp_problem])
 
         for freq_idx, omega in enumerate(omegas_to_run):
             m0 = wavenumber(omega, h) 
             temp_problem.set_frequencies(np.array([omega]))
 
-            # --- OPTIMIZATION: Compute A and Factorize ONCE per frequency ---
             try:
-                # 1. Ensure Bessel functions/constants are computed for this m0
                 temp_engine._ensure_m_k_and_N_k_arrays(temp_problem, m0)
-                
-                # 2. Assemble Matrix A (Independent of heaving mode)
                 A_matrix = temp_engine.assemble_A_multi(temp_problem, m0)
-                
-                # 3. LU Factorization (O(N^3))
-                # This prepares us to solve Ax=b quickly for different b vectors
                 lu_piv = linalg.lu_factor(A_matrix)
                 
             except np.linalg.LinAlgError as e:
                 print(f"  ERROR: Matrix assembly/factorization failed for freq={omega:.4f}: {e}")
-                # If A fails, all modes fail for this frequency
                 full_added_mass_matrix[freq_idx, :, :] = np.nan
                 full_damping_matrix[freq_idx, :, :] = np.nan
                 continue
 
             for i_idx, radiating_mode in enumerate(problem_modes):
                 try:
-                    # --- Update the Problem State for this Mode ---
-                    
-                    # 1. Mutate the heaving flags in the Body objects
                     current_region_idx = 0
                     for b_i, body in enumerate(temp_arrangement.bodies):
-                        # FIX: Explicitly check for SteppedBody to access .a safely
                         if isinstance(body, SteppedBody):
                             is_active_mode = (b_i == radiating_mode)
-                            
-                            # Update the Body object directly
                             body.heaving = is_active_mode 
-                            
-                            # Also update the Domain objects in the geometry list
-                            # (The engine reads from problem.domain_list)
                             steps = len(body.a)
                             for r in range(steps):
-                                # Update the specific domain
                                 domain = temp_geometry.domain_list[current_region_idx]
                                 domain.heaving = is_active_mode
                                 current_region_idx += 1
                         else:
-                            # Should be unreachable given init loop, but safe fallback
                             pass
 
-                    # 2. Refresh the 'b' vector cache in the engine
-                    # This updates b_template and indices without touching A
                     temp_engine.update_forcing(temp_problem)
-                    
-                    # 3. Assemble just the b vector (O(N))
                     b_vector = temp_engine.assemble_b_multi(temp_problem, m0)
-                    
-                    # 4. Solve utilizing pre-computed LU factorization (O(N^2))
                     X_i = linalg.lu_solve(lu_piv, b_vector)
 
-                    # --- Post-Processing (same as before) ---
                     hydro_coeffs_col = temp_engine.compute_hydrodynamic_coefficients(
                         temp_problem, X_i, m0, modes_to_calculate=problem_modes
                     )
@@ -690,13 +657,9 @@ class MEEMEngine:
                             j_idx = j_idx_result[0]
                             full_added_mass_matrix[freq_idx, j_idx, i_idx] = coeff_dict['real']
                             full_damping_matrix[freq_idx, j_idx, i_idx] = coeff_dict['imag']
-                            # --- NEW: Capture Excitation Force & Phase ---
-                            # We only need to store this when i_idx (radiating mode) == j_idx (force mode)
-                            # or just capture it for the active mode.
                             if i_idx == j_idx:
                                 full_excitation_force[freq_idx, j_idx] = coeff_dict.get('excitation_force', np.nan)
                                 full_excitation_phase[freq_idx, j_idx] = coeff_dict.get('excitation_phase', np.nan)
-                            # ---------------------------------------------
 
                     Cs = temp_engine.reformat_coeffs(X_i, NMK_list, len(NMK_list) - 1)
                     
@@ -723,13 +686,12 @@ class MEEMEngine:
                     full_damping_matrix[freq_idx, :, i_idx] = np.nan
                     continue 
 
-        # --- UPDATED: Pass the new matrices to store_hydrodynamic_coefficients ---
         results.store_hydrodynamic_coefficients(
             frequencies=omegas_to_run,
             added_mass_matrix=full_added_mass_matrix,
             damping_matrix=full_damping_matrix,
-            excitation_force=full_excitation_force, # <--- Add this
-            excitation_phase=full_excitation_phase  # <--- Add this
+            excitation_force=full_excitation_force,
+            excitation_phase=full_excitation_phase
         )
 
         if all_potentials_batch_data:
