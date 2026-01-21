@@ -19,29 +19,6 @@ stages:
       hash: md5
       md5: da2778aa10b978a61b883bae86c4a4d3
       size: 3330
-  generate-figs:
-    cmd: calkit xenv -n openflash-on-main --no-check -- python 
-      analysis/make_fig.py
-    deps:
-    - path: .calkit/env-locks/openflash-on-main
-      hash: md5
-      md5: e63a7a190bec62bdb13da6c8e0b67882.dir
-      size: 9273
-      nfiles: 1
-    - path: analysis/make_fig.py
-      hash: md5
-      md5: 342457a14ecf071e569ed77bc9b70d5e
-      size: 199
-    - path: package/src/
-      hash: md5
-      md5: 06141e77fa824a87f4a23726140e3cc2.dir
-      size: 242590
-      nfiles: 27
-    outs:
-    - path: pubs/JFM/figs/sample_plot.png
-      hash: md5
-      md5: 61b69edeadbba2f7dbf8063662ed436d
-      size: 22608
   compile-overleaf:
     cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
     deps:

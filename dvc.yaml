@@ -1,42 +1,31 @@
 stages:
-  generate-figs:
-    cmd: calkit xenv -n openflash-on-main --no-check -- python 
-      analysis/make_fig.py
-    deps:
-      - analysis/make_fig.py
-      - package/src/
-      - .calkit/env-locks/openflash-on-main
-    outs:
-      - pubs/JFM/figs/sample_plot.png
-    desc: Automatically generated from the 'generate-figs' stage in 
-      calkit.yaml. Changes made here will be overwritten.
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --language python --to html 
+    cmd: calkit nb execute --environment openflash-on-branch --no-check 
+      --language python --to html 
       "dev/python/validation_with_capytaine_plots.ipynb"
     deps:
-      - .calkit/notebooks/cleaned/dev/python/validation_with_capytaine_plots.ipynb
-      - .calkit/env-locks/openflash-on-branch
+    - .calkit/notebooks/cleaned/dev/python/validation_with_capytaine_plots.ipynb
+    - .calkit/env-locks/openflash-on-branch
     outs:
-      - .calkit/notebooks/executed/dev/python/validation_with_capytaine_plots.ipynb:
-          cache: true
-      - .calkit/notebooks/html/dev/python/validation_with_capytaine_plots.html:
-          cache: true
+    - .calkit/notebooks/executed/dev/python/validation_with_capytaine_plots.ipynb:
+        cache: true
+    - .calkit/notebooks/html/dev/python/validation_with_capytaine_plots.html:
+        cache: true
     desc: Automatically generated from the 'validate-w-capy' stage in 
       calkit.yaml. Changes made here will be overwritten.
   compile-overleaf:
     cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
     deps:
-      - pubs/JFM/FLMguide.tex
-      - pubs/JFM/FLMguide.tex
-      - pubs/JFM/figs/
-      - pubs/JFM/JFM-FLM_Au.cls
-      - pubs/JFM/jfm.bib
-      - pubs/JFM/jfm.bst
-      - pubs/JFM/lineno-FLM.sty
-      - pubs/JFM/zotero-meem-refs.bib
-      - .calkit/env-locks/tex
+    - pubs/JFM/FLMguide.tex
+    - pubs/JFM/FLMguide.tex
+    - pubs/JFM/figs/
+    - pubs/JFM/JFM-FLM_Au.cls
+    - pubs/JFM/jfm.bib
+    - pubs/JFM/jfm.bst
+    - pubs/JFM/lineno-FLM.sty
+    - pubs/JFM/zotero-meem-refs.bib
+    - .calkit/env-locks/tex
     outs:
-      - pubs/JFM/FLMguide.pdf
-    desc: Automatically generated from the 'compile-overleaf' stage in
+    - pubs/JFM/FLMguide.pdf
+    desc: Automatically generated from the 'compile-overleaf' stage in 
       calkit.yaml. Changes made here will be overwritten.

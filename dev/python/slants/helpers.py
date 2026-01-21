@@ -57,7 +57,7 @@ def make_slant_region2(d1, d2, a1, a2, res):
   delta_d = (d2 - d1)/res
   delta_a = (a2 - a1)/res
   # offset = (delta_d < 0)
-  for i in range(res):
+  for i in range(res - 1):
      a_prime.append(a1 + (0.5 + i) * delta_a)
      d_prime.append(d1 + (i) * delta_d)
   a_prime.append(a2)
