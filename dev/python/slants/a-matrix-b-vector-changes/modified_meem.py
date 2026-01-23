@@ -1,6 +1,8 @@
 import sys
 import os
-sys.path.append(os.path.relpath('../../'))
+HERE = os.path.dirname(os.path.abspath(__file__))
+python_folder = os.path.abspath(os.path.join(HERE, '../../'))
+sys.path.append(python_folder)
 from multi_condensed import Problem
 import numpy as np
 from math import sqrt, cos, sin, pi
