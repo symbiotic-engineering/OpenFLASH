@@ -150,7 +150,7 @@ def b_velocity_entry(n, i, heaving, a, h, d): # for two i-type regions
             denom = (2 * (h - d[i+1]) * lambda_ni(n, i, h, d))
             return num/denom
         else: return 0
-
+    
 # REVISED b_velocity_end_entry to accept m_k_arr and N_k_arr
 # ADDED m_k_arr, N_k_arr
 def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # between i and e-type regions
@@ -158,10 +158,8 @@ def b_velocity_end_entry(k, i, heaving, a, h, d, m0, NMK, m_k_arr, N_k_arr): # b
 
     constant = - float(heaving[i]) * a[i]/(2 * (h - d[i]))
     if k == 0:
-        # --- FIX: Handle infinite m0 ---
         if m0 == inf:
             return 0.0
-        # -------------------------------
         elif m0 * h < M0_H_THRESH:
             return constant * (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - d[i])) / m0 # Use N_k_arr[0]
         else: # high m0h approximation
@@ -189,16 +187,13 @@ def R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized version of the R_1n radial eigenfunction.
     """
-    # --- FIX: Ensure inputs are FLOAT arrays to prevent casting errors on int arrays ---
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
-    # ---------------------------------------------------------------------------------
 
     cond_n_is_zero = (n == 0)
     cond_r_at_boundary = (r == scale(a)[i])
 
     # --- Define the outcomes for each condition ---
-    # FIX: n=0 logic must match scalar version
     if i == 0:
         outcome_for_n_zero = np.full_like(r, 0.5)
     else:
@@ -230,10 +225,8 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     """
     Vectorized derivative of the diff_R_1n radial function.
     """
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------------
     
     condition = (n == 0)
     
@@ -260,7 +253,6 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
 
 #############################################
 # The "Bessel K" radial eigenfunction (Annular Regions)
-# NORMALIZATION FIX: Anchored at Inner Radius (a[i-1]) + Affine Shift
 #############################################
 def R_2n_vectorized(n, r, i, a, h, d):
     """
@@ -270,10 +262,8 @@ def R_2n_vectorized(n, r, i, a, h, d):
     if i == 0:
         raise ValueError("R_2n function is not defined for the innermost region (i=0).")
     
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------------
 
     # LEGACY: Use Outer Radius
     outer_r = scale(a)[i]
@@ -703,51 +693,6 @@ def make_R_Z(a, h, d, sharp, spatial_res, R_range: Optional[np.ndarray] = None, 
     # THE CRITICAL FIX: Add indexing='ij'
     return np.meshgrid(r_vec, z_vec, indexing='ij')
 
-def p_diagonal_block(left, radfunction, bd, h, d, a, NMK):
-    region = bd if left else (bd + 1)
-    sign = 1 if left else (-1)
-    return sign * (h - d[region]) * np.diag(radfunction(list(range(NMK[region])), a[bd], region))
-
-def p_dense_block(left, radfunction, bd, NMK, a, I_nm_vals):
-    I_nm_array = I_nm_vals[bd]
-    if left: # determine which is region to work in and which is adjacent
-        region, adj = bd, bd + 1
-        sign = 1
-        I_nm_array = np.transpose(I_nm_array)
-    else:
-        region, adj = bd + 1, bd
-        sign = -1
-    radial_vector = radfunction(list(range(NMK[region])), a[bd], region)
-    radial_array = np.outer((np.full((NMK[adj]), 1)), radial_vector)
-    return sign * radial_array * I_nm_array
-   
-# arguments: diagonal block on left (T/F), vectorized radial eigenfunction, boundary number
-def v_diagonal_block(left, radfunction, bd, h, d, NMK, a):
-    region = bd if left else (bd + 1)
-    sign = (-1) if left else (1)
-    return sign * (h - d[region]) * np.diag(radfunction(list(range(NMK[region])), a[bd], region))
-
-# arguments: dense block on left (T/F), vectorized radial eigenfunction, boundary number
-def v_dense_block(left, radfunction, bd, I_nm_vals, NMK, a):
-    I_nm_array = I_nm_vals[bd]
-    if left: # determine which is region to work in and which is adjacent
-        region, adj = bd, bd + 1
-        sign = -1
-        I_nm_array = np.transpose(I_nm_array)
-    else:
-        region, adj = bd + 1, bd
-        sign = 1
-    radial_vector = radfunction(list(range(NMK[region])), a[bd], region)
-    radial_array = np.outer((np.full((NMK[adj]), 1)), radial_vector)
-    return sign * radial_array * I_nm_array
-
-def v_dense_block_e(radfunction, bd, I_mk_vals, NMK, a): # for region adjacent to e-type region
-    I_km_array = np.transpose(I_mk_vals)
-    radial_vector = radfunction(list(range(NMK[bd])), a[bd], bd)
-    radial_array = np.outer((np.full((NMK[bd + 1]), 1)), radial_vector)
-
-    return (-1) * radial_array * I_km_array
-
 def p_dense_block_e_entry(m, k, bd, I_mk_vals, NMK, a, m0, h, m_k_arr, N_k_arr):
     """
     Compute individual entry (m, k) of the p_dense_block_e matrix at boundary `bd`.
@@ -783,3 +728,93 @@ def v_dense_block_e_entry_R2(m, k, bd, I_mk_vals, a, h, d):
     
     imk_term = I_mk_vals[k, m]
     return -1 * radial_term * imk_term
+
+def p_diagonal_block(left, radfunction, bd, h, d, a, NMK):
+    region = bd if left else (bd + 1)
+    sign = 1 if left else (-1)
+    # Note: radfunction here is expected to be the vectorized version (e.g., R_1n_vectorized)
+    # We pass the list of indices range(NMK[region])
+    indices = np.arange(NMK[region])
+    radial_vals = radfunction(indices, a[bd], region)
+    return sign * (h - d[region]) * np.diag(radial_vals)
+
+def p_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
+    # I_nm_vals_bd is the specific matrix for this boundary (N x M)
+    I_nm_array = I_nm_vals_bd
+    if left: 
+        # determine which is region to work in and which is adjacent
+        region, adj = bd, bd + 1
+        sign = 1
+        I_nm_array = np.transpose(I_nm_array)
+    else:
+        region, adj = bd + 1, bd
+        sign = -1
+    
+    indices = np.arange(NMK[region])
+    radial_vector = radfunction(indices, a[bd], region)
+    
+    # Outer product: Column of 1s (size adj) x radial_vector (size region)
+    # This matches the correct code: np.outer((np.full((NMK[adj]), 1)), radial_vector)
+    radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
+    
+    return sign * radial_array * I_nm_array
+
+def p_dense_block_e(bd, I_mk_vals, NMK, a, m0, m_k_arr):
+    # Matches "Correct Code": p_dense_block_e(bd)
+    # But accepts dependencies as arguments
+    
+    # I_mk_vals is passed in (calculated dynamically in engine)
+    I_mk_array = I_mk_vals
+    
+    # Calculate Lambda_k vectorized
+    indices = np.arange(NMK[bd+1]) # Exterior indices
+    radial_vector = Lambda_k_vectorized(indices, a[bd], m0, a, m_k_arr)
+    
+    # Outer product: Ones(N) x Lambda(M)
+    radial_array = np.outer(np.ones(NMK[bd]), radial_vector)
+    
+    return (-1) * radial_array * I_mk_array
+
+def v_diagonal_block(left, radfunction, bd, h, d, NMK, a):
+    region = bd if left else (bd + 1)
+    sign = (-1) if left else (1)
+    
+    indices = np.arange(NMK[region])
+    radial_vals = radfunction(indices, a[bd], region)
+    
+    return sign * (h - d[region]) * np.diag(radial_vals)
+
+def v_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
+    I_nm_array = I_nm_vals_bd
+    if left: 
+        region, adj = bd, bd + 1
+        sign = -1
+        I_nm_array = np.transpose(I_nm_array)
+    else:
+        region, adj = bd + 1, bd
+        sign = 1
+        
+    indices = np.arange(NMK[region])
+    radial_vector = radfunction(indices, a[bd], region)
+    radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
+    
+    return sign * radial_array * I_nm_array
+
+def v_diagonal_block_e(bd, h, a, m0, m_k_arr, NMK):
+    # Matches "Correct Code": v_diagonal_block_e(bd)
+    # Returns: h * diag(diff_Lambda_k)
+    indices = np.arange(NMK[bd+1])
+    vals = diff_Lambda_k_vectorized(indices, a[bd], m0, a, m_k_arr)
+    return h * np.diag(vals)
+
+def v_dense_block_e(radfunction, bd, I_mk_vals, NMK, a): 
+    # Matches "Correct Code": v_dense_block_e(radfunction, bd)
+    # for region adjacent to e-type region
+    
+    I_km_array = np.transpose(I_mk_vals)
+    
+    indices = np.arange(NMK[bd])
+    radial_vector = radfunction(indices, a[bd], bd)
+    radial_array = np.outer(np.ones(NMK[bd + 1]), radial_vector)
+
+    return (-1) * radial_array * I_km_array

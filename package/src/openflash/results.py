@@ -202,6 +202,20 @@ class Results:
 
         print("Potentials stored in xarray dataset (batched across frequencies/modes).")
 
+    def store_velocity_field(self, velocity_data: dict, frequency_idx: int = 0, mode_idx: int = 0):
+        """
+        Stores a fully computed velocity field (vr, vz) in the dataset.
+        Follows the convention used in store_single_potential_field.
+        """
+        for component in ["vr", "vz"]:
+            self.dataset[f'velocity_{component}_real_{mode_idx}_{frequency_idx}'] = xr.DataArray(
+                velocity_data[component].real,
+                dims=['z_coord', 'r_coord']
+            )
+            self.dataset[f'velocity_{component}_imag_{mode_idx}_{frequency_idx}'] = xr.DataArray(
+                velocity_data[component].imag,
+                dims=['z_coord', 'r_coord']
+            )
 
     def store_hydrodynamic_coefficients(self, frequencies: np.ndarray,
                                         added_mass_matrix: np.ndarray, damping_matrix: np.ndarray, excitation_force: Optional[np.ndarray] = None, excitation_phase: Optional[np.ndarray] = None):

@@ -63,17 +63,17 @@ ALL_CONFIGS = {
         "R_range": np.linspace(0.0, 2 * 10, num=50),
         "Z_range": np.linspace(0, -100, num=50),
     },
-    # "config3": {
-    #     "h": 1.9,
-    #     "a": np.array([0.3, 0.5, 1, 1.2, 1.6]),
-    #     "d": np.array([0.5, 0.7, 0.8, 0.2, 0.5]),
-    #     "heaving_map": [True, True, True, True, True],
-    #     "body_map": [0, 1, 2, 3, 4],
-    #     "m0": 1.0,
-    #     "NMK": [50] * 6, # 5 radii + exterior
-    #     "R_range": np.linspace(0.0, 2 * 1.6, num=50),
-    #     "Z_range": np.linspace(0, -1.9, num=50),
-    # },
+    "config3": {
+        "h": 1.9,
+        "a": np.array([0.3, 0.5, 1, 1.2, 1.6]),
+        "d": np.array([0.5, 0.7, 0.8, 0.2, 0.5]),
+        "heaving_map": [True, True, True, True, True],
+        "body_map": [0, 1, 2, 3, 4],
+        "m0": 1.0,
+        "NMK": [50] * 6, # 5 radii + exterior
+        "R_range": np.linspace(0.0, 2 * 1.6, num=50),
+        "Z_range": np.linspace(0, -1.9, num=50),
+    },
     "config4": {
         "h": 1.001,
         "a": np.array([0.5, 1]),
@@ -106,11 +106,22 @@ ALL_CONFIGS = {
         "NMK": [100] * 4, # 3 radii + exterior
         "R_range": np.linspace(0.0, 2 * 10, num=50),
         "Z_range": np.linspace(0, -100, num=50),
+    },
+    "config7": {
+        "h": 100.0,
+        "a": np.array([3, 5, 10]),
+        "d": np.array([4, 7, 29]),
+        "heaving_map": [False, True, True],
+        "body_map": [0, 1, 2],
+        "m0": 1.0,
+        "NMK": [100] * 4, # 3 radii + exterior
+        "R_range": np.linspace(0.0, 2 * 10, num=50),
+        "Z_range": np.linspace(0, -100, num=50),
     }
 }
 
 # 4. Define comparison tolerance
-RELATIVE_TOLERANCE = 0.1
+RELATIVE_TOLERANCE = 0.01
 
 # --- End Configuration ---
 
@@ -170,11 +181,38 @@ def run_openflash_sim(config_name, R_range: Optional[np.ndarray] = None, Z_range
     # 4. Create Engine
     engine = MEEMEngine(problem_list=[problem])
     
+    def debug_sign_convention(config_name):
+        # 1. Setup minimal problem
+        p = ALL_CONFIGS[config_name]
+        # Reduce harmonics for readability if needed, or keep same to match "golden"
+        # p['NMK'] = [1, 1, 1] 
+        
+        # 2. Build the OpenFlash Linear System (A, b)
+        # (Assuming you have a helper to get A and b without solving)
+        cache = engine.build_problem_cache(problem)
+        A = engine.assemble_A_multi(problem, p['m0'])
+        b = engine.assemble_b_multi(problem, p['m0'])
+        
+        # 3. Pick a specific equation row to inspect
+        # For Velocity matching (usually the lower half of the block)
+        row_idx = p['NMK'][0] # First velocity row (approx)
+        
+        print(f"--- Debugging Row {row_idx} for {config_name} ---")
+        print(f"b value at row: {b[row_idx]:.4f}")
+        
+        # Check the sign of the diagonal entry (Self-term)
+        diag_val = A[row_idx, row_idx]
+        print(f"Diagonal A[{row_idx},{row_idx}]: {diag_val:.4f}")
+        
+        if np.abs(diag_val) < 1e-10:
+            print("🚨 ALERT: Diagonal is ZERO. Matrix is singular or misaligned.")
+    
     # --- CONTROLLED PRINTING ---
     if verbose:
         diagnose_geometry_depths(geometry)
         # Loop through ALL valid regions instead of hardcoding '3'
         print(f"    [Diagnosing Linear System for {config_name}]")
+        debug_sign_convention(config_name)
     # ---------------------------
     
     solution_vector = engine.solve_linear_system_multi(problem, p["m0"])
@@ -440,6 +478,140 @@ def diagnose_geometry_depths(geometry):
         if abs(domain.h - geometry.h) > 1e-9:
              print(f"      🚨 CRITICAL ERROR: Domain {i} thinks global depth is {domain.h}, but Geometry says {geometry.h}!")
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+def plot_3d_potential(results_dict, config_name, component='real'):
+    """
+    Generates a 3D surface plot of the potential field to verify continuity.
+    """
+    R = results_dict["R"]
+    Z = results_dict["Z"]
+    phi = results_dict["phi"]
+    
+    # Select component to plot
+    data = phi.real if component == 'real' else phi.imag
+    
+    # Mask NaN values (points inside the bodies) for a cleaner surface
+    masked_data = np.ma.masked_invalid(data)
+    
+    fig = plt.figure(figsize=(12, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Plot the surface
+    surf = ax.plot_surface(R, Z, masked_data, cmap='viridis', 
+                           edgecolor='none', alpha=0.9, antialiased=True)
+    
+    # Add a color bar which maps values to colors
+    fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5, label=f'{component.capitalize()}(phi)')
+    
+    ax.set_title(f"3D Potential Field Surface: {config_name}")
+    ax.set_xlabel("Radius (R)")
+    ax.set_ylabel("Depth (Z)")
+    ax.set_zlabel("Potential Value")
+    
+    # Adjust view angle to see transitions across steps clearly
+    ax.view_init(elev=30, azim=-60)
+    
+    output_path = DEBUG_PLOT_PATH / f"{config_name}_3d_{component}.png"
+    plt.savefig(output_path)
+    plt.show()
+    print(f"3D surface plot saved to: {output_path}")
+
+def test_generate_3d_plots():
+    """
+    Generates 3D surface plots and 1D boundary jump diagnostics.
+    Uses superposition to sum potentials of individual heaving bodies.
+    """
+    for cfg_name in ["config3", "config7"]:
+        print(f"\nGenerating diagnostics for {cfg_name}...")
+        p = ALL_CONFIGS[cfg_name]
+        original_map = p["heaving_map"]
+        heaving_indices = [i for i, is_heaving in enumerate(original_map) if is_heaving]
+        
+        phi_total = None
+        phiH_total = None
+        phiP_total = None
+        results_final = None
+
+        # Superposition Loop: Re-run engine.calculate_potentials for each body
+        for idx in heaving_indices:
+            single_map = [False] * len(original_map)
+            single_map[idx] = True
+            
+            # 1. Run simulation to get the solution vector for this heaving body
+            res_meta, _ = run_openflash_sim(cfg_name, verbose=False, heaving_map_override=single_map)
+            
+            # 2. Extract components from the engine (calculate_potentials returns phi, phiH, and phiP)
+            engine = res_meta["_engine"]
+            problem = res_meta["_problem"]
+            sol = res_meta["_solution"]
+            m0 = res_meta["_m0"]
+            
+            pots = engine.calculate_potentials(problem, sol, m0, spatial_res=50, sharp=False)
+            
+            if phi_total is None:
+                phi_total = np.zeros_like(pots["phi"], dtype=complex)
+                phiH_total = np.zeros_like(pots["phiH"], dtype=complex)
+                phiP_total = np.zeros_like(pots["phiP"], dtype=complex)
+                results_final = pots # Capture R and Z grids
+            
+            phi_total += pots["phi"]
+            phiH_total += pots["phiH"]
+            phiP_total += pots["phiP"]
+
+        if results_final:
+            # Inject summed totals back into results for plotting
+            results_final["phi"] = phi_total
+            results_final["phiH"] = phiH_total
+            results_final["phiP"] = phiP_total
+            
+            # Generate the 3D Plot
+            plot_3d_potential(results_final, cfg_name, component='real')
+            
+            # Generate Jump Diagnostics for every radial boundary 'a'
+            num_boundaries = len(p['a'])
+            for bd_idx in range(num_boundaries):
+                plot_boundary_jump_diagnostic(results_final, cfg_name, bd_idx)
+
+def plot_boundary_jump_diagnostic(results_dict, config_name, boundary_idx):
+    """
+    Diagnostic to verify that jumps in phiP and phiH cancel out at a boundary.
+    """
+    R = results_dict["R"]
+    Z = results_dict["Z"]
+    phiH = results_dict["phiH"]
+    phiP = results_dict["phiP"]
+    phiTotal = results_dict["phi"]
+    
+    # Pick a depth in the middle of the fluid column
+    z_target = np.min(Z) / 2.0
+    z_idx = np.argmin(np.abs(Z[0, :] - z_target))
+    
+    r_line = R[:, z_idx]
+    ph_line = phiH[:, z_idx].real
+    pp_line = phiP[:, z_idx].real
+    pt_line = phiTotal[:, z_idx].real
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(r_line, ph_line, 'g--', label=r'Homogeneous ($\phi_H$)', alpha=0.7)
+    plt.plot(r_line, pp_line, 'r--', label=r'Particular ($\phi_P$)', alpha=0.7)
+    plt.plot(r_line, pt_line, 'b-', label=r'Total Potential ($\phi_{Total}$)', linewidth=2)
+    
+    # Highlight the boundary radius
+    radius = ALL_CONFIGS[config_name]['a'][boundary_idx]
+    plt.axvline(x=radius, color='black', linestyle=':', label=f'Boundary R={radius}')
+    
+    plt.title(f"Potential Jump Diagnostic: {config_name} (Boundary {boundary_idx})")
+    plt.xlabel("Radius (R)")
+    plt.ylabel("Potential (Real)")
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.5)
+    
+    output_path = DEBUG_PLOT_PATH / f"{config_name}_jump_diag_bd{boundary_idx}.png"
+    plt.savefig(output_path)
+    plt.close()
+    print(f"  > Jump diagnostic saved to: {output_path}")
 def diagnose_continuity(engine, problem, solution_vector, config_name, m0):
     """
     Checks if Mass Flux is conserved across boundaries.
@@ -450,7 +622,6 @@ def diagnose_continuity(engine, problem, solution_vector, config_name, m0):
     domains = geo.domain_list
     a = geo.body_arrangement.a
     d = geo.body_arrangement.d
-    h = geo.h
     boundary_count = len(domains) - 1
     
     for bd in range(boundary_count):
@@ -460,7 +631,6 @@ def diagnose_continuity(engine, problem, solution_vector, config_name, m0):
         d_right = d[bd+1] if bd < len(d)-1 else d[bd]
         
         max_draft = max(d_left, d_right) 
-        common_depth = h - max_draft
         
         z_common = np.linspace(0, -max_draft, 100)
         eps = 1e-4 
@@ -554,20 +724,12 @@ def test_potential_field_vs_capytaine(config_name):
     phi_total: Optional[np.ndarray] = None
     omega_final: Optional[float] = None
     results_template: Optional[Dict[str, Any]] = None 
-    
-    # KEEP TRACK OF ENGINE FOR DEBUGGING
-    last_engine = None
-    last_problem = None
-    last_solution = None
 
     if not heaving_indices:
         # Case: No heaving bodies (Pass verbose=True)
         res, omega_final = run_openflash_sim(config_name, R_range=p["R_range"], Z_range=p["Z_range"], verbose=True)
         phi_total = res["phi"]
         results_template = res
-        last_engine = res["_engine"]
-        last_problem = res["_problem"]
-        last_solution = res["_solution"]
     else:
         print(f"\n  [SUPERPOSITION START] Combining {len(heaving_indices)} active bodies...")
         for i, idx in enumerate(heaving_indices): # Use enumerate to track index
@@ -615,10 +777,6 @@ def test_potential_field_vs_capytaine(config_name):
                 phi_total = np.zeros_like(res["phi"], dtype=complex)
                 omega_final = omega
                 results_template = res
-                # Just capture the last one for debugging structure
-                last_engine = res["_engine"]
-                last_problem = res["_problem"]
-                last_solution = res["_solution"]
             
             phi_total += res["phi"]
 
@@ -626,8 +784,6 @@ def test_potential_field_vs_capytaine(config_name):
         pytest.fail(f"[{config_name}] Simulation failed to produce results.")
     
     # 2. Get the openflash grid and total potential
-    R_openflash = results_template["R"]
-    Z_openflash = results_template["Z"]
     phi_openflash = phi_total
     omega = omega_final
 
@@ -645,30 +801,8 @@ def test_potential_field_vs_capytaine(config_name):
     d_vals = p['d']
         
     for i, (r_outer, d_val) in enumerate(zip(p['a'], d_vals)):
-        fluid_depth = p['h'] - d_val
             
         # Determine Transition Type from Previous Domain
-        if i == 0:
-            trans_str = "Center Start"
-        else:
-            prev_depth = p['h'] - d_vals[i-1]
-            if fluid_depth > prev_depth:
-                trans_str = "EXPANSION (Step Down / Deeper Fluid)"
-            elif fluid_depth < prev_depth:
-                trans_str = "CONTRACTION (Step Up / Shallower Fluid)"
-            else:
-                trans_str = "FLAT"
-        # Detect "Pocket" (Deeper than left AND right neighbors)
-        is_pocket = False
-        if i > 0 and i < len(d_vals) - 1:
-            prev_depth = p['h'] - d_vals[i-1]
-            next_depth = p['h'] - d_vals[i+1]
-            if fluid_depth > prev_depth and fluid_depth > next_depth:
-                is_pocket = True
-            
-        pocket_alert = " <--- 🚨 POCKET REGION (Likely Failure Point)" if is_pocket else ""
-            
-        print(f"    Domain {i}: R=[{current_r:.2f}, {r_outer:.2f}] | Depth={fluid_depth:.4f} | {trans_str}{pocket_alert}")
         current_r = r_outer
 
     # Exterior Domain Info
@@ -775,12 +909,32 @@ def test_potential_field_vs_capytaine(config_name):
     save_debug_plots(R_cap_grid, Z_cap_grid, phi_openflash_interp_imag, capytaine_imag_converted, nan_mask, config_name, "imag")
     save_1d_cuts(R_cap_grid, Z_cap_grid, phi_openflash_interp_real, capytaine_real_converted, config_name, "real")
     save_1d_cuts(R_cap_grid, Z_cap_grid, phi_openflash_interp_imag, capytaine_imag_converted, config_name, "imag")
+            
+    # --- DEBUG: Spy Plot ---
+    # Retrieve the engine and problem from the results (using results_template to be safe)
+    debug_res = results_template 
+    engine_ref = debug_res['_engine']
+    problem_ref = debug_res['_problem']
+    m0_ref = debug_res['_m0']
+
+    # Re-assemble the A matrix explicitly for visualization
+    # (Note: This reconstructs the matrix for the last solved frequency/body)
+    A_matrix = engine_ref.assemble_A_multi(problem_ref, m0_ref)
+
+    plt.figure(figsize=(10, 10))
+    # Plot absolute value to see non-zero entries
+    plt.imshow(np.abs(A_matrix) > 1e-10, aspect='auto', interpolation='nearest', cmap='gray_r')
+    plt.title(f"Sparsity Pattern: {config_name}")
+    plt.xlabel("Column Index (Unknowns)")
+    plt.ylabel("Row Index (Equations)")
+    plt.savefig(DEBUG_PLOT_PATH / f"spy_{config_name}.png")
+    plt.close()
 
     # 6. Assertions
     try:
         np.testing.assert_allclose(
             openflash_real_valid, capytaine_real_valid,
-            rtol=RELATIVE_TOLERANCE, atol=1e-2,
+            rtol=RELATIVE_TOLERANCE, atol=1e-1,
             err_msg=f"[{config_name}] Real part mismatch"
         )
     except AssertionError as e:
@@ -789,7 +943,7 @@ def test_potential_field_vs_capytaine(config_name):
     try:
         np.testing.assert_allclose(
             openflash_imag_valid, capytaine_imag_valid,
-            rtol=RELATIVE_TOLERANCE, atol=1e-2,
+            rtol=RELATIVE_TOLERANCE, atol=1e-1,
             err_msg=f"[{config_name}] Imaginary part mismatch"
         )
     except AssertionError as e:
