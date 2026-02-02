@@ -47,11 +47,7 @@ class MEEMEngine:
         A = cache._get_A_template()
         I_mk_vals = cache._get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
         
-        # In the "Correct Code", blocks are concatenated into rows.
-        # Here, we insert the pre-calculated blocks (m0-dependent ones) into the pre-allocated A.
-        
         for row_start, col_start, calc_func in cache.m0_dependent_blocks:
-            # calc_func is a wrapper that calls the "Correct Code" block functions (e.g. p_dense_block_e)
             block = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
             h_block, w_block = block.shape
             A[row_start : row_start + h_block, col_start : col_start + w_block] = block
@@ -70,7 +66,7 @@ class MEEMEngine:
     def build_problem_cache(self, problem: 'MEEMProblem') -> ProblemCache:
         """
         Analyzes the problem and pre-computes m0-independent parts of A and b.
-        Uses the exact logic flow from the 'Correct Code' to determine block placement.
+        Includes detailed logging for row and column offsets to debug assembly logic.
         """
         cache = ProblemCache(problem)
         domain_list = problem.domain_list
@@ -85,25 +81,28 @@ class MEEMEngine:
         boundary_count = len(NMK) - 1
         size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
 
+        print(f"\n--- DEBUG: Cache Build Init ---")
+        print(f"Total matrix size: {size}x{size}")
+        print(f"NMK: {NMK}, Boundary Count: {boundary_count}")
+
         A_template = np.zeros((size, size), dtype=complex)
         b_template = np.zeros(size, dtype=complex)
 
-        # 1. Pre-compute I_nm (m0-independent)
-        # Result is a list of 2D arrays, one for each boundary bd
-        I_nm_vals_precomputed = [np.zeros((NMK[bd], NMK[bd+1]), dtype = complex) for bd in range(boundary_count - 1)]
+        # 1. Pre-compute I_nm
+        I_nm_vals_precomputed = [np.zeros((NMK[bd], NMK[bd+1]), dtype=complex) for bd in range(boundary_count - 1)]
         for bd in range(boundary_count - 1):
             for n in range(NMK[bd]):
                 for m in range(NMK[bd + 1]):
                     I_nm_vals_precomputed[bd][n, m] = I_nm(n, m, bd, d, h)
         cache._set_I_nm_vals(I_nm_vals_precomputed)
 
-        # 2. Pre-defined Partials for vectorized functions (to clean up calls below)
+        # 2. Pre-defined Partials
         R_1n_func = partial(R_1n_vectorized, h=h, d=d, a=a)
         R_2n_func = partial(R_2n_vectorized, a=a, h=h, d=d)
         diff_R_1n_func = partial(diff_R_1n_vectorized, h=h, d=d, a=a)
         diff_R_2n_func = partial(diff_R_2n_vectorized, h=h, d=d, a=a)
 
-        # 3. I_mk closure (Calculated at runtime)
+        # 3. Dynamic I_mk closure
         def _calculate_I_mk_vals(m0, m_k_arr, N_k_arr):
             vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
             for m in range(NMK[boundary_count - 1]):
@@ -111,9 +110,8 @@ class MEEMEngine:
                     vals[m, k] = I_mk(m, k, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
             return vals
 
-        # 4. Integration constants (for hydro coefficients)
-        int_R1_store = {}
-        int_R2_store = {}
+        # 4. Integration constants
+        int_R1_store, int_R2_store = {}, {}
         int_phi_store = np.zeros(boundary_count, dtype=complex)
         for i in range(boundary_count):
             for n in range(NMK[i]):
@@ -133,217 +131,128 @@ class MEEMEngine:
         # =========================================================================
         
         # --- Potential Matching Blocks ---
+        print("\n--- Potential Matching Block Assembly ---")
         row_offset = 0
         col_offset = 0 
         
         for bd in range(boundary_count):
-            N = NMK[bd]
-            M = NMK[bd + 1]
+            N, M = NMK[bd], NMK[bd + 1]
+            print(f"BD {bd}: row_offset={row_offset}, col_offset={col_offset}")
 
-            if bd == (boundary_count - 1): # i-e boundary, inherently left diagonal
-                row_height = N # project on left
-                
-                # Block 1: Left Diagonal (Static)
+            if bd == (boundary_count - 1): # i-e boundary
+                row_height = N
                 left_block1 = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
-                
-                # PLACEMENT:
-                # Left Block 1 starts at col_offset
                 A_template[row_offset : row_offset + N, col_offset : col_offset + N] = left_block1
+                print(f"  Placed p_diagonal_block (left1) at [{row_offset}:{row_offset+N}, {col_offset}:{col_offset+N}]")
                 
-                # Block 2: Right Dense (Dynamic - External)
-                # We define a generator matching 'p_dense_block_e'
                 right_block_col = col_offset + N
-                
-                if bd == 0: # one cylinder
-                    # Logic: [Left1 | Right]
-                    # Right starts after Left1
-                    def right_block_gen(p, m0, mk, Nk, Imk):
-                        return p_dense_block_e(bd, Imk, NMK, a, m0, mk)
-                    cache._add_m0_dependent_block(row_offset, right_block_col, right_block_gen)
-                    
-                    col_offset += (N + M) # Advance col
-
+                if bd == 0: 
+                    def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return p_dense_block_e(b_idx, Imk, NMK, a, m0, mk)
+                    cache._add_m0_dependent_block(row_offset, right_block_col, rb_gen)
+                    print(f"  Added dynamic p_dense_block_e at [{row_offset}, {right_block_col}]")
+                    col_offset += (N + M)
                 else:
-                    # Logic: [0 | Left1 | Left2 | Right]
-                    # We need Left2 (Static)
                     left_block2 = p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK)
-                    
-                    # Place Left2 after Left1
                     A_template[row_offset : row_offset + N, col_offset + N : col_offset + 2*N] = left_block2
+                    print(f"  Placed p_diagonal_block (left2) at [{row_offset}:{row_offset+N}, {col_offset+N}:{col_offset+2*N}]")
                     
-                    # Place Right after Left2
                     right_block_col = col_offset + 2*N
-                    def right_block_gen(p, m0, mk, Nk, Imk):
-                        return p_dense_block_e(bd, Imk, NMK, a, m0, mk)
-                    cache._add_m0_dependent_block(row_offset, right_block_col, right_block_gen)
-                    
+                    def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return p_dense_block_e(b_idx, Imk, NMK, a, m0, mk)
+                    cache._add_m0_dependent_block(row_offset, right_block_col, rb_gen)
+                    print(f"  Added dynamic p_dense_block_e at [{row_offset}, {right_block_col}]")
                     col_offset += (2*N + M)
 
             elif bd == 0:
                 left_diag = d[bd] > d[bd + 1]
-                
+                row_height = N if left_diag else M
                 if left_diag:
-                    row_height = N
-                    # Blocks: [L_Diag | R_Dense1 | R_Dense2 | 0...]
-                    left_block = p_diagonal_block(True, R_1n_func, 0, h, d, a, NMK)
-                    right_block1 = p_dense_block(False, R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
-                    right_block2 = p_dense_block(False, R_2n_func, 0, NMK, a, I_nm_vals_precomputed[0])
-                    
-                    # All static, place in template
-                    # Left (N x N)
-                    A_template[row_offset : row_offset + N, col_offset : col_offset + N] = left_block
-                    # Right1 (N x M)
-                    A_template[row_offset : row_offset + N, col_offset + N : col_offset + N + M] = right_block1
-                    # Right2 (N x M)
-                    A_template[row_offset : row_offset + N, col_offset + N + M : col_offset + N + 2*M] = right_block2
-                    
+                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = p_diagonal_block(True, R_1n_func, 0, h, d, a, NMK)
+                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+N+M] = p_dense_block(False, R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                    A_template[row_offset:row_offset+N, col_offset+N+M:col_offset+N+2*M] = p_dense_block(False, R_2n_func, 0, NMK, a, I_nm_vals_precomputed[0])
                 else:
-                    row_height = M
-                    # Blocks: [L_Dense | R_Diag1 | R_Diag2 | 0...]
-                    left_block = p_dense_block(True, R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
-                    right_block1 = p_diagonal_block(False, R_1n_func, 0, h, d, a, NMK)
-                    right_block2 = p_diagonal_block(False, R_2n_func, 0, h, d, a, NMK)
-                    
-                    # All static
-                    A_template[row_offset : row_offset + M, col_offset : col_offset + N] = left_block
-                    A_template[row_offset : row_offset + M, col_offset + N : col_offset + N + M] = right_block1
-                    A_template[row_offset : row_offset + M, col_offset + N + M : col_offset + N + 2*M] = right_block2
-                
+                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = p_dense_block(True, R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+N+M] = p_diagonal_block(False, R_1n_func, 0, h, d, a, NMK)
+                    A_template[row_offset:row_offset+M, col_offset+N+M:col_offset+N+2*M] = p_diagonal_block(False, R_2n_func, 0, h, d, a, NMK)
                 col_offset += N
 
             else: # i-i boundary
                 left_diag = d[bd] > d[bd + 1]
-                
+                row_height = N if left_diag else M
                 if left_diag:
-                    row_height = N
-                    # Blocks: [0... | L_Diag1 | L_Diag2 | R_Dense1 | R_Dense2 | 0...]
-                    # Left Blocks (N x N)
-                    lb1 = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
-                    lb2 = p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK)
-                    # Right Blocks (N x M)
-                    rb1 = p_dense_block(False, R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
-                    rb2 = p_dense_block(False, R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
-                    
-                    # Place LB1, LB2
-                    A_template[row_offset : row_offset+N, col_offset : col_offset+N] = lb1
-                    A_template[row_offset : row_offset+N, col_offset+N : col_offset+2*N] = lb2
-                    # Place RB1, RB2
-                    A_template[row_offset : row_offset+N, col_offset+2*N : col_offset+2*N+M] = rb1
-                    A_template[row_offset : row_offset+N, col_offset+2*N+M : col_offset+2*N+2*M] = rb2
-                    
+                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
+                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+2*N] = p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK)
+                    A_template[row_offset:row_offset+N, col_offset+2*N:col_offset+2*N+M] = p_dense_block(False, R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+N, col_offset+2*N+M:col_offset+2*N+2*M] = p_dense_block(False, R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
                 else:
-                    row_height = M
-                    # Blocks: [0... | L_Dense1 | L_Dense2 | R_Diag1 | R_Diag2 | 0...]
-                    lb1 = p_dense_block(True, R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
-                    lb2 = p_dense_block(True, R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
-                    rb1 = p_diagonal_block(False, R_1n_func, bd, h, d, a, NMK)
-                    rb2 = p_diagonal_block(False, R_2n_func, bd, h, d, a, NMK)
-                    
-                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = lb1
-                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+2*N] = lb2
-                    A_template[row_offset:row_offset+M, col_offset+2*N:col_offset+2*N+M] = rb1
-                    A_template[row_offset:row_offset+M, col_offset+2*N+M:col_offset+2*N+2*M] = rb2
-                    
+                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = p_dense_block(True, R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+2*N] = p_dense_block(True, R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+M, col_offset+2*N:col_offset+2*N+M] = p_diagonal_block(False, R_1n_func, bd, h, d, a, NMK)
+                    A_template[row_offset:row_offset+M, col_offset+2*N+M:col_offset+2*N+2*M] = p_diagonal_block(False, R_2n_func, bd, h, d, a, NMK)
                 col_offset += 2*N
             
             row_offset += row_height
 
         # --- Velocity Matching Blocks ---
+        print("\n--- Velocity Matching Block Assembly ---")
         col_offset = 0
+        # Current row_offset is correctly at the start of Velocity Matching rows
         for bd in range(boundary_count):
-            N = NMK[bd]
-            M = NMK[bd + 1]
+            N, M = NMK[bd], NMK[bd + 1]
+            print(f"BD {bd}: row_offset={row_offset}, col_offset={col_offset}")
 
             if bd == (boundary_count - 1): # i-e boundary
                 row_height = M
-                
-                # Block 1: Left Dense (Dynamic - requires R1 diff)
-                # Matches: left_block1 = v_dense_block_e(diff_R_1n, bd)
-                def left_block1_gen(p, m0, mk, Nk, Imk):
-                    return v_dense_block_e(diff_R_1n_func, bd, Imk, NMK, a)
-                cache._add_m0_dependent_block(row_offset, col_offset, left_block1_gen)
-                
-                # Block 2: Right Diagonal (Dynamic - requires diff_Lambda_k)
-                # Matches: right_block = v_diagonal_block_e(bd)
+                def lb1_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                    return v_dense_block_e(diff_R_1n_func, b_idx, Imk, NMK, a)
+                cache._add_m0_dependent_block(row_offset, col_offset, lb1_gen)
+                print(f"  Added dynamic v_dense_block_e (left1) at [{row_offset}, {col_offset}]")
                 
                 if bd == 0:
-                    # [L_Dense1 | R_Diag]
-                    def right_block_gen(p, m0, mk, Nk, Imk):
-                        return v_diagonal_block_e(bd, h, a, m0, mk, NMK)
-                    cache._add_m0_dependent_block(row_offset, col_offset + N, right_block_gen)
+                    def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return v_diagonal_block_e(b_idx, h, a, m0, mk, NMK)
+                    cache._add_m0_dependent_block(row_offset, col_offset + N, rb_gen)
+                    print(f"  Added dynamic v_diagonal_block_e at [{row_offset}, {col_offset+N}]")
                     col_offset += (N + M)
                 else:
-                    # [0 | L_Dense1 | L_Dense2 | R_Diag]
-                    # Left Dense 2 (Dynamic - requires R2 diff)
-                    left_block2_col = col_offset + N
-                    def left_block2_gen(p, m0, mk, Nk, Imk):
-                        return v_dense_block_e(diff_R_2n_func, bd, Imk, NMK, a)
-                    cache._add_m0_dependent_block(row_offset, left_block2_col, left_block2_gen)
+                    def lb2_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return v_dense_block_e(diff_R_2n_func, b_idx, Imk, NMK, a)
+                    cache._add_m0_dependent_block(row_offset, col_offset + N, lb2_gen)
+                    print(f"  Added dynamic v_dense_block_e (left2) at [{row_offset}, {col_offset+N}]")
                     
-                    # Right Diag
-                    right_block_col = col_offset + 2*N
-                    def right_block_gen(p, m0, mk, Nk, Imk):
-                        return v_diagonal_block_e(bd, h, a, m0, mk, NMK)
-                    cache._add_m0_dependent_block(row_offset, right_block_col, right_block_gen)
-                    
+                    def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return v_diagonal_block_e(b_idx, h, a, m0, mk, NMK)
+                    cache._add_m0_dependent_block(row_offset, col_offset + 2*N, rb_gen)
+                    print(f"  Added dynamic v_diagonal_block_e at [{row_offset}, {col_offset+2*N}]")
                     col_offset += (2*N + M)
 
             elif bd == 0:
-                left_diag = d[bd] <= d[bd + 1] # Taller fluid gets diagonal
-                
+                left_diag = d[bd] <= d[bd + 1] 
+                row_height = N if left_diag else M
                 if left_diag:
-                    row_height = N
-                    # [L_Diag | R_Dense1 | R_Dense2]
-                    lb = v_diagonal_block(True, diff_R_1n_func, 0, h, d, NMK, a)
-                    rb1 = v_dense_block(False, diff_R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
-                    rb2 = v_dense_block(False, diff_R_2n_func, 0, NMK, a, I_nm_vals_precomputed[0])
-                    
-                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = lb
-                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+N+M] = rb1
-                    A_template[row_offset:row_offset+N, col_offset+N+M:col_offset+N+2*M] = rb2
-                    
+                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = v_diagonal_block(True, diff_R_1n_func, 0, h, d, NMK, a)
+                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+N+M] = v_dense_block(False, diff_R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                    A_template[row_offset:row_offset+N, col_offset+N+M:col_offset+N+2*M] = v_dense_block(False, diff_R_2n_func, 0, NMK, a, I_nm_vals_precomputed[0])
                 else:
-                    row_height = M
-                    # [L_Dense | R_Diag1 | R_Diag2]
-                    lb = v_dense_block(True, diff_R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
-                    rb1 = v_diagonal_block(False, diff_R_1n_func, 0, h, d, NMK, a)
-                    rb2 = v_diagonal_block(False, diff_R_2n_func, 0, h, d, NMK, a)
-                    
-                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = lb
-                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+N+M] = rb1
-                    A_template[row_offset:row_offset+M, col_offset+N+M:col_offset+N+2*M] = rb2
-                
+                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = v_dense_block(True, diff_R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+N+M] = v_diagonal_block(False, diff_R_1n_func, 0, h, d, NMK, a)
+                    A_template[row_offset:row_offset+M, col_offset+N+M:col_offset+N+2*M] = v_diagonal_block(False, diff_R_2n_func, 0, h, d, NMK, a)
                 col_offset += N
             
             else: # i-i boundary
                 left_diag = d[bd] <= d[bd + 1]
-                
+                row_height = N if left_diag else M
                 if left_diag:
-                    row_height = N
-                    # [L_Diag1 | L_Diag2 | R_Dense1 | R_Dense2]
-                    lb1 = v_diagonal_block(True, diff_R_1n_func, bd, h, d, NMK, a)
-                    lb2 = v_diagonal_block(True, diff_R_2n_func, bd, h, d, NMK, a)
-                    rb1 = v_dense_block(False, diff_R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
-                    rb2 = v_dense_block(False, diff_R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
-                    
-                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = lb1
-                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+2*N] = lb2
-                    A_template[row_offset:row_offset+N, col_offset+2*N:col_offset+2*N+M] = rb1
-                    A_template[row_offset:row_offset+N, col_offset+2*N+M:col_offset+2*N+2*M] = rb2
-                    
+                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = v_diagonal_block(True, diff_R_1n_func, bd, h, d, NMK, a)
+                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+2*N] = v_diagonal_block(True, diff_R_2n_func, bd, h, d, NMK, a)
+                    A_template[row_offset:row_offset+N, col_offset+2*N:col_offset+2*N+M] = v_dense_block(False, diff_R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+N, col_offset+2*N+M:col_offset+2*N+2*M] = v_dense_block(False, diff_R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
                 else:
-                    row_height = M
-                    # [L_Dense1 | L_Dense2 | R_Diag1 | R_Diag2]
-                    lb1 = v_dense_block(True, diff_R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
-                    lb2 = v_dense_block(True, diff_R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
-                    rb1 = v_diagonal_block(False, diff_R_1n_func, bd, h, d, NMK, a)
-                    rb2 = v_diagonal_block(False, diff_R_2n_func, bd, h, d, NMK, a)
-                    
-                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = lb1
-                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+2*N] = lb2
-                    A_template[row_offset:row_offset+M, col_offset+2*N:col_offset+2*N+M] = rb1
-                    A_template[row_offset:row_offset+M, col_offset+2*N+M:col_offset+2*N+2*M] = rb2
-                    
+                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = v_dense_block(True, diff_R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+2*N] = v_dense_block(True, diff_R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+M, col_offset+2*N:col_offset+2*N+M] = v_diagonal_block(False, diff_R_1n_func, bd, h, d, NMK, a)
+                    A_template[row_offset:row_offset+M, col_offset+2*N+M:col_offset+2*N+2*M] = v_diagonal_block(False, diff_R_2n_func, bd, h, d, NMK, a)
                 col_offset += 2*N
             
             row_offset += row_height
@@ -375,6 +284,7 @@ class MEEMEngine:
                     
         cache._set_A_template(A_template)
         cache._set_b_template(b_template)
+        print("--- DEBUG: Cache Build Complete ---\n")
         return cache
     
     def solve_linear_system_multi(self, problem: MEEMProblem, m0) -> np.ndarray:

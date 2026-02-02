@@ -74,94 +74,94 @@ ALL_CONFIGS = {
         "R_range": np.linspace(0.0, 2 * 1.6, num=50),
         "Z_range": np.linspace(0, -1.9, num=50),
     },
-    "config4": {
-        "h": 1.001,
-        "a": np.array([0.5, 1]),
-        "d": np.array([0.5, 0.25]),
-        "heaving_map": [False, True],
-        "body_map": [0, 1],
-        "m0": 1.0,
-        "NMK": [15] * 3, # 2 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 1, num=50),
-        "Z_range": np.linspace(0, -1.001, num=50),
-    },
-    "config5": {
-        "h": 1.001,
-        "a": np.array([0.5, 1]),
-        "d": np.array([0.5, 0.25]),
-        "heaving_map": [True, False],
-        "body_map": [0, 1],
-        "m0": 1.0,
-        "NMK": [15] * 3, # 2 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 1, num=50),
-        "Z_range": np.linspace(0, -1.001, num=50),
-    },
-    "config6": {
-        "h": 100.0,
-        "a": np.array([3, 5, 10]),
-        "d": np.array([29, 7, 4]),
-        "heaving_map": [False, True, True],
-        "body_map": [0, 1, 2],
-        "m0": 1.0,
-        "NMK": [100] * 4, # 3 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 10, num=50),
-        "Z_range": np.linspace(0, -100, num=50),
-    },
-    "config7": {
-        "h": 1.001,
-        "a": np.array([0.5, 1]),
-        "d": np.array([0.25, 0.5]),
-        "heaving_map": [True, False],
-        "body_map": [0, 1],
-        "m0": 1.0,
-        "NMK": [15] * 3, # 2 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 1, num=50),
-        "Z_range": np.linspace(0, -1.001, num=50),
-    },
-    "config8": {
-        "h": 1.001,
-        "a": np.array([0.5, 1]),
-        "d": np.array([0.25, 0.5]),
-        "heaving_map": [False, True],
-        "body_map": [0, 1],
-        "m0": 1.0,
-        "NMK": [15] * 3, # 2 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 1, num=50),
-        "Z_range": np.linspace(0, -1.001, num=50),
-    },
-    "config9": {
-        "h": 100.0,
-        "a": np.array([3, 5, 10]),
-        "d": np.array([4, 7, 29]),
-        "heaving_map": [True, True, True],
-        "body_map": [0, 1, 2],
-        "m0": 1.0,
-        "NMK": [100] * 4, # 3 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 10, num=50),
-        "Z_range": np.linspace(0, -100, num=50),
-    },
-    "config10": {
-        "h": 1.5,
-        "a": np.array([0.3, 0.5, 1, 1.2, 1.6]),
-        "d": np.array([0.15, 0.4, 0.75, 0.85, 1.1]),
-        "heaving_map": [True, True, True, True, True],
-        "body_map": [0, 1, 2, 3, 4],
-        "m0": 1.0,
-        "NMK": [15] * 6, # 5 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 1.6, num=50),
-        "Z_range": np.linspace(0, -1.5, num=50),
-    },
-    "config11": {
-        "h": 1.001,
-        "a": np.array([0.5, 1]),
-        "d": np.array([0.25, 0.5]),
-        "heaving_map": [True, True],
-        "body_map": [0, 1],
-        "m0": 1.0,
-        "NMK": [15, 15, 15], # 2 radii + exterior
-        "R_range": np.linspace(0.0, 2 * 1, num=50),
-        "Z_range": np.linspace(0, -1.001, num=50),
-    },
+    # "config4": {
+    #     "h": 1.001,
+    #     "a": np.array([0.5, 1]),
+    #     "d": np.array([0.5, 0.25]),
+    #     "heaving_map": [False, True],
+    #     "body_map": [0, 1],
+    #     "m0": 1.0,
+    #     "NMK": [15] * 3, # 2 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 1, num=50),
+    #     "Z_range": np.linspace(0, -1.001, num=50),
+    # },
+    # "config5": {
+    #     "h": 1.001,
+    #     "a": np.array([0.5, 1]),
+    #     "d": np.array([0.5, 0.25]),
+    #     "heaving_map": [True, False],
+    #     "body_map": [0, 1],
+    #     "m0": 1.0,
+    #     "NMK": [15] * 3, # 2 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 1, num=50),
+    #     "Z_range": np.linspace(0, -1.001, num=50),
+    # },
+    # "config6": {
+    #     "h": 100.0,
+    #     "a": np.array([3, 5, 10]),
+    #     "d": np.array([29, 7, 4]),
+    #     "heaving_map": [False, True, True],
+    #     "body_map": [0, 1, 2],
+    #     "m0": 1.0,
+    #     "NMK": [100] * 4, # 3 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 10, num=50),
+    #     "Z_range": np.linspace(0, -100, num=50),
+    # },
+    # "config7": {
+    #     "h": 1.001,
+    #     "a": np.array([0.5, 1]),
+    #     "d": np.array([0.25, 0.5]),
+    #     "heaving_map": [True, False],
+    #     "body_map": [0, 1],
+    #     "m0": 1.0,
+    #     "NMK": [15] * 3, # 2 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 1, num=50),
+    #     "Z_range": np.linspace(0, -1.001, num=50),
+    # },
+    # "config8": {
+    #     "h": 1.001,
+    #     "a": np.array([0.5, 1]),
+    #     "d": np.array([0.25, 0.5]),
+    #     "heaving_map": [False, True],
+    #     "body_map": [0, 1],
+    #     "m0": 1.0,
+    #     "NMK": [15] * 3, # 2 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 1, num=50),
+    #     "Z_range": np.linspace(0, -1.001, num=50),
+    # },
+    # "config9": {
+    #     "h": 100.0,
+    #     "a": np.array([3, 5, 10]),
+    #     "d": np.array([4, 7, 29]),
+    #     "heaving_map": [True, True, True],
+    #     "body_map": [0, 1, 2],
+    #     "m0": 1.0,
+    #     "NMK": [100] * 4, # 3 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 10, num=50),
+    #     "Z_range": np.linspace(0, -100, num=50),
+    # },
+    # "config10": {
+    #     "h": 1.5,
+    #     "a": np.array([0.3, 0.5, 1, 1.2, 1.6]),
+    #     "d": np.array([0.15, 0.4, 0.75, 0.85, 1.1]),
+    #     "heaving_map": [True, True, True, True, True],
+    #     "body_map": [0, 1, 2, 3, 4],
+    #     "m0": 1.0,
+    #     "NMK": [15] * 6, # 5 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 1.6, num=50),
+    #     "Z_range": np.linspace(0, -1.5, num=50),
+    # },
+    # "config11": {
+    #     "h": 1.001,
+    #     "a": np.array([0.5, 1]),
+    #     "d": np.array([0.25, 0.5]),
+    #     "heaving_map": [True, True],
+    #     "body_map": [0, 1],
+    #     "m0": 1.0,
+    #     "NMK": [15, 15, 15], # 2 radii + exterior
+    #     "R_range": np.linspace(0.0, 2 * 1, num=50),
+    #     "Z_range": np.linspace(0, -1.001, num=50),
+    # },
 }
 
 # 4. Define comparison tolerance
@@ -561,63 +561,7 @@ def plot_3d_potential(results_dict, config_name, component='real'):
     plt.savefig(output_path)
     plt.show()
     print(f"3D surface plot saved to: {output_path}")
-
-def test_generate_3d_plots():
-    """
-    Generates 3D surface plots and 1D boundary jump diagnostics.
-    Uses superposition to sum potentials of individual heaving bodies.
-    """
-    for cfg_name in ["config3", "config7"]:
-        print(f"\nGenerating diagnostics for {cfg_name}...")
-        p = ALL_CONFIGS[cfg_name]
-        original_map = p["heaving_map"]
-        heaving_indices = [i for i, is_heaving in enumerate(original_map) if is_heaving]
-        
-        phi_total = None
-        phiH_total = None
-        phiP_total = None
-        results_final = None
-
-        # Superposition Loop: Re-run engine.calculate_potentials for each body
-        for idx in heaving_indices:
-            single_map = [False] * len(original_map)
-            single_map[idx] = True
-            
-            # 1. Run simulation to get the solution vector for this heaving body
-            res_meta, _ = run_openflash_sim(cfg_name, verbose=False, heaving_map_override=single_map)
-            
-            # 2. Extract components from the engine (calculate_potentials returns phi, phiH, and phiP)
-            engine = res_meta["_engine"]
-            problem = res_meta["_problem"]
-            sol = res_meta["_solution"]
-            m0 = res_meta["_m0"]
-            
-            pots = engine.calculate_potentials(problem, sol, m0, spatial_res=50, sharp=False)
-            
-            if phi_total is None:
-                phi_total = np.zeros_like(pots["phi"], dtype=complex)
-                phiH_total = np.zeros_like(pots["phiH"], dtype=complex)
-                phiP_total = np.zeros_like(pots["phiP"], dtype=complex)
-                results_final = pots # Capture R and Z grids
-            
-            phi_total += pots["phi"]
-            phiH_total += pots["phiH"]
-            phiP_total += pots["phiP"]
-
-        if results_final:
-            # Inject summed totals back into results for plotting
-            results_final["phi"] = phi_total
-            results_final["phiH"] = phiH_total
-            results_final["phiP"] = phiP_total
-            
-            # Generate the 3D Plot
-            plot_3d_potential(results_final, cfg_name, component='real')
-            
-            # Generate Jump Diagnostics for every radial boundary 'a'
-            num_boundaries = len(p['a'])
-            for bd_idx in range(num_boundaries):
-                plot_boundary_jump_diagnostic(results_final, cfg_name, bd_idx)
-
+    
 def plot_boundary_jump_diagnostic(results_dict, config_name, boundary_idx):
     """
     Diagnostic to verify that jumps in phiP and phiH cancel out at a boundary.

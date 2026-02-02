@@ -114,6 +114,13 @@ def validate_closures(problem, engine, m0, tol=1e-12):
 
 def compare_matrices_and_vectors(A_old, b_old, A_new, b_new, tol=1e-10):
     print("=== Shape Check ===")
+    print(f"Non-zeros Old: {np.count_nonzero(A_old)}")
+    print(f"Non-zeros New: {np.count_nonzero(A_new)}")
+    # Compare the Boundary 1 Potential block
+    compare_blocks(A_old, A_new, [(20, 40, 20, 40)]) 
+
+    # Compare the Boundary 1 Velocity block 
+    compare_blocks(A_old, A_new, [(80, 100, 20, 40)])
     print(f"A_old shape: {A_old.shape}")
     print(f"A_new shape: {A_new.shape}")
     print(f"b_old shape: {b_old.shape}")

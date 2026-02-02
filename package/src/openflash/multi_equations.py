@@ -185,60 +185,47 @@ def diff_z_phi_p_i(d, z, h):
 
 def R_1n_vectorized(n, r, i, h, d, a):
     """
-    Vectorized version of the R_1n radial eigenfunction.
+    Vectorized R_1n. n=0 MUST be constant 0.5 for all regions to match 
+    the matched eigenfunction derivation.
     """
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
 
     cond_n_is_zero = (n == 0)
-    cond_r_at_boundary = (r == scale(a)[i])
-
-    # --- Define the outcomes for each condition ---
-    if i == 0:
-        outcome_for_n_zero = np.full_like(r, 0.5)
-    else:
-        # Annulus: 1.0 + 0.5 * log(r / outer)
-        # Use np.divide to handle r=0 gracefully just in case
-        with np.errstate(divide='ignore', invalid='ignore'):
-            val = 1.0 + 0.5 * np.log(np.divide(r, scale(a)[i]))
-        outcome_for_n_zero = val
     
-    # Outcome 2: If n>=1 and r is at the boundary, the value is 1.0.
-    outcome_for_r_boundary = 1.0
+    # n=0 case: Must be exactly 0.5 for both inner and annular regions
+    outcome_for_n_zero = np.full_like(r, 0.5)
     
-    # Outcome 3: The general case for n>=1 inside the boundary.
+    # n>=1 cases
     lambda_val = lambda_ni(n, i, h, d)
+    cond_r_at_boundary = (r == scale(a)[i])
     
-    # Safety against divide by zero if n=0 (masked anyway)
+    # Safety against n=0 in the general formula
     safe_lambda = np.where(cond_n_is_zero, 1.0, lambda_val)
     
     bessel_term = (besselie(0, safe_lambda * r) / besselie(0, safe_lambda * scale(a)[i])) * \
                   exp(safe_lambda * (r - scale(a)[i]))
 
-    # --- Apply the logic using nested np.where ---
-    result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
+    # If r is at the boundary scale, value is 1.0 (normalization)
+    result_if_n_not_zero = np.where(cond_r_at_boundary, 1.0, bessel_term)
     
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
-# Differentiate wrt r
 def diff_R_1n_vectorized(n, r, i, h, d, a):
     """
-    Vectorized derivative of the diff_R_1n radial function.
+    Vectorized derivative. n=0 derivative is 0 for all regions.
     """
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
     
-    condition = (n == 0)
+    condition_n_is_zero = (n == 0)
     
-    if i == 0:
-        value_if_true = np.zeros_like(r)
-    else:
-        # Derivative is 1/(2r)
-        value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r!=0))
+    # n=0 derivative is 0 because R_1n(0) is a constant (0.5)
+    value_if_true = np.zeros_like(r)
     
-    # --- Calculation for when n > 0 ---
+    # n > 0 calculation
     lambda_val = lambda_ni(n, i, h, d)
-    safe_lambda = np.where(condition, 1.0, lambda_val)
+    safe_lambda = np.where(condition_n_is_zero, 1.0, lambda_val)
     
     numerator = safe_lambda * besselie(1, safe_lambda * r) 
     denominator = besselie(0, safe_lambda * scale(a)[i])
@@ -249,7 +236,7 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
                              
     value_if_false = bessel_ratio * exp(safe_lambda * (r - scale(a)[i]))
     
-    return np.where(condition, value_if_true, value_if_false)
+    return np.where(condition_n_is_zero, value_if_true, value_if_false)
 
 #############################################
 # The "Bessel K" radial eigenfunction (Annular Regions)
@@ -732,10 +719,9 @@ def v_dense_block_e_entry_R2(m, k, bd, I_mk_vals, a, h, d):
 def p_diagonal_block(left, radfunction, bd, h, d, a, NMK):
     region = bd if left else (bd + 1)
     sign = 1 if left else (-1)
-    # Note: radfunction here is expected to be the vectorized version (e.g., R_1n_vectorized)
-    # We pass the list of indices range(NMK[region])
-    indices = np.arange(NMK[region])
-    radial_vals = radfunction(indices, a[bd], region)
+    # radfunction for n=0 returns 0.5. Old code uses sign * (h-d) * diag(0.5, ...)
+    # New vectorized functions might return 1.0. Check this alignment.
+    radial_vals = radfunction(list(range(NMK[region])), a[bd], region)
     return sign * (h - d[region]) * np.diag(radial_vals)
 
 def p_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
