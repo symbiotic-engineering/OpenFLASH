@@ -5,7 +5,7 @@ stages:
     outs:
     - path: .calkit/env-locks/tex.json
       hash: md5
-      md5: cc3231187649b203a8f6c17aad4e5f6e
+      md5: 7d20d92e324dcba892eb9ce1db612b65
       size: 1171
   _check-env-jfm:
     cmd: calkit check environment --name jfm

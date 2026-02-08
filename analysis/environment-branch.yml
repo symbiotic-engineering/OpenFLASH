@@ -6,7 +6,6 @@ dependencies:
   - pip
   - setuptools
   - wheel
-  - python
   - numpy
   - scipy
   - matplotlib
