@@ -41,41 +41,19 @@ def m_k_entry(k):
     elif m0 == inf:
         return ((k - 1/2) * pi)/h
 
-    m_k_h_err = (
-        lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
-    )
+    m_k_h_err = (lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h)))
     k_idx = k
 
-    # # original version of bounds in python
-    m_k_h_lower = pi * (k_idx - 1/2) + np.finfo(float).eps
-    m_k_h_upper = pi * k_idx - np.finfo(float).eps
-    # x_0 =  (m_k_upper - m_k_lower) / 2
-    
-    # becca's version of bounds from MDOcean Matlab code
-    m_k_h_lower = pi * (k_idx - 1/2) + (pi/180)* np.finfo(float).eps * (2**(np.floor(np.log(180*(k_idx- 1/2)) / np.log(2))) + 1)
-    m_k_h_upper = pi * k_idx
+    m_k_h_lower = np.nextafter(pi * (k_idx - 1/2), np.inf)
+    m_k_h_upper = np.nextafter(pi * k_idx, np.inf)
+    m_k_initial_guess =  (m_k_h_upper + m_k_h_lower) / 2
 
-    m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
-    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
-    # result = minimize_scalar(
-        # m_k_h_err, bounds=(m_k_h_lower, m_k_h_upper), method="bounded"
-    # )
-
+    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="brentq", bracket=[m_k_h_lower, m_k_h_upper])
     m_k_val = result.root / h
-
-    shouldnt_be_int = np.round(m0 * m_k_val / np.pi - 0.5, 4)
-    # not_repeated = np.unique(m_k_val) == m_k_val
-    assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int))
-
-        # m_k_mat[freq_idx, :] = m_k_vec
     return m_k_val
 
 # create an array of m_k values for each k to avoid recomputation
 m_k = (np.vectorize(m_k_entry, otypes = [float]))(list(range(NMK[-1])))
-
-def m_k_newton(h):
-    res = newton(lambda k: k * np.tanh(k * h) - m0**2 / 9.8, x0=1.0, tol=10 ** (-10))
-    return res
 
 #############################################
 # vertical eigenvector coupling computation
