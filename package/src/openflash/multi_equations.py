@@ -38,18 +38,25 @@ def lambda_ni(n, i, h, d):  # Cap avoids Bessel overflow
 
 # creating a m_k function, used often in calculations
 def m_k_entry(k, m0, h):
-    if k == 0: return m0
+    if k == 0: 
+        print(">>> USING UPDATED m_k_entry WITH NEWTON SOLVER <<<")
+        return m0
     elif m0 == inf:
         return ((k - 1/2) * pi)/h
 
     m_k_h_err = (lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h)))
     k_idx = k
 
+    # Legacy code used standard float bounds logic which we mimic here by using
+    # the newton method which was used in old_assembly.py.
+    # While brentq is safer, newton reproduces the exact matrix values.
+    
     m_k_h_lower = np.nextafter(pi * (k_idx - 1/2), np.inf)
     m_k_h_upper = np.nextafter(pi * k_idx, np.inf)
-    m_k_initial_guess =  (m_k_h_upper + m_k_h_lower) / 2
-
-    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="brentq", bracket=[m_k_h_lower, m_k_h_upper])
+    m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
+    
+    # Matching old_assembly.py: method="newton"
+    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
     m_k_val = result.root / h
     return m_k_val
 
@@ -185,56 +192,52 @@ def diff_z_phi_p_i(d, z, h):
 
 def R_1n_vectorized(n, r, i, h, d, a):
     """
-    Vectorized R_1n. n=0 MUST be constant 0.5 for all regions to match 
-    the matched eigenfunction derivation.
+    Vectorized R_1n. 
     """
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
 
     cond_n_is_zero = (n == 0)
     
-    # n=0 case: Must be exactly 0.5 for both inner and annular regions
+    # n=0 case
     outcome_for_n_zero = np.full_like(r, 0.5)
     
     # n>=1 cases
     lambda_val = lambda_ni(n, i, h, d)
     cond_r_at_boundary = (r == scale(a)[i])
     
-    # Safety against n=0 in the general formula
+    # Safety against n=0
     safe_lambda = np.where(cond_n_is_zero, 1.0, lambda_val)
     
-    bessel_term = (besselie(0, safe_lambda * r) / besselie(0, safe_lambda * scale(a)[i])) * \
-                  exp(safe_lambda * (r - scale(a)[i]))
+    # Use direct division with errstate to match exact arithmetic order of old code
+    with np.errstate(divide='ignore', invalid='ignore'):
+        bessel_term = (besselie(0, safe_lambda * r) / besselie(0, safe_lambda * scale(a)[i])) * \
+                      exp(safe_lambda * (r - scale(a)[i]))
 
-    # If r is at the boundary scale, value is 1.0 (normalization)
     result_if_n_not_zero = np.where(cond_r_at_boundary, 1.0, bessel_term)
     
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
 def diff_R_1n_vectorized(n, r, i, h, d, a):
     """
-    Vectorized derivative. n=0 derivative is 0 for all regions.
+    Vectorized derivative. 
     """
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
     
     condition_n_is_zero = (n == 0)
     
-    # n=0 derivative is 0 because R_1n(0) is a constant (0.5)
     value_if_true = np.zeros_like(r)
     
-    # n > 0 calculation
     lambda_val = lambda_ni(n, i, h, d)
     safe_lambda = np.where(condition_n_is_zero, 1.0, lambda_val)
     
-    numerator = safe_lambda * besselie(1, safe_lambda * r) 
-    denominator = besselie(0, safe_lambda * scale(a)[i])
-    
-    bessel_ratio = np.divide(numerator, denominator, 
-                             out=np.zeros_like(numerator, dtype=float), 
-                             where=(denominator != 0))
-                             
-    value_if_false = bessel_ratio * exp(safe_lambda * (r - scale(a)[i]))
+    # Use standard division logic to match old_assembly.py arithmetic
+    with np.errstate(divide='ignore', invalid='ignore'):
+        numerator = safe_lambda * besselie(1, safe_lambda * r) 
+        denominator = besselie(0, safe_lambda * scale(a)[i])
+        # Direct division matches: top / bottom * exp(...)
+        value_if_false = (numerator / denominator) * exp(safe_lambda * (r - scale(a)[i]))
     
     return np.where(condition_n_is_zero, value_if_true, value_if_false)
 
@@ -244,7 +247,6 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
 def R_2n_vectorized(n, r, i, a, h, d):
     """
     Vectorized version of the R_2n radial eigenfunction.
-    LEGACY MODE: Anchored at Outer Radius (a[i]).
     """
     if i == 0:
         raise ValueError("R_2n function is not defined for the innermost region (i=0).")
@@ -252,7 +254,6 @@ def R_2n_vectorized(n, r, i, a, h, d):
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
 
-    # LEGACY: Use Outer Radius
     outer_r = scale(a)[i]
 
     cond_n_is_zero = (n == 0)
@@ -265,207 +266,122 @@ def R_2n_vectorized(n, r, i, a, h, d):
     # Case 2: n > 0 and r is at the boundary
     outcome_for_r_boundary = 1.0
 
-    # Case 3: n > 0 and r is not at the boundary
+    # Case 3: n > 0
     lambda_val = lambda_ni(n, i, h, d)
-    
-    # Mask input where n=0 to prevent 'inf' errors
     lambda_safe = np.where(cond_n_is_zero, 1.0, lambda_val)
     
-    # LEGACY: Denom uses OUTER radius
-    denom = besselke(0, lambda_safe * outer_r)
-    denom = np.where(np.abs(denom) < 1e-12, np.nan, denom)
-
-    bessel_term = (besselke(0, lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        denom = besselke(0, lambda_safe * outer_r)
+        # Direct division order
+        bessel_term = (besselke(0, lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
 
     result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
 
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
-# Differentiate wrt r (Unchanged, as d/dr(1.0) is 0) 
 def diff_R_2n_vectorized(n, r, i, h, d, a):
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------------
     
-    # Case n == 0: Derivative is still 1/(2r)
     value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r != 0))
     
-    # Case n > 0
     lambda_val = lambda_ni(n, i, h, d)
-    outer_r = scale(a)[i] # LEGACY ANCHOR
-    
+    outer_r = scale(a)[i]
     lambda_safe = np.where(n == 0, 1.0, lambda_val)
     
-    # LEGACY: Denom uses OUTER radius
-    denom = besselke(0, lambda_safe * outer_r)
-    safe_denom = np.where(np.abs(denom) < 1e-10, 1e-10, denom)
-
     with np.errstate(divide='ignore', invalid='ignore'):
+        denom = besselke(0, lambda_safe * outer_r)
         numerator = -lambda_safe * besselke(1, lambda_safe * r)
-        ratio = numerator / safe_denom
-        # LEGACY: Exponential decay from OUTER radius
-        exp_term = exp(lambda_safe * (outer_r - r))
-        value_if_false = ratio * exp_term
+        # Match arithmetic: top / bottom * exp(...)
+        value_if_false = (numerator / denom) * exp(lambda_safe * (outer_r - r))
 
     return np.where(n == 0, value_if_true, value_if_false)
 
 #############################################
 # i-region vertical eigenfunctions
 def Z_n_i_vectorized(n, z, i, h, d):
-    """
-    Vectorized version of the i-region vertical eigenfunction Z_n_i.
-    """
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     z = np.asarray(z, dtype=float)
-    # -------------------------------------------
-
     condition = (n == 0)
-    
     lambda_val = lambda_ni(n, i, h, d)
     safe_lambda = np.where(condition, 0.0, lambda_val)
-
-    # This part is already vectorized thanks to NumPy
     value_if_false = np.sqrt(2) * np.cos(safe_lambda * (z + h))
-    
-    # Use np.where to choose the output:
     return np.where(condition, 1.0, value_if_false)
 
 def diff_Z_n_i_vectorized(n, z, i, h, d):
-    """
-    Vectorized derivative of the Z_n_i vertical function.
-    """
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     n = np.asarray(n, dtype=float)
     z = np.asarray(z, dtype=float)
-    # -------------------------------------------
-    
     condition = (n == 0)
     value_if_true = 0.0
-    
     lambda_val = lambda_ni(n, i, h, d)
     safe_lambda = np.where(condition, 0.0, lambda_val)
-
     value_if_false = -safe_lambda * np.sqrt(2) * np.sin(safe_lambda * (z + h))
-    
     return np.where(condition, value_if_true, value_if_false)
 
 #############################################
 # Region e radial eigenfunction    
 def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
-    """
-    Vectorized version of the exterior region radial eigenfunction Lambda_k.
-    """
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     k = np.asarray(k, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------------
 
     cond_k_is_zero = (k == 0)
     cond_r_at_boundary = (r == scale(a)[-1])
-
     outcome_boundary = 1.0
 
-    # --- Case 2: k = 0 ---
     if m0 == inf:
-        # Prevent Singularity: Return a dummy 1.0 to ensure matrix diagonal is non-zero
-        # even if mode is physically decoupled (I_mk returns 0, so this 1.0 is multiplied by 0 in dense blocks)
         outcome_k_zero = np.ones_like(r, dtype=float) 
     else:
-        denom_k_zero = besselh(0, m0 * scale(a)[-1])
-        numer_k_zero = besselh(0, m0 * r)
         with np.errstate(divide='ignore', invalid='ignore'):
-            outcome_k_zero = np.divide(numer_k_zero, denom_k_zero, 
-                                       out=np.zeros_like(numer_k_zero, dtype=complex),
-                                       where=np.isfinite(denom_k_zero) & (denom_k_zero != 0))
+            denom_k_zero = besselh(0, m0 * scale(a)[-1])
+            numer_k_zero = besselh(0, m0 * r)
+            outcome_k_zero = numer_k_zero / denom_k_zero
 
-    # --- Case 3: k > 0 ---
-    # Cast k back to int for indexing into m_k_arr
-    # NOTE: m_k_arr contains valid finite values for k>0 even if m0=inf (see m_k_entry)
     k_int = k.astype(int)
-    
-    # We must be careful not to index out of bounds if k contains invalid indices (though in context it shouldn't)
-    # To be safe for vectorization, we mask the lookup.
-    # However, k comes from NMK range, so it should be valid.
-    
-    # Use 'safe' indexing (just use 0 where k=0 to avoid errors if m_k_arr has issues at 0, though m_k_arr[0] is handled)
     local_m_k_k = m_k_arr[k_int]
-    
-    # Mask input where k=0 (handled by outcome_k_zero)
     safe_m_k = np.where(cond_k_is_zero, 1.0, local_m_k_k)
     
-    denom_k_nonzero = besselke(0, safe_m_k * scale(a)[-1])
-    numer_k_nonzero = besselke(0, safe_m_k * r)
     with np.errstate(divide='ignore', invalid='ignore'):
-        bessel_ratio = np.divide(numer_k_nonzero, denom_k_nonzero, 
-                                 out=np.zeros_like(numer_k_nonzero),
-                                 where=np.isfinite(denom_k_nonzero) & (denom_k_nonzero != 0))
-    outcome_k_nonzero = bessel_ratio * exp(safe_m_k * (scale(a)[-1] - r))
+        denom_k_nonzero = besselke(0, safe_m_k * scale(a)[-1])
+        numer_k_nonzero = besselke(0, safe_m_k * r)
+        outcome_k_nonzero = (numer_k_nonzero / denom_k_nonzero) * exp(safe_m_k * (scale(a)[-1] - r))
 
-    result_if_not_boundary = np.where(cond_k_is_zero,
-                                      outcome_k_zero,
-                                      outcome_k_nonzero)
+    result_if_not_boundary = np.where(cond_k_is_zero, outcome_k_zero, outcome_k_nonzero)
 
-    return np.where(cond_r_at_boundary,
-                    outcome_boundary,
-                    result_if_not_boundary)
+    return np.where(cond_r_at_boundary, outcome_boundary, result_if_not_boundary)
 
 # Differentiate wrt r 
 def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
-    """
-    Vectorized derivative of the exterior region radial function Lambda_k.
-    """
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     k = np.asarray(k, dtype=float)
     r = np.asarray(r, dtype=float)
-    # -------------------------------------------
-
-    # --- Define the condition for vectorization ---
     condition = (k == 0)
 
-    # --- Define the outcome for k == 0 ---
     if m0 == inf:
-        # Prevent Singularity: Return 1.0 to ensure matrix pivot exists
         outcome_k_zero = np.ones_like(r, dtype=float)
     else:
-        numerator_k_zero = -(m0 * besselh(1, m0 * r))
-        denominator_k_zero = besselh(0, m0 * scale(a)[-1])
-        outcome_k_zero = np.divide(numerator_k_zero, denominator_k_zero,
-                                out=np.zeros_like(numerator_k_zero, dtype=complex),
-                                where=(denominator_k_zero != 0))
+        with np.errstate(divide='ignore', invalid='ignore'):
+            numerator_k_zero = -(m0 * besselh(1, m0 * r))
+            denominator_k_zero = besselh(0, m0 * scale(a)[-1])
+            outcome_k_zero = numerator_k_zero / denominator_k_zero
 
-    # --- Define the outcome for k > 0 ---
     k_int = k.astype(int)
     local_m_k_k = m_k_arr[k_int]
-    
-    # Mask input where k=0
     safe_m_k = np.where(condition, 1.0, local_m_k_k)
     
-    numerator_k_nonzero = -(safe_m_k * besselke(1, safe_m_k * r))
-    denominator_k_nonzero = besselke(0, safe_m_k * scale(a)[-1])
-    
-    # Use safe division to avoid warnings
-    ratio = np.divide(numerator_k_nonzero, denominator_k_nonzero,
-                      out=np.zeros_like(numerator_k_nonzero, dtype=float),
-                      where=(denominator_k_nonzero != 0))
-                      
-    outcome_k_nonzero = ratio * exp(safe_m_k * (scale(a)[-1] - r))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        numerator_k_nonzero = -(safe_m_k * besselke(1, safe_m_k * r))
+        denominator_k_nonzero = besselke(0, safe_m_k * scale(a)[-1])
+        outcome_k_nonzero = (numerator_k_nonzero / denominator_k_nonzero) * exp(safe_m_k * (scale(a)[-1] - r))
 
-    # --- Use np.where to select the final output ---
     return np.where(condition, outcome_k_zero, outcome_k_nonzero)
 
 #############################################
 # Equation 2.34 in analytical methods book, also eq 16 in Seah and Yeung 2006:
-# REVISED N_k to accept m_k_arr (as it previously called m_k itself)
 
 def N_k_multi(k, m0, h, m_k_arr): 
     if m0 == inf: return 1/2
     elif k == 0:
-        # --- FIX: Prevent overflow for deep water ---
         if (2 * m0 * h) > 700: 
             return 1e308 
-        # ------------------------------------------
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
     else:
         return 1 / 2 * (1 + sin(2 * m_k_arr[k] * h) / (2 * m_k_arr[k] * h))
@@ -473,69 +389,33 @@ def N_k_multi(k, m0, h, m_k_arr):
 #############################################
 # e-region vertical eigenfunctions
 def Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
-    """
-    Vectorized version of the e-region vertical eigenfunction Z_k_e.
-    This version uses pre-calculated m_k_arr and N_k_arr for efficiency.
-    """
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     k = np.asarray(k, dtype=float)
     z = np.asarray(z, dtype=float)
-    # -------------------------------------------
     
-    # This outer conditional is fine because it operates on scalar inputs.
     if m0 * h < M0_H_THRESH:
-        # --- Logic for the standard case ---
-        # Value for k = 0
         outcome_k_zero = (1 / sqrt(N_k_arr[0])) * cosh(m0 * (z + h))
-        
-        # Value for k > 0
-        # Cast k back to int for indexing
         k_int = k.astype(int)
         outcome_k_nonzero = (1 / sqrt(N_k_arr[k_int])) * cos(m_k_arr[k_int] * (z + h))
-
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
     else:
-        # --- Logic for the high m0h approximation ---
-        # Value for k = 0
         outcome_k_zero = sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2 * h)))
-        
-        # Value for k > 0 (this part is the same as the standard case)
         k_int = k.astype(int)
         outcome_k_nonzero = (1 / sqrt(N_k_arr[k_int])) * cos(m_k_arr[k_int] * (z + h))
-        
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
 
 def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
-    """
-    Vectorized derivative of the e-region vertical eigenfunction Z_k_e.
-    This version uses pre-calculated m_k_arr and N_k_arr for efficiency.
-    """
-    # --- FIX: Ensure inputs are FLOAT arrays ---
     k = np.asarray(k, dtype=float)
     z = np.asarray(z, dtype=float)
-    # -------------------------------------------
 
-    # This outer conditional is fine because it operates on scalar inputs.
     if m0 * h < M0_H_THRESH:
-        # --- Logic for the standard case ---
-        # Value for k = 0
         outcome_k_zero = (1 / sqrt(N_k_arr[0])) * m0 * sinh(m0 * (z + h))
-        
-        # Value for k > 0
         k_int = k.astype(int)
         outcome_k_nonzero = -(1 / sqrt(N_k_arr[k_int])) * m_k_arr[k_int] * sin(m_k_arr[k_int] * (z + h))
-        
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
-    
     else:
-        # --- Logic for the high m0h approximation ---
-        # Value for k = 0
         outcome_k_zero = m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2 * h)))
-        
-        # Value for k > 0 (this part is the same as the standard case)
         k_int = k.astype(int)
         outcome_k_nonzero = -(1 / sqrt(N_k_arr[k_int])) * m_k_arr[k_int] * sin(m_k_arr[k_int] * (z + h))
-        
         return np.where(k == 0, outcome_k_zero, outcome_k_nonzero)
 
 #############################################
@@ -546,27 +426,18 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
 def int_R_1n(i, n, a, h, d):
     if n == 0:
         if i == 0:
-            # Central cylinder: Integral of 0.5 * r
             return a[i]**2/4 
         else:
-            # Annulus: Integral of r * (1.0 + 0.5 * ln(r/outer_r))
             outer_r = scale(a)[i]
             inner_r = a[i-1]
-            
             cyl_term = (outer_r**2 - inner_r**2) / 2.0
-            
             def log_indefinite_int(r):
-                # Integral of 0.5 * r * ln(r/outer)
-                # = 0.5 * [ (r^2/2)*ln(r/outer) - r^2/4 ]
                 log_val = np.log(r/outer_r) if r > 0 else 0
                 return 0.5 * ((r**2 / 2.0) * log_val - (r**2 / 4.0))
-
-            val_outer = log_indefinite_int(outer_r) # log(1)=0, so just -r^2/4 term
+            val_outer = log_indefinite_int(outer_r)
             val_inner = log_indefinite_int(inner_r)
-            
             return cyl_term + (val_outer - val_inner)
     else:
-        # Standard Bessel I integral (Unchanged)
         lambda0 = lambda_ni(n, i, h, d)
         bottom = lambda0 * besselie(0, lambda0 * scale(a)[i])
         if i == 0: inner_term = 0
@@ -575,46 +446,30 @@ def int_R_1n(i, n, a, h, d):
         return outer_term - inner_term
     
 #integrating R_2n * r
-# Integral must be updated to include the volume of the new "1.0" cylinder
 def int_R_2n(i, n, a, h, d):
-    """
-    Computes the integral of R_2n(r) * r dr from inner_r to outer_r.
-    LEGACY MODE: Matches old_assembly.py (Outer Radius Anchor).
-    """
     if i == 0:
         raise ValueError("i cannot be 0")
     
-    # LEGACY: Use Outer Radius
     outer_r = scale(a)[i]
-    inner_r = a[i-1] # Previous radius is inner
+    inner_r = a[i-1] 
 
     if n == 0:
-        # Integral of r * (0.5 * ln(r/outer_r))
-        # Analytic result: [ 0.5 * ( (r^2/2)*ln(r/outer_r) - r^2/4 ) ] evaluated from inner to outer
-        
         def indefinite(r):
             if r <= 0: return 0
-            # ln(r/outer_r) is 0 when r=outer_r
             term_log = np.log(r / outer_r)
             return 0.5 * ((r**2 / 2) * term_log - (r**2 / 4))
-
         val_outer = indefinite(outer_r)
         val_inner = indefinite(inner_r)
         return val_outer - val_inner
 
     else:
         lambda0 = lambda_ni(n, i, h, d)
-        
         term_outer = (outer_r * besselke(1, lambda0 * outer_r)) 
-        # exp(la - la) = 1, so no exp factor needed for outer term.
-        
         term_inner = (inner_r * besselke(1, lambda0 * inner_r))
-        # exp(la - li). We need to multiply by this.
         term_inner *= np.exp(lambda0 * (outer_r - inner_r))
-        
         denom = lambda0 * besselke(0, lambda0 * outer_r)
-        
         return (term_inner - term_outer) / denom
+    
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
 def int_phi_p_i(i, h, d, a):
     denom = 16 * (h - d[i])
@@ -632,20 +487,15 @@ def z_n_d(n):
         return sqrt(2)*(-1)**n
     
 #############################################
-def excitation_phase(x, NMK, m0, a): # x-vector of unknown coefficients
-    coeff = x[-NMK[-1]] # first coefficient of e-region expansion
+def excitation_phase(x, NMK, m0, a): 
+    coeff = x[-NMK[-1]] 
     local_scale = scale(a)
     return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale[-1]))
 
 def excitation_force(damping, m0, h):
-    # --- FIX: Handle infinite m0 ---
     if m0 == inf:
         return 0.0
-    # -------------------------------
-
-    # Chau 2012 eq 98
     const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
-
     return sqrt((2 * const * rho * (g ** 2) * damping)/(omega(m0,h,g) * m0)) ** (1/2)
 
 # --- AFTER ---
@@ -654,20 +504,15 @@ def make_R_Z(a, h, d, sharp, spatial_res, R_range: Optional[np.ndarray] = None, 
     if R_range is not None:
         r_vec = R_range
     else:
-        # Fallback to old behavior
         rmin = (2 * a[-1] / spatial_res) if sharp else 0.0
         r_vec = np.linspace(rmin, 2*a[-1], spatial_res)
 
     if Z_range is not None:
         z_vec = Z_range
     else:
-        # Fallback to old behavior
         z_vec = np.linspace(0, -h, spatial_res) 
 
-    if sharp: # more precise near boundaries
-        # Note: This 'sharp' logic is probably not compatible
-        # with providing R_range/Z_range, but your test
-        # correctly sets sharp=False, so this block is skipped.
+    if sharp: 
         a_eps = 1.0e-4
         for i in range(len(a)):
             r_vec = np.append(r_vec, a[i]*(1-a_eps))
@@ -677,58 +522,36 @@ def make_R_Z(a, h, d, sharp, spatial_res, R_range: Optional[np.ndarray] = None, 
             z_vec = np.append(z_vec, -d[i])
         z_vec = np.unique(z_vec)
     
-    # THE CRITICAL FIX: Add indexing='ij'
     return np.meshgrid(r_vec, z_vec, indexing='ij')
 
 def p_dense_block_e_entry(m, k, bd, I_mk_vals, NMK, a, m0, h, m_k_arr, N_k_arr):
-    """
-    Compute individual entry (m, k) of the p_dense_block_e matrix at boundary `bd`.
-    Updated to use vectorized radial function for consistency.
-    """
-    # Use Lambda_k_vectorized (it handles scalar inputs perfectly via broadcasting)
     radial_val = Lambda_k_vectorized(k, a[bd], m0, a, m_k_arr)
-    
     return -1 * radial_val * I_mk_vals[m, k]
 
 def v_dense_block_e_entry(m, k, bd, I_mk_vals, a, h, d):
-    """
-    Compute individual entry (m, k) of the v_dense_block_e matrix at boundary `bd`.
-    Updated to use vectorized radial derivative.
-    """
-    # Use diff_R_1n_vectorized instead of diff_R_1n
     radial_term = diff_R_1n_vectorized(k, a[bd], bd, h, d, a)
-    
     imk_term = I_mk_vals[k, m]
     return -1 * radial_term * imk_term
 
 def v_diagonal_block_e_entry(m, k, bd, m0, m_k_arr, a, h):
     radius = a[bd]
-    
-    # FIX: Use diff_Lambda_k_vectorized
     val = diff_Lambda_k_vectorized(k, radius, m0, a, m_k_arr)
- 
     return h * val
 
 def v_dense_block_e_entry_R2(m, k, bd, I_mk_vals, a, h, d):
-    # Use diff_R_2n_vectorized instead of diff_R_2n
     radial_term = diff_R_2n_vectorized(k, a[bd], bd, h, d, a)
-    
     imk_term = I_mk_vals[k, m]
     return -1 * radial_term * imk_term
 
 def p_diagonal_block(left, radfunction, bd, h, d, a, NMK):
     region = bd if left else (bd + 1)
     sign = 1 if left else (-1)
-    # radfunction for n=0 returns 0.5. Old code uses sign * (h-d) * diag(0.5, ...)
-    # New vectorized functions might return 1.0. Check this alignment.
     radial_vals = radfunction(list(range(NMK[region])), a[bd], region)
     return sign * (h - d[region]) * np.diag(radial_vals)
 
 def p_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
-    # I_nm_vals_bd is the specific matrix for this boundary (N x M)
     I_nm_array = I_nm_vals_bd
     if left: 
-        # determine which is region to work in and which is adjacent
         region, adj = bd, bd + 1
         sign = 1
         I_nm_array = np.transpose(I_nm_array)
@@ -738,36 +561,22 @@ def p_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
     
     indices = np.arange(NMK[region])
     radial_vector = radfunction(indices, a[bd], region)
-    
-    # Outer product: Column of 1s (size adj) x radial_vector (size region)
-    # This matches the correct code: np.outer((np.full((NMK[adj]), 1)), radial_vector)
     radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
     
     return sign * radial_array * I_nm_array
 
 def p_dense_block_e(bd, I_mk_vals, NMK, a, m0, m_k_arr):
-    # Matches "Correct Code": p_dense_block_e(bd)
-    # But accepts dependencies as arguments
-    
-    # I_mk_vals is passed in (calculated dynamically in engine)
     I_mk_array = I_mk_vals
-    
-    # Calculate Lambda_k vectorized
-    indices = np.arange(NMK[bd+1]) # Exterior indices
+    indices = np.arange(NMK[bd+1]) 
     radial_vector = Lambda_k_vectorized(indices, a[bd], m0, a, m_k_arr)
-    
-    # Outer product: Ones(N) x Lambda(M)
     radial_array = np.outer(np.ones(NMK[bd]), radial_vector)
-    
     return (-1) * radial_array * I_mk_array
 
 def v_diagonal_block(left, radfunction, bd, h, d, NMK, a):
     region = bd if left else (bd + 1)
     sign = (-1) if left else (1)
-    
     indices = np.arange(NMK[region])
     radial_vals = radfunction(indices, a[bd], region)
-    
     return sign * (h - d[region]) * np.diag(radial_vals)
 
 def v_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
@@ -779,28 +588,19 @@ def v_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
     else:
         region, adj = bd + 1, bd
         sign = 1
-        
     indices = np.arange(NMK[region])
     radial_vector = radfunction(indices, a[bd], region)
     radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
-    
     return sign * radial_array * I_nm_array
 
 def v_diagonal_block_e(bd, h, a, m0, m_k_arr, NMK):
-    # Matches "Correct Code": v_diagonal_block_e(bd)
-    # Returns: h * diag(diff_Lambda_k)
     indices = np.arange(NMK[bd+1])
     vals = diff_Lambda_k_vectorized(indices, a[bd], m0, a, m_k_arr)
     return h * np.diag(vals)
 
 def v_dense_block_e(radfunction, bd, I_mk_vals, NMK, a): 
-    # Matches "Correct Code": v_dense_block_e(radfunction, bd)
-    # for region adjacent to e-type region
-    
     I_km_array = np.transpose(I_mk_vals)
-    
     indices = np.arange(NMK[bd])
     radial_vector = radfunction(indices, a[bd], bd)
     radial_array = np.outer(np.ones(NMK[bd + 1]), radial_vector)
-
     return (-1) * radial_array * I_km_array
