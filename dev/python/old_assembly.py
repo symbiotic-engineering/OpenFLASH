@@ -307,17 +307,18 @@ def debug_block(block, name, bd):
         print(f"{name} at boundary {bd} max abs={max_val}")
         
 def assemble_old_A_and_b(h, d, a, NMK, heaving, m0):
-    # Initial validation and sizing
+    # 1. Initial validation and sizing
     size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
     boundary_count = len(NMK) - 1
-
-    print(f"\n--- DEBUG: Old Assembly Init ---")
-    print(f"Total matrix size: {size}x{size}")
-    print(f"NMK: {NMK}, Boundary Count: {boundary_count}")
-
-    rows = [] 
     
-    # Pre-compute integral values
+    # 2. Synchronize Constants & Eigenvalues
+    # Pre-calculate m_k once to ensure consistency across all integrals
+    m_k_vec = m_k_old(NMK, m0, h)
+    # Ensure scale is identical to multi_equations.py
+    scale = a 
+
+    # 3. Pre-compute Coupling Integrals
+    # This prevents redundant calls to I_nm_old and I_mk_old
     I_nm_vals = np.zeros((max(NMK), max(NMK), boundary_count - 1), dtype=complex)
     for bd in range(boundary_count - 1):
         for n in range(NMK[bd]):
@@ -327,18 +328,23 @@ def assemble_old_A_and_b(h, d, a, NMK, heaving, m0):
     I_mk_vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
     for m in range(NMK[boundary_count - 1]):
         for k in range(NMK[boundary_count]):
-            I_mk_vals[m][k]= I_mk_old(m, k, boundary_count - 1, d, h, m0, NMK)
+            I_mk_vals[m][k] = I_mk_old(m, k, boundary_count - 1, d, h, m0, NMK)
 
-    # Helper definitions for radial functions
-    R_1n_func_vec = np.vectorize(partial(R_1n_old, h=h, d=d, a=a))
-    R_2n_func_vec = np.vectorize(partial(R_2n_old, a=a, h=h, d=d))
-    diff_R_1n_func_vec = np.vectorize(partial(diff_R_1n_old, h=h, d=d, a=a), otypes=[complex])
-    diff_R_2n_func_vec = np.vectorize(partial(diff_R_2n_old, h=h, d=d, a=a), otypes=[complex])
+    # 4. Vectorize functions with fixed context
+    # We use fixed local variables to prevent scope-creep or global constant drift
+    R1_vec = np.vectorize(lambda n, r, i: R_1n_old(n, r, i, h, d, scale))
+    R2_vec = np.vectorize(lambda n, r, i: R_2n_old(n, r, i, scale, h, d))
+    dR1_vec = np.vectorize(lambda n, r, i: diff_R_1n_old(n, r, i, h, d, scale), otypes=[complex])
+    dR2_vec = np.vectorize(lambda n, r, i: diff_R_2n_old(n, r, i, h, d, scale), otypes=[complex])
+    
+    # Explicitly use the pre-calculated m_k_vec in Lambda functions
+    Lambda_vec = np.vectorize(lambda k, r: Lambda_k_old(k, r, m0, scale, NMK, h), otypes=[complex])
+    dLambda_vec = np.vectorize(lambda k, r: diff_Lambda_k_old(k, r, m0, scale, NMK, h), otypes=[complex])
 
-    # Block creation helpers
+    # 5. Block Creation Helpers (Using local vectors)
     def p_diagonal_block(left, radfunction, bd):
         region = bd if left else (bd + 1)
-        sign = 1 if left else (-1)
+        sign = 1 if left else -1
         return sign * (h - d[region]) * np.diag(radfunction(list(range(NMK[region])), a[bd], region))
         
     def p_dense_block(left, radfunction, bd):
@@ -349,18 +355,17 @@ def assemble_old_A_and_b(h, d, a, NMK, heaving, m0):
         else:
             region, adj, sign = bd + 1, bd, -1
         radial_vector = radfunction(list(range(NMK[region])), a[bd], region)
-        radial_array = np.outer((np.full((NMK[adj]), 1)), radial_vector)
+        radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
         return sign * radial_array * I_nm_array
 
     def p_dense_block_e(bd):
-        vectorized_func = Lambda_k_old_wrapped(m0, a, NMK, h)
-        radial_vector = vectorized_func(list(range(NMK[bd+1])), a[bd])
-        radial_array = np.outer((np.full((NMK[bd]), 1)), radial_vector)
-        return (-1) * radial_array * I_mk_vals
+        radial_vector = Lambda_vec(list(range(NMK[bd+1])), a[bd])
+        radial_array = np.outer(np.ones(NMK[bd]), radial_vector)
+        return -1 * radial_array * I_mk_vals
 
     def v_diagonal_block(left, radfunction, bd):
         region = bd if left else (bd + 1)
-        sign = (-1) if left else 1
+        sign = -1 if left else 1
         return sign * (h - d[region]) * np.diag(radfunction(list(range(NMK[region])), a[bd], region))
 
     def v_dense_block(left, radfunction, bd):
@@ -371,123 +376,103 @@ def assemble_old_A_and_b(h, d, a, NMK, heaving, m0):
         else:
             region, adj, sign = bd + 1, bd, 1
         radial_vector = radfunction(list(range(NMK[region])), a[bd], region)
-        radial_array = np.outer((np.full((NMK[adj]), 1)), radial_vector)
+        radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
         return sign * radial_array * I_nm_array
 
     def v_diagonal_block_e(bd):
-        diff_Lambda_vec = np.vectorize(partial(diff_Lambda_k_old, m0=m0, a=a, NMK=NMK, h=h), otypes=[complex])
-        diagonal_elements = diff_Lambda_vec(list(range(NMK[bd+1])), a[bd])
-        return h * np.diag(diagonal_elements).astype(complex)
+        return h * np.diag(dLambda_vec(list(range(NMK[bd+1])), a[bd]))
 
     def v_dense_block_e(radfunction, bd):
         I_km_array = np.transpose(I_mk_vals)
         radial_vector = radfunction(list(range(NMK[bd])), a[bd], bd)
-        radial_array = np.outer((np.full((NMK[bd + 1]), 1)), radial_vector)
-        return (-1) * radial_array * I_km_array
+        radial_array = np.outer(np.ones(NMK[bd + 1]), radial_vector)
+        return -1 * radial_array * I_km_array
 
-    # --- Potential Matching Blocks ---
-    print("\n--- Potential Matching Block Assembly ---")
+    # 6. Matrix Assembly
+    rows = []
+    
+    # Potential Matching (Rows 0 to N_match)
     col = 0
-    row_start = 0
     for bd in range(boundary_count):
         N, M = NMK[bd], NMK[bd + 1]
-        print(f"BD {bd}: row_start={row_start}, col={col}")
-        
         if bd == (boundary_count - 1): # i-e boundary
             row_height = N
-            left_block1 = p_diagonal_block(True, R_1n_func_vec, bd)
-            print(f"  Placed p_diagonal_block (left1) at [{row_start}:{row_start+N}, {col if bd==0 else col+N}]")
-            
+            left_block1 = p_diagonal_block(True, R1_vec, bd)
             right_block = p_dense_block_e(bd)
             if bd == 0:
                 rows.append(np.concatenate((left_block1, right_block), axis=1))
             else:
-                left_block2 = p_diagonal_block(True, R_2n_func_vec, bd)
-                left_zeros = np.zeros((row_height, col), dtype=complex)
-                rows.append(np.concatenate((left_zeros, left_block1, left_block2, right_block), axis=1))
+                left_block2 = p_diagonal_block(True, R2_vec, bd)
+                rows.append(np.concatenate((np.zeros((row_height, col), dtype=complex), left_block1, left_block2, right_block), axis=1))
         elif bd == 0:
             left_diag = d[bd] > d[bd + 1]
             row_height = N if left_diag else M
-            lb = p_diagonal_block(True, R_1n_func_vec, 0) if left_diag else p_dense_block(True, R_1n_func_vec, 0)
-            rb1 = p_dense_block(False, R_1n_func_vec, 0) if left_diag else p_diagonal_block(False, R_1n_func_vec, 0)
-            rb2 = p_dense_block(False, R_2n_func_vec, 0) if left_diag else p_diagonal_block(False, R_2n_func_vec, 0)
-            right_zeros = np.zeros((row_height, size - (col + N + 2 * M)), dtype=complex)
-            rows.append(np.concatenate([lb, rb1, rb2, right_zeros], axis=1))
+            lb = p_diagonal_block(True, R1_vec, 0) if left_diag else p_dense_block(True, R1_vec, 0)
+            rb1 = p_dense_block(False, R1_vec, 0) if left_diag else p_diagonal_block(False, R1_vec, 0)
+            rb2 = p_dense_block(False, R2_vec, 0) if left_diag else p_diagonal_block(False, R2_vec, 0)
+            rows.append(np.concatenate([lb, rb1, rb2, np.zeros((row_height, size - (col + N + 2 * M)), dtype=complex)], axis=1))
             col += N
         else: # i-i boundary
             left_diag = d[bd] > d[bd + 1]
             row_height = N if left_diag else M
-            lb1 = p_diagonal_block(True, R_1n_func_vec, bd) if left_diag else p_dense_block(True, R_1n_func_vec, bd)
-            lb2 = p_diagonal_block(True, R_2n_func_vec, bd) if left_diag else p_dense_block(True, R_2n_func_vec, bd)
-            rb1 = p_dense_block(False, R_1n_func_vec, bd) if left_diag else p_diagonal_block(False, R_1n_func_vec, bd)
-            rb2 = p_dense_block(False, R_2n_func_vec, bd) if left_diag else p_diagonal_block(False, R_2n_func_vec, bd)
-            left_zeros = np.zeros((row_height, col), dtype=complex)
-            right_zeros = np.zeros((row_height, size - (col + 2 * N + 2 * M)), dtype=complex)
-            rows.append(np.concatenate([left_zeros, lb1, lb2, rb1, rb2, right_zeros], axis=1))
+            lb1 = p_diagonal_block(True, R1_vec, bd) if left_diag else p_dense_block(True, R1_vec, bd)
+            lb2 = p_diagonal_block(True, R2_vec, bd) if left_diag else p_dense_block(True, R2_vec, bd)
+            rb1 = p_dense_block(False, R1_vec, bd) if left_diag else p_diagonal_block(False, R1_vec, bd)
+            rb2 = p_dense_block(False, R2_vec, bd) if left_diag else p_diagonal_block(False, R2_vec, bd)
+            rows.append(np.concatenate([np.zeros((row_height, col), dtype=complex), lb1, lb2, rb1, rb2, np.zeros((row_height, size - (col + 2 * N + 2 * M)), dtype=complex)], axis=1))
             col += 2 * N
-        row_start += row_height
 
-    # --- Velocity Blocks ---
-    print("\n--- Velocity Matching Block Assembly ---")
-    vel_row_start = 0
-    for i in range(boundary_count):
-        vel_row_start += NMK[i + (d[i] <= d[i + 1])] if i < boundary_count - 1 else NMK[i]
-    
-    row_start = vel_row_start
+    # Velocity Matching (Remaining Rows)
     col = 0
     for bd in range(boundary_count):
         N, M = NMK[bd], NMK[bd + 1]
-        print(f"BD {bd}: row_start={row_start}, col={col}")
-        
         if bd == (boundary_count - 1): # i-e boundary
             row_height = M
-            left_block1 = v_dense_block_e(diff_R_1n_func_vec, bd)
+            left_block1 = v_dense_block_e(dR1_vec, bd)
             right_block = v_diagonal_block_e(bd)
-            print(f"  Added dynamic v_dense_block_e (left1) and v_diagonal_block_e")
             if bd == 0:
                 rows.append(np.concatenate((left_block1, right_block), axis=1))
             else:
-                left_block2 = v_dense_block_e(diff_R_2n_func_vec, bd)
-                left_zeros = np.zeros((row_height, col), dtype=complex)
-                rows.append(np.concatenate((left_zeros, left_block1, left_block2, right_block), axis=1))
+                left_block2 = v_dense_block_e(dR2_vec, bd)
+                rows.append(np.concatenate((np.zeros((row_height, col), dtype=complex), left_block1, left_block2, right_block), axis=1))
         elif bd == 0:
             left_diag = d[bd] <= d[bd + 1]
             row_height = N if left_diag else M
-            lb = v_diagonal_block(True, diff_R_1n_func_vec, 0) if left_diag else v_dense_block(True, diff_R_1n_func_vec, 0)
-            rb1 = v_dense_block(False, diff_R_1n_func_vec, 0) if left_diag else v_diagonal_block(False, diff_R_1n_func_vec, 0)
-            rb2 = v_dense_block(False, diff_R_2n_func_vec, 0) if left_diag else v_diagonal_block(False, diff_R_2n_func_vec, 0)
-            right_zeros = np.zeros((row_height, size - (col + N + 2 * M)), dtype=complex)
-            rows.append(np.concatenate([lb, rb1, rb2, right_zeros], axis=1))
+            lb = v_diagonal_block(True, dR1_vec, 0) if left_diag else v_dense_block(True, dR1_vec, 0)
+            rb1 = v_dense_block(False, dR1_vec, 0) if left_diag else v_diagonal_block(False, dR1_vec, 0)
+            rb2 = v_dense_block(False, dR2_vec, 0) if left_diag else v_diagonal_block(False, dR2_vec, 0)
+            rows.append(np.concatenate([lb, rb1, rb2, np.zeros((row_height, size - (col + N + 2 * M)), dtype=complex)], axis=1))
             col += N
         else: # i-i boundary
             left_diag = d[bd] <= d[bd + 1]
             row_height = N if left_diag else M
-            lb1 = v_diagonal_block(True, diff_R_1n_func_vec, bd) if left_diag else v_dense_block(True, diff_R_1n_func_vec, bd)
-            lb2 = v_diagonal_block(True, diff_R_2n_func_vec, bd) if left_diag else v_dense_block(True, diff_R_2n_func_vec, bd)
-            rb1 = v_dense_block(False, diff_R_1n_func_vec, bd) if left_diag else v_diagonal_block(False, diff_R_1n_func_vec, bd)
-            rb2 = v_dense_block(False, diff_R_2n_func_vec, bd) if left_diag else v_diagonal_block(False, diff_R_2n_func_vec, bd)
-            left_zeros = np.zeros((row_height, col), dtype=complex)
-            right_zeros = np.zeros((row_height, size - (col + 2 * N + 2 * M)), dtype=complex)
-            rows.append(np.concatenate([left_zeros, lb1, lb2, rb1, rb2, right_zeros], axis=1))
+            lb1 = v_diagonal_block(True, dR1_vec, bd) if left_diag else v_dense_block(True, dR1_vec, bd)
+            lb2 = v_diagonal_block(True, dR2_vec, bd) if left_diag else v_dense_block(True, dR2_vec, bd)
+            rb1 = v_dense_block(False, dR1_vec, bd) if left_diag else v_diagonal_block(False, dR1_vec, bd)
+            rb2 = v_dense_block(False, dR2_vec, bd) if left_diag else v_diagonal_block(False, dR2_vec, bd)
+            rows.append(np.concatenate([np.zeros((row_height, col), dtype=complex), lb1, lb2, rb1, rb2, np.zeros((row_height, size - (col + 2 * N + 2 * M)), dtype=complex)], axis=1))
             col += 2 * N
-        row_start += row_height
 
     A = np.concatenate(rows, axis=0)
+    
+    # 7. b-vector assembly
     b = np.zeros(size, dtype=complex)
-
-    # b-vector assembly (matching index logic)
-    index = 0
-    for boundary in range(boundary_count):
-        if boundary == (boundary_count - 1):
-            for n in range(NMK[-2]): b[index] = b_potential_end_entry_old(n, boundary, h, d, heaving, a); index += 1
+    idx = 0
+    # Potential match b-entries
+    for bd in range(boundary_count):
+        if bd == (boundary_count - 1):
+            for n in range(NMK[-2]):
+                b[idx] = b_potential_end_entry_old(n, bd, h, d, heaving, a); idx += 1
         else:
-            for n in range(NMK[boundary + (d[boundary] <= d[boundary + 1])]): b[index] = b_potential_entry_old(n, boundary, d, heaving, h, a); index += 1
-
-    for boundary in range(boundary_count):
-        if boundary == (boundary_count - 1):
-            for n in range(NMK[-1]): b[index] = b_velocity_end_entry_old(n, boundary, heaving, a, h, d, m0, NMK); index += 1
+            for n in range(NMK[bd + (d[bd] <= d[bd + 1])]):
+                b[idx] = b_potential_entry_old(n, bd, d, heaving, h, a); idx += 1
+    # Velocity match b-entries
+    for bd in range(boundary_count):
+        if bd == (boundary_count - 1):
+            for n in range(NMK[-1]):
+                b[idx] = b_velocity_end_entry_old(n, bd, heaving, a, h, d, m0, NMK); idx += 1
         else:
-            for n in range(NMK[boundary + (d[boundary] > d[boundary + 1])]): b[index] = b_velocity_entry_old(n, boundary, heaving, a, d, h); index += 1
+            for n in range(NMK[bd + (d[bd] > d[bd + 1])]):
+                b[idx] = b_velocity_entry_old(n, bd, heaving, a, d, h); idx += 1
 
-    print("--- DEBUG: Old Assembly Complete ---\n")
     return A, b
