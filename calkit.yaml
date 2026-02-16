@@ -61,5 +61,3 @@ overleaf_sync:
       - lineno-FLM.sty
       - zotero-meem-refs.bib
       - FLMguide.pdf
-    push_paths:
-      - figs
