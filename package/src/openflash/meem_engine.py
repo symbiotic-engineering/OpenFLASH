@@ -63,9 +63,8 @@ class MEEMEngine:
         self._ensure_m_k_and_N_k_arrays(problem, m0)
         cache = self.cache_list[problem]
         b = cache._get_b_template()
-        I_mk_vals = cache._get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
         for row, calc_func in cache.m0_dependent_b_indices:
-            b[row] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
+            b[row] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr)
         return b
 
     def build_problem_cache(self, problem: 'MEEMProblem') -> ProblemCache:
@@ -284,7 +283,7 @@ class MEEMEngine:
         for bd in range(boundary_count):
             if bd == (boundary_count - 1):
                 for n_local in range(NMK[-1]):
-                    calc_func = lambda p, m0, mk, Nk, Imk, n=n_local: \
+                    calc_func = lambda p, m0, mk, Nk, n=n_local: \
                         b_velocity_end_entry(n, bd, heaving, a, h, d, m0, NMK, mk, Nk)
                     cache._add_m0_dependent_b_entry(index, calc_func)
                     index += 1
