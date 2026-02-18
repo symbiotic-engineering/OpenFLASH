@@ -16,4 +16,4 @@ dependencies:
   - ipykernel
   - capytaine
   - pip:
-      - -e .
+      - -e ..
