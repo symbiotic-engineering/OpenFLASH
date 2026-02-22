@@ -209,4 +209,7 @@ html/
 
 .calkit/overleaf
 
-.calkit/notebooks/cleaned/dev/python/validation_with_capytaine_plots.ipynb
+# Calkit build artifacts
+.calkit/env-locks/
+.calkit/notebooks/executed/
+.calkit/notebooks/cleaned/
