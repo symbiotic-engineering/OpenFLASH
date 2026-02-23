@@ -206,4 +206,4 @@ html/
 *.mat
 
 # vscode configuration files
-hydro/python/convergence-study/same-nmk-across-regions/
+.vscode/
