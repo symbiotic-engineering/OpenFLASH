@@ -21,11 +21,11 @@ Here, two concentric cylinders and thus three fluid regions are demonstrated.
 Extension to many regions is discussed in section 3.4.
 Figure~\ref{fig:meem-regions} illustrates the regions and dimensions: two internal regions \textit{i1} and \textit{i2}, and an external region \textit{e} extending to infinity.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.75\linewidth]{figs/from-matlab/meem_regions.pdf}
-    \caption{Fluid regions and dimensions used in the dual concentric cylinder MEEM}
-    \label{fig:meem-regions}
+\begin{figure}[htbp]
+\centering
+\input{figs/tikz/meem_dims.tikz}
+\caption{Fluid regions and dimensions used in the dual concentric cylinder MEEM}
+\label{fig:meem-regions}
 \end{figure}
 
  The potential in each region is split into a homogeneous part for the unforced solution and a particular part due to body motion: $\phi=\phi_h+\phi_p$.
@@ -495,8 +495,8 @@ Hydro coefficient convergence depends on the geometry: the benchmark shallow-wat
 There, damping converges well at low frequencies but requires more harmonics at higher frequencies, while added mass has similar convergence across frequencies. 
 \begin{figure}
     \centering
-    \includegraphics[width=0.75\linewidth]{figs/from-matlab/meem_convergence.pdf}
-    \caption{Convergence for $N=M=K=(3,5,10,20)$ for RM3}
+    \includegraphics[width=0.75\linewidth]{figs/from-matlab/meem_convergence_vs_omega.pdf}
+    \caption{Convergence for $N=M=K=(5,10,20,30)$ for RM3}
     \label{fig:meem-convergence}
 \end{figure}
 
