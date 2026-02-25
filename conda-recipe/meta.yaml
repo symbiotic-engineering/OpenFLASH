@@ -1,0 +1,40 @@
+package:
+  name: open-flash
+  version: {{ GIT_DESCRIBE_TAG }}
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  # Use a two-stage build script for robustness
+  script:
+    - python -m pip install . --no-deps --ignore-installed -vv
+
+requirements:
+  host:
+    - python
+    - pip
+    - setuptools
+    - wheel
+
+  run:
+    - python
+    - numpy
+    - scipy
+    - matplotlib
+    - pandas
+    - h5netcdf
+    - xarray
+    - streamlit
+    - ipykernel
+  
+about:
+  home: https://github.com/symbiotic-engineering/semi-analytical-hydro
+  license: MIT
+  summary: "A Python package for semi-analytical hydrodynamics modeling using the matched eigenfunction method"
+
+extra:
+  recipe-maintainers:
+    - hopeonthestack
+    - rmccabe
