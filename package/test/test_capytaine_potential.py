@@ -70,7 +70,7 @@ ALL_CONFIGS = {
         "heaving_map": [True, True, True, True, True],
         "body_map": [0, 1, 2, 3, 4],
         "m0": 1.0,
-        "NMK": [15] * 6, # 5 radii + exterior
+        "NMK": [100] * 6, # 5 radii + exterior
         "R_range": np.linspace(0.0, 2 * 1.6, num=50),
         "Z_range": np.linspace(0, -1.9, num=50),
     },
@@ -176,7 +176,7 @@ ALL_CONFIGS = {
 }
 
 # 4. Define comparison tolerance
-RELATIVE_TOLERANCE = 0.1
+RELATIVE_TOLERANCE = 0.01
 
 # --- End Configuration ---
 
@@ -370,26 +370,45 @@ def save_debug_plots(R_grid, Z_grid, openflash_data, capytaine_data_converted, n
     print(f"\n[Debug plot saved to: {output_file}]")
 
 
-def save_1d_cuts(R_grid, Z_grid, openflash_data, capytaine_data, config_name, component_name):
+def save_1d_cuts(R_grid, Z_grid, openflash_data, capytaine_data, config_name, component_name, max_error_idx=None):
     """
     Saves 1D line cuts (slices) through the domain to visualize 
     profile differences in detail.
+    
+    If max_error_idx is provided (tuple of r_idx, z_idx), the cuts will 
+    intersect at that point to highlight the worst-case scenario.
     """
     # Create directory
     DEBUG_PLOT_PATH.mkdir(parents=True, exist_ok=True)
     
-    # --- 1. Vertical Cut (Z-axis) ---
-    r_idx = R_grid.shape[0] // 2
-    r_val = R_grid[r_idx, 0]
+    # --- Determine Slicing Indices ---
+    if max_error_idx is not None:
+        r_idx_cut, z_idx_cut = max_error_idx
+        
+        # Get physical coordinates for the title
+        r_val = R_grid[r_idx_cut, 0]
+        z_val = Z_grid[0, z_idx_cut]
+        location_label = f"Max Error @ R={r_val:.2f}, Z={z_val:.2f}"
+    else:
+        # Fallback: Vertical Cut at Center R
+        r_idx_cut = R_grid.shape[0] // 2
+        r_val = R_grid[r_idx_cut, 0]
+        
+        # Fallback: Radial Cut at Middle Depth
+        z_target = np.min(Z_grid) / 2.0
+        z_idx_cut = np.argmin(np.abs(Z_grid[0, :] - z_target))
+        z_val = Z_grid[0, z_idx_cut]
+        location_label = "Domain Center"
     
-    z_line = Z_grid[r_idx, :]
-    of_line_z = openflash_data[r_idx, :]
-    cap_line_z = capytaine_data[r_idx, :]
+    # --- 1. Vertical Cut (Fixed R, Vary Z) ---
+    z_line = Z_grid[r_idx_cut, :]
+    of_line_z = openflash_data[r_idx_cut, :]
+    cap_line_z = capytaine_data[r_idx_cut, :]
     
     plt.figure(figsize=(10, 6))
     plt.plot(z_line, of_line_z, 'b-', label='OpenFLASH', linewidth=2)
     plt.plot(z_line, cap_line_z, 'r--', label='Capytaine', linewidth=2)
-    plt.title(f"Vertical Slice (Z-axis) at R={r_val:.2f} [{component_name}]")
+    plt.title(f"Vertical Slice (Z-axis) at R={r_val:.2f} [{component_name}]\n({location_label})")
     plt.xlabel("Z (Depth)")
     plt.ylabel("Potential")
     plt.legend()
@@ -397,19 +416,15 @@ def save_1d_cuts(R_grid, Z_grid, openflash_data, capytaine_data, config_name, co
     plt.savefig(DEBUG_PLOT_PATH / f"{config_name}_{component_name}_cut_vertical.png")
     plt.close()
 
-    # --- 2. Radial Cut (R-axis) ---
-    z_target = np.min(Z_grid) / 2.0
-    z_idx = np.argmin(np.abs(Z_grid[0, :] - z_target))
-    z_val = Z_grid[0, z_idx]
-    
-    r_line = R_grid[:, z_idx]
-    of_line_r = openflash_data[:, z_idx]
-    cap_line_r = capytaine_data[:, z_idx]
+    # --- 2. Radial Cut (Fixed Z, Vary R) ---
+    r_line = R_grid[:, z_idx_cut]
+    of_line_r = openflash_data[:, z_idx_cut]
+    cap_line_r = capytaine_data[:, z_idx_cut]
     
     plt.figure(figsize=(10, 6))
     plt.plot(r_line, of_line_r, 'b-', label='OpenFLASH', linewidth=2)
     plt.plot(r_line, cap_line_r, 'r--', label='Capytaine', linewidth=2)
-    plt.title(f"Radial Slice (R-axis) at Z={z_val:.2f} [{component_name}]")
+    plt.title(f"Radial Slice (R-axis) at Z={z_val:.2f} [{component_name}]\n({location_label})")
     plt.xlabel("R (Radius)")
     plt.ylabel("Potential")
     plt.legend()
@@ -706,6 +721,11 @@ def test_potential_field_vs_capytaine(config_name):
     # Get top 3 errors
     flat_indices = np.argsort(diff_grid_real.ravel())[-3:][::-1]
     
+    # --- ADDED: Capture the worst case index for plotting ---
+    worst_case_flat = flat_indices[0]
+    worst_case_idx = np.unravel_index(worst_case_flat, diff_grid_real.shape)
+    # --------------------------------------------------------
+    
     print(f"\n  [LOCATOR] Top 3 Real Part Errors:")
     first_locator = True
     for flat_idx in flat_indices:
@@ -739,8 +759,9 @@ def test_potential_field_vs_capytaine(config_name):
     # Save Final Plots
     save_debug_plots(R_cap_grid, Z_cap_grid, phi_openflash_interp_real, capytaine_real_converted, nan_mask, config_name, "real")
     save_debug_plots(R_cap_grid, Z_cap_grid, phi_openflash_interp_imag, capytaine_imag_converted, nan_mask, config_name, "imag")
-    save_1d_cuts(R_cap_grid, Z_cap_grid, phi_openflash_interp_real, capytaine_real_converted, config_name, "real")
-    save_1d_cuts(R_cap_grid, Z_cap_grid, phi_openflash_interp_imag, capytaine_imag_converted, config_name, "imag")
+    # --- UPDATED: Pass the worst_case_idx to the 1D cuts ---
+    save_1d_cuts(R_cap_grid, Z_cap_grid, phi_openflash_interp_real, capytaine_real_converted, config_name, "real", max_error_idx=worst_case_idx)
+    save_1d_cuts(R_cap_grid, Z_cap_grid, phi_openflash_interp_imag, capytaine_imag_converted, config_name, "imag", max_error_idx=worst_case_idx)
             
     # --- DEBUG: Spy Plot ---
     # Retrieve the engine and problem from the results (using results_template to be safe)
@@ -766,7 +787,7 @@ def test_potential_field_vs_capytaine(config_name):
     try:
         np.testing.assert_allclose(
             openflash_real_valid, capytaine_real_valid,
-            rtol=RELATIVE_TOLERANCE, atol = 0.01,
+            rtol=RELATIVE_TOLERANCE, atol = 0.03,
             err_msg=f"[{config_name}] Real part mismatch"
         )
         print(f"  [PASS] Real Part Matched ({intersection_points} points)") 
@@ -776,7 +797,7 @@ def test_potential_field_vs_capytaine(config_name):
     try:
         np.testing.assert_allclose(
             openflash_imag_valid, capytaine_imag_valid,
-            rtol=RELATIVE_TOLERANCE, atol = 0.01,
+            rtol=RELATIVE_TOLERANCE, atol = 0.03,
             err_msg=f"[{config_name}] Imaginary part mismatch"
         )
         print(f"  [PASS] Imag Part Matched ({intersection_points} points)") # Verbose pass
