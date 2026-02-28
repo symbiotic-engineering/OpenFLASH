@@ -141,6 +141,7 @@ stages:
     outs:
       - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
+      - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       - .calkit/notebooks/executed/analysis/timing_plots.ipynb:
           cache: true
       - .calkit/notebooks/html/analysis/timing_plots.html:

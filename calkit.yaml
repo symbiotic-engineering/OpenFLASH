@@ -53,6 +53,7 @@ pipeline:
       outputs:
         - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
         - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
+        - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex
