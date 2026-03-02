@@ -99,8 +99,8 @@ stages:
     outs:
     - path: .calkit/env-locks/openflash-on-branch.yml
       hash: md5
-      md5: f5c77bfa8fe11518ea4791c86932ab09
-      size: 7149
+      md5: 34117532f92215ae0eb41d2b9bce8680
+      size: 7152
   _check-env-openflash-on-main:
     cmd: calkit check environment --name openflash-on-main
     deps:
@@ -166,8 +166,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch.yml
       hash: md5
-      md5: f5c77bfa8fe11518ea4791c86932ab09
-      size: 7149
+      md5: 34117532f92215ae0eb41d2b9bce8680
+      size: 7152
     - path: .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
       hash: md5
       md5: 6a832537745ca618c89db30ddffa8e5d
@@ -178,7 +178,7 @@ stages:
       size: 5745
     - path: package/src/
       hash: md5
-      md5: 706fa3d67ff8fd3ec5d4d3f837538710.dir
+      md5: 42b813090a27e57d47c72c70fe05c69a.dir
       size: 554644
       nfiles: 51
     - path: sea-lab-utils
@@ -189,15 +189,15 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: d49998f5ac80aa7f613b2de68ae1e72a
-      size: 83306
+      md5: a91d9adc22b6492bbe7500cafc62abad
+      size: 83307
     - path: .calkit/notebooks/html/analysis/low_m0_plots.html
       hash: md5
       md5: db4c1e676114566a5643ea8487c465a1
       size: 395527
     - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: 1c4ce1dda6da1b0da43a9577c6a3857b
+      md5: 1104cbddeb8380e722ab3edfd8c71f67
       size: 402750
   _clean-nb-slant-figs:
     cmd: calkit nb clean "analysis/slant_data_plots.ipynb"
