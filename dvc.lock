@@ -41,7 +41,7 @@ stages:
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: b2e08d54a65584bc9b49c880dc07df43.dir
+      md5: 709584eff7ef9b25265b9d17bc9fa840.dir
       size: 2836334
       nfiles: 19
     - path: pubs/JFM/jfm.bib
@@ -63,8 +63,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 564b8293f1a33b800ddef78011ca7603
-      size: 871093
+      md5: e3fbd88eafbad697c57fd68f574091c2
+      size: 871096
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check 
       --language python --to html 
