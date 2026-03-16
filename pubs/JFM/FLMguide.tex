@@ -13,7 +13,7 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 
-\lefttitle{R. McCabe, K. Khanal, Y. Bimali, E. Lo, C. Treacy, and M. N. Haji}
+\lefttitle{Y. Bimali, R. McCabe, C. Treacy, K. Khanal, E. Lo,  and M. N. Haji}
 \righttitle{Journal of Fluid Mechanics}
 
 \title{Numerics of the matched eigenfunction method for computing wave forces on concentric bodies}
@@ -116,7 +116,7 @@ The objective of this method is to determine the hydrodynamic forces on a series
     \label{fig:Diagram}
 \end{figure} 
 
-To model the fluid in the internal and external regions, linear potential flow theory is used. The fluid is assumed to be inviscid, irrotational, and incompressible. Additionally, the ratios between the wave amplitude and wavelength; characteristic body length and wavelength; and body displacement and water column depth are assumed to be less than unity [\cite{mei2005theory}]. With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \Phi_\mathrm{T}(\mathbf{x},t)=0$, where the fluid velocity is $\mathbf{v} = \nabla \Phi_\mathrm{T}(\mathbf{x},t)$. The potential function $\Phi_\mathrm{T}$ is both a function of spatial coordinates $\mathbf{x}$ and time $t$. Since only axisymmetric bodies are modeled in this work, the cylindrical coordinate system $\mathbf{x}=(r, \theta, z)$ is used, as shown in Fig.~\ref{fig:Diagram}. The spacial and temporal dependencies can be separated as $\Phi_\mathrm{T}(\mathbf{x},t) = \mathrm{Re} \{ \phi_\mathrm{T}(\mathbf{x})e^{-i \omega t}\}$, where $\phi_\mathrm{T} \in \mathbb{C}$ and $\omega$ is the angular frequency of the incident wave. 
+To model the fluid in the internal and external regions, linear potential flow theory is used. The fluid is assumed to be inviscid, irrotational, and incompressible. Additionally, the body motion is assumed to be small, and the ratio between the wave amplitude and wavelength is assumed to be less than unity [\cite{mei2005theory}]. With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \Phi_\mathrm{T}(\mathbf{x},t)=0$, where the fluid velocity is $\mathbf{v} = \nabla \Phi_\mathrm{T}(\mathbf{x},t)$. The potential function $\Phi_\mathrm{T}$ is both a function of spatial coordinates $\mathbf{x}$ and time $t$. Since only axisymmetric bodies are modeled in this work, the cylindrical coordinate system $\mathbf{x}=(r, \theta, z)$ is used, as shown in Fig.~\ref{fig:Diagram}. The spacial and temporal dependencies can be separated as $\Phi_\mathrm{T}(\mathbf{x},t) = \mathrm{Re} \{ \phi_\mathrm{T}(\mathbf{x})e^{-i \omega t}\}$, where $\phi_\mathrm{T} \in \mathbb{C}$ and $\omega$ is the angular frequency of the incident wave. 
 
 The total complex potential $\phi_\mathrm{T}$ can be written as the superposition of the incident $\phi_\mathrm{I}$, diffracted (or scattered) $\phi_\mathrm{D}$, and radiated $\phi_\mathrm{R}$ potentials. The incident wave potential for a regular wave propagating in a direction at an angle $\beta$ from the x-axis is
 \begin{equation}
@@ -211,6 +211,7 @@ This is consistent with what is shown in Table~\ref{tab:MEEM-A-matrix}. Tables~\
     0 & \text{Body in region $i_m$ fixed} 
     \end{matrix}.\right.
 \end{equation}
+Additionally, each matrix $\mathbf{A}_m$ can be broken into a matrix dependent on radial eigenfunctions $\mathbf{A}_{m,r}$ and a matrix dependent on vertical eigenfunctions $ \mathbf{A}_{m,z}$, where $\mathbf{A}_m = \mathbf{A}_{m,r} \odot \mathbf{A}_{m,z}$, as shown in Appendix~\ref{sec:Forms of Matrix A}.
 
 After constructing the $\mathbf{A}$ matrix and $\vec{b}$ vector that correspond to the problem's geometry and wave conditions, numerically solving the $\mathbf{A} \vec{x}=\vec{b}$ equation yields the unknown eigencoefficients $\vec{x}$, which can be substituted into the expressions of Table~\ref{tab:MEEM-eigenfunctions} to yield the velocity potential everywhere in the fluid.
 The potential can then be used to find the hydrodynamic forces on the body.
@@ -446,15 +447,13 @@ Since $\hat{n}_p=\hat{e}_z$ at the horizontal portions of $S_p$ and $\hat{n}_p=\
 \end{equation}
 where $_{}^{q}\phi^{i_m}(r,-d_m)$ is the potential in internal region $i_m$ evaluated at $z=-d_m$ when only the $q$th DOF is moving. $\hat{f}_{pq}$ can be rewritten in terms of frequency-dependent added mass and radiation damping coefficients $A_{pq}(\omega)$ and $B_{pq}(\omega)$, respectively, which is shown in Appendix~\ref{appC}. The result is
 \begin{equation}\label{A_pq B_pq scalar form}
-    A_{pq}(\omega) + \frac{\mathrm{i}B_{pq}(\omega)}{\omega}=2\pi \rho (c_{pq} + \vec{c}_p \ \vec{x}_q) =2\pi \rho (c_{pq} + \vec{c}_p \ \mathbf{A}^{-1} \vec{b}_q)
+    A_{pq}(\omega) + \frac{\mathrm{i}B_{pq}(\omega)}{\omega}=2\pi \rho (c_p\delta_{pq} + \vec{c}_p \ \vec{x}_q) =2\pi \rho (c_p\delta_{pq} + \vec{c}_p \ \mathbf{A}^{-1} \vec{b}_q)
 \end{equation}
-with output scalar $c_{pq} \in \mathbb{R}$
+with output scalar $c_{p} \in \mathbb{R}$
 \begin{equation}
-     c_{pq} = \left\{\begin{matrix} \displaystyle \sum_{m \in \mathcal{M}_p } \frac{\left({a^2_{{m+1}}}-{a^2_{m}}\right)\,\left(-{a^2_{m}}-{a^2_{{m+1}}}+4(h-d_m)^2\right)}{16\,\left(h - d_m\right)} & \text{when} \ p=q \\
-    0 & \text{when} \ p \neq q
-\end{matrix}\right.
+     c_{p} =  \sum_{m \in \mathcal{M}_p } \frac{\left({a^2_{{m+1}}}-{a^2_{m}}\right)\,\left(-{a^2_{m}}-{a^2_{{m+1}}}+4(h-d_m)^2\right)}{16\,\left(h - d_m\right)}, 
 \end{equation}
-and output row vector $\vec{c}_p =[\vec{c}_p^{ \ i_1}, \ \vec{c}_p^{ \ i_2}, \dots,  \vec{c}_p^{ \ i_M},  \vec{c}_p^{ \ e}]\in \mathbb{C}^{N_\mathrm{T}}$ where
+where $\delta_{pq}$ is the Kronecker delta symbol, and output row vector $\vec{c}_p =[\vec{c}_p^{ \ i_1}, \ \vec{c}_p^{ \ i_2}, \dots,  \vec{c}_p^{ \ i_M},  \vec{c}_p^{ \ e}]\in \mathbb{C}^{N_\mathrm{T}}$, where
 \begin{equation}\label{eq:c_q_i1_vec}
     \vec{c}_p^{ \ i_1} = \left\{\begin{matrix} \vec{Z}_n^{i_1}(-d_1) \odot\vec{\mathcal{R}}_{1n}^{i_1} & \text{when} \ m \in \mathcal{M}_p \\
     \vec{0}_{N^{i_1}} & \text{when} \ m \notin \mathcal{M}_p
@@ -471,7 +470,7 @@ By applying Eq.~\ref{A_pq B_pq scalar form} for $q=1,2,\dots, Q$ and $p=1,2,\dot
 \begin{equation}\label{A_pq B_pq matrix form}
     \mathbf{A}_\mathrm{r}(\omega) + \frac{\mathrm{i}\mathbf{B}_\mathrm{r}(\omega)}{\omega}=2\pi \rho (\mathbf{C}_0 + \mathbf{C} \ \mathbf{X}) =2\pi \rho (\mathbf{C}_0 + \mathbf{C} \ \mathbf{A}^{-1} \ \mathbf{B})
 \end{equation}
-where the element in the $p$th row and $q$th column of $\mathbf{C}_0$ is $c_{pq}$, the $p$th row of $\mathbf{C}$ is $\vec{c}_p$, the $q$th column of $\mathbf{X}$ is $\vec{x}_q$, and the $q$th column of $\mathbf{B}$ is $\vec{b}_q$. Finally, the added mass and radiation damping matrices are 
+where the element in the $p$th row and column of the diagonal matrix $\mathbf{C}_0$ is $c_{p}$, the $p$th row of $\mathbf{C}$ is $\vec{c}_p$, the $q$th column of $\mathbf{X}$ is $\vec{x}_q$, and the $q$th column of $\mathbf{B}$ is $\vec{b}_q$. Finally, the added mass and radiation damping matrices are 
 \begin{equation}\label{eq: added mass matrix}
     \mathbf{A}_\mathrm{r}(\omega) = 2\pi \rho \ \mathrm{Re} \{ \mathbf{C}_0 + \mathbf{C} \ \mathbf{A}^{-1} \ \mathbf{B} \}, \qquad
     \mathbf{B}_\mathrm{r}(\omega) = 2\pi \rho \omega \ \mathrm{Im} \{ \mathbf{C}_0 + \mathbf{C} \ \mathbf{A}^{-1} \ \mathbf{B} \}.
@@ -509,12 +508,14 @@ where $\vec{\xi}(t) = [\xi_1(t), \xi_2(t), \dots,  \xi_Q(t)]^T$ is a vector cont
 Frequency $\omega$ and wavenumber $\lambda_0^e$ are related by the dispersion relation in Table \ref{tab:MEEM-eigenfunctions}, which is monotonic and depends on $h$. Extreme frequency values (i.e. extreme $\lambda_0^e$ and/or $h$) push solutions towards edge cases, enabling simplification or requiring modifications to avoid numerical errors.
 
 \subsubsection{Low Frequency}
-Empirically, as $\omega \to 0$, the components of $\vec x$ approach asymptotes. $\text{Re}(C^{i_m}_{1n}), \text{Re}(C^{i_m}_{1n})$ behave like $K_1 + K_2\log(\lambda_0^e h)$ (for some nonzero constants $K_1, K_2$, different for each coefficient/region) for $n = 0$ and nonzero constants for $n>0$. $\text{Im}(C^{i_m}_{1n}), \text{Im}(C^{i_m}_{1n})$ approach nonzero constants for $n=0$ and zero for $n>0$. 
+Empirically, as $\omega \to 0$, the components of $\vec x$ exhibit the following asymptotic behavior: $\text{Re}(C^{i_m}_{1n_m}), \text{Re}(C^{i_m}_{2n_m})$ behave like $K_1 + K_2\ln(\lambda_0^e h)$ (for some nonzero constants $K_1, K_2$, different for each coefficient/region) for $n_m = 0$ and approach nonzero constants for $n_m>0$. $\text{Im}(C^{i_m}_{1n_m}), \text{Im}(C^{i_m}_{2n_m})$ approach nonzero constants for $n_m=0$ and zero for $n_m>0$ (Fig.~\ref{fig: extreme-frequencies}).
 
-This is consistent with the behavior for a single cylinder described in \cite{yeung_added_1981}.
+Since $\vec c_p$ is frequency independent, the hydrodynamic coefficients vary with frequency only through their dependence on $C^{i_m}_{1n_m}$ and $C^{i_m}_{2n_m}$. From their forms, we can see that as $\omega \to 0$, the behaviors of the $n_m = 0$ coefficients dominate the others. Then $A_{11}(\omega)$ grows proportional to $\ln(\lambda_0^e h)$ (although the constant term is still significant for the frequency range in Fig.~\ref{fig: extreme-frequencies}) while $B_{11}(\omega)/\omega$ approaches a constant. This is consistent with behavior of the analytical low frequency limits for a single heaving cylinder: $A_{11}(\omega) \to K- \frac{\rho \pi a_1^4}{2h}\ln{(\lambda_0^e a_1)}$ for some constant $K$ and $B_{11}(\omega)/\omega \to \frac{\rho \pi^2 a^4}{4h}$ \citep{yeung_added_1981}. 
+
+The low frequency approximation \citep{chau2012inertia} represents the potential in each region with a depth-averaged potential (the shallow-water approximation), meaning that the potential has no $z$-dependence. For the body regions, this is equivalent to keeping only the $n_m=0$ eigenfunctions and coefficients, since $Z^{i_m}_0(z) = 1$. For the exterior region, the only characteristic lengths are $\lambda_0^e$ and $h$, so low frequency is equivalent to shallow water. However, the deeper the water (or more specifically, the ratio of body radius to water depth $\frac{a_M}{h}$), the worse this approximation is \citep{yeung_added_1981}. This can be interpreted as the $n_m = 0$ terms dominating faster for shallower water.
 
 \subsubsection{High Frequency}\label{sec:high-freq-limit}
-The $\sinh$ component of $N_0$ (and therefore $N_0$) increases exponentially with high $\lambda_0^e h$. $N_0$ appears in the denominator of first exterior region vertical eigenfunction $Z_0^e$ and its derivative, and anywhere else it appears is a specific case of one of these expressions. Both have hyperbolic functions of $m_0(z+h)$ in the numerator that overflow and raise errors long before the fraction as a whole becomes so extreme. We found the expressions' limiting forms to extend their allowed input range. The accuracy of these forms depends solely on the product $\lambda_0^e h$, not $\lambda_0^e $ or $h$ individually, or $z$.
+The $\sinh$ component of $N_0$ (and therefore $N_0$) increases exponentially with high $\lambda_0^e h$. $N_0$ appears in the denominator of first exterior region vertical eigenfunction $Z_0^e$ and its derivative, and anywhere else it appears is a specific case of one of these expressions. Both have hyperbolic functions of $\lambda_0^e(z+h)$ in the numerator that overflow and raise errors long before the fraction as a whole becomes so extreme. We found the expressions' limiting forms to extend their allowed input range. The accuracy of these forms depends solely on the product $\lambda_0^e h$, not $\lambda_0^e $ or $h$ individually, or $z$.
 
 \begin{equation}
 	\lim_{\lambda_0^e h \to \infty} Z_0^e(z) = \lim_{\lambda_0^e h \to \infty} \frac{\cosh(\lambda_0^e(z + h))}{\sqrt{N_0}} = 
@@ -535,12 +536,12 @@ The rest of the exterior region eigenvalues must be finite and satisfy $\lambda_
 \end{equation}
 In general, that is the lower bound for $\lambda_n^e$. For finite frequency, $\lambda_n^e h \in [ (n - \frac{1}{2})\pi, n\pi]$, bounds that can be passed into a root-finding solver for $\lambda_n^e$.
 
-Lastly, damping approaches zero as $\lambda_n^e$ approaches infinity. Mathematically, this is evident from the matrix formulation: the Hankel functions $H_0^1$ are the only Bessel functions involved with that give imaginary values for real inputs, so they supply the only imaginary elements to the A matrix. When their contribution goes to zero, the matrix (and its solution) become real, leaving no imaginary component in the hydro coefficient integral.
+Lastly, damping approaches zero as $\lambda_n^e$ approaches infinity. Mathematically, this is evident from the matrix formulation: the Hankel functions $H_0^1$ are the only Bessel functions involved that give imaginary values for real inputs, so they supply the only imaginary elements to the A matrix. When their contribution goes to zero, the matrix (and its solution) become real, leaving no imaginary component in the hydrodynamic coefficient integral.
 
 \begin{figure}[htbp]
     \centering    \includegraphics[width=\linewidth]{figs/MEEM-Low-Freq.pdf}
-    \caption{NOT GENERATED: Plots for added mass and damping with a log-scaled x-axis for frequency. A smooth curve computed with typical MEEM, a dotted horizontal line showing the asymptote computed with infinite frequency, and another dotted curve showing the low-frequency approximation.}
-    \label{extreme-frequencies}
+    \caption{Left: Comparison of the low frequency approximation, the infinite frequency limit, and standard MEEM (with $N_{i_m} = N_e = 100$) for the geometry described in Section~\ref{sec:validation}. Right: A comparison of the first four $C^{i_2}_{1n}$ over low frequencies, demonstrating that the behavior of $C^{i_2}_{10}$ eventually dominates as frequency approaches zero for both the real and imaginary parts. This trend is representative of the other $C^{i_m}_{1n}$, $C^{i_m}_{2n}$.}
+    \label{fig: extreme-frequencies}
 \end{figure} 
 
 % \begin{itemize}
@@ -554,7 +555,7 @@ Avoiding numerical failures in edge cases is particularly relevant for optimizat
 All discussion of numerical overflow uses the standard Python float type, which has a maximum representable finite value of around $1.8 \times 10^{308}$, and minimum positive nonzero value near $2.2 \times 10^{-308}$.
 
 \subsubsection{Overflow in Radial Eigenfunctions}
-Without using exponentially scaled Bessel functions (Table~\ref{table:exp-bessels}), the radial eigenfunctions overflow at arguments near $\lambda r \text{ (and/or $\lambda a$)}\geq 700$ due to overflow in the numerator or denominator individually. The radial eigenfunctions computed using exponentially scaled Bessel functions will only overflow after $|\lambda (r - a)|\geq 700$. This allows larger values of $\lambda a$ as long as $r$ is near $a$, extending the dimensions of geometries and terms per region allowed. Now, the limit on region $i_m$'s term count satisfies $\frac{N^{i_m} \pi(a_{m+1} - a_m)}{h-d_m} < 700$ on $N^{i_m}$, or more directly
+Without using exponentially scaled Bessel functions (Table~\ref{table:exp-bessels}), the radial eigenfunctions overflow at arguments near $\lambda r \text{ (and/or $\lambda a$)}\geq 700$ due to overflow in the numerator or denominator individually, where $\lambda$ can be $\lambda_{n_e}^e$ or $\lambda_{n_m}^{i_m}$. The radial eigenfunctions computed using exponentially scaled Bessel functions will only overflow after $|\lambda (r - a)|\geq 700$. This allows larger values of $\lambda a$ as long as $r$ is near $a$, extending the dimensions of geometries and terms per region allowed. Now, the limit on region $i_m$'s term count satisfies $\frac{N^{i_m} \pi(a_{m+1} - a_m)}{h-d_m} < 700$ on $N^{i_m}$, or more directly
 \begin{equation}\label{eq: term-limit}
     N^{i_m} < \frac{200(h-d_m)}{(a_{m+1} - a_m)}
 \end{equation}
@@ -570,7 +571,7 @@ $K_\nu^e(z) = K_\nu(z) \cdot e^{z}$ &
 $\frac{K_{\nu}(\lambda r)}{K_\nu(\lambda a)} = \frac{K_\nu^e (\lambda r)}{K_\nu^ e(\lambda a)}\cdot e^{\lambda(a-r)}$\\
 \hline
 \end{tabular}
-\caption{Typical Bessel functions ($I_\nu(z), K_\nu(z)$) exhibit approximately exponential growth or decay. Thus, exponentially scaled Bessel functions counteract this and span only a few orders of magnitude for the reasonable range of inputs. Examples of the new form of the radial eigenfunctions are shown here.} \label{table:exp-bessels} \end{table}
+\caption{Typical Bessel functions ($I_\nu(z), K_\nu(z)$) exhibit approximately exponential growth or decay. Exponentially scaled Bessel functions counteract this and span only a few orders of magnitude for the reasonable range of inputs. Examples of the new form of the radial eigenfunctions are shown here.} \label{table:exp-bessels} \end{table}
 
 \subsubsection{Overflow in Vertical Eigenfunctions}
 Likewise, the vertical eigenfunction $Z_k^e$ for $k=0$ contains the $\cosh$ and $\sinh$ functions, which diverge for large values of $\lambda_0^eh$ (high frequencies or deep water).
@@ -579,30 +580,30 @@ The expression overflows for $\lambda_0^eh>\cosh^{-1}(realmax)/2$.
 To prevent overflow, we derive an analytical limit in section~\ref{sec:high-freq-limit} which allows for larger values of $\lambda_0^eh>\cosh^{-1}(realmax)h/d_2$ before overflow.
 % %\hl{This formula hasn't been numerically checked yet}
 % \begin{equation}
-%     \lim_{m_0h\rightarrow\infty} Z_0^e(z)= \frac{\cosh^2(m_0h)}{\sqrt{2m_0h}}\exp\left(1+\frac{z}{h}\right)
+%     \lim_{\lambda_0^eh\rightarrow\infty} Z_0^e(z)= \frac{\cosh^2(\lambda_0^eh)}{\sqrt{2\lambda_0^eh}}\exp\left(1+\frac{z}{h}\right)
 % \end{equation}
 Plugging this into the first element of the bottom block of the b-vector results in 
 \begin{equation}
-    \lim_{m_0h\rightarrow\infty}b_{N+2M+1}=\frac{-a_2}{h-d_2} \sqrt{\frac{h}{2m_0}}\exp(-d_2m_0)
+    \lim_{\lambda_0^eh\rightarrow\infty}[\vec{b}_M]_0=\frac{-a_M}{h-d_M} \sqrt{\frac{h}{2\lambda_0^e}}\exp(-d_M\lambda_0^e)
 \end{equation}
 \begin{figure}
     \centering
     \includegraphics[width=.75\linewidth]{figs/asymptotic_b.png}
-    \caption{Asymptotic b-vector for large $m_0h$}
+    \caption{Asymptotic b-vector for large $\lambda_0^eh$}
     \label{fig:meem-b-limit}
 \end{figure}
 
 %\hl{Todo: add sentence describing this figure and what it tells us}
 
-And the corresponding limit for the vertical coupling integral:
+and the corresponding limit for the vertical coupling integral:
 \begin{equation}
 \begin{aligned}
-    \lim_{m_0h\rightarrow\infty}\boldsymbol{\mathcal{Z}}_{m,k=0} &
+    \lim_{\lambda_0^eh\rightarrow\infty}[\boldsymbol{\mathcal{Z}}^{i_m e}]_{n_m 0} &
     %= \int_{-h}^{-d_2} \vec{Z}_m^{i2 ~T}\vec{Z}_0^{e} dz 
-    = h~\frac{\cosh^2(m_0h)}{\sqrt{2m_0h}}\cdot \frac{-1+(-1)^m\exp(1-\frac{d_2}{h})}{f_{m}} \\
-    \text{where}~~f_m&= \begin{cases}
-        1, & m=0 \\
-        h^2\lambda_m^2+1, & m \geq 1
+    = h~\frac{\cosh^2(\lambda_0^eh)}{\sqrt{2\lambda_0^eh}}\cdot \frac{-1+(-1)^{n_m}\exp(1-\frac{d_M}{h})}{f_{n_m}} \\
+    \text{where}~~f_{n_m}&= \begin{cases}
+        1, & n_m=0 \\
+        h^2{(\lambda^{i_m}_{n_m})}^2+1, & n_m \geq 1
     \end{cases}
     \end{aligned}
 \end{equation}
@@ -614,7 +615,7 @@ Bounds of $180^\textrm{o}\cdot[k-\frac{1}{2}, k]$ are placed on $\lambda_k^eh$ i
 Degrees are used instead of radians so asymptotes occur at rational values.
 
 \subsubsection{Matrix Condition Number}
-The $\mathbf{A_m}$ sub-matrix, and consequently the $\mathbf{A}$ matrix, frequently has a high condition number. This arises because of the large range of the radial eigenfunction across values of $n$.
+The $\mathbf{A}_m$ sub-matrix, and consequently the $\mathbf{A}$ matrix, frequently has a high condition number. This arises because of the large range of the radial eigenfunction across values of $n_m$.
 In principle, a high condition number means that the $\mathbf{A}$ matrix will amplify small deviations or numerical errors in the $\vec{b}$ vector to produce large errors in the $\vec{x}$ vector, or equivalently that the $\vec{x}$ vector is close to non-unique.
 However, the validation in section~\ref{sec:validation} will show that these high condition numbers do not appear to interfere with the accuracy or convergence of the solution, even when the linear algebra solver produces warnings about ill-conditioned inputs.
 A potential explanation of this convenient fact is that the sparsity of the $\vec{b}$ and $\vec{c_p}$ vectors might shield the hydrodynamic coefficients from the most amplifying portions of the $\mathbf{A}$ matrix.
@@ -653,7 +654,7 @@ The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation 
 To predict the number of terms ($N^{i_m}$) needed in a region $m$ for a desired degree of accuracy, we assume this can be characterized by a set of local and cumulative dimensionless parameters. Local parameters are extracted from the geometry of the region itself, such as its fluid height, radial width, or the ratio of its fluid height to those of its neighbors. Cumulative parameters are overall metrics combining the geometries of other regions, such as total radial distance to the center/exterior region. They should not depend on a specific other region or the number of other regions. Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
 [TODO transition/section reorder?]
 
-To find the convergence of a configuration's hydro coefficients with respect to $N^{i_m}$, compute them with all $N^{i_k}$ at a high number $N_{max}$ for their ``true values.'' Then, fix all $N^{i_k}, k\neq m$ to $N_{max}$, compute hydro coefficients with $N^{i_m}$ over a range of $[1, 2, \dots, N_{big}], N_{big}<N_{max}$, and find the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of the hydro coefficients.
+To find the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, compute them with all $N^{i_k}$ at a high number $N_{max}$ for their ``true values.'' Then, fix all $N^{i_k}, k\neq m$ to $N_{max}$, compute hydrodynamic coefficients with $N^{i_m}$ over a range of $[1, 2, \dots, N_{big}], N_{big}<N_{max}$, and find the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of the hydrodynamic coefficients.
 
 To predict errors, we model them as an envelope of $\epsilon \approx (\frac{x}{\beta})^{-\alpha}$, $\alpha, \beta > 0$. Convergence is faster with larger $\alpha$ and smaller $\beta$. To find the dependence of $\alpha$ and $\beta$ on geometry, we considered configurations with three body regions (and one exterior region), and found a good set of dimensionless parameters. After a dominant dimensionless parameter was found, it was kept constant in the search for the next most important parameter. After a set was decided, we kept as many dimensionless parameters constant as possible when measuring a single parameter's effect. Effects were quantified by fitting an $\alpha$ and $\beta$ value to each configuration (geometry + target region) and plotting them against the dimensionless parameter.
 \begin{figure}
@@ -671,11 +672,11 @@ To predict errors, we model them as an envelope of $\epsilon \approx (\frac{x}{\
 \end{figure}
 
 \subsubsection{Results}
-The most influential dimensionless parameter for the convergence of a given region is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{i_m}}{a_{i_m} - a_{i_{m-1}}}$. For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. The characteristic length of an eigenfunction is the inverse of its eigenvalue. Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width.
+The most influential dimensionless parameter for the convergence of a given region is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. The characteristic length of an eigenfunction is the inverse of its eigenvalue. Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width.
 
 The ratio of region's neighbor's fluid heights to that of its own also influences convergence. We observed that convergence is significantly faster for region $m$ when $\frac{h-d_{m-1}}{h-d_m} > 1$ than when it's less than $1$. There is some correlation before and after this transition point, but the convergence speed changes quickly (almost step-like) near $1$. The behavior is the same for $\frac{h-d_{m+1}}{h-d_m}$.
 
-This is theorized to result from the boundary condition represented by the ratio. If $\frac{h-d_{m-1}}{h-d_m} < 1$, then region $m$'s entire inner boundary condition is the continuity conditions between regions $m$ and $m-1$, but if $\frac{h-d_{m-1}}{h-d_m} > 1$, the BC includes a section of $\frac{\partial \phi}{\partial r} = 0$ near $z = d_m$, where the hydro coefficients are being integrated. [more explanation needed]
+This is theorized to result from the boundary condition represented by the ratio. If $\frac{h-d_{m-1}}{h-d_m} < 1$, then region $m$'s entire inner boundary condition is the continuity conditions between regions $m$ and $m-1$, but if $\frac{h-d_{m-1}}{h-d_m} > 1$, the BC includes a section of $\frac{\partial \phi}{\partial r} = 0$ near $z = d_m$, where the hydrodynamic coefficients are being integrated. [more explanation needed]
 
 [Shielding effects]
 Especially in the case the outer neighboring region the, the impact of fluid height ratio might be a special case of what we've termed a ``shielding effect''. 
@@ -714,23 +715,20 @@ Especially in the case the outer neighboring region the, the impact of fluid hei
     \label{fig:Discretization Schemes Diagram}
 \end{figure}
 
-As formulated, MEEM can only perfectly represent geometries where the fluid can be divided into regions that have the top boundary parallel to the sea floor. The standard way to use MEEM with slanted or curved bodies is to approximate the geometry by subdividing non-flat regions into a flat regions approximating the true outline (Figure~\ref{fig:Discretization Diagram}).
+As formulated, MEEM can only perfectly represent geometries where the fluid can be divided into regions that have the top boundary parallel to the sea floor. The standard way to use MEEM with slanted or curved bodies is to approximate the geometry by subdividing non-flat regions into a flat regions approximating the true outline (Figure~\ref{fig:Discretization Diagram}) \cite{kokkinowrachos_behaviour_1986}.
 
-There are many options for this discretization, and all work as long as they approach the true outline as the number of subdivisions approaches infinity. For example, as in Figure~\ref{fig:Discretization Diagram}, the approximating body can lie entirely within the true body's outline. In this case, the computed potentials in the true fluid region will be smooth. Alternatively, the approximating outline can cross back and forth across the true outline, meaning some parts of the approximating body are in the true fluid. This creates discontinuities in the potential at points in the true fluid that correspond to a fluid-body boundary in the approximation.
+There are many options for this discretization, and all work as long as they approach the true outline as the number of subdivisions approaches infinity. For example, as in Figure~\ref{fig:Discretization Diagram}, the approximating body can lie entirely within the true body's outline. In this case, the computed potentials in the true fluid region will be smooth. Alternatively, the approximating outline can cross back and forth across the true outline, meaning some points in the true fluid are inside of the approximating body. This creates discontinuities in the potential at points in the true fluid that correspond to a fluid-body boundary in the approximation.
 
 However, this discretization quickly becomes computationally expensive. Not only does matrix size increase as the number of regions increases, but the number of terms required for convergence in each subregion also increases. This is because increasing the number of subdivisions reduces the radial width allocated to each subregion without changing the fluid height by much, increasing $\frac{\text{fluid height}}{\text{radial width}}$ (see Section~\ref{sec:convergence}).
 
-A complicating factor is that regions with shallower slants are better approximated (can be represented more accurately with fewer discretizations) than those with steeper slants (Figure~\ref{fig:MEEM nonslant validation}, conical geometries). Another is that for a given geometry, flat regions can be well-represented with accurate potentials near its surface while slanted regions are poorly approximated. Since the accuracy of the entire body's hydro coefficients essentially weights the accuracy of the representation in each region by its ($r$-$\theta$) cross section (Section~\ref{subsection: slant intro hydros}), geometries with many flatter regions can still have fairly accurate results with MEEM, even if they have steep regions that are badly approximated.
+A complicating factor is that regions with shallower slants are better approximated (can be represented more accurately with fewer discretizations) than those with steeper slants (Figure~\ref{fig:MEEM nonslant validation}, conical geometries). Another is that for a given geometry, flat regions can be well-represented with accurate potentials near its surface while slanted regions are poorly approximated. Since the accuracy of the entire body's hydrodynamic coefficients essentially weights the accuracy of the representation in each region by its ($r$-$\theta$) cross section (Section~\ref{subsection: slant intro hydros}), geometries with many flatter regions can still have fairly accurate results with MEEM, even if they have steep regions that are badly approximated.
 
 % [TODO: "Import the citation for Hydrodynamic Behavior of a Submerged Spheroid in Close Proximity to the Sea Surface" and contrast its success with the cones here, and also the different configs of the same height in Fig. 5]
 
-\subsubsection{Hydro Coefficient Integral in a Slanted Region} \label{subsection: slant intro hydros}
-Eq.~\ref{eq:freq domain scalar rad force} holds for generic surfaces. For a slanted $S_p$ at constant angle $\beta$, the $z$ component of $\hat n_p$ is $\sin(\beta)$, the differential surface element $dS$ evaluates to $\frac{r}{\sin(\beta)}drd\theta$, and the $\theta$-dependence can be extracted by axisymmetry into a factor of $2\pi$. With the relations to hydro coefficients $A_{pq}(\omega)$ and $B_{pq}(\omega)$ defined as before, this implies
-\begin{equation}
-\label{slant hydro coefficient integral}
-    A_{pq}(\omega) + \frac{\text{i}B_{pq}(\omega)}{\omega} = 2 \pi \rho \sum_{m \in \mathcal{M}_p} \int_{a_m}^{a_{m+1}} \ _{}^{q}\phi^{i_m}(r,-d_m(r)) \ r  \ dr
-\end{equation}
-However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ mean that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{eq:freq domain scalar rad force in terms of added mass and damping} and onward. Unless the region's outline is flat and $d_m(r)$ is constant, the hydro coefficient integrals (given $\vec x$) do not admit closed forms.
+\subsubsection{Hydrodynamic Coefficient Integral in a Slanted Region} \label{subsection: slant intro hydros}
+For a slanted surface $S_p$ at constant angle $\beta$, $\hat n_p \cdot \hat e_z = \sin(\beta)$ and $dS = \frac{r}{\sin(\beta)}drd\theta$ in Eq.~\ref{eq:freq domain scalar rad force}. When these are substituted, the $\sin(\beta)$ cancels and the result is Eq.~\ref{eq:freq domain scalar rad force in terms of regions}, except $d_m$ now has $r$ dependence.
+
+However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ mean that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{eq:freq domain scalar rad force in terms of added mass and damping} and onward. Unless the region's outline is flat and $d_m(r)$ is constant, the hydrodynamic coefficient integrals (given $\vec x$) do not admit closed forms.
 
 Under the standard representation for slanted geometries though, the correct surface to integrate over is that of the (steplike) approximation, not the true slanted outline, so Eq.~\ref{slant hydro coefficient integral} presents no computational barrier.
 
@@ -742,7 +740,7 @@ The formulation of the boundary conditions at the surface of the body assumes th
 \hline
 Top Boundary & Flat & Slanted (angle $\beta_m$)\\
 \hline
-\rule{0pt}{6ex}\begin{tabular}{@{}c@{}}Boundary Condition \\ (at $z = -d_{i_m}$)\end{tabular}
+\rule{0pt}{6ex}\begin{tabular}{@{}c@{}}Boundary Condition \\ (at $z = -d_{m}$)\end{tabular}
 & $\dfrac{\partial \phi^{i_m}}{\partial z} =
    \begin{cases}
       1, & \text{Heaving}\\
@@ -777,7 +775,7 @@ Equations ~\ref{velocity matching integral} and ~\ref{velocity matching slant in
 Without the $\tan\beta_t$ terms, Eq.~\ref{separated velocity matching slant integral} is identical to the flat case (Eq.~\ref{separated velocity matching integral}). The $\tan\beta_t$ term on the left-hand-side populates corrections to $\mathbf{A}$ and the one on the right-hand-side changes $\vec b$. As before, all integrals in Eq.~\ref{separated velocity matching slant integral} have closed forms.
 
 \subsection{Results Using Proposed Corrections}
-Using $\vec x$ obtained from the corrected form, integration for the hydro coefficients must be over the the true, slanted outline of the body, not the approximating stepped outline (unlike when using the uncorrected formulation). Then the integrated $\phi$ is dependent on both $r$ and $z$, and the hydro coefficient integral has no closed form (see Sec.~\ref{subsection: slant intro hydros}), and must be numerically integrated. Results in this paper approximate these expensive integrals by replacing the function of the homogeneous potential with its value at the midpoint of the region's outline (i.e. setting $_{}^{q}\phi^{i_m}_h(r,-d_m(r))$ to its value at $r = \frac{a_m + a_{m+1}}{2}$).
+Using $\vec x$ obtained from the corrected form, integration for the hydrodynamic coefficients must be over the the true, slanted outline of the body, not the approximating stepped outline (unlike when using the uncorrected formulation). Then the integrated $\phi$ is dependent on both $r$ and $z$, and the hydrodynamic coefficient integral has no closed form (see Sec.~\ref{subsection: slant intro hydros}), and must be numerically integrated. Results in this paper approximate these expensive integrals by replacing the function of the homogeneous potential with its value at the midpoint of the region's outline (i.e. setting $_{}^{q}\phi^{i_m}_h(r,-d_m(r))$ to its value at $r = \frac{a_m + a_{m+1}}{2}$).
 
 For steeply slanted configurations, the corrected formulation is observed to converge (with respect to the number of subdivisions) to the true value faster than the standard formulation. However, the difference between both standard and corrected MEEM with Capytaine is still considerable, and MEEM's effectiveness in slanted cases remains limited.
 
@@ -789,8 +787,8 @@ For steeply slanted configurations, the corrected formulation is observed to con
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/MEEM-CPT-Slant-Freq.pdf}
-    \includegraphics[width=0.95\linewidth]{figs/MEEM-CPT-Slant-Subdivisions.pdf}
-    \caption{Top four plots: CorPower-like WEC geometry with slanted region. Bottom six plots: Same circular cross sectional area as the previous geometry, but conical (with depths of $40$, $14.45$, and $1.26$). All plots showing subdivisions were calculated with $\omega = 1$. Apparent convergence to values differing from Capytaine can be for two major reasons: First, MEEM is likely not converged with respect to terms per region (computed with $N_{i_m} = 250$). Second, Capytaine may not being converged, but its error at this resolution ($\approx 6000$ panels) is likely less than $1\%$ (Section~\ref{sec:meem-cpt-timing}).}
+    \includegraphics[width=0.5\linewidth]{example-image-a}
+    \caption{[TODO: This plot needs to be replaced. Now want regular MEEM convergence to Capytaine, and convergence speed (resolution needed) wrt slope for a cone. Top four plots: CorPower-like WEC geometry with slanted region. Bottom six plots: Same circular cross sectional area as the previous geometry, but conical (with depths of $40$, $14.45$, and $1.26$). All plots showing subdivisions were calculated with $\omega = 1$. Apparent convergence to values differing from Capytaine can be for two major reasons: First, MEEM is likely not converged with respect to terms per region (computed with $N_{i_m} = 250$). Second, Capytaine may not being converged, but its error at this resolution ($\approx 6000$ panels) is likely less than $1\%$ (Section~\ref{sec:meem-cpt-timing}).}
     \label{fig:MEEM nonslant validation}
 \end{figure} 
 
@@ -807,7 +805,7 @@ For steeply slanted configurations, the corrected formulation is observed to con
 % \subsection{Non-Cylindrical Geometries}
 % \subsubsection{Influential Parameters}
 % \begin{itemize}
-%     \item Discuss what parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The possibilities for the limiting factors are $m_0h$, $d/h$, $r/h$, where $d$ is the draft of a indicates the region number of a multi-region geometry. Written by \textcolor{orange}{Bimali}.
+%     \item Discuss what parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The possibilities for the limiting factors are $\lambda_0^eh$, $d/h$, $r/h$, where $d$ is the draft of a indicates the region number of a multi-region geometry. Written by \textcolor{orange}{Bimali}.
 %     \item Figure showing the correlation between the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence and the limiting factors.
 % \end{itemize}
 
@@ -859,39 +857,44 @@ The radial integrals for the c-vector do not require evaluating Bessel functions
 % \end{itemize}
 These time complexities are listed using more explicit per-region term counts in Table~\ref{tab:time-complexities}, and examples of their distribution/dominance given the same $N^{i_m}$ per region are given in Fig~\ref{fig:time-dominance}. For low region counts, coupling integrals dominate. For large region counts and terms per region, as is commonly encountered in slant approximations, the matrix solve will eventually dominate.
 
-For comparison, while Capytaine effectively solves a matrix system whose side length scales with panel count, it does so quadratically. Its solve time is dominated by that quadratic relation. 
+For comparison, Capytaine solves a matrix system whose side length scales with panel count, and its total runtime (for matrix element generation and matrix solve) empirically scales quadratically with panel count.
 
 \subsection{Caching}
-A common application of a hydrodynamics solver is assessing multiple geometries in the same environment (same $h$, same range of frequencies), so $\lambda_n^e$ values can be cached over such runs.
+Computations can be cached depending on the variable changing between runs (Table~\ref{tab:reusable-dependence}). First, $\mathbf{A}$'s form is independent of whether each region is heaving or fixed ($\eta_m$), enabling the form in Eq.~\ref{A_pq B_pq matrix form} where a single $\mathbf{A}$ works with all possible $\vec b$ and $\vec c_p$ for the geometry (collected into the matrices $\mathbf{B}$ and $\mathbf{C}$). This implies that many operations used to solve a particular $\mathbf{A}\vec x = \vec b$ can be cached and reused as the $\eta_m$ vary.
 
-Other computations can be cached depending on the variable changing between runs (Table~\ref{tab:reusable-dependence}). $\mathbf{A}$ doesn't depend on whether each region is heaving or fixed, enabling the form in Eq.~\ref{A_pq B_pq matrix form} where it works with all possible $\vec b$ and $\vec c_p$ for the geometry, which are collected into matrices $\mathbf{B}$ and $\mathbf{C}$. With respect to varying $\omega$, only entries in $\mathbf{A}$ and $\vec b$ related to the $i_m$-$e$ region boundary are affected (and specifically, only the vertical eigenfunction components of those entries), so relatively few entries are changed when sweeping frequencies.
+With respect to varying $\omega$, only entries in $\mathbf{A}$ and $\vec b$ related to the $i_m$-$e$ region boundary are affected (and specifically, only the vertical eigenfunction components of those entries), so relatively few entries are changed when sweeping frequencies. Additionally, a common use case for hydrodynamics solvers is evaluating multiple geometries in the same environment (at the same depth and sweeping the same range of frequencies). The $\lambda_n^e$, which depend only on $h$ and $\omega$, can be reused between such runs.
 
 \begin{table}
 \centering \begin{tabular}{|l|c|c|}
 \hline
-& Depends on $\omega$ & No dependency on $\omega$\\
+& Depends on $\omega$ & Independent of $\omega$\\
 \hline
-Depends on heave states& $\vec b, \vec x$ & $\vec c$\\
+Depends on all $\eta_m$ & $\vec b, \vec x$ & $\vec c$\\
 \hline
-No dependency on heave states & $\lambda_n^e, \boldsymbol{\mathcal{Z}}^{i_M e},\mathbf{A}$& \\
+Independent of all $\eta_m$ & $\lambda_n^e, \boldsymbol{\mathcal{Z}}^{i_M e},\mathbf{A}$& \\
 \hline
 \end{tabular}
 \caption{Dependencies of various objects on $\omega$ and which regions are heaving. Changes to $\mathbf{A}$ and $\vec b$ due to $\omega$ only occur in rows corresponding to the boundary between regions $i_M$ and $e$.} \label{tab:reusable-dependence} \end{table}
 
-The $\lambda_n^e$ terms only depend on $\omega$ and $h$. Since a common use case is evaluating many geometries at a fixed location (subject to the same depth and over the same frequency range), the $\lambda_n^e$ computation can be cached. Similarly, changing which region(s) are heaving only changes entries in the b-vector, meaning both the A-matrix and many operations in the matrix solve can be reused.
-
 \subsection{Future Speed Enhancements}\label{sec:speedups}
+\paragraph{Matrix Solve}
 Given that MEEM's matrix is sparse and its construction can be decomposed into element-wise products, there exist additional ways to speed up its solution.
 In particular, the A-matrix is block tri-diagonal, which can be solved in $\mathcal{O}(N_T)$ complexity via the Thomas algorithm, compared to the $\mathcal{O}(N_T^3)$ complexity of typical matrix solves (cite). 
-However, \texttt{numpy/scipy} linear algebra solvers do not implement the Thomas algorithm, so a standard direct solver is used in the present implementation.
+However, \texttt{numpy/scipy} linear algebra solvers do not implement the Thomas algorithm in block form, so a standard direct solver is used in the present implementation.
 For large matrix sizes where the linear solve dominates computation, the use of a sparse iterative solver or the Thomas algorithm could unlock computational savings.
 
-(cite yeung 2012) also discusses an optional convention difference, first suggested by (cite mavrakos 2004), to renormalize the radial eigenfunctions in each region so they evaluate to either zero or one at boundaries.
-This increases the sparsity of the A-matrix and reduces the number of coupling integral calculations, but does not reduce the total number of Bessel calculations because the avoided A-matrix Bessel evaluations must still be performed in the c-vector.
+\paragraph{Eigenfunction Renormalization}
+Reference \cite{chau_inertia_2012} also discusses an optional convention difference, first suggested by \cite{mavrakos_hydrodynamic_2004}, to renormalize the radial eigenfunctions in each region so they evaluate to either zero or one at boundaries.
+This increases the sparsity of the A-matrix and reduces the number of coupling integral calculations and Bessel function calculations required to obtain the eigencoefficients.
+However, it does not reduce the number of Bessel calculations required to obtain the hydrodynamic coefficients because the avoided A-matrix Bessel evaluations must still be performed in the c-vector.
 
-[talk about element-wise products and possible analytical matrix inversion]
+\paragraph{Analytical Matrix Insights}
+As appendix~\ref{sec:Forms of Matrix A} shows, the A-matrix is highly structured and can be expressed as an element-wise product of a radial and a vertical factor.
+Further application of linear algebra concepts could potentially yield alternative matrix expressions that would reduce computation time and enhance theoretical insights.
+For example, the Hadamard-Kronecker mixed product property, Kronecker inverse, and blockwise matrix inversion could be explored to potentially obtain an analytical expression for $\mathbf{A}^{-1}$, while low-rank approximation theory could perhaps augment the experimental results of the convergence study with theoretical guarantees.
 
-If hydro coefficients must be computed over a range of frequencies with some freedom over the exact frequency values used, one way to reduce the number of Bessel evaluations is to select the frequency vector such that some Bessel-K arguments are identical between the interior and exterior radial eigenfunctions $R_{2n_m}^{i_m}$ and $R_{1n_e}^{e}$. This occurs when
+\paragraph{Reusing Bessel Arguments across Regions}
+If hydrodynamic coefficients must be computed over a range of frequencies with some freedom over the exact frequency values used, one way to reduce the number of Bessel evaluations is to select the frequency vector such that some Bessel-K arguments are identical between the interior and exterior radial eigenfunctions $R_{2n_m}^{i_m}$ and $R_{1n_e}^{e}$. This occurs when
 \begin{equation}\label{eq:equal-args}
 \lambda_{n_m}^{i_m}a_m = \lambda_{n_e}^{e}a_M
 \end{equation}
@@ -923,7 +926,7 @@ Bessel Functions in $\mathbf{A}$ & $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m}) + N^e
 \hline
 Matrix solve ($\mathbf{A}\vec x = \vec b$) & $(N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m}) + N^e)^3$\\
 \hline
-Hydro Coefficients (mostly $\vec c_p$) & $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m})$\\
+Hydrodynamic Coefficients (mostly $\vec c_p$) & $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m})$\\
 \hline
 \end{tabular}
 \caption{Time complexities of major components of MEEM. All are represented as proportional to the number of times being called, except the matrix solve, which depends on the matrix size. The population of $\vec c_p$ is dominated by the evaluation of its Bessel functions (three per entry), and which is less than the shown expression if some regions are not heaving (their corresponding expressions become zero).} \label{tab:time-complexities} \end{table}
@@ -931,7 +934,7 @@ Hydro Coefficients (mostly $\vec c_p$) & $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m})
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/MEEM-Comp-Distribution.pdf}
-    \caption{Left: Distribution of function computation times for the geometry in Fig.~\ref{fig:MEEM nonslant validation}, varying the terms per region. Right: The function taking the most computation time for combinations of region count and terms per region, assuming the same number of terms per region. [INCOMPLETE: Needs an update using latest package version that removes some Bessel redundancy.]}
+    \caption{Left: Distribution of function computation times for the geometry in Fig.~\ref{fig:MEEM nonslant validation}, varying the terms per region. Right: The function taking the most computation time for combinations of region count and terms per region, assuming the same number of terms per region. [TODO INCOMPLETE: Needs an update using latest package version that removes some Bessel redundancy.]}
     \label{fig:time-dominance}
 \end{figure}
 
@@ -941,36 +944,12 @@ Hydro Coefficients (mostly $\vec c_p$) & $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m})
 \label{sec:meem-cpt-timing}
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.6\linewidth]{figs/MEEM-CPT-Speed-Comparison.pdf}
-    \caption{The computed added mass and damping for the geometry in Figure~\ref{fig:MEEM nonslant validation} at $\omega = 1$ for increasing terms/region (MEEM) and panel count (Capytaine), in terms of the associated time. ``True values'' were determined by MEEM with $N_{i_m} = 300$ for all $i_m$. [Additional Figures: Require Convergence Study Recommendations]}
-    \label{fig:time-comparison}
+    \includegraphics[width=0.9\linewidth]{figs/MEEM-CPT-Time-Matrix-Comparison.pdf}
+    \caption{For the CorPower WEC geometry at $\omega = 1$, the accuracy of MEEM vs. Capytaine are compared over different $N^{i_m} = N^e$ and panel counts, through the associated computation time and matrix sizes. The ``true values'' the accuracies are relative to were determined by MEEM with $N^{i_m} = N^e = 300$.}
+    \label{fig:time-matrix-comparison}
 \end{figure}
 
-For geometries that MEEM represents exactly, it tends to converge faster than Capytaine (Figure~\ref{fig:time-comparison}). In Table~\ref{table:time-comparison}, Capytaine initially converges faster for added mass (for 2-5\% convergence), but MEEM is faster for higher precisions. For damping, MEEM converges similarly or faster for all errors considered.
-
-\begin{table}
-\centering
-\begin{tabular}{|c|cc|cc|}\hline
-    &\multicolumn{4}{c|}{\textbf{Computation Time (ms)}} \\
-    &\multicolumn{2}{c|}{\textbf{Added Mass}}
-    &\multicolumn{2}{c|}{\textbf{Damping}}\\
-\hline
- \% Converged & MEEM & Capytaine & MEEM & Capytaine \\
-\hline
-1\% & 14.7 & 107.8 & 11.7 & - \\
-\hline
-2\% & 9.8 & 7.6 & 5.9 & 116.1 \\
-\hline
-3\% & 6.0 & 1.6 & 4.9 & 38.1 \\
-\hline
-4\% & 5.3 & 1.5 & 4.8 & 9.4 \\
-\hline
-5\% & 4.9 & 1.5 & 4.8 & 7.7 \\
-\hline
-\end{tabular}
-\caption{Interpolation of points in Figure~\ref{fig:time-comparison} to find the time associated with a given level of convergence for the geometry. Over the times considered, Capytaine doesn't permanently reach within 1\% of the true value for damping.}
-\label{table:time-comparison}
-\end{table}
+For geometries that MEEM represents exactly, it tends to converge faster than Capytaine. For example, in Figure~\ref{fig:time-matrix-comparison}, while Capytaine initially (for 2-5\% convergence) converges faster for added mass, MEEM is faster for higher precisions. For damping, MEEM converges similarly or faster for all errors considered. MEEM achieves 2\% convergence of both hydrodynamic coefficients an order of magnitude faster than Capytaine.
 
 % [TODO: RM3 convergence figure, only float heaving].
 % [Caption: MEEM and BEM matrix size comparison, using the RM3 configuration parameters, an optimal unknown coefficient distribution for MEEM, and even constant panel density throughout the mesh for BEM. MEEM reaches 1\% convergence XX\% faster/slower than BEM for added mass and XX\% faster for radiation damping.]
@@ -1128,10 +1107,11 @@ The velocity potentials for the internal regions must satisfy
     \nabla^2\phi^{i_m}=0,   
 \end{equation}
 \begin{equation}\label{No flux BC at wetted surface}
-    \left. \frac{\partial\phi^{i_m}}{\partial z} \right|_{z=-d_m}=\left\{\begin{matrix}
-    0 \text{ when region } m \text{ is fixed} \\
- 1 \text{ when region } m \text{ is heaving}
-\end{matrix}\right.,
+    \left. \frac{\partial\phi^{i_m}}{\partial z} \right|_{z=-d_m}=
+    \begin{cases}
+        0 & \text{ when region } m \text{ is fixed} \\
+        1 & \text{ when region } m \text{ is heaving}
+    \end{cases}
 \end{equation}
 and
 \begin{equation}\label{No flux BC at sea floor internal}
@@ -1323,6 +1303,91 @@ The corresponding right-hand-sides of Eq.~\ref{potential matching vector equatio
 \end{table}
 
 
+
+\section{Forms of Matrix A}\label{sec:Forms of Matrix A}
+The matrix $\mathbf{A}_m$ can be written as $\mathbf{A}_m = \mathbf{A}_{m,r} \odot \mathbf{A}_{m,z}$, where $\mathbf{A}_{m,r}$ and $\mathbf{A}_{m,z}$ are shown in Tables~\ref{tab:MEEM-A_mr-matrix-case-1}-\ref{tab:MEEM-A_mz-matrix-case-2} and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
+
+\begin{landscape}
+\begin{table}
+    \centering
+    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
+    \hline
+     & & $\vec{C}_{1}^{i_m}$& $\vec{C}_{2}^{i_m}$& $\vec{C}_{1}^{i_{m+1}}$ & $\vec{C}_{2}^{i_{m+1}}$ \\\hline 
+      &size&  $N^{i_m}$&  $N^{i_m}$&  $N^{i_{m+1}}$& $N^{i_{m+1}}$\\ \hline \hline 
+      
+      % Row 1
+      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$ & $\mathbf{1}_{N^{i_m}1} \vec{R}_1^{i_m}$ & $\mathbf{1}_{N^{i_m}1}  \vec{R}_2^{i_m}$ & $ \mathbf{1}_{N^{i_m}1} \vec{R}_1^{i_{m+1}}$ & $ \mathbf{1}_{N^{i_m}1} \vec{R}_2^{i_{m+1}}$ \\ \hline
+      
+      % Row 2
+      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$
+        & $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m}}$ & $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_2^{i_{m}}$ & $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial r} \vec{R}_1^{i_{m+1}}$ & $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial r} \vec{R}_2^{i_{m+1}}$ \\ \hline
+    \end{tabular}
+    \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
+    \label{tab:MEEM-A_mr-matrix-case-1}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\begin{table}
+    \centering
+    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
+    \hline
+     & & $\vec{C}_{1}^{i_m}$& $\vec{C}_{2}^{i_m}$& $\vec{C}_{1}^{i_{m+1}}$ & $\vec{C}_{2}^{i_{m+1}}$ \\\hline 
+      &size&  $N^{i_m}$&  $N^{i_m}$&  $N^{i_{m+1}}$& $N^{i_{m+1}}$\\ \hline \hline 
+      
+      % Row 1
+      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$ & $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m}}$ & $\mathbf{1}_{N^{i_{m+1}}1} \vec{R}_2^{i_{m}}$ & $\mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m+1}}$ & $ \mathbf{1}_{N^{i_{m+1}}1}  \vec{R}_2^{i_{m+1}}$ \\ \hline
+      
+      % Row 2
+      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m}}$
+        & $\mathbf{1}_{N^{i_{m}}1} \frac{\partial}{\partial r} \vec{R}_1^{i_{m}}$ & $\mathbf{1}_{N^{i_{m}}1} \frac{\partial}{\partial r} \vec{R}_2^{i_{m}}$ & $ \mathbf{1}_{N^{i_{m}}1} \vec{R}_1^{i_{m+1}}$ & $ \mathbf{1}_{N^{i_{m}}1} \vec{R}_2^{i_{m+1}}$ \\ \hline
+    \end{tabular}
+    \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$). Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
+    \label{tab:MEEM-A_mr-matrix-case-2}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\begin{table}
+    \centering
+    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
+    \hline
+     & & $\vec{C}_{1}^{i_m}$& $\vec{C}_{2}^{i_m}$& $\vec{C}_{1}^{i_{m+1}}$ & $\vec{C}_{2}^{i_{m+1}}$ \\\hline 
+      &size&  $N^{i_m}$&  $N^{i_m}$&  $N^{i_{m+1}}$& $N^{i_{m+1}}$\\ \hline \hline 
+      
+      % Row 1
+      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$ & $(h-d_m) \mathbf{I}^{i_m}$ & $(h-d_m) \mathbf{I}^{i_m}$ & $-\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}}$ & $-\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}}$ \\ \hline
+      
+      % Row 2
+      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$
+        & $\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$ & $\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$ & $-(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$ & $-(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$ \\ \hline
+    \end{tabular}
+    \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
+    \label{tab:MEEM-A_mz-matrix-case-1}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\begin{table}
+    \centering
+    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
+    \hline
+     & & $\vec{C}_{1}^{i_m}$& $\vec{C}_{2}^{i_m}$& $\vec{C}_{1}^{i_{m+1}}$ & $\vec{C}_{2}^{i_{m+1}}$ \\\hline 
+      &size&  $N^{i_m}$&  $N^{i_m}$&  $N^{i_{m+1}}$& $N^{i_{m+1}}$\\ \hline \hline 
+      
+      % Row 1
+      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$ & $-\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m} $ & $-\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$ & $(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$ & $(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$ \\ \hline
+      
+      % Row 2
+      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m}}$
+        & $-(h-d_{m}) \mathbf{I}^{i_{m}}$ & $-(h-d_{m}) \mathbf{I}^{i_{m}}$ & $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} $ & $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} $ \\ \hline
+    \end{tabular}
+    \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$). Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
+    \label{tab:MEEM-A_mz-matrix-case-2}
+\end{table}
+\end{landscape}
+
+
 \section{Added Mass and Damping (\textcolor{blue}{Collin})}\label{appC}
 We will define the velocity of the $q$th body as $v_q(t) = \mathrm{Re} \{ \hat{v}_q e^{- \text{i} \omega t}\}$ so that $\hat{f}_{pq} = (\text{i} \omega A_{pq}(\omega) - B_{pq}(\omega)) \hat{v}_q$. 
 Recall from Eq.~\ref{No flux BC at wetted surface} that, if a region is heaving, the particular potentials in Table \ref{tab:MEEM-eigenfunctions} were defined so that it does so with unit amplitude velocity. Thus, if regions consisting of the $q$th body are heaving, $\hat{v}_q=1$. Eq.~\ref{eq:freq domain scalar rad force in terms of regions} can be simplified and rearranged as
@@ -1361,9 +1426,11 @@ Additionally, the $n_m$th element of the vectors $\vec{\mathcal{R}}_{1}^{i_m}$ a
     & = \left\{\begin{matrix}
     \frac{1}{8} \left(2 a_{{m+1}}^2 \ln \left(\frac{a_{{m+1}}}{a_{m}}\right)-a_{{m+1}}^2+a_{m}^2\right) & \text{ for } n_m=0 \\[2ex]
  \frac{a_m \mathrm{K}_1(a_m \lambda^{i_m}_{n_m})-a_{{m+1}} \mathrm{K}_1(a_{{m+1}} \lambda^{i_m}_{n_m})}{\lambda^{i_m}_{n_m} \mathrm{K}_0(a_m \lambda^{i_m}_{n_m})} & \text{ for } n_m \ge 1
-\end{matrix}\right.
+\end{matrix}.\right.
 \end{aligned}
 \end{equation}
+
+
 
 
 
