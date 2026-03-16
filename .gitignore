@@ -207,3 +207,5 @@ html/
 
 # vscode configuration files
 .vscode/
+
+.calkit/
