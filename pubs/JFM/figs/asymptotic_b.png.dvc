@@ -1,0 +1,5 @@
+outs:
+- md5: fd0f5390b527f85477e1e714aae9b20f
+  size: 72709
+  hash: md5
+  path: asymptotic_b.png
