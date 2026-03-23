@@ -66,13 +66,13 @@ stages:
       md5: e3fbd88eafbad697c57fd68f574091c2
       size: 871096
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
-      html "analysis/validation_with_capytaine_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
+      "analysis/validation_with_capytaine_plots.ipynb"
     deps:
-    - path: .calkit/env-locks/openflash-on-branch
+    - path: .calkit/env-locks/openflash-on-main
       hash: md5
-      md5: 2a221bc7d50003cfa4beb604f7cc9645.dir
-      size: 2019
+      md5: e63a7a190bec62bdb13da6c8e0b67882.dir
+      size: 9273
       nfiles: 1
     - path: 
         .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
@@ -83,12 +83,12 @@ stages:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: 67da4e7f1d11db5afc5fba4813d7d369
-      size: 2092276
+      md5: 275bdd1c3b57d25f4415b2f41436026a
+      size: 1733928
     - path: .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
       hash: md5
-      md5: 0d04a6787bd380af2b881621f04d0a7d
-      size: 2441732
+      md5: bdb52967d615d49dbd846de3eac0082e
+      size: 2074789
   _check-env-openflash-on-branch:
     cmd: calkit check environment --name openflash-on-branch
     deps:
@@ -128,9 +128,9 @@ stages:
       size: 199
     - path: package/src/
       hash: md5
-      md5: 42b813090a27e57d47c72c70fe05c69a.dir
-      size: 554644
-      nfiles: 51
+      md5: 999f72e43626c2da19d743078ee242e1.dir
+      size: 244782
+      nfiles: 27
     outs:
     - path: pubs/JFM/figs/sample_plot.png
       hash: md5
@@ -265,13 +265,13 @@ stages:
       md5: 6b1b55ca488e86706de62d5caab79a13
       size: 20403
   timing-figs:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
-      html "analysis/timing_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
+      "analysis/timing_plots.ipynb"
     deps:
-    - path: .calkit/env-locks/openflash-on-branch
+    - path: .calkit/env-locks/openflash-on-main
       hash: md5
-      md5: 2a221bc7d50003cfa4beb604f7cc9645.dir
-      size: 2019
+      md5: e63a7a190bec62bdb13da6c8e0b67882.dir
+      size: 9273
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       hash: md5
@@ -283,27 +283,27 @@ stages:
       size: 4035
     - path: sea-lab-utils
       hash: md5
-      md5: cc302dcaf9d559c7ee50d5a3c7ffe796.dir
-      size: 28913
-      nfiles: 24
+      md5: 0b49af1459f7129190160893572b26fb.dir
+      size: 16625
+      nfiles: 22
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: bf47c9027611647e0a093f331f1bc6a7
-      size: 339632
+      md5: cb8ea5ad76e0685e4056c9fdb95570a1
+      size: 317150
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
-      md5: 7321b1c57437169b8312194d1632ef4d
-      size: 684334
+      md5: 5d8f043043d2ab900801a7d55a5a75c0
+      size: 653683
     - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: d4f1ac10984e2857cf9d472d989c9d9c
-      size: 136439
+      md5: 8ef64199141d60c720142ec35262255a
+      size: 136441
     - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: cc670e7f2e4188e20a797d8b32aca67f
-      size: 104587
+      md5: 38ff07fa608fb16c7972dfddb9aed5c5
+      size: 104589
     - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: 5f03a97fdc8fe3b88f4b3f3802acf6ab
-      size: 105995
+      md5: dde65066a77cd9fbe5b5389822dce271
+      size: 106029
