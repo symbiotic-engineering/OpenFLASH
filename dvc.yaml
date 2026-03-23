@@ -75,6 +75,21 @@ stages:
           cache: true
     desc: Automatically generated from the 'timing-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
+  sparsity-figs:
+    cmd: calkit nb execute --environment openflash-on-main --no-check 
+      --to html "analysis/sparsity_plots.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
+      - .calkit/env-locks/openflash-on-main
+    outs:
+      - pubs/JFM/figs/A_sparsity_plot.pdf
+      - pubs/JFM/figs/b_sparsity_plot.pdf
+      - .calkit/notebooks/executed/analysis/sparsity_plots.ipynb:
+          cache: true
+      - .calkit/notebooks/html/analysis/sparsity_plots.html:
+          cache: true
+    desc: Automatically generated from the 'sparsity-figs' stage in 
+      calkit.yaml. Changes made here will be overwritten.
   compile-overleaf:
     cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
     deps:

@@ -54,6 +54,13 @@ pipeline:
         - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
         - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
         - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
+    sparsity-figs:
+      kind: jupyter-notebook
+      notebook_path: analysis/sparsity_plots.ipynb
+      environment: openflash-on-main
+      outputs:
+        - pubs/JFM/figs/A_sparsity_plot.pdf
+        - pubs/JFM/figs/b_sparsity_plot.pdf
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex

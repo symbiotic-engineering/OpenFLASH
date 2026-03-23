@@ -307,3 +307,33 @@ stages:
       hash: md5
       md5: dde65066a77cd9fbe5b5389822dce271
       size: 106029
+  sparsity-figs:
+    cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
+      "analysis/sparsity_plots.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-main
+      hash: md5
+      md5: e63a7a190bec62bdb13da6c8e0b67882.dir
+      size: 9273
+      nfiles: 1
+    - path: .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
+      hash: md5
+      md5: 6b638a27f4c2bf81945fdb6827a9ec7a
+      size: 8073
+    outs:
+    - path: .calkit/notebooks/executed/analysis/sparsity_plots.ipynb
+      hash: md5
+      md5: 6b97b69e2e5cab2fc9984f4df190ed20
+      size: 77017
+    - path: .calkit/notebooks/html/analysis/sparsity_plots.html
+      hash: md5
+      md5: 8707eeba5d8774e3f176eaf444eb237c
+      size: 372001
+    - path: pubs/JFM/figs/A_sparsity_plot.pdf
+      hash: md5
+      md5: 96ac280f3a1f968b578db02e99b0f715
+      size: 12488
+    - path: pubs/JFM/figs/b_sparsity_plot.pdf
+      hash: md5
+      md5: 41001df68042dbd1b891706709b9c884
+      size: 9184
