@@ -2,7 +2,7 @@
 \begin{appendices}
 \section{Matched Eigenfunction Expansion Method}
 \label{sec:MEEM_details}
-As introduced in section~\ref{sec:meem}, the hydrodynamic coefficients are computed semi-analytically using MEEM.
+As introduced in section~\ref{sec:hydro-meem}, the hydrodynamic coefficients are computed semi-analytically using MEEM.
 This section explains the MEEM formulation and solution methodology for the radiation of a dual truncated concentric cylinder geometry, originally presented in \cite{mavrakos_hydrodynamic_2004,chau_inertia_2010,chau_inertia_2012} as an extension of the single-cylinder MEEM radiation solution \cite{yeung_added_1981}.
 Further numeric and realization details of the authors' implementation may be found in \cite{bimali_numerics_2026,best_openflash_2026,mccabe_open-source_2024}.
 The computation involves splitting the fluid domain into regions, approximating an infinite series by truncation, and solving a matrix equation to enforce the continuity of potential and velocity across regions. 
@@ -469,7 +469,7 @@ Note that while the excitation magnitude $|\gamma|$ depends on the radiation dam
 Hydro coefficient results are validated by comparing to a benchmark shallow-water concentric-cylinder MEEM solution in \cite{chau_inertia_2012}.
 Excellent agreement is observed, shown in Figure~\ref{fig:meem-yeung-validation}.
 Authors of \cite{chau_inertia_2012} also experimentally validate their results in \cite{son_performance_2016}.
-Previously in section~\ref{sec:meem}, the N=M=K=11 case was compared to WAMIT results for RM3 in deep water.
+Previously in section~\ref{sec:dynamic-validation}, the N=M=K=11 case was compared to WAMIT results for RM3 in deep water.
 
 \begin{figure}
     \centering
@@ -503,7 +503,7 @@ There, damping converges well at low frequencies but requires more harmonics at 
 
 \subsection{Numerical Notes}\label{sec:meem-numerics}
 Note that radial eigenfunctions $R_{1n}^{i1}(r)$ and $R_{1m}^{i2}(r)$ contain the modified bessel function of the first kind $\mathrm{I}_0(b)$, which diverges for $b\rightarrow \infty$.
-This is the cause of the numeric overflow discussed in \ref{sec:meem}, where it was asserted that overflow occurs when the fluid region height to diameter ratio $\Delta z / D$ falls below some threshold.
+This is the cause of the numeric overflow discussed in \ref{sec:hydro-meem}, where it was asserted that overflow occurs when the fluid region height to diameter ratio $\Delta z / D$ falls below some threshold.
 The threshold is a function of the number of harmonics $N_{harmonics}$ used in that region ($N$ for spar, $M$ for float), as well as the maximum argument to the \texttt{besseli} function in MATLAB before overflow, $b_{max}$:
 \begin{equation}\label{eq:delta-z-min}
     \frac{\Delta z_{min}}{D} = \frac{\pi N_{harmonics}}{2b_{max}} \approx \frac{N_{harmonics}}{446}.
