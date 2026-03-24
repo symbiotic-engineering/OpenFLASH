@@ -29,25 +29,25 @@ stages:
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 602cbb6e5d7edfb5face7c2f739666a3
-      size: 136817
+      md5: a40554882c9b5079fc08305bb4f5e54a
+      size: 145003
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 602cbb6e5d7edfb5face7c2f739666a3
-      size: 136817
+      md5: a40554882c9b5079fc08305bb4f5e54a
+      size: 145003
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: f63ad30f9cddac7994b2f92792d12683.dir
-      size: 2880112
-      nfiles: 20
+      md5: 9eab910e8bb6930e2fff84413487bcaf.dir
+      size: 2431250
+      nfiles: 25
     - path: pubs/JFM/jfm.bib
       hash: md5
-      md5: 4027e6e5600b6b237f542a9746247e99
-      size: 8540
+      md5: ba5f15f429937fc0f3e8a6e867246cf1
+      size: 9742
     - path: pubs/JFM/jfm.bst
       hash: md5
       md5: 4905f5a36c36e08bc982133b3dc1d7d2
@@ -63,8 +63,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: aa584fd749c76dc062c1b181c6f86f78
-      size: 873876
+      md5: f45827aff3e9bce0342efb01dab048f5
+      size: 900521
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
@@ -319,3 +319,33 @@ stages:
       hash: md5
       md5: b6c5c9373cdcd7c30e14de077a436fed
       size: 105995
+  sparsity-figs:
+    cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
+      "analysis/sparsity_plots.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-main
+      hash: md5
+      md5: 66f6a19c3ce44de1c47e3b6f6f466061.dir
+      size: 16386
+      nfiles: 2
+    - path: .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
+      hash: md5
+      md5: 4cf3b7addf8b29de812e18f30cc8ffce
+      size: 8141
+    outs:
+    - path: .calkit/notebooks/executed/analysis/sparsity_plots.ipynb
+      hash: md5
+      md5: ad3f96b8f6fe268027beb3c936afabfc
+      size: 82869
+    - path: .calkit/notebooks/html/analysis/sparsity_plots.html
+      hash: md5
+      md5: e6c84a933a84646855d71c5a83758182
+      size: 385515
+    - path: pubs/JFM/figs/A_sparsity_plot.pdf
+      hash: md5
+      md5: 8d7ff1431ddb71e7584f8585a3dc33e1
+      size: 11331
+    - path: pubs/JFM/figs/B_sparsity_plot.pdf
+      hash: md5
+      md5: 6c261bae2f046761bf829efae33ba382
+      size: 9155
