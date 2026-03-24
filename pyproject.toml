@@ -65,10 +65,10 @@ hydro = [
 
 [tool.setuptools]
 package-dir = {"" = "package/src"}
-packages = ["openflash"]
 
 [tool.setuptools.packages.find]
 where = ["package/src"]
+include = ["openflash*"]
 
 [tool.setuptools.package-data]
 "openflash" = [] # Explicitly state no package data
