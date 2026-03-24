@@ -218,13 +218,13 @@ stages:
       md5: d0f3626ddf4a5f876f6e028ec1ea5ca4
       size: 10931
   slant-figs:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
-      html "analysis/slant_data_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
+      "analysis/slant_data_plots.ipynb"
     deps:
-    - path: .calkit/env-locks/openflash-on-branch
+    - path: .calkit/env-locks/openflash-on-main
       hash: md5
-      md5: f0f252eb482ab22dc79ef0bf351de055.dir
-      size: 9188
+      md5: 66f6a19c3ce44de1c47e3b6f6f466061.dir
+      size: 16386
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
       hash: md5
@@ -250,7 +250,7 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: 3a78e4f045810b5310fd772edaa40169
+      md5: 043ed895b566e1de0066e45c68d1bd81
       size: 200771
     - path: .calkit/notebooks/html/analysis/slant_data_plots.html
       hash: md5
@@ -258,11 +258,11 @@ stages:
       size: 556108
     - path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       hash: md5
-      md5: cef98dd541621fe27b28db541754f2a7
+      md5: 03cbf81b8085bf841df6a92f39b7e028
       size: 137298
     - path: pubs/JFM/figs/Vary-Slopes.pdf
       hash: md5
-      md5: 5319ce57cc7c8a57af0662c51830dcbc
+      md5: 93663a2fd527bf323cb4198d6142237e
       size: 178731
   _clean-nb-timing-figs:
     cmd: calkit nb clean "analysis/timing_plots.ipynb"
@@ -282,8 +282,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-main
       hash: md5
-      md5: f0f252eb482ab22dc79ef0bf351de055.dir
-      size: 9188
+      md5: 66f6a19c3ce44de1c47e3b6f6f466061.dir
+      size: 16386
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       hash: md5
@@ -295,27 +295,27 @@ stages:
       size: 4035
     - path: sea-lab-utils
       hash: md5
-      md5: 0b49af1459f7129190160893572b26fb.dir
-      size: 16625
-      nfiles: 22
+      md5: cc302dcaf9d559c7ee50d5a3c7ffe796.dir
+      size: 28913
+      nfiles: 24
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: 57f9efc5842babcf80ead4c6db0d023f
-      size: 339800
+      md5: ef121dbe11ea3dd94b6bb46074e7f31c
+      size: 339795
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
       md5: 89d60c4a06675b7790e5e4bb463e92f6
       size: 683621
     - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: 57f08696f1c53d2b0b12eb23500a1f40
+      md5: 7b8c5477b0b501a101d44785c19e3417
       size: 136439
     - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: b3fd8075bc3f19a695d7d612f57f278c
+      md5: 6e13c9c6901cf8cc921d70ace0a80fc0
       size: 104587
     - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: 3b643425d6027e2478392f676503ed59
+      md5: b6c5c9373cdcd7c30e14de077a436fed
       size: 105995
