@@ -11,11 +11,12 @@ stages:
     desc: Automatically generated from the 'generate-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-main --no-check 
-      --to html "analysis/validation_with_capytaine_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch 
+      --no-check --to html 
+      "analysis/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
-      - .calkit/env-locks/openflash-on-main
+      - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       - .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb:
@@ -86,7 +87,7 @@ stages:
       - .calkit/env-locks/openflash-on-main
     outs:
       - pubs/JFM/figs/A_sparsity_plot.pdf
-      - pubs/JFM/figs/b_sparsity_plot.pdf
+      - pubs/JFM/figs/B_sparsity_plot.pdf
       - .calkit/notebooks/executed/analysis/sparsity_plots.ipynb:
           cache: true
       - .calkit/notebooks/html/analysis/sparsity_plots.html:
