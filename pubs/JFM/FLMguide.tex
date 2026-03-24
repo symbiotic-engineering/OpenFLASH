@@ -627,12 +627,29 @@ A potential explanation of this convenient fact is that the sparsity of the $\ve
 \subsubsection{Matrix Sparsity}
 [show the sparsity pattern for A, B, and C matrices for a given simple configuration.]
 In particular, the A-matrix is block tri-diagonal, opening up the possibility for speedups via advanced algorithms (see section~\ref{sec:compute-time}).
-\begin{figure}
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.5\linewidth]{example-image-a}
-    \caption{sparsity}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=\textwidth]{figs/A_sparsity_plot.pdf}
+        \caption{A}
+        \label{fig:sparsityA}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figs/b_sparsity_plot.pdf}
+        \caption{B}
+        \label{fig:sparsityB}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.2\textwidth}
+        \includegraphics[width=\textwidth]{example-image-a}
+        \caption{C}
+        \label{fig:sparsityC}
+    \end{subfigure}
+    \caption{Sparsity pattern in A, B, and C matrices}
     \label{fig:sparsity}
 \end{figure}
+
 
 \subsection{Validation (\textcolor{blue}{Collin})}\label{sec:validation}
 The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation magnitude $|X_1(\omega)|$, and excitation phase $\angle X_1(\omega)$ from MEEM and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \cite{faedo2021energy}. This is shown in Fig.~\ref{fig:hydro coeff validation}. Note that the geometry is simplified in the MEEM and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. In reality, the Cor-power WEC geometry also consists of a slanted section. This will be accounted for later in Sec.~\ref{sec:slant}. The geometry settings of this comparison were set as follows: $a_1=1.25 \text{~m}$, $a_2=4.2 \text{~m}$, $d_1=14.45 \text{~m}$, $d_2=2.05 \text{~m}$, and $h=50 \text{~m}$. The series in each region was truncated to 150 for MEEM ($N^{i_1}=N^{i_2}=N^{e}=150$) and 1060 panels were used in Capytaine. The hydrodynamic coefficients from MEEM and Capytaine are on average within 1\% of one another. Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. In Sec.~\ref{sec:convergence}, the dependence of MEEM's convergence on the geometry will be discussed more in depth, and the trade-offs between accuracy and computation time for MEEM and Capytaine will be compared in Sec.~\ref{sec:compute-time}.
