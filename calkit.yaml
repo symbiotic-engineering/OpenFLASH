@@ -28,7 +28,7 @@ pipeline:
     low-m0-figs:
       kind: jupyter-notebook
       notebook_path: analysis/low_m0_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-main
       inputs:
         - package/src/
         - dev/python/limiting-cases/low_m0.py
@@ -38,7 +38,7 @@ pipeline:
     slant-figs:
       kind: jupyter-notebook
       notebook_path: analysis/slant_data_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-main
       inputs:
         - analysis/data/slants.pkl
         - analysis/data/slope-slants.pkl
@@ -50,7 +50,7 @@ pipeline:
     timing-figs:
       kind: jupyter-notebook
       notebook_path: analysis/timing_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-main
       inputs:
         - analysis/data/timing.pkl
         - sea-lab-utils
@@ -58,6 +58,13 @@ pipeline:
         - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
         - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
         - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
+    sparsity-figs:
+      kind: jupyter-notebook
+      notebook_path: analysis/sparsity_plots.ipynb
+      environment: openflash-on-main
+      outputs:
+        - pubs/JFM/figs/A_sparsity_plot.pdf
+        - pubs/JFM/figs/B_sparsity_plot.pdf
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex

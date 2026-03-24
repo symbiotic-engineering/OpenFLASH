@@ -11,12 +11,11 @@ stages:
     desc: Automatically generated from the 'generate-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html 
-      "analysis/validation_with_capytaine_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check 
+      --to html "analysis/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
-      - .calkit/env-locks/openflash-on-branch
+      - .calkit/env-locks/openflash-on-main
     outs:
       - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       - .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb:
@@ -26,14 +25,14 @@ stages:
     desc: Automatically generated from the 'validate-w-capy' stage in 
       calkit.yaml. Changes made here will be overwritten.
   low-m0-figs:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html "analysis/low_m0_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check 
+      --to html "analysis/low_m0_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
       - package/src/
       - dev/python/limiting-cases/low_m0.py
       - sea-lab-utils
-      - .calkit/env-locks/openflash-on-branch
+      - .calkit/env-locks/openflash-on-main
     outs:
       - pubs/JFM/figs/MEEM-Low-Freq.pdf
       - .calkit/notebooks/executed/analysis/low_m0_plots.ipynb:
@@ -43,15 +42,15 @@ stages:
     desc: Automatically generated from the 'low-m0-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
   slant-figs:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html "analysis/slant_data_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check 
+      --to html "analysis/slant_data_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
       - analysis/data/slants.pkl
       - analysis/data/slope-slants.pkl
       - analysis/data/potential-slants.pkl
       - sea-lab-utils
-      - .calkit/env-locks/openflash-on-branch
+      - .calkit/env-locks/openflash-on-main
     outs:
       - pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       - pubs/JFM/figs/Vary-Slopes.pdf
@@ -62,13 +61,13 @@ stages:
     desc: Automatically generated from the 'slant-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
   timing-figs:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html "analysis/timing_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check 
+      --to html "analysis/timing_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       - analysis/data/timing.pkl
       - sea-lab-utils
-      - .calkit/env-locks/openflash-on-branch
+      - .calkit/env-locks/openflash-on-main
     outs:
       - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
@@ -78,6 +77,21 @@ stages:
       - .calkit/notebooks/html/analysis/timing_plots.html:
           cache: true
     desc: Automatically generated from the 'timing-figs' stage in 
+      calkit.yaml. Changes made here will be overwritten.
+  sparsity-figs:
+    cmd: calkit nb execute --environment openflash-on-main --no-check 
+      --to html "analysis/sparsity_plots.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
+      - .calkit/env-locks/openflash-on-main
+    outs:
+      - pubs/JFM/figs/A_sparsity_plot.pdf
+      - pubs/JFM/figs/b_sparsity_plot.pdf
+      - .calkit/notebooks/executed/analysis/sparsity_plots.ipynb:
+          cache: true
+      - .calkit/notebooks/html/analysis/sparsity_plots.html:
+          cache: true
+    desc: Automatically generated from the 'sparsity-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
   compile-overleaf:
     cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex

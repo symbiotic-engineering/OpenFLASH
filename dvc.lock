@@ -66,10 +66,10 @@ stages:
       md5: aa584fd749c76dc062c1b181c6f86f78
       size: 873876
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
-      html "analysis/validation_with_capytaine_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
+      "analysis/validation_with_capytaine_plots.ipynb"
     deps:
-    - path: .calkit/env-locks/openflash-on-branch
+    - path: .calkit/env-locks/openflash-on-main
       hash: md5
       md5: f0f252eb482ab22dc79ef0bf351de055.dir
       size: 9188
@@ -277,10 +277,10 @@ stages:
       md5: 6b1b55ca488e86706de62d5caab79a13
       size: 20403
   timing-figs:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
-      html "analysis/timing_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
+      "analysis/timing_plots.ipynb"
     deps:
-    - path: .calkit/env-locks/openflash-on-branch
+    - path: .calkit/env-locks/openflash-on-main
       hash: md5
       md5: f0f252eb482ab22dc79ef0bf351de055.dir
       size: 9188
@@ -295,9 +295,9 @@ stages:
       size: 4035
     - path: sea-lab-utils
       hash: md5
-      md5: cc302dcaf9d559c7ee50d5a3c7ffe796.dir
-      size: 28913
-      nfiles: 24
+      md5: 0b49af1459f7129190160893572b26fb.dir
+      size: 16625
+      nfiles: 22
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
