@@ -11,14 +11,6 @@ environments:
     kind: conda
 pipeline:
   stages:
-    generate-figs:
-      kind: python-script
-      script_path: analysis/make_fig.py
-      environment: openflash-on-main
-      inputs:
-        - package/src/
-      outputs:
-        - pubs/JFM/figs/sample_plot.png
     validate-w-capy:
       kind: jupyter-notebook
       notebook_path: analysis/validation_with_capytaine_plots.ipynb
@@ -28,7 +20,7 @@ pipeline:
     low-m0-figs:
       kind: jupyter-notebook
       notebook_path: analysis/low_m0_plots.ipynb
-      environment: openflash-on-main
+      environment: openflash-on-branch
       inputs:
         - package/src/
         - dev/python/limiting-cases/low_m0.py
@@ -38,7 +30,7 @@ pipeline:
     slant-figs:
       kind: jupyter-notebook
       notebook_path: analysis/slant_data_plots.ipynb
-      environment: openflash-on-main
+      environment: openflash-on-branch
       inputs:
         - analysis/data/slants.pkl
         - analysis/data/slope-slants.pkl
@@ -50,7 +42,7 @@ pipeline:
     timing-figs:
       kind: jupyter-notebook
       notebook_path: analysis/timing_plots.ipynb
-      environment: openflash-on-main
+      environment: openflash-on-branch
       inputs:
         - analysis/data/timing.pkl
         - sea-lab-utils
