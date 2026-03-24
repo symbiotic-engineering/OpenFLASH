@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "open-flash"
 dynamic = ["version"]
 authors = [
-  {name = "SEA Lab"} 
+  {name = "SEA Lab"}
 ]
 description = "A Python package for semi-analytical hydrodynamics modeling including matched eigenfunction expansion method"
 readme = "README.md"
@@ -66,9 +66,6 @@ hydro = [
 [tool.setuptools]
 package-dir = {"" = "package/src"}
 packages = ["openflash"]
-
-[tool.setuptools.packages.find]
-where = ["package/src"]
 
 [tool.setuptools.package-data]
 "openflash" = [] # Explicitly state no package data
