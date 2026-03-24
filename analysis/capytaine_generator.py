@@ -50,7 +50,8 @@ class CapytaineSlantSolver:
                 if d_out[i] != d_in[i + 1]: # vertical face exists
                     pt_lst.append((a[i], - d_in[i + 1]))
             else: # need vertical face to water surface
-                pt_lst.append((a[i], 0))
+                if d_out[-1] != 0:
+                    pt_lst.append((a[i], 0))
         return pt_lst
 
     # compute number of panels along each surface given total number along the outline

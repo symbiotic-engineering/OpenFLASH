@@ -23,6 +23,8 @@ pipeline:
       kind: jupyter-notebook
       notebook_path: analysis/validation_with_capytaine_plots.ipynb
       environment: openflash-on-branch
+      outputs:
+        - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
     low-m0-figs:
       kind: jupyter-notebook
       notebook_path: analysis/low_m0_plots.ipynb
@@ -39,10 +41,12 @@ pipeline:
       environment: openflash-on-branch
       inputs:
         - analysis/data/slants.pkl
+        - analysis/data/slope-slants.pkl
+        - analysis/data/potential-slants.pkl
         - sea-lab-utils
       outputs:
         - pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
-        - pubs/JFM/figs/MEEM-CPT-Slant-Subdivisions.pdf
+        - pubs/JFM/figs/Vary-Slopes.pdf
     timing-figs:
       kind: jupyter-notebook
       notebook_path: analysis/timing_plots.ipynb

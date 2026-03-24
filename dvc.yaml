@@ -18,6 +18,7 @@ stages:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
       - .calkit/env-locks/openflash-on-branch
     outs:
+      - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       - .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb:
           cache: true
       - .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html:
@@ -47,11 +48,13 @@ stages:
     deps:
       - .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
       - analysis/data/slants.pkl
+      - analysis/data/slope-slants.pkl
+      - analysis/data/potential-slants.pkl
       - sea-lab-utils
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
-      - pubs/JFM/figs/MEEM-CPT-Slant-Subdivisions.pdf
+      - pubs/JFM/figs/Vary-Slopes.pdf
       - .calkit/notebooks/executed/analysis/slant_data_plots.ipynb:
           cache: true
       - .calkit/notebooks/html/analysis/slant_data_plots.html:
