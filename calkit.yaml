@@ -60,7 +60,7 @@ pipeline:
       environment: openflash-on-main
       outputs:
         - pubs/JFM/figs/A_sparsity_plot.pdf
-        - pubs/JFM/figs/b_sparsity_plot.pdf
+        - pubs/JFM/figs/B_sparsity_plot.pdf
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex
