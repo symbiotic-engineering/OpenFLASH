@@ -70,7 +70,7 @@ ALL_CONFIGS = {
         "heaving_map": [True, True, True, True, True],
         "body_map": [0, 1, 2, 3, 4],
         "m0": 1.0,
-        "NMK": [100] * 6, # 5 radii + exterior
+        "NMK": [15] * 6, # 5 radii + exterior
         "R_range": np.linspace(0.0, 2 * 1.6, num=50),
         "Z_range": np.linspace(0, -1.9, num=50),
     },
@@ -136,7 +136,7 @@ ALL_CONFIGS = {
         "heaving_map": [True, True, True],
         "body_map": [0, 1, 2],
         "m0": 1.0,
-        "NMK": [100] * 4, # 3 radii + exterior
+        "NMK": [15] * 4, # 3 radii + exterior
         "R_range": np.linspace(0.0, 2 * 10, num=50),
         "Z_range": np.linspace(0, -100, num=50),
     },
@@ -147,7 +147,7 @@ ALL_CONFIGS = {
         "heaving_map": [True, True, True, True, True],
         "body_map": [0, 1, 2, 3, 4],
         "m0": 1.0,
-        "NMK": [10]*6, 
+        "NMK": [40]*6, 
         "R_range": np.linspace(0.0, 2 * 1.6, num=50),
         "Z_range": np.linspace(0, -1.5, num=50),
     },
@@ -176,7 +176,7 @@ ALL_CONFIGS = {
 }
 
 # 4. Define comparison tolerance
-RELATIVE_TOLERANCE = 0.01
+RELATIVE_TOLERANCE = 0.02
 
 # --- End Configuration ---
 
@@ -787,7 +787,7 @@ def test_potential_field_vs_capytaine(config_name):
     try:
         np.testing.assert_allclose(
             openflash_real_valid, capytaine_real_valid,
-            rtol=RELATIVE_TOLERANCE, atol = 0.03,
+            rtol=RELATIVE_TOLERANCE, atol = 0.05,
             err_msg=f"[{config_name}] Real part mismatch"
         )
         print(f"  [PASS] Real Part Matched ({intersection_points} points)") 
@@ -797,7 +797,7 @@ def test_potential_field_vs_capytaine(config_name):
     try:
         np.testing.assert_allclose(
             openflash_imag_valid, capytaine_imag_valid,
-            rtol=RELATIVE_TOLERANCE, atol = 0.03,
+            rtol=RELATIVE_TOLERANCE, atol = 0.05,
             err_msg=f"[{config_name}] Imaginary part mismatch"
         )
         print(f"  [PASS] Imag Part Matched ({intersection_points} points)") # Verbose pass

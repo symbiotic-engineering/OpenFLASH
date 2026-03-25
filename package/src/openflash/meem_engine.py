@@ -81,10 +81,6 @@ class MEEMEngine:
         boundary_count = len(NMK) - 1
         size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
 
-        print(f"\n--- DEBUG: Cache Build Init ---")
-        print(f"Total matrix size: {size}x{size}")
-        print(f"NMK: {NMK}, Boundary Count: {boundary_count}")
-
         A_template = np.zeros((size, size), dtype=complex)
         b_template = np.zeros(size, dtype=complex)
 
@@ -131,37 +127,31 @@ class MEEMEngine:
         # =========================================================================
         
         # --- Potential Matching Blocks ---
-        print("\n--- Potential Matching Block Assembly ---")
         row_offset = 0
         col_offset = 0 
         
         for bd in range(boundary_count):
             N, M = NMK[bd], NMK[bd + 1]
-            print(f"BD {bd}: row_offset={row_offset}, col_offset={col_offset}")
 
             if bd == (boundary_count - 1): # i-e boundary
                 row_height = N
                 left_block1 = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
                 A_template[row_offset : row_offset + N, col_offset : col_offset + N] = left_block1
-                print(f"  Placed p_diagonal_block (left1) at [{row_offset}:{row_offset+N}, {col_offset}:{col_offset+N}]")
                 
                 right_block_col = col_offset + N
                 if bd == 0: 
                     def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
                         return p_dense_block_e(b_idx, Imk, NMK, a, m0, mk)
                     cache._add_m0_dependent_block(row_offset, right_block_col, rb_gen)
-                    print(f"  Added dynamic p_dense_block_e at [{row_offset}, {right_block_col}]")
                     col_offset += (N + M)
                 else:
                     left_block2 = p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK)
                     A_template[row_offset : row_offset + N, col_offset + N : col_offset + 2*N] = left_block2
-                    print(f"  Placed p_diagonal_block (left2) at [{row_offset}:{row_offset+N}, {col_offset+N}:{col_offset+2*N}]")
                     
                     right_block_col = col_offset + 2*N
                     def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
                         return p_dense_block_e(b_idx, Imk, NMK, a, m0, mk)
                     cache._add_m0_dependent_block(row_offset, right_block_col, rb_gen)
-                    print(f"  Added dynamic p_dense_block_e at [{row_offset}, {right_block_col}]")
                     col_offset += (2*N + M)
 
             elif bd == 0:
@@ -195,36 +185,30 @@ class MEEMEngine:
             row_offset += row_height
 
         # --- Velocity Matching Blocks ---
-        print("\n--- Velocity Matching Block Assembly ---")
         col_offset = 0
         # Current row_offset is correctly at the start of Velocity Matching rows
         for bd in range(boundary_count):
             N, M = NMK[bd], NMK[bd + 1]
-            print(f"BD {bd}: row_offset={row_offset}, col_offset={col_offset}")
 
             if bd == (boundary_count - 1): # i-e boundary
                 row_height = M
                 def lb1_gen(p, m0, mk, Nk, Imk, b_idx=bd):
                     return v_dense_block_e(diff_R_1n_func, b_idx, Imk, NMK, a)
                 cache._add_m0_dependent_block(row_offset, col_offset, lb1_gen)
-                print(f"  Added dynamic v_dense_block_e (left1) at [{row_offset}, {col_offset}]")
                 
                 if bd == 0:
                     def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
                         return v_diagonal_block_e(b_idx, h, a, m0, mk, NMK)
                     cache._add_m0_dependent_block(row_offset, col_offset + N, rb_gen)
-                    print(f"  Added dynamic v_diagonal_block_e at [{row_offset}, {col_offset+N}]")
                     col_offset += (N + M)
                 else:
                     def lb2_gen(p, m0, mk, Nk, Imk, b_idx=bd):
                         return v_dense_block_e(diff_R_2n_func, b_idx, Imk, NMK, a)
                     cache._add_m0_dependent_block(row_offset, col_offset + N, lb2_gen)
-                    print(f"  Added dynamic v_dense_block_e (left2) at [{row_offset}, {col_offset+N}]")
                     
                     def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
                         return v_diagonal_block_e(b_idx, h, a, m0, mk, NMK)
                     cache._add_m0_dependent_block(row_offset, col_offset + 2*N, rb_gen)
-                    print(f"  Added dynamic v_diagonal_block_e at [{row_offset}, {col_offset+2*N}]")
                     col_offset += (2*N + M)
 
             elif bd == 0:
@@ -284,7 +268,6 @@ class MEEMEngine:
                     
         cache._set_A_template(A_template)
         cache._set_b_template(b_template)
-        print("--- DEBUG: Cache Build Complete ---\n")
         return cache
     
     def solve_linear_system_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
@@ -609,7 +592,6 @@ class MEEMEngine:
                 lu_piv = linalg.lu_factor(A_matrix)
                 
             except np.linalg.LinAlgError as e:
-                print(f"  ERROR: Matrix assembly/factorization failed for freq={omega:.4f}: {e}")
                 full_added_mass_matrix[freq_idx, :, :] = np.nan
                 full_damping_matrix[freq_idx, :, :] = np.nan
                 continue
@@ -668,7 +650,6 @@ class MEEMEngine:
                     })
 
                 except Exception as e:
-                    print(f"  ERROR: Solve failed for freq={omega:.4f}, mode={radiating_mode}: {e}")
                     full_added_mass_matrix[freq_idx, :, i_idx] = np.nan
                     full_damping_matrix[freq_idx, :, i_idx] = np.nan
                     continue 

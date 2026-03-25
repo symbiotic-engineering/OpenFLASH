@@ -39,7 +39,6 @@ def lambda_ni(n, i, h, d):  # Cap avoids Bessel overflow
 # creating a m_k function, used often in calculations
 def m_k_entry(k, m0, h):
     if k == 0: 
-        print(">>> USING UPDATED m_k_entry WITH NEWTON SOLVER <<<")
         return m0
     elif m0 == inf:
         return ((k - 1/2) * pi)/h
