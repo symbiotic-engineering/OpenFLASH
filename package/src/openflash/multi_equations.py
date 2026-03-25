@@ -200,14 +200,15 @@ def R_1n_vectorized(n, r, i, h, d, a):
 
     # --- Define the outcomes for each condition ---
     # FIX: n=0 logic must match scalar version
-    if i == 0:
-        outcome_for_n_zero = np.full_like(r, 0.5)
-    else:
-        # Annulus: 1.0 + 0.5 * log(r / outer)
-        # Use np.divide to handle r=0 gracefully just in case
-        with np.errstate(divide='ignore', invalid='ignore'):
-            val = 1.0 + 0.5 * np.log(np.divide(r, scale(a)[i]))
-        outcome_for_n_zero = val
+    outcome_for_n_zero = np.full_like(r, 0.5)
+    # if i == 0:
+    #     outcome_for_n_zero = np.full_like(r, 0.5)
+    # else:
+    #     # Annulus: 1.0 + 0.5 * log(r / outer)
+    #     # Use np.divide to handle r=0 gracefully just in case
+    #     with np.errstate(divide='ignore', invalid='ignore'):
+    #         val = 1.0 + 0.5 * np.log(np.divide(r, scale(a)[i]))
+    #     outcome_for_n_zero = val
     
     # Outcome 2: If n>=1 and r is at the boundary, the value is 1.0.
     outcome_for_r_boundary = 1.0
@@ -238,11 +239,12 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     
     condition = (n == 0)
     
-    if i == 0:
-        value_if_true = np.zeros_like(r)
-    else:
-        # Derivative is 1/(2r)
-        value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r!=0))
+    value_if_true = np.zeros_like(r)
+    # if i == 0:
+    #     value_if_true = np.zeros_like(r)
+    # else:
+    #     # Derivative is 1/(2r)
+    #     value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r!=0))
     
     # --- Calculation for when n > 0 ---
     lambda_val = lambda_ni(n, i, h, d)

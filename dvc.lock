@@ -77,21 +77,21 @@ stages:
     - path: 
         .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: 8ca86d4c33e8cceac77f627643514491
-      size: 29452
+      md5: b3df00a7c8ac32ecabac6ac6777c7a8f
+      size: 29298
     outs:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: 60537907c2fec5e776688bc96544f51d
-      size: 1049093
+      md5: 2fe7a683c68b4af2b05784df6d1c3398
+      size: 1048986
     - path: .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
       hash: md5
-      md5: ba07eb8374cbc4c830323da6a26d4938
-      size: 1372457
+      md5: c22e80dee0bab04bd8f1d00ab6c663df
+      size: 1372446
     - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       hash: md5
-      md5: d674041fe7fda124dfb4a3786c515a50
+      md5: 31679945c6cbf9312265af6f983c830e
       size: 167982
   _check-env-openflash-on-branch:
     cmd: calkit check environment --name openflash-on-branch
