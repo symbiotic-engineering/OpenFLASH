@@ -218,9 +218,9 @@ class Results:
             )
 
     def store_hydrodynamic_coefficients(self, frequencies: np.ndarray,
-                                        added_mass_matrix: np.ndarray, damping_matrix: np.ndarray, excitation_force: Optional[np.ndarray] = None, excitation_phase: Optional[np.ndarray] = None):
+                                        added_mass_matrix: np.ndarray, damping_matrix: np.ndarray, excitation_force: Optional[np.ndarray] = None, excitation_phase: Optional[np.ndarray] = None, c_vector_matrix: Optional[np.ndarray] = None):
         """
-        Store hydrodynamic coefficients (added mass, damping, excitation).
+        Store hydrodynamic coefficients (added mass, damping, excitation, and c_vector).
         """
         expected_shape = (len(frequencies), len(self.modes), len(self.modes))
         
@@ -234,17 +234,19 @@ class Results:
         self.dataset['added_mass'] = (('frequency', 'mode_i', 'mode_j'), added_mass_matrix)
         self.dataset['damping'] = (('frequency', 'mode_i', 'mode_j'), damping_matrix)
         
-        # --- NEW: Store Excitation Data ---
         if excitation_force is not None:
-            # Shape is (frequency, mode_i) - Force on body i due to its own motion/wave
-            # Note: For diffraction problem strictly, this might differ, but for radiation 
-            # we align it with mode_i.
             self.dataset['excitation_force'] = (('frequency', 'mode_i'), excitation_force)
             
         if excitation_phase is not None:
             self.dataset['excitation_phase'] = (('frequency', 'mode_i'), excitation_phase)
-        # ----------------------------------
-        
+
+        # --- NEW: Store c_vector Data ---
+        if c_vector_matrix is not None:
+            c_len = c_vector_matrix.shape[-1]
+            if 'c_vector_index' not in self.dataset.coords:
+                self.dataset.coords['c_vector_index'] = np.arange(c_len)
+            self.dataset['c_vector'] = (('frequency', 'mode_i', 'c_vector_index'), c_vector_matrix)
+            
         print("Hydrodynamic coefficients stored in xarray dataset.")
 
     def export_to_netcdf(self, file_path: str):
