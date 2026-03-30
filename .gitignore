@@ -207,3 +207,8 @@ html/
 
 # vscode configuration files
 .vscode/
+
+# Calkit build artifacts
+.calkit/env-locks/
+.calkit/notebooks/executed/
+.calkit/notebooks/cleaned/
