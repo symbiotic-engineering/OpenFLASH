@@ -66,6 +66,37 @@ class MEEMEngine:
         for row, calc_func in cache.m0_dependent_b_indices:
             b[row] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr)
         return b
+    
+    def assemble_c_vector(self, problem: 'MEEMProblem', heaving: List[int]) -> np.ndarray:
+        """
+        Assembles the c_vector based on the heaving state of the domains.
+        """
+        cache = self.cache_list[problem]
+        int_R1_store, int_R2_store, _ = cache._get_integration_constants()
+
+        geometry = problem.geometry
+        domain_keys = list(geometry.domain_list.keys())
+        NMK = [geometry.domain_list[idx].number_harmonics for idx in domain_keys]
+        boundary_count = len(NMK) - 1
+        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
+
+        c_vector = np.zeros((size - NMK[-1]), dtype=complex)
+        col = 0
+
+        # 1. Inner Region (Index 0)
+        for n in range(NMK[0]):
+            c_vector[n] = heaving[0] * int_R1_store[(0, n)] * z_n_d(n)
+        col += NMK[0]
+
+        # 2. Outer Regions
+        for i in range(1, boundary_count):
+            M = NMK[i]
+            for m in range(M):
+                c_vector[col + m] = heaving[i] * int_R1_store[(i, m)] * z_n_d(m)
+                c_vector[col + M + m] = heaving[i] * int_R2_store[(i, m)] * z_n_d(m)
+            col += 2 * M
+
+        return c_vector
 
     def build_problem_cache(self, problem: 'MEEMProblem') -> ProblemCache:
         """
@@ -319,29 +350,19 @@ class MEEMEngine:
         return cs
 
     def compute_hydrodynamic_coefficients(self, problem, X, m0, modes_to_calculate: Optional[np.ndarray] = None, rho: Optional[float] = None):
-        """
-        Computes the hydrodynamic coefficients (Added Mass and Damping) from the solution vector X.
-        """
         if rho is None:
             rho = default_rho
 
         geometry = problem.geometry
         domain_keys = list(geometry.domain_list.keys())
         a = [geometry.domain_list[idx].a for idx in domain_keys]
-        d = [
-            domain.di[0] if isinstance(domain.di, list) else domain.di
-            for domain in geometry.domain_list.values()
-        ]
-        h = geometry.domain_list[0].h
+        h = geometry.h
         NMK = [geometry.domain_list[idx].number_harmonics for idx in domain_keys]
         boundary_count = len(NMK) - 1
 
-        size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
-
         results_per_mode = []
-        
         cache = self.cache_list[problem]
-        int_R1_store, int_R2_store, int_phi_store = cache._get_integration_constants()
+        _, _, int_phi_store = cache._get_integration_constants()
 
         if modes_to_calculate is None:
             num_bodies = len(geometry.body_arrangement.bodies)
@@ -366,25 +387,8 @@ class MEEMEngine:
                     if r_idx < len(heaving):
                         heaving[r_idx] = 1
 
-            c_vector = np.zeros((size - NMK[-1]), dtype=complex)
-            col = 0
-
-            # 1. Inner Region (Index 0)
-            for n in range(NMK[0]):
-                val = int_R1_store[(0, n)]
-                c_vector[n] = heaving[0] * val * z_n_d(n)
-            col += NMK[0]
-
-            # 2. Outer Regions
-            for i in range(1, boundary_count):
-                M = NMK[i]
-                for m in range(M):
-                    r1_val = int_R1_store[(i, m)]
-                    c_vector[col + m] = heaving[i] * r1_val * z_n_d(m)
-                    
-                    r2_val = int_R2_store[(i, m)]
-                    c_vector[col + M + m] = heaving[i] * r2_val * z_n_d(m)
-                col += 2 * M
+            # --- USE YOUR NEW HELPER METHOD ---
+            c_vector = self.assemble_c_vector(problem, heaving)
 
             hydro_p_term_sum = np.zeros(boundary_count, dtype=complex)
             for i in range(boundary_count):
@@ -403,7 +407,8 @@ class MEEMEngine:
                 "real": hydro_coef_real,      
                 "imag": hydro_coef_imag,      
                 "excitation_phase": excitation_phase(X, NMK, m0, a),
-                "excitation_force": excitation_force(hydro_coef_imag, m0, h)
+                "excitation_force": excitation_force(hydro_coef_imag, m0, h),
+                "c_vector": c_vector # --- APPEND C_VECTOR TO OUTPUT ---
             })
 
         return results_per_mode
@@ -591,6 +596,10 @@ class MEEMEngine:
         full_excitation_force = np.full((num_freqs, num_modes), np.nan)
         full_excitation_phase = np.full((num_freqs, num_modes), np.nan)
         
+        # --- NEW: Initialize full_c_vector ---
+        c_vector_len = NMK_list[0] + 2 * sum(NMK_list[1:-1])
+        full_c_vector = np.full((num_freqs, num_modes, c_vector_len), np.nan + 1j * np.nan, dtype=complex)
+        
         all_potentials_batch_data = []
 
         temp_bodies = []
@@ -659,6 +668,10 @@ class MEEMEngine:
                             if i_idx == j_idx:
                                 full_excitation_force[freq_idx, j_idx] = coeff_dict.get('excitation_force', np.nan)
                                 full_excitation_phase[freq_idx, j_idx] = coeff_dict.get('excitation_phase', np.nan)
+                            
+                            # --- NEW: Catch the c_vector from your new dict output ---
+                            if 'c_vector' in coeff_dict:
+                                full_c_vector[freq_idx, j_idx, :] = coeff_dict['c_vector']
 
                     Cs = temp_engine.reformat_coeffs(X_i, NMK_list, len(NMK_list) - 1)
                     
@@ -685,12 +698,14 @@ class MEEMEngine:
                     full_damping_matrix[freq_idx, :, i_idx] = np.nan
                     continue 
 
+        # --- NEW: Pass the full_c_vector array to the storage function ---
         results.store_hydrodynamic_coefficients(
             frequencies=omegas_to_run,
             added_mass_matrix=full_added_mass_matrix,
             damping_matrix=full_damping_matrix,
             excitation_force=full_excitation_force,
-            excitation_phase=full_excitation_phase
+            excitation_phase=full_excitation_phase,
+            c_vector=full_c_vector
         )
 
         if all_potentials_batch_data:

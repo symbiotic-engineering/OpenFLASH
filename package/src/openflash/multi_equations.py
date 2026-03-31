@@ -196,19 +196,11 @@ def R_1n_vectorized(n, r, i, h, d, a):
     # ---------------------------------------------------------------------------------
 
     cond_n_is_zero = (n == 0)
-    cond_r_at_boundary = (r == scale(a)[i])
+    cond_r_at_scale = (r == scale(a)[i])
 
     # --- Define the outcomes for each condition ---
-    # FIX: n=0 logic must match scalar version
+    # Outcome 1: n=0 eigenfunction (constant)
     outcome_for_n_zero = np.full_like(r, 0.5)
-    # if i == 0:
-    #     outcome_for_n_zero = np.full_like(r, 0.5)
-    # else:
-    #     # Annulus: 1.0 + 0.5 * log(r / outer)
-    #     # Use np.divide to handle r=0 gracefully just in case
-    #     with np.errstate(divide='ignore', invalid='ignore'):
-    #         val = 1.0 + 0.5 * np.log(np.divide(r, scale(a)[i]))
-    #     outcome_for_n_zero = val
     
     # Outcome 2: If n>=1 and r is at the boundary, the value is 1.0.
     outcome_for_r_boundary = 1.0
@@ -223,7 +215,7 @@ def R_1n_vectorized(n, r, i, h, d, a):
                   exp(safe_lambda * (r - scale(a)[i]))
 
     # --- Apply the logic using nested np.where ---
-    result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
+    result_if_n_not_zero = np.where(cond_r_at_scale, outcome_for_r_boundary, bessel_term)
     
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
@@ -239,12 +231,8 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     
     condition = (n == 0)
     
+    # n=0 eigenfunction is constant -> derivative is zero
     value_if_true = np.zeros_like(r)
-    # if i == 0:
-    #     value_if_true = np.zeros_like(r)
-    # else:
-    #     # Derivative is 1/(2r)
-    #     value_if_true = np.divide(1.0, 2 * r, out=np.full_like(r, np.inf), where=(r!=0))
     
     # --- Calculation for when n > 0 ---
     lambda_val = lambda_ni(n, i, h, d)
@@ -279,17 +267,17 @@ def R_2n_vectorized(n, r, i, a, h, d):
     # -------------------------------------------
 
     # LEGACY: Use Outer Radius
-    outer_r = scale(a)[i]
+    scale_r = scale(a)[i]
 
     cond_n_is_zero = (n == 0)
-    cond_r_at_boundary = (r == outer_r)
+    cond_r_at_scale = (r == scale_r)
 
     # Case 1: n = 0
     with np.errstate(divide='ignore', invalid='ignore'):
-         outcome_for_n_zero = 0.5 * np.log(np.divide(r, outer_r))
+         outcome_for_n_zero = 0.5 * np.log(np.divide(r, scale_r))
 
     # Case 2: n > 0 and r is at the boundary
-    outcome_for_r_boundary = 1.0
+    outcome_for_r_scale = 1.0
 
     # Case 3: n > 0 and r is not at the boundary
     lambda_val = lambda_ni(n, i, h, d)
@@ -297,13 +285,13 @@ def R_2n_vectorized(n, r, i, a, h, d):
     # Mask input where n=0 to prevent 'inf' errors
     lambda_safe = np.where(cond_n_is_zero, 1.0, lambda_val)
     
-    # LEGACY: Denom uses OUTER radius
-    denom = besselke(0, lambda_safe * outer_r)
+    # LEGACY: Denom uses scaled radius
+    denom = besselke(0, lambda_safe * scale_r)
     denom = np.where(np.abs(denom) < 1e-12, np.nan, denom)
 
-    bessel_term = (besselke(0, lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
+    bessel_term = (besselke(0, lambda_safe * r) / denom) * exp(lambda_safe * (scale_r - r))
 
-    result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
+    result_if_n_not_zero = np.where(cond_r_at_scale, outcome_for_r_scale, bessel_term)
 
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
@@ -319,19 +307,19 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
     
     # Case n > 0
     lambda_val = lambda_ni(n, i, h, d)
-    outer_r = scale(a)[i] # LEGACY ANCHOR
+    scale_r = scale(a)[i] # LEGACY ANCHOR
     
     lambda_safe = np.where(n == 0, 1.0, lambda_val)
     
-    # LEGACY: Denom uses OUTER radius
-    denom = besselke(0, lambda_safe * outer_r)
+    # LEGACY: Denom uses scale radius
+    denom = besselke(0, lambda_safe * scale_r)
     safe_denom = np.where(np.abs(denom) < 1e-10, 1e-10, denom)
 
     with np.errstate(divide='ignore', invalid='ignore'):
         numerator = -lambda_safe * besselke(1, lambda_safe * r)
         ratio = numerator / safe_denom
         # LEGACY: Exponential decay from OUTER radius
-        exp_term = exp(lambda_safe * (outer_r - r))
+        exp_term = exp(lambda_safe * (scale_r - r))
         value_if_false = ratio * exp_term
 
     return np.where(n == 0, value_if_true, value_if_false)
@@ -389,9 +377,9 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     # -------------------------------------------
 
     cond_k_is_zero = (k == 0)
-    cond_r_at_boundary = (r == scale(a)[-1])
+    cond_r_at_scale = (r == scale(a)[-1])
 
-    outcome_boundary = 1.0
+    outcome_scale = 1.0
 
     # --- Case 2: k = 0 ---
     if m0 == inf:
@@ -429,13 +417,13 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
                                  where=np.isfinite(denom_k_nonzero) & (denom_k_nonzero != 0))
     outcome_k_nonzero = bessel_ratio * exp(safe_m_k * (scale(a)[-1] - r))
 
-    result_if_not_boundary = np.where(cond_k_is_zero,
+    result_if_not_scale = np.where(cond_k_is_zero,
                                       outcome_k_zero,
                                       outcome_k_nonzero)
 
-    return np.where(cond_r_at_boundary,
-                    outcome_boundary,
-                    result_if_not_boundary)
+    return np.where(cond_r_at_scale,
+                    outcome_scale,
+                    result_if_not_scale)
 
 # Differentiate wrt r 
 def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
@@ -570,27 +558,11 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
 #integrating R_1n * r
 # Integration
 def int_R_1n(i, n, a, h, d):
-    if n == 0:
+    if n == 0: # Integral of 0.5 * r
         if i == 0:
-            # Central cylinder: Integral of 0.5 * r
             return a[i]**2/4 
         else:
-            # Annulus: Integral of r * (1.0 + 0.5 * ln(r/outer_r))
-            outer_r = scale(a)[i]
-            inner_r = a[i-1]
-            
-            cyl_term = (outer_r**2 - inner_r**2) / 2.0
-            
-            def log_indefinite_int(r):
-                # Integral of 0.5 * r * ln(r/outer)
-                # = 0.5 * [ (r^2/2)*ln(r/outer) - r^2/4 ]
-                log_val = np.log(r/outer_r) if r > 0 else 0
-                return 0.5 * ((r**2 / 2.0) * log_val - (r**2 / 4.0))
-
-            val_outer = log_indefinite_int(outer_r) # log(1)=0, so just -r^2/4 term
-            val_inner = log_indefinite_int(inner_r)
-            
-            return cyl_term + (val_outer - val_inner)
+            return (a[i]**2 - a[i-1]**2)/4
     else:
         # Standard Bessel I integral (Unchanged)
         lambda0 = lambda_ni(n, i, h, d)
@@ -611,8 +583,9 @@ def int_R_2n(i, n, a, h, d):
         raise ValueError("i cannot be 0")
     
     # LEGACY: Use Outer Radius
-    outer_r = scale(a)[i]
+    outer_r =a[i]
     inner_r = a[i-1] # Previous radius is inner
+    scale_r = scale(a)[i]
 
     if n == 0:
         # Integral of r * (0.5 * ln(r/outer_r))
@@ -621,7 +594,7 @@ def int_R_2n(i, n, a, h, d):
         def indefinite(r):
             if r <= 0: return 0
             # ln(r/outer_r) is 0 when r=outer_r
-            term_log = np.log(r / outer_r)
+            term_log = np.log(r / scale_r)
             return 0.5 * ((r**2 / 2) * term_log - (r**2 / 4))
 
         val_outer = indefinite(outer_r)
@@ -632,13 +605,14 @@ def int_R_2n(i, n, a, h, d):
         lambda0 = lambda_ni(n, i, h, d)
         
         term_outer = (outer_r * besselke(1, lambda0 * outer_r)) 
-        # exp(la - la) = 1, so no exp factor needed for outer term.
+        # exp(la - la) = 1, for scale = outer_r, so no exp factor needed for outer term in that case.
+        term_outer *= np.exp(lambda0 * (scale_r - outer_r))
         
         term_inner = (inner_r * besselke(1, lambda0 * inner_r))
         # exp(la - li). We need to multiply by this.
-        term_inner *= np.exp(lambda0 * (outer_r - inner_r))
+        term_inner *= np.exp(lambda0 * (scale_r - inner_r))
         
-        denom = lambda0 * besselke(0, lambda0 * outer_r)
+        denom = lambda0 * besselke(0, lambda0 * scale_r)
         
         return (term_inner - term_outer) / denom
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
@@ -661,8 +635,8 @@ def z_n_d(n):
 def excitation_phase(x, NMK, m0, a): # x-vector of unknown coefficients
     if m0 == inf: return -(pi/2)
     coeff = x[-NMK[-1]] # first coefficient of e-region expansion
-    local_scale = scale(a)
-    return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale[-1]))
+    exterior_scale = scale(a)[-1]
+    return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * exterior_scale))
 
 def excitation_force(damping, m0, h):
     # --- FIX: Handle infinite m0 ---

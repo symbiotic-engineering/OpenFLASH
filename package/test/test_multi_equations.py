@@ -301,23 +301,12 @@ def test_int_R_1n_n0_i0(a, h, d):
     assert np.isclose(int_R_1n(0, 0, a, h, d), expected)
 
 def test_int_R_1n_n0_i_positive(a, h, d):
-    # Fixed expected value: Integral of r * (1.0 + 0.5 * log(r/outer))
+    # Fixed expected value: Integral of r * 0.5
     i = 1
     outer_r = a[i]
     inner_r = a[i-1]
     
-    # 1. Cylinder term (integral of r*1.0)
-    cyl_term = (outer_r**2 - inner_r**2) / 2.0
-    
-    # 2. Log term helper
-    def log_indefinite_int(r):
-        log_val = np.log(r/outer_r) if r > 0 else 0
-        return 0.5 * ((r**2 / 2.0) * log_val - (r**2 / 4.0))
-
-    val_outer = log_indefinite_int(outer_r) 
-    val_inner = log_indefinite_int(inner_r)
-    
-    expected = cyl_term + (val_outer - val_inner)
+    expected = (outer_r**2 - inner_r**2) / 4
     assert np.isclose(int_R_1n(1, 0, a, h, d), expected)
 
 def test_int_R_1n_n_positive(test_n, test_i, a, h, d):
