@@ -41,8 +41,8 @@ stages:
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 985c8f069e69937b629d539d31bafe5c.dir
-      size: 2769136
+      md5: 1857143ca1c5e93bb22968aedac063be.dir
+      size: 2769125
       nfiles: 26
     - path: pubs/JFM/jfm.bib
       hash: md5
@@ -63,8 +63,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: d8122431dab63aa9d4efc16a222a998a
-      size: 908131
+      md5: 7ae88aa5c70f15f21e9b2899f79feac1
+      size: 908130
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
@@ -77,21 +77,21 @@ stages:
     - path: 
         .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: dbd23830fc77748947477b380f97503b
-      size: 29284
+      md5: cb24277a46743be663ca11d97c5ccc66
+      size: 29270
     outs:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: 30dc7a5b5d62dd649207f8241facdc79
-      size: 1048976
+      md5: c4ac70df53b0e5fe945310760c875833
+      size: 1048968
     - path: .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
       hash: md5
-      md5: 3fc39d1834bc9b0dcc1606999ac56e4a
-      size: 1372446
+      md5: 464739594e9a47135c1422b57adbf94d
+      size: 1372445
     - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       hash: md5
-      md5: bac1e367ba9828ebf6dbc6e49457610f
+      md5: 452e6e68899930a17cde9017b452e289
       size: 167982
   _check-env-openflash-on-branch:
     cmd: calkit check environment --name openflash-on-branch
@@ -184,7 +184,7 @@ stages:
       size: 5745
     - path: package/src/
       hash: md5
-      md5: 7aedbf7d749775950cb8c27041591621.dir
+      md5: f5cdbf92838e9c39ec3c28816908106b.dir
       size: 554320
       nfiles: 51
     - path: sea-lab-utils
@@ -195,15 +195,15 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: 4058a91646869c6e4e148f258c5f826c
-      size: 86242
+      md5: d298e1589205c4da15d97ea8e5b959f7
+      size: 86243
     - path: .calkit/notebooks/html/analysis/low_m0_plots.html
       hash: md5
       md5: ce010ff53408f14d4195d55a034dec1d
       size: 397513
     - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: e55f5926eda1c5d5b79bcf6b30153e24
+      md5: 306c2c0960b8af4bba86762d99107bad
       size: 402983
   _clean-nb-slant-figs:
     cmd: calkit nb clean "analysis/slant_data_plots.ipynb"
@@ -228,8 +228,8 @@ stages:
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: 697b5cf0da37b68827f486b71dfb66d6
-      size: 40257
+      md5: 790b057f2978cafe01a0199e8da5217c
+      size: 40260
     - path: analysis/data/potential-slants.pkl
       hash: md5
       md5: 31cd3c8c05c5951db5f91ef631c166a0
@@ -250,27 +250,27 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: e4c410e6876b32fbc6bdb11f5bf4cac7
-      size: 761862
+      md5: a24a59e43593f521ca96a0cf1d1417bc
+      size: 760501
     - path: .calkit/notebooks/html/analysis/slant_data_plots.html
       hash: md5
-      md5: 5cd96364b28cf23831f6a6df74de4c4e
-      size: 1166417
+      md5: 56fd3b3e723328987a99fc2f5cc364b0
+      size: 1164931
     - path: pubs/JFM/figs/Along-Outline.pdf
       hash: md5
-      md5: 8c13d7ba4e8fb5f1191e2c38145c478d
-      size: 110430
+      md5: 69c30e1bd891df432ca45c633b8d2390
+      size: 110419
     - path: pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
       hash: md5
-      md5: f0cd6783ea33d073321fa7b943bed4f8
+      md5: 1e79ea09eb18d80ff76df92a42799d6b
       size: 252215
     - path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       hash: md5
-      md5: 728657a89be68e98c6b6808a9014f8ae
+      md5: e19e4dadde3da884ffae8e59dc6c10b7
       size: 137298
     - path: pubs/JFM/figs/Vary-Slopes.pdf
       hash: md5
-      md5: 7ccf8cbd11c72f2b81fa47aea8f884b4
+      md5: cb918d01ff2bb121d1df16f6e8d674be
       size: 178731
   _clean-nb-timing-figs:
     cmd: calkit nb clean "analysis/timing_plots.ipynb"
