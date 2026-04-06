@@ -45,6 +45,7 @@ stages:
       - pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       - pubs/JFM/figs/Vary-Slopes.pdf
       - pubs/JFM/figs/Along-Outline.pdf
+      - pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
       - .calkit/notebooks/executed/analysis/slant_data_plots.ipynb:
           cache: true
       - .calkit/notebooks/html/analysis/slant_data_plots.html:
