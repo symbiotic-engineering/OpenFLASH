@@ -41,8 +41,8 @@ stages:
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 0799ec7757589e33bce2e5d8d21edabf.dir
-      size: 2769093
+      md5: 985c8f069e69937b629d539d31bafe5c.dir
+      size: 2769136
       nfiles: 26
     - path: pubs/JFM/jfm.bib
       hash: md5
@@ -63,7 +63,7 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: b1ae7159594d023f42f3ad9f351c0892
+      md5: d8122431dab63aa9d4efc16a222a998a
       size: 908131
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
@@ -77,21 +77,21 @@ stages:
     - path: 
         .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: b3df00a7c8ac32ecabac6ac6777c7a8f
-      size: 29298
+      md5: dbd23830fc77748947477b380f97503b
+      size: 29284
     outs:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: a2c4d36ea39b9bf8e1ef2c888a7feb84
-      size: 1048985
+      md5: 30dc7a5b5d62dd649207f8241facdc79
+      size: 1048976
     - path: .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
       hash: md5
-      md5: 9068ffc908042602277f170642eb8b6f
-      size: 1372447
+      md5: 3fc39d1834bc9b0dcc1606999ac56e4a
+      size: 1372446
     - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       hash: md5
-      md5: 34ff35826727184a642b5161227138eb
+      md5: bac1e367ba9828ebf6dbc6e49457610f
       size: 167982
   _check-env-openflash-on-branch:
     cmd: calkit check environment --name openflash-on-branch
