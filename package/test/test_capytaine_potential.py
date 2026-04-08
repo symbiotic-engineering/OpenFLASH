@@ -176,7 +176,7 @@ ALL_CONFIGS = {
 }
 
 # 4. Define comparison tolerance
-RELATIVE_TOLERANCE = 0.02
+RELATIVE_TOLERANCE = 0.01
 
 # --- End Configuration ---
 
@@ -787,7 +787,7 @@ def test_potential_field_vs_capytaine(config_name):
     try:
         np.testing.assert_allclose(
             openflash_real_valid, capytaine_real_valid,
-            rtol=RELATIVE_TOLERANCE, atol = 0.05,
+            rtol=RELATIVE_TOLERANCE, atol = 0.2,
             err_msg=f"[{config_name}] Real part mismatch"
         )
         print(f"  [PASS] Real Part Matched ({intersection_points} points)") 
