@@ -672,7 +672,7 @@ The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation 
 \subsubsection{Theory \& Procedure}
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{example-image-a}
+    \includegraphics[width=0.9\linewidth]{figs/nmk-predict-flowchart.png}
     \caption{flowchart showing mapping with sparsity pattern from dimensionless params to alpha beta, see slack doodle}
     \label{fig:placeholder}
 \end{figure}
@@ -729,7 +729,7 @@ So far, we have only considered geometries in the form of a series of surface-pi
 
 \subsection{Discretization}
 
-As formulated, MEEM can only exactly represent geometries where the fluid can be divided into regions that have the top boundary parallel to the sea floor. The standard way to use MEEM with slanted or curved bodies is to approximate the geometry by subdividing non-flat regions into flat regions approximating the true outline~\citep{kokkinowrachos_behaviour_1986}, as shown in Figure~\ref{fig:Discretization Diagram}. There are many options for this discretization. As shown in Fig.~\ref{fig:Discretization Schemes Diagram}, the wetted surface of the discretized body modeled can lie a) entirely within, b) partially within, or c) outside of the slanted wetted surface that is being approximated. In cases a) and c), the computed potentials in the true fluid region will be smooth. Alternatively, in case b), the approximating outline can cross back and forth across the true outline, meaning some points in the true fluid are inside of the body. This creates discontinuities in the potential at points in the true fluid region that correspond to a fluid-body boundary in the approximation. Thus, even if the discretized geometry used when solving for the potential, the potential should not be integrated over the true slanted wetted surface. Instead, the pressure is integrated over the discretized wetted surface, outlined in red in Fig.~\ref{fig:Discretization Schemes Diagram}.
+As formulated, MEEM can only exactly represent geometries where the fluid can be divided into regions that have the top boundary parallel to the sea floor. The standard way to use MEEM with slanted or curved bodies is to approximate the geometry by subdividing non-flat regions into flat regions approximating the true outline~\citep{kokkinowrachos_behaviour_1986}, as shown in Figure~\ref{fig:Discretization Diagram}. There are many options for this discretization. As shown in Fig.~\ref{fig:Discretization Schemes Diagram}, the wetted surface of the discretized body modeled can lie a) entirely within, b) partially within, or c) outside of the slanted wetted surface that is being approximated. In cases a) and c), the computed potentials in the true fluid region will be smooth. Alternatively, in case b), the approximating outline can cross back and forth across the true outline, meaning some points in the true fluid are inside of the body. This creates discontinuities in the potential at points in the true fluid region that correspond to a fluid-body boundary in the approximation. Thus, the potential should not be integrated over the true slanted wetted surface. Instead, the pressure is integrated over the discretized wetted surface, outlined in red in Fig.~\ref{fig:Discretization Schemes Diagram}.
 
 However, this discretization quickly becomes computationally expensive. Not only does matrix size increase as the number of regions increases, but the number of terms required for convergence in each subregion also increases. This is because increasing the number of subdivisions reduces the radial width allocated to each subregion without significantly changing the fluid height, increasing $\frac{\text{fluid height}}{\text{radial width}}$ (see Section~\ref{sec:convergence}).
 
@@ -760,13 +760,15 @@ When modeling a slanted geometry as a discretized one using MEEM, inaccuracies c
 
 Instead of altering the MEEM procedure for slanted geometries, the same procedure can be used for modeling slanted geometries with the assumption that, as the number of subdivisions increases, the discretized geometry approaches the true geometry, and, consequently, inaccuracies in the hydrodynamic coefficients diminish. Thus, a proper choice of the number of subdivisions is required to mitigate these inaccuracies.
 
-\subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using MEEM may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally. This is shown in Fig~\ref{fig:placeholder}, where the radiated velocity potential for a discretized body is compared with that of a slanted body. Inaccuracies are the largest at the points that are within the slanted body and outside the discretized body. This is due to different boundary conditions being enforced for each problem. Meanwhile, the velocity potential is most accurate at the corners due to this being where the wetted surface of the discretized and slanted bodies meets. In the far field, the velocity potentials of the problems have good agreement.   
+\subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using MEEM may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally. This is shown in Fig~\ref{fig:potential comparison plots}, where the radiated velocity potential for a discretized body (using MEEM) is compared with that of a slanted body (using Capytaine). Inaccuracies are the largest at the points that are within the discretized body and outside the slanted body, as shown in Fig~\ref{fig:potential comparison plots}c) and d). This is due to different boundary conditions being enforced for each problem. Meanwhile, the velocity potential is most accurate at the corners due to this being where the wetted surface of the discretized and slanted bodies meets. This is shown by the points in Fig~\ref{fig:potential comparison plots}e) and f), where the value of the potential along the slanted outline is compared to that of the stepped outline. In general, the error in the potential along the slanted outline fluctuates far more than that of the stepped outline, with errors up to 8\%. This implies that integration along the stepped outline may lead to more accurate hydrodynamic coefficients, despite the surface being integrated over not being the true slanted geometry. In the far field, the velocity potentials of the problems have good agreement.   
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{example-image-a}
-    \caption{Radiated velocity potential of discretized (stepped) and slanted geometries.}
-    \label{fig:placeholder}
+    \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
+    \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
+    \caption{[TODO: Mention that relative error scaling is zeroed for potential $<$ 1, clarify relative error is for real potential, label colorbars, swap error colorbar to percents, pick inner outline or crossing outline.]
+    Radiated velocity potential of discretized (stepped) and slanted geometries.\textcolor{red}{Need to add a0, b), .., so we can refer to each plot within this figure.}}
+    \label{fig:potential comparison plots}
 \end{figure}
 
 
