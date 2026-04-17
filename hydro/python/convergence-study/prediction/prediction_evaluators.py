@@ -12,7 +12,7 @@ for pathstr in [up1_path, up2_path]:
   if pathstr not in sys.path:
       sys.path.insert(0, pathstr)
 
-from helpers import convergence_point
+from helpers import convergence_point, ConvergenceProblemI
 
 
 def innermost_vars(h, d, a, m0): # predicts terms needed in innermost region
@@ -152,7 +152,7 @@ def model_helper(model, cf, nmks = range(1, 151)):
 def model_wrapper(model):
   return lambda cf : model_helper(model, cf, nmks = range(1, 151))
 
-def compare_model_curves(cfs, extractf, modelf, summary_fs, nmks = list(range(1, 151)), ncols = 10, figsize_per_ax = (2.2, 2.2)):
+def compare_model_curves(cfs, extractf, modelf, summary_fs, nmks = list(range(1, 151)), ncols = 10, figsize_per_ax = (2.2, 2.2),):
     cf_count = len(cfs)
     nrows = math.ceil(cf_count / ncols)
 
@@ -190,38 +190,96 @@ def compare_model_curves(cfs, extractf, modelf, summary_fs, nmks = list(range(1,
     fig.tight_layout()
     plt.show()
 
-def compare_nmk_distributions(cfs, hydro, models_dict, err, title = None):
+def compare_nmk_distributions(cfs, hydro, models_dict, err, title = None, plot_type = "hist"):
   cf_key = f"convergence point {err:.2g} " + hydro
   true_nmks = [cf[cf["m0s"][0]][cf_key] for cf in cfs]
   sample_size = len(true_nmks)
-  weights = np.ones(sample_size) / sample_size
+  all_nmk_diffs, all_nmk_fracs = [], []
   diff_mus, diff_stds = [], []
   frac_mus, frac_stds = [], []
+  labels_hist, labels_box = [], []
   fig, axs = plt.subplots(1, 2, sharey=True, figsize=(8, 5))
   for key in models_dict.keys():
     nmk_from_err_model, params = models_dict[key]
-    calculated_nmks = [nmk_from_err_model(err, cf, *params) for cf in cfs]
+    calculated_nmks = [math.ceil(nmk_from_err_model(err, cf, *params)) for cf in cfs]
     nmk_diffs = [calculated_nmks[i] - true_nmks[i] for i in range(sample_size)]
     mu1, std1 = np.mean(nmk_diffs), np.std(nmk_diffs)
     diff_mus.append(mu1)
     diff_stds.append(std1)
-    bins = np.arange(min(nmk_diffs)-0.5, max(nmk_diffs)+1.5, 1)
-    axs[0].hist(nmk_diffs, bins=bins, weights = weights, histtype='step', linewidth=0.5)
+    all_nmk_diffs.append(nmk_diffs)
     nmk_fracs = [nmk_diffs[i]/true_nmks[i] for i in range(sample_size)] 
     mu2, std2 = np.mean(nmk_fracs), np.std(nmk_fracs)
     frac_mus.append(mu2)
     frac_stds.append(std2)
-    bin_width = 0.04
-    bins = np.arange(min(nmk_fracs)-bin_width/2,
-                    max(nmk_fracs)+bin_width*1.5,
-                    bin_width)
-    axs[1].hist(nmk_fracs, bins=bins, weights = weights, histtype='step', linewidth=0.5,
-                label = (key + rf": $\mu_{{diff}}={mu1:.3g}, \sigma_{{diff}}={std1:.3g}, \mu_{{frac}}={mu2:.3g}, \sigma_{{frac}}={std2:.3g}$"))
-  axs[0].set_xlabel("Predicted NMK - True NMK")
-  axs[1].set_xlabel("(Predicted NMK - True NMK)/(True NMK)")
-  axs[0].set_ylabel("Frequency")
-  fig.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    all_nmk_fracs.append(nmk_fracs)
+    labels_hist.append(key + rf": $\mu_{{diff}}={mu1:.3g}, \sigma_{{diff}}={std1:.3g}, \mu_{{frac}}={mu2:.3g}, \sigma_{{frac}}={std2:.3g}$")
+    labels_box.append(key)
+  
+  if plot_type == "hist":
+    weights = np.ones(sample_size) / sample_size
+    for i in range(len(models_dict.keys())):
+      nmk_diffs, nmk_fracs = all_nmk_diffs[i], all_nmk_fracs[i]
+      bins = np.arange(min(nmk_diffs)-0.5, max(nmk_diffs)+1.5, 1)
+      axs[0].hist(nmk_diffs, bins=bins, weights = weights, histtype='step', linewidth=0.5)
+      bin_width = 0.04
+      bins = np.arange(min(nmk_fracs)-bin_width/2,
+                      max(nmk_fracs)+bin_width*1.5,
+                      bin_width)
+      axs[1].hist(nmk_fracs, bins=bins, weights = weights, histtype='step', linewidth=0.5, label = labels_hist[i])
+      axs[0].set_xlabel("Predicted NMK - True NMK")
+      axs[1].set_xlabel("(Predicted NMK - True NMK)/(True NMK)")
+      axs[0].set_ylabel("Frequency")
+      fig.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+  else:
+    axs[0].boxplot(all_nmk_diffs, whis=(5, 95), tick_labels = labels_box, vert=False)
+    axs[1].boxplot(all_nmk_fracs, whis=(5, 95), tick_labels = labels_box, vert=False)
+    axs[0].set_xlabel("Predicted NMK - True NMK")
+    axs[1].set_xlabel("(Predicted NMK - True NMK)/(True NMK)")
+    axs[0].set_ylabel("Fit Version")
+    axs[0].grid(True, axis='x', alpha = 0.5)
+    axs[1].grid(True, axis='x', alpha = 0.5)
+  
   fig.suptitle(title)
   plt.show()
   print("Sample size: " + str(sample_size))
   return diff_mus, diff_stds, frac_mus, frac_stds
+
+def get_error_single_vary(cf, m0, nmk, nmk_big, true_am, true_dp):
+  if nmk <= len(cf[m0]["ams"]): # has already been computed
+    am, dp = cf[m0]["ams"][nmk - 1], cf[m0]["dps"][nmk - 1]
+  else:
+    NMK = [nmk if i == cf["region"] else nmk_big for i in range(len(cf["a"]))]
+    heaving = [1 if i == cf["region"] else 0 for i in range(len(cf["a"]))]
+    prob = ConvergenceProblemI(cf["h"], cf["d"], cf["a"], heaving, NMK, m0, 1023)
+    x = prob.get_unknown_coeffs(prob.a_matrix(), prob.b_vector())
+    am, dp = prob.hydro_coeffs(x, "capytaine")
+  return (am - true_am)/true_am, (dp - true_dp)/true_dp
+
+def compare_err_distributions(cfs, hydro, models_dict, err, nmk_big = 200, title = None):
+  true_vals = [cf[cf["m0s"][0]][hydro] for cf in cfs]
+  sample_size = len(true_vals)
+  all_calculated_errs = []
+  err_mus, err_stds = [], []
+  labels_box = []
+  for key in models_dict.keys():
+    nmk_from_err_model, params = models_dict[key]
+    nmks = [math.ceil(nmk_from_err_model(err, cf, *params)) for cf in cfs]
+    errs = [get_error_single_vary(cfs[i], cfs[i]["m0s"][0], nmks[i], nmk_big, cfs[i][cfs[i]["m0s"][0]]["am"], cfs[i][cfs[i]["m0s"][0]]["dp"]) for i in range(sample_size)]
+    idx = 0 if hydro == "am" else 1
+    errs = [abs(err[idx]) for err in errs]
+    all_calculated_errs.append(errs)
+    mu1, std1 = np.mean(errs), np.std(errs)
+    err_mus.append(mu1)
+    err_stds.append(std1)
+    labels_box.append(key)
+  
+  fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+  ax.boxplot(all_calculated_errs, whis=(5, 95), tick_labels = labels_box, vert=False)
+  ax.set_xlabel("|Relative Error to Capytaine|")
+  ax.set_ylabel("Fit Version")
+  ax.grid(True, axis='x', alpha = 0.5)
+  
+  fig.suptitle(title)
+  plt.show()
+  print("Sample size: " + str(sample_size))
+  return all_calculated_errs, err_mus, err_stds

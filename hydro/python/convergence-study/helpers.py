@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.cm as cm
 from scipy import stats
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, least_squares
 
 
 import sys
@@ -630,7 +630,7 @@ def color_by_f_value(f, all_prob_dicts, m0 = None, m0s = None, all_m0s = False, 
   return [cm.get_cmap(cmap)((f_val - min_val)/(max_val - min_val)) for f_val in f_vals]
 
 ####### ERROR FITTING
-def filter_local_maxima(xs, ys):
+def filter_local_maxima(xs, ys): # Not that useful, often not enough points
   new_xs = []
   new_ys = []
   for x in xs:
@@ -666,7 +666,7 @@ def r2_underestimates(f, xs, ys, a, b):
     return 1 - ss_res / ss_tot
 
 def fit_parameters(cf, m0, hydro, local_maxima = False, plot_comparison = False, print_params = True,
-                   nmk_max = 150, linear_model = False, r2_lin = False):
+                   nmk_max = 150, linear_model = False, r2_lin = False, underweight = 1):
   full_xs = list(range(1, nmk_max + 1))
   full_ys = [cf[m0]["log errors " + hydro][i] for i in range(nmk_max)]
   if local_maxima:
@@ -676,7 +676,14 @@ def fit_parameters(cf, m0, hydro, local_maxima = False, plot_comparison = False,
 
   if not linear_model:
     f = lambda x, a1, a2 : (- a1 * np.log(x/a2))
-    popt, pcov = curve_fit(f, xs, ys, p0=(1, 1))
+    def residuals(params):
+      yhat = f(xs, *params)
+      r = yhat - ys
+      w = np.ones_like(r)
+      w[r < 0] = underweight
+      return np.sqrt(w) * r
+    res = least_squares(residuals, x0 = (1, 1))
+    popt, pcov = res.x, res
   else:
     f = lambda x, a1, a2 : (- a1 * x + a2)
     popt, pcov = curve_fit(f, np.log(xs), ys, p0=(1, 1))
@@ -706,13 +713,13 @@ def reorder(lst, order):
 
 def multi_fit_parameters(cfs, sort_func, hydro, sort_label = "No Label", local_maxima = False, plot_comparison = False,
                          print_params = True, plot_multi_log_comparison = True, plot_multi_params = True, nmk_max = 150,
-                         linear_model = False, r2_lin = False):
+                         linear_model = False, r2_lin = False, underweight = 1):
   meta_xs, meta_ys1, meta_ys2, covs, r2s, r2_unders = [], [], [], [], [], []
   for cf in cfs:
     for m0 in cf["m0s"]:
       popt, pcov, r2, r2_under = fit_parameters(cf, cf["m0s"][0], hydro, local_maxima=local_maxima,
                                                 plot_comparison=plot_comparison, print_params = print_params,
-                                                nmk_max = nmk_max, linear_model=linear_model, r2_lin = r2_lin)
+                                                nmk_max = nmk_max, linear_model=linear_model, r2_lin = r2_lin, underweight = underweight)
       meta_xs.append(sort_func(cf, m0))
       meta_ys1.append(popt[0])
       meta_ys2.append(popt[1])
