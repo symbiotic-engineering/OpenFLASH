@@ -41,8 +41,8 @@ stages:
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 1857143ca1c5e93bb22968aedac063be.dir
-      size: 2769125
+      md5: 004c264b782fa45d3a664cff6dccb8d0.dir
+      size: 2911978
       nfiles: 26
     - path: pubs/JFM/jfm.bib
       hash: md5
@@ -63,7 +63,7 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 7ae88aa5c70f15f21e9b2899f79feac1
+      md5: 6931d517de557e53dd7834dd3eb93d71
       size: 908130
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
@@ -71,8 +71,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: b36039b934469a6456e0ae12843d5c05.dir
-      size: 16697
+      md5: 1241edbb57c77a2021576fdcdc982c96.dir
+      size: 16626
       nfiles: 2
     - path: 
         .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
@@ -83,7 +83,7 @@ stages:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: c4ac70df53b0e5fe945310760c875833
+      md5: 939e5e8aea305b6aa7d975185375db0e
       size: 1048968
     - path: .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
       hash: md5
@@ -91,7 +91,7 @@ stages:
       size: 1372445
     - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       hash: md5
-      md5: 452e6e68899930a17cde9017b452e289
+      md5: e9a6764717ff477d42d80c3ad9194903
       size: 167982
   _check-env-openflash-on-branch:
     cmd: calkit check environment --name openflash-on-branch
@@ -171,8 +171,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: b36039b934469a6456e0ae12843d5c05.dir
-      size: 16697
+      md5: 1241edbb57c77a2021576fdcdc982c96.dir
+      size: 16626
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
       hash: md5
@@ -184,8 +184,8 @@ stages:
       size: 5745
     - path: package/src/
       hash: md5
-      md5: f5cdbf92838e9c39ec3c28816908106b.dir
-      size: 554320
+      md5: a283e12aa1ce8a9dca8b28e4fa60749d.dir
+      size: 554260
       nfiles: 51
     - path: sea-lab-utils
       hash: md5
@@ -195,15 +195,15 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: d298e1589205c4da15d97ea8e5b959f7
-      size: 86243
+      md5: 50653ffdde9147eca269ea8230946862
+      size: 86242
     - path: .calkit/notebooks/html/analysis/low_m0_plots.html
       hash: md5
       md5: ce010ff53408f14d4195d55a034dec1d
       size: 397513
     - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: 306c2c0960b8af4bba86762d99107bad
+      md5: 71be05d1265d94b7e50facc2afc31895
       size: 402983
   _clean-nb-slant-figs:
     cmd: calkit nb clean "analysis/slant_data_plots.ipynb"
@@ -223,13 +223,13 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: b36039b934469a6456e0ae12843d5c05.dir
-      size: 16697
+      md5: 1241edbb57c77a2021576fdcdc982c96.dir
+      size: 16626
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: 790b057f2978cafe01a0199e8da5217c
-      size: 40260
+      md5: 0087dc71aef23c7470a5bfd3d190db8a
+      size: 42339
     - path: analysis/data/potential-slants.pkl
       hash: md5
       md5: 31cd3c8c05c5951db5f91ef631c166a0
@@ -250,27 +250,27 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: a24a59e43593f521ca96a0cf1d1417bc
-      size: 760501
+      md5: 3ef5e519312a882997db22f6bb2d1cc2
+      size: 677436
     - path: .calkit/notebooks/html/analysis/slant_data_plots.html
       hash: md5
-      md5: 56fd3b3e723328987a99fc2f5cc364b0
-      size: 1164931
+      md5: 37302928605ad991c4f3db9e625155a8
+      size: 1089949
     - path: pubs/JFM/figs/Along-Outline.pdf
       hash: md5
-      md5: 69c30e1bd891df432ca45c633b8d2390
-      size: 110419
+      md5: b97ad08b51d65c88257401950e7502f9
+      size: 108681
     - path: pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
       hash: md5
-      md5: 1e79ea09eb18d80ff76df92a42799d6b
-      size: 252215
+      md5: bf1cbfd93aceadb333e6140bc5d42ad6
+      size: 396806
     - path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       hash: md5
-      md5: e19e4dadde3da884ffae8e59dc6c10b7
+      md5: a05a70d12474c03547d7e33f776e5f92
       size: 137298
     - path: pubs/JFM/figs/Vary-Slopes.pdf
       hash: md5
-      md5: cb918d01ff2bb121d1df16f6e8d674be
+      md5: 74f1d0186350a44797bb769caec14a20
       size: 178731
   _clean-nb-timing-figs:
     cmd: calkit nb clean "analysis/timing_plots.ipynb"
@@ -290,8 +290,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: b36039b934469a6456e0ae12843d5c05.dir
-      size: 16697
+      md5: 1241edbb57c77a2021576fdcdc982c96.dir
+      size: 16626
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       hash: md5
@@ -309,7 +309,7 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: 094bfd3f60910c1482671713ac2da08e
+      md5: bd5b6afd899278c4557c4b718192a8c1
       size: 339731
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
@@ -317,15 +317,15 @@ stages:
       size: 683551
     - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: cf82929775331e7a9f47f479bc6b89b2
+      md5: c1c2455eefca51905296c1031287fa3e
       size: 136509
     - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: 7f3ca013048c614fb760c16281d7488f
+      md5: 02118bfbcb7b94560ecabd2e60a6b93e
       size: 104574
     - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: 3ce4efc5d97b65a0842602790391c06b
+      md5: 09f196b84efed71557c15e1f374aa2d4
       size: 106014
   sparsity-figs:
     cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
