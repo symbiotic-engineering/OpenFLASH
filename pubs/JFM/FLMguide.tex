@@ -663,32 +663,39 @@ The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation 
 
 
 \section{Convergence of Hydrodynamic Coefficients}\label{sec:convergence}
+Higher numbers of unknown coefficients $|\vec x| = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$ require higher solve times. The goal of this convergence study was to predict from input geometry alone the number of terms $N^{i_m}$ needed per region for a desired maximum error $\epsilon$ in the hydrodynamic coefficients from their true values (the values they converge to as each $N^{i_m}, N^e \to \infty$). [TODO: Why this is useful? Avoid computing way too low, avoid computing way too high, avoid using MEEM if it's infeasible and other solvers would likely be better.]
+
+This study made two major simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. First, the number of terms needed in each in each region depends directly on dimensionless parameters ([TODO SECTION LINK]) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). [TODO as opposed to maybe needing to iteratively increase nmk needed in a region if its neighbors have higher nmk needed]. Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta})^{-\alpha}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha, \beta > 0$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{example-image-a}
+    \caption{show the regular and log error plot and explain what alpha and beta mean. Convergence is faster with larger $\alpha$ and smaller $\beta$. }
+    \label{fig:error-model}
+\end{figure}
+
+After confirming these assumptions, the main objective of the convergence study was to find the dimensionless parameter and $\alpha$ and $\beta$ as a function of them. Then the number of terms needed in each region is predicted by taking the maximum of the number required for a converged added mass and that required for a converged radiation damping (Fig.~\ref{fig:nmk-predict-flowchart}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figs/nmk-predict-flowchart.png}
+    \caption{flowchart showing mapping with sparsity pattern from dimensionless params to alpha beta, see slack doodle}
+    \label{fig:nmk-predict-flowchart}
+\end{figure}
+
 [Section Incomplete: More cohesive conclusions needed.]
-\subsection{Influential Parameters}
+\subsection{Influential Dimensionless Parameters}
 \begin{itemize}
     \item For cylindrical geometries without slants, discuss what dimensionless parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The dimensionless parameters are $\lambda_0^eh$, $d_i/h$, $(r_{i}-r_{i-1})/h$, where $i$ indicates the region number of a multi-region geometry. Written by \textcolor{orange}{Bimali}.
     \item Figure showing the correlation between the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence and the influential parameters. Figure made by \textcolor{orange}{Bimali}.
 \end{itemize}
 \subsubsection{Theory \& Procedure}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.9\linewidth]{figs/nmk-predict-flowchart.png}
-    \caption{flowchart showing mapping with sparsity pattern from dimensionless params to alpha beta, see slack doodle}
-    \label{fig:placeholder}
-\end{figure}
-
-To predict the number of terms ($N^{i_m}$) needed in a region $m$ for a desired degree of accuracy, we assume this can be characterized by a set of local and cumulative dimensionless parameters. Local parameters are extracted from the geometry of the region itself, such as its fluid height, radial width, or the ratio of its fluid height to those of its neighbors. Cumulative parameters are overall metrics combining the geometries of other regions, such as total radial distance to the center/exterior region. They should not depend on a specific other region or the number of other regions. Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
+The set of dimensionless parameters that characterize a region's convergence can be divided into local and cumulative parameters. Local parameters are extracted from the geometry of the region itself, such as its fluid height, radial width, or the ratio of its fluid height to those of its neighbors. Cumulative parameters are overall metrics combining the geometries of other regions, such as total radial distance to the center/exterior region. Neither parameter type should depend on a specific other non-neighboring region or the number of other regions, because they should be generalizable to a configuration with any number of regions. Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
 [TODO transition/section reorder?]
 
 To find the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, compute them with all $N^{i_k}$ at a high number $N_{max}$ for their ``true values.'' Then, fix all $N^{i_k}, k\neq m$ to $N_{max}$, compute hydrodynamic coefficients with $N^{i_m}$ over a range of $[1, 2, \dots, N_{big}], N_{big}<N_{max}$, and find the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of the hydrodynamic coefficients.
 
-To predict errors, we model them as an envelope of $\epsilon \approx (\frac{x}{\beta})^{-\alpha}$, $\alpha, \beta > 0$. Convergence is faster with larger $\alpha$ and smaller $\beta$. To find the dependence of $\alpha$ and $\beta$ on geometry, we considered configurations with three body regions (and one exterior region), and found a good set of dimensionless parameters. After a dominant dimensionless parameter was found, it was kept constant in the search for the next most important parameter. After a set was decided, we kept as many dimensionless parameters constant as possible when measuring a single parameter's effect. Effects were quantified by fitting an $\alpha$ and $\beta$ value to each configuration (geometry + target region) and plotting them against the dimensionless parameter.
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\linewidth]{example-image-a}
-    \caption{show the regular and log error plot and explain what alpha and beta mean}
-    \label{fig:placeholder}
-\end{figure}
+To find the dependence of $\alpha$ and $\beta$ on geometry, we considered configurations with three body regions (and one exterior region), and found a good set of dimensionless parameters. After a dominant dimensionless parameter was found, it was kept constant in the search for the next most important parameter. After a set was decided, we kept as many dimensionless parameters constant as possible when measuring a single parameter's effect. Effects were quantified by fitting an $\alpha$ and $\beta$ value to each configuration (geometry + target region) and plotting them against the dimensionless parameter.
 
 \begin{figure}
     \centering
@@ -765,10 +772,15 @@ Instead of altering the MEEM procedure for slanted geometries, the same procedur
 \begin{figure}
     \centering
     \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
+    \caption{Show discontinuities, motivate sampling, \textcolor{red}{Need to add a0, b), .., so we can refer to each plot within this figure.}}
+    \label{fig:contour potential comparison plots}
+\end{figure}
+
+\begin{figure}
+    \centering
     \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
-    \caption{[TODO: Mention that relative error scaling is zeroed for potential $<$ 1, clarify relative error is for real potential, label colorbars, swap error colorbar to percents, pick inner outline or crossing outline.]
-    Radiated velocity potential of discretized (stepped) and slanted geometries.\textcolor{red}{Need to add a0, b), .., so we can refer to each plot within this figure.}}
-    \label{fig:potential comparison plots}
+    \caption{Radiated velocity potential of discretized (stepped) and slanted geometries.\textcolor{red}{Need to add a0, b), .., so we can refer to each plot within this figure.}}
+    \label{fig:potential outline comparison}
 \end{figure}
 
 
