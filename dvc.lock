@@ -29,20 +29,20 @@ stages:
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 90a5f6a68081608d50355bea9170028f
-      size: 148437
+      md5: a8dc93f28b097cc82878feca24a63be7
+      size: 150248
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 90a5f6a68081608d50355bea9170028f
-      size: 148437
+      md5: a8dc93f28b097cc82878feca24a63be7
+      size: 150248
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: ec3f51ffcb9009a607b6c419c55277a1.dir
-      size: 3043430
+      md5: 8e463f46c6981fabe52d79d8fdc38127.dir
+      size: 3043429
       nfiles: 27
     - path: pubs/JFM/jfm.bib
       hash: md5
@@ -63,8 +63,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 645e29364e0c9cc0449e865690a03f62
-      size: 1293654
+      md5: af52eb4f87b2ec4f1f1c24f28c5d57e8
+      size: 1295690
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
@@ -228,8 +228,8 @@ stages:
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: c61855a64b9c1822bbe83856b283a30b
-      size: 44471
+      md5: 2245bc296b2fbe4059f92ec3631be2ff
+      size: 44469
     - path: analysis/data/potential-slants.pkl
       hash: md5
       md5: 31cd3c8c05c5951db5f91ef631c166a0
@@ -250,27 +250,27 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: 1fc78f74b035bdfa650be987f0735070
-      size: 521671
+      md5: 186c281ef19e6f258886efcaf4117c28
+      size: 521670
     - path: .calkit/notebooks/html/analysis/slant_data_plots.html
       hash: md5
-      md5: 1a25ee4129f931691e9011c12e87af63
-      size: 942814
+      md5: 8fa48c1c72ec7d4e96cae381895b5a0b
+      size: 942812
     - path: pubs/JFM/figs/Along-Outline.pdf
       hash: md5
-      md5: ba93e9f7af53dc1540d22a64b1618f79
-      size: 109530
+      md5: cc87749c163743aa0c512a4b929bfc63
+      size: 109529
     - path: pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
       hash: md5
-      md5: eccd497e7d70f634887894802f694c54
+      md5: 92a245eae6ad0afddd8e13c2fb2504b9
       size: 398185
     - path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       hash: md5
-      md5: 75f6ed30097f26ce6052949c3de4629f
+      md5: 78907fa5e6136e5fc9852c7ff1fe5224
       size: 137298
     - path: pubs/JFM/figs/Vary-Slopes.pdf
       hash: md5
-      md5: b64ae2a0c159b77aab549704eb3bc931
+      md5: f00864f2613ab24503ba430d347a6756
       size: 178731
   _clean-nb-timing-figs:
     cmd: calkit nb clean "analysis/timing_plots.ipynb"
