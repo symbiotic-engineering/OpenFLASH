@@ -52,10 +52,9 @@ def m_k_entry(k, m0, h):
     
     m_k_h_lower = np.nextafter(pi * (k_idx - 1/2), np.inf)
     m_k_h_upper = np.nextafter(pi * k_idx, np.inf)
-    m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
-    
-    # Matching old_assembly.py: method="newton"
-    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
+    m_k_initial_guess =  (m_k_h_upper + m_k_h_lower) / 2
+
+    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="brentq", bracket=[m_k_h_lower, m_k_h_upper])
     m_k_val = result.root / h
     return m_k_val
 
@@ -379,8 +378,6 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
 def N_k_multi(k, m0, h, m_k_arr): 
     if m0 == inf: return 1/2
     elif k == 0:
-        if (2 * m0 * h) > 700: 
-            return 1e308 
         return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
     else:
         return 1 / 2 * (1 + sin(2 * m_k_arr[k] * h) / (2 * m_k_arr[k] * h))
@@ -424,18 +421,8 @@ def diff_Z_k_e_vectorized(k, z, m0, h, m_k_arr, N_k_arr):
 # Integration
 def int_R_1n(i, n, a, h, d):
     if n == 0:
-        if i == 0:
-            return a[i]**2/4 
-        else:
-            outer_r = scale(a)[i]
-            inner_r = a[i-1]
-            cyl_term = (outer_r**2 - inner_r**2) / 2.0
-            def log_indefinite_int(r):
-                log_val = np.log(r/outer_r) if r > 0 else 0
-                return 0.5 * ((r**2 / 2.0) * log_val - (r**2 / 4.0))
-            val_outer = log_indefinite_int(outer_r)
-            val_inner = log_indefinite_int(inner_r)
-            return cyl_term + (val_outer - val_inner)
+        inner = (0 if i == 0 else a[i-1]) # central region has inner radius 0
+        return a[i]**2/4 - inner**2/4
     else:
         lambda0 = lambda_ni(n, i, h, d)
         bottom = lambda0 * besselie(0, lambda0 * scale(a)[i])
@@ -449,25 +436,15 @@ def int_R_2n(i, n, a, h, d):
     if i == 0:
         raise ValueError("i cannot be 0")
     
-    outer_r = scale(a)[i]
-    inner_r = a[i-1] 
+    lambda0 = lambda_ni(n, i, h, d)
 
     if n == 0:
-        def indefinite(r):
-            if r <= 0: return 0
-            term_log = np.log(r / outer_r)
-            return 0.5 * ((r**2 / 2) * term_log - (r**2 / 4))
-        val_outer = indefinite(outer_r)
-        val_inner = indefinite(inner_r)
-        return val_outer - val_inner
-
+        return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
     else:
-        lambda0 = lambda_ni(n, i, h, d)
-        term_outer = (outer_r * besselke(1, lambda0 * outer_r)) 
-        term_inner = (inner_r * besselke(1, lambda0 * inner_r))
-        term_inner *= np.exp(lambda0 * (outer_r - inner_r))
-        denom = lambda0 * besselke(0, lambda0 * outer_r)
-        return (term_inner - term_outer) / denom
+        outer_term = a[i] * besselke(1, lambda0 * a[i])
+        inner_term = a[i-1] * besselke(1, lambda0 * a[i-1])
+        bottom = - lambda0 * besselke(0, lambda0 * scale(a)[i])
+        return (outer_term / bottom) * exp(lambda0 * (scale(a)[i] - a[i])) - (inner_term/bottom)* exp(lambda0 * (scale(a)[i] - a[i-1]))
     
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
 def int_phi_p_i(i, h, d, a):
@@ -492,10 +469,8 @@ def excitation_phase(x, NMK, m0, a):
     return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale[-1]))
 
 def excitation_force(damping, m0, h):
-    if m0 == inf:
-        return 0.0
     const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
-    return sqrt((2 * const * rho * (g ** 2) * damping)/(omega(m0,h,g) * m0)) ** (1/2)
+    return ( (2 * const * rho * (g ** 2) * damping) / (omega(m0,h,g) * m0) ) ** (1/2)
 
 # --- AFTER ---
 def make_R_Z(a, h, d, sharp, spatial_res, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None):

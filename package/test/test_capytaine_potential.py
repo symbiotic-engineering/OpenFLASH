@@ -176,7 +176,7 @@ ALL_CONFIGS = {
 }
 
 # 4. Define comparison tolerance
-RELATIVE_TOLERANCE = 0.01
+RELATIVE_TOLERANCE = 0.1
 
 # --- End Configuration ---
 

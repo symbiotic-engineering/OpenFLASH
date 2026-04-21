@@ -13,39 +13,45 @@ from test_capytaine_potential import ALL_CONFIGS, g
 # =====================================================================
 # 1. DYNAMICALLY GENERATE THE PAIRS
 # =====================================================================
+# Build up similarity to `test_potential_generator.ipynb` & `test_capytaine_potential.py`
 SUBSETS = [
-    {"a": [0.3, 0.5], "d": [0.5, 0.7]},
-    {"a": [0.5, 1.0], "d": [0.7, 0.8]},
-    {"a": [1.0, 1.2], "d": [0.8, 0.2]},
-    {"a": [1.2, 1.6], "d": [0.2, 0.5]}
+    # 2-body, h=1.5 (Base Case)
+    {"a": [0.5, 1.0], "d": [0.8, 0.2], "h": 1.5},
+    # 2-body, h=10.0 (Building up h)
+    {"a": [0.5, 1.0], "d": [0.8, 0.2], "h": 10.0},
+    # 2-body, h=50.0 (Approaching Deep Water)
+    {"a": [0.5, 1.0], "d": [0.8, 0.2], "h": 50.0},
+    # 3-body, h=100.0 (Matches "tall - compound cylinder" from test_potential_generator)
+    {"a": [3.0, 5.0, 10.0], "d": [29.0, 7.0, 4.0], "h": 100.0},
+    # 4-body, h=100.0 (Increasing dimension to track error manifestation)
+    {"a": [0.3, 0.5, 1.0, 1.2], "d": [1.1, 0.9, 0.7, 0.5], "h": 100.0}
 ]
 
-SMALL_DELTA = 0.001
-for i in range(4):
-    sub = SUBSETS[i]
-    d_avg = sum(sub["d"]) / 2.0
-    SUBSETS.append({
-        "a": sub["a"],
-        "d": [d_avg - SMALL_DELTA/2, d_avg + SMALL_DELTA/2],
-        "is_small_delta": True
-    })
-
 for i, sub in enumerate(SUBSETS):
-    d_min = min(sub["d"])
-    d_max = max(sub["d"])
+    a_arr = np.array(sub["a"])
+    # Sort depths to create structured cases
+    d_sorted_desc = np.sort(sub["d"])[::-1]
+    d_sorted_asc = np.sort(sub["d"])
+    h = sub["h"]
     
-    # Case 1: d0 > d1
-    ALL_CONFIGS[f"config3_pair{i+1}_case1"] = {
-        "h": 1.9, "a": np.array(sub["a"]), "d": np.array([d_max, d_min]),
-        "heaving_map": [True, True], "body_map": [0, 1], "m0": 1.0, "NMK": [15]*3, 
-        "R_range": np.linspace(0.0, 2 * sub["a"][1], num=50), "Z_range": np.linspace(0, -1.9, num=50),
+    n_bodies = len(a_arr)
+    # Match NMK array to dimension (radii + exterior)
+    nmk = [15] * (n_bodies + 1)
+    heaving_map = [True] * n_bodies
+    body_map = list(range(n_bodies))
+    
+    # Case 1: Descending depths
+    ALL_CONFIGS[f"config_var{i+1}_case1"] = {
+        "h": h, "a": a_arr, "d": d_sorted_desc,
+        "heaving_map": heaving_map, "body_map": body_map, "m0": 1.0, "NMK": nmk, 
+        "R_range": np.linspace(0.0, 2 * a_arr[-1], num=50), "Z_range": np.linspace(0, -h, num=50),
     }
     
-    # Case 2: d0 < d1
-    ALL_CONFIGS[f"config3_pair{i+1}_case2"] = {
-        "h": 1.9, "a": np.array(sub["a"]), "d": np.array([d_min, d_max]),
-        "heaving_map": [True, True], "body_map": [0, 1], "m0": 1.0, "NMK": [15]*3, 
-        "R_range": np.linspace(0.0, 2 * sub["a"][1], num=50), "Z_range": np.linspace(0, -1.9, num=50),
+    # Case 2: Ascending depths
+    ALL_CONFIGS[f"config_var{i+1}_case2"] = {
+        "h": h, "a": a_arr, "d": d_sorted_asc,
+        "heaving_map": heaving_map, "body_map": body_map, "m0": 1.0, "NMK": nmk, 
+        "R_range": np.linspace(0.0, 2 * a_arr[-1], num=50), "Z_range": np.linspace(0, -h, num=50),
     }
 
 # =====================================================================
@@ -120,11 +126,13 @@ def build_capytaine_body(a, d, heaving, t_densities, face_units):
 def analyze_openflash(config_name):
     p = ALL_CONFIGS[config_name]
     m0, freq = p["m0"], omega(p["m0"], p["h"], g)
+    n_bodies = len(p["a"])
     
     # Base matrix A
+    active_map_base = [True] + [False] * (n_bodies - 1)
     geom_base = BasicRegionGeometry.from_vectors(
         a=p["a"], d=p["d"], h=p["h"], NMK=p["NMK"], 
-        body_map=p["body_map"], heaving_map=[True, False] 
+        body_map=p["body_map"], heaving_map=active_map_base 
     )
     prob_base = MEEMProblem(geom_base)
     prob_base.set_frequencies(np.array([freq]))
@@ -137,11 +145,12 @@ def analyze_openflash(config_name):
     phi_total = None
     b_total = np.zeros(A.shape[0], dtype=complex)
     
-    AM_matrix = np.zeros((2, 2))
-    B_matrix = np.zeros((2, 2))
+    # Track the hydro coefficient block matrix dynamically
+    AM_matrix = np.zeros((n_bodies, n_bodies))
+    B_matrix = np.zeros((n_bodies, n_bodies))
     
-    for i in [0, 1]:
-        active_map = [False, False]
+    for i in range(n_bodies):
+        active_map = [False] * n_bodies
         active_map[i] = True
         
         geom_i = BasicRegionGeometry.from_vectors(
@@ -169,8 +178,8 @@ def analyze_openflash(config_name):
         else:
             phi_total += pot_dict['phi']
             
-        # Get 2x2 Hydro Coeffs
-        coeffs = engine_i.compute_hydrodynamic_coefficients(prob_i, x_i, m0, modes_to_calculate=[0, 1], rho=1023)
+        # Get hydro coeffs dynamically 
+        coeffs = engine_i.compute_hydrodynamic_coefficients(prob_i, x_i, m0, modes_to_calculate=list(range(n_bodies)), rho=1023)
         for coeff in coeffs:
             j = coeff['mode']
             AM_matrix[j, i] = coeff['real']
@@ -184,8 +193,9 @@ def analyze_openflash(config_name):
 def analyze_capytaine(config_name, R_grid, Z_grid, omega_val):
     p = ALL_CONFIGS[config_name]
     a, d, h, m0 = p["a"], p["d"], p["h"], p["m0"]
+    n_bodies = len(a)
     
-    body = build_capytaine_body(a, d, [True, True], t_densities=[30, 30], face_units=60)
+    body = build_capytaine_body(a, d, [True]*n_bodies, t_densities=[30]*n_bodies, face_units=60)
     
     solver = cpt.BEMSolver()
     rad_problem = cpt.RadiationProblem(body=body, wavenumber=m0, water_depth=h, rho=1023)
@@ -213,6 +223,7 @@ def analyze_capytaine(config_name, R_grid, Z_grid, omega_val):
         phi_cap_grid[reg] = np.nan
         
     return phi_cap_grid, cap_am, cap_b
+
 def format_indices(indices):
     if len(indices) == 0: return "None"
     ranges, start, end = [], indices[0], indices[0]
@@ -229,12 +240,12 @@ def format_indices(indices):
 # =====================================================================
 def run_all_pairs():
     for i in range(len(SUBSETS)):
-        c1_name = f"config3_pair{i+1}_case1"
-        c2_name = f"config3_pair{i+1}_case2"
-        is_small = SUBSETS[i].get("is_small_delta", False)
-        prefix = "SMALL_DELTA_" if is_small else "MACRO_"
+        c1_name = f"config_var{i+1}_case1"
+        c2_name = f"config_var{i+1}_case2"
+        h_val = SUBSETS[i]['h']
+        dim = len(SUBSETS[i]['a'])
         
-        print(f"\n{'='*60}\nAnalyzing {prefix}Pair {i+1}\n{'='*60}")
+        print(f"\n{'='*60}\nAnalyzing Set {i+1} | Dim: {dim} | h={h_val}\n{'='*60}")
 
         # 1. Run OpenFLASH
         phi_of1, R, Z, A1, A1_inv, b1, w1, of_am1, of_b1 = analyze_openflash(c1_name)
@@ -265,7 +276,7 @@ def run_all_pairs():
         # 5. MASTER 6x3 PLOT
         # =====================================================================
         fig, axes = plt.subplots(6, 3, figsize=(18, 33))
-        fig.suptitle(f"{prefix}Pair {i+1} Comprehensive Diagnostic\na={SUBSETS[i]['a']} | Case 1: d0>d1 | Case 2: d0<d1", fontsize=18)
+        fig.suptitle(f"Set {i+1} Comprehensive Diagnostic\nDim={dim} | a={SUBSETS[i]['a']} | h={h_val}\nCase 1: d descending | Case 2: d ascending", fontsize=18)
         
         vmax_of = max(np.nanmax(np.abs(phi_of1)), np.nanmax(np.abs(phi_of2)))
         vmax_cap = max(np.nanmax(np.abs(phi_cap1)), np.nanmax(np.abs(phi_cap2)))
@@ -334,7 +345,7 @@ def run_all_pairs():
         axes[5, 2].grid(True, linestyle='--', alpha=0.6)
 
         plt.tight_layout(rect=[0, 0, 1, 0.97]) 
-        filename = f"master_benchmark_{prefix}pair{i+1}.png"
+        filename = f"master_benchmark_set{i+1}_dim{dim}.png"
         plt.savefig(filename, dpi=150)
         plt.close()
         print(f"  > Saved benchmark plot to {filename}")
