@@ -665,47 +665,44 @@ The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation 
 \section{Convergence of Hydrodynamic Coefficients}\label{sec:convergence}
 Higher numbers of unknown coefficients $|\vec x| = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$ require higher solve times. The goal of this convergence study was to predict from input geometry alone the number of terms $N^{i_m}$ needed per region for a desired maximum error $\epsilon$ in the hydrodynamic coefficients from their true values (the values they converge to as each $N^{i_m}, N^e \to \infty$). [TODO: Why this is useful? Avoid computing way too low, avoid computing way too high, avoid using MEEM if it's infeasible and other solvers would likely be better.]
 
-This study made two major simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. First, the number of terms needed in each in each region depends directly on dimensionless parameters ([TODO SECTION LINK]) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). [TODO as opposed to maybe needing to iteratively increase nmk needed in a region if its neighbors have higher nmk needed]. Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta})^{-\alpha}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha, \beta > 0$.
+This study made two major simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. First, the number of terms needed in each in each region depends directly on dimensionless parameters ([TODO SECTION LINK]) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). [TODO as opposed to maybe needing to iteratively increase nmk needed in a region if its neighbors have higher nmk needed]. Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. Dependencies differ between the two hydrodynamic coefficients, so each is modeled separately with its own final $\alpha^{i_m}_A, \beta^{i_m}_A$ (added mass) or $\alpha^{i_m}_B, \beta^{i_m}_B$ (damping).
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{example-image-a}
+    \includegraphics[width=0.8\linewidth]{figs/alpha-beta-explain-placeholder.jpg}
     \caption{show the regular and log error plot and explain what alpha and beta mean. Convergence is faster with larger $\alpha$ and smaller $\beta$. }
     \label{fig:error-model}
 \end{figure}
 
-After confirming these assumptions, the main objective of the convergence study was to find the dimensionless parameter and $\alpha$ and $\beta$ as a function of them. Then the number of terms needed in each region is predicted by taking the maximum of the number required for a converged added mass and that required for a converged radiation damping (Fig.~\ref{fig:nmk-predict-flowchart}).
+After confirming these assumptions, the main objective of the convergence study was to find the dimensionless parameters and $\alpha$ and $\beta$ as a function of them. Then the number of terms needed in each region can be predicted by taking the maximum of the number required for a converged added mass and that required for a converged radiation damping (Fig.~\ref{fig:nmk-predict-flowchart}).
 
 \begin{figure}
     \centering
     \includegraphics[width=0.9\linewidth]{figs/nmk-predict-flowchart.png}
-    \caption{flowchart showing mapping with sparsity pattern from dimensionless params to alpha beta, see slack doodle}
+    \caption{Flowchart of term count prediction. A geometry and desired error (green) are passed into the formula (blue) determined by the convergence study, producing a term count recommendation (orange).}
     \label{fig:nmk-predict-flowchart}
 \end{figure}
 
-[Section Incomplete: More cohesive conclusions needed.]
-\subsection{Influential Dimensionless Parameters}
-\begin{itemize}
-    \item For cylindrical geometries without slants, discuss what dimensionless parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The dimensionless parameters are $\lambda_0^eh$, $d_i/h$, $(r_{i}-r_{i-1})/h$, where $i$ indicates the region number of a multi-region geometry. Written by \textcolor{orange}{Bimali}.
-    \item Figure showing the correlation between the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence and the influential parameters. Figure made by \textcolor{orange}{Bimali}.
-\end{itemize}
-\subsubsection{Theory \& Procedure}
-The set of dimensionless parameters that characterize a region's convergence can be divided into local and cumulative parameters. Local parameters are extracted from the geometry of the region itself, such as its fluid height, radial width, or the ratio of its fluid height to those of its neighbors. Cumulative parameters are overall metrics combining the geometries of other regions, such as total radial distance to the center/exterior region. Neither parameter type should depend on a specific other non-neighboring region or the number of other regions, because they should be generalizable to a configuration with any number of regions. Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
-[TODO transition/section reorder?]
+\subsection{Setup \& Methods}
+Define the local parameters of a target region to be those extracted from its local geometry, such as its fluid height, radial width, or the fluid heights of its neighbors. Cumulative parameters are overall metrics combining the geometries of other regions, such as the total radial distance to the center/exterior region. Each dimensionless parameter chosen to characterize the target's convergence should be either a local or cumulative parameter, as opposed to some quantity specific to a non-neighboring region's local geometry or the number of other regions. This allows the convergence study results to be generalizable to a configuration with any number of regions. Sets of dimensionless parameters are not unique, but good sets will depend more directly on each parameter individually instead of exhibiting complicated coupling between them.
 
-To find the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, compute them with all $N^{i_k}$ at a high number $N_{max}$ for their ``true values.'' Then, fix all $N^{i_k}, k\neq m$ to $N_{max}$, compute hydrodynamic coefficients with $N^{i_m}$ over a range of $[1, 2, \dots, N_{big}], N_{big}<N_{max}$, and find the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of the hydrodynamic coefficients.
+[Data generation setup, isolating dimensionless parameters, functions fitting procedure, verification.]
 
-To find the dependence of $\alpha$ and $\beta$ on geometry, we considered configurations with three body regions (and one exterior region), and found a good set of dimensionless parameters. After a dominant dimensionless parameter was found, it was kept constant in the search for the next most important parameter. After a set was decided, we kept as many dimensionless parameters constant as possible when measuring a single parameter's effect. Effects were quantified by fitting an $\alpha$ and $\beta$ value to each configuration (geometry + target region) and plotting them against the dimensionless parameter.
+To find the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, compute them with all $N^{k}$ ($k=i_1,...,i_M, e$) at a high number $N^{max}$ for their ``true values.'' Then, fix all $N^{k}, k\neq i_m$ to $N^{max}$, compute hydrodynamic coefficients with $N^{i_m}$ over a range of $[1, 2, \dots, N^{big}]$ where $N^{big}$ is less than $N^{max}$ by a reasonably large margin, and find the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of the hydrodynamic coefficients calculated at each $N^{i_m}$.
+
+To find the dependence of $\alpha$ and $\beta$ on geometry, we considered configurations with three body regions (and one exterior region), and found a good set of dimensionless parameters. After a dominant dimensionless parameter was found, it was kept constant in the search for the next most important parameter. After a set of dimensionless parameters capturing most of the variation was found, we kept all but one constant to measure a single parameter's effect. Effects were quantified by fitting an $\alpha$ and $\beta$ value to each configuration (geometry + target region) and plotting them against the dimensionless parameter.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{example-image-a}
-    \caption{matshow of correlation matrix labeled with self/inner/outer neighbor regions}
-    \label{fig:placeholder}
+    \includegraphics[width=0.5\linewidth]{figs/choosing-fitting-functions-placeholder.jpg}
+    \caption{Process of choosing fitting functions. More flowchart-style to show sequence of events.}
+    \label{fig:choosing-fitting-functions}
 \end{figure}
 
-\subsubsection{Results}
-The most influential dimensionless parameter for the convergence of a given region is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. The characteristic length of an eigenfunction is the inverse of its eigenvalue. Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width.
+\subsection{Final Models}
+[Dimensionless parameters found, interpretations, approximations/ignoring dependencies to defer to overestimates like not calculating damping or shielding, actual functions.]
+
+The most influential dimensionless parameter for the convergence of body region $i_m$ is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. The characteristic length of an eigenfunction is the inverse of its eigenvalue. Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width. 
 
 The ratio of region's neighbor's fluid heights to that of its own also influences convergence. We observed that convergence is significantly faster for region $m$ when $\frac{h-d_{m-1}}{h-d_m} > 1$ than when it's less than $1$. There is some correlation before and after this transition point, but the convergence speed changes quickly (almost step-like) near $1$. The behavior is the same for $\frac{h-d_{m+1}}{h-d_m}$.
 
@@ -718,16 +715,19 @@ Especially in the case the outer neighboring region the, the impact of fluid hei
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{example-image-a}
-    \caption{results for example dependencies of fit parameters on nondim geometries}
-    \label{fig:placeholder}
+    \includegraphics[width=0.5\linewidth]{figs/final-fitting-functions-placeholder.jpg}
+    \caption{Table-like figure with images of dependencies. Differentiate between inapplicable (e.g. neighbor required for formula doesn't exist) and independent (plottable but no relation) for unplotted boxes. Separate for added mass and damping (likely ignore damping in interior regions for time). Only some examples will actually be plotted, most dependencies will just be formulas (or independent/inapplicable).}
+    \label{fig:final-fitting-functions}
 \end{figure}
 
-\subsection{Limiting Factors}
-\begin{itemize}
-    \item For cylindrical geometries without slants, identify which dimensionless parameters determine the required number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. Written by \textcolor{orange}{Bimali}.
-    \item Table showing the required number of terms needed for the hydrodynamic coefficients to reach 1\% convergence as a function of key parameters. Figure made by \textcolor{orange}{Bimali}.
-\end{itemize}
+\subsection{Assessment}
+[Verification results, accuracy discussion, recommendations meanings, limitation.]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{example-image-a}
+    \caption{Randomly generate geometries (explain randomness formula in text), find limiting hydro coeffs, predict NMK/region for 1 percent error with fitted functions, plot box and whiskers of actual percent off and actual NMK needed. Perhaps separate into shielded and unshielded inner regions, and data sets with 4 rather than 3 body regions.}
+    \label{fig:placeholder}
+\end{figure}
 
 
 
@@ -738,7 +738,7 @@ So far, we have only considered geometries in the form of a series of surface-pi
 
 As formulated, MEEM can only exactly represent geometries where the fluid can be divided into regions that have the top boundary parallel to the sea floor. The standard way to use MEEM with slanted or curved bodies is to approximate the geometry by subdividing non-flat regions into flat regions approximating the true outline~\citep{kokkinowrachos_behaviour_1986}, as shown in Figure~\ref{fig:Discretization Diagram}. There are many options for this discretization. As shown in Fig.~\ref{fig:Discretization Schemes Diagram}, the wetted surface of the discretized body modeled can lie a) entirely within, b) partially within, or c) outside of the slanted wetted surface that is being approximated. In cases a) and c), the computed potentials in the true fluid region will be smooth. Alternatively, in case b), the approximating outline can cross back and forth across the true outline, meaning some points in the true fluid are inside of the body. This creates discontinuities in the potential at points in the true fluid region that correspond to a fluid-body boundary in the approximation. Thus, the potential should not be integrated over the true slanted wetted surface. Instead, the pressure is integrated over the discretized wetted surface, outlined in red in Fig.~\ref{fig:Discretization Schemes Diagram}.
 
-However, this discretization quickly becomes computationally expensive. Not only does matrix size increase as the number of regions increases, but the number of terms required for convergence in each subregion also increases. This is because increasing the number of subdivisions reduces the radial width allocated to each subregion without significantly changing the fluid height, increasing $\frac{\text{fluid height}}{\text{radial width}}$ (see Section~\ref{sec:convergence}).
+However, discretization quickly becomes computationally expensive. Not only does matrix size increase as the number of regions increases, but the number of terms required for convergence in each subregion also increases. This is because increasing the number of subdivisions reduces the radial width allocated to each subregion without significantly changing the fluid height, increasing $\frac{\text{fluid height}}{\text{radial width}}$ (see Section~\ref{sec:convergence}).
 
 A complicating factor is that regions with shallower slants can be represented more accurately with fewer subdivisions than those with steeper slants. Another is that the hydrodynamic forces on the entire body can be thought of as a weighted sum of the forces on each region, where the radial width of each region determines the weights. 
 Since the forces applied to regions with smaller radial widths get weighted less, MEEM is able to accurately determine the hydrodynamic coefficients of bodies with poorly approximated slanted regions when the slanted regions have small radial widths.  
@@ -767,13 +767,17 @@ When modeling a slanted geometry as a discretized one using MEEM, inaccuracies c
 
 Instead of altering the MEEM procedure for slanted geometries, the same procedure can be used for modeling slanted geometries with the assumption that, as the number of subdivisions increases, the discretized geometry approaches the true geometry, and, consequently, inaccuracies in the hydrodynamic coefficients diminish. Thus, a proper choice of the number of subdivisions is required to mitigate these inaccuracies.
 
-\subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using MEEM may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally. This is shown in Fig~\ref{fig:potential comparison plots}, where the radiated velocity potential for a discretized body (using MEEM) is compared with that of a slanted body (using Capytaine). Inaccuracies are the largest at the points that are within the discretized body and outside the slanted body, as shown in Fig~\ref{fig:potential comparison plots}c) and d). This is due to different boundary conditions being enforced for each problem. Meanwhile, the velocity potential is most accurate at the corners due to this being where the wetted surface of the discretized and slanted bodies meets. This is shown by the points in Fig~\ref{fig:potential comparison plots}e) and f), where the value of the potential along the slanted outline is compared to that of the stepped outline. In general, the error in the potential along the slanted outline fluctuates far more than that of the stepped outline, with errors up to 8\%. This implies that integration along the stepped outline may lead to more accurate hydrodynamic coefficients, despite the surface being integrated over not being the true slanted geometry. In the far field, the velocity potentials of the problems have good agreement.   
+\subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using MEEM may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally. Fig~\ref{fig:contour potential comparison plots} (a) and (b) show the real value and error in the real value of the radiated velocity potential for a discretized body (modeled with MEEM) relative to a slanted body (modeled with Capytaine). There is an overall trend of error moving from positive to negative as the depth becomes shallower. Fig~\ref{fig:contour potential comparison plots} (c) and (d) show a more detailed view of the local behavior of the velocity potential. The contours of constant velocity potential, indicated as solid black lines in Fig~\ref{fig:contour potential comparison plots} (c), either start and end at vertical and horizontal sections of the discretized surface, or are parallel to the slant that is being approximated, indicated as dashed blue lines in Fig~\ref{fig:contour potential comparison plots} (c). Fig~\ref{fig:contour potential comparison plots} (d) shows the corresponding error in the real value of the velocity potential (relative to Capytaine). The largest positive error is within the discretized body. For each step, there is positive error on the horizontal surface and negative error on the vertical surface. 
+
+If one were to consider a different integration scheme to minimize the error in the velocity potential that is used in the hydrodynamic coefficient calculations, one may seek to sample points in Fig~\ref{fig:contour potential comparison plots} (d) where error is zero, and numerically integrate over the true slant outline. However, the precise radial and vertical coordinates where the error is zero are unknown before performing the computation and comparing with a BEM solver. A different option is to systematically sample the velocity potential at spatial points that are determined by the slant and discretized geometries. For example, one could sample the velocity potential at locations where the slant surface intersects with the discretized surface. These points are indicated in Fig~\ref{fig:contour potential comparison plots} (c-e) with dots and diamonds for points sampled along the vertical and horizontal surfaces, respectively. Fig~\ref{fig:contour potential comparison plots} (e) shows the error in the real and imaginary parts of the velocity potential along the slant and stepped (discretized) surfaces across the entire radial width. When comparing the real parts, sampling at the horizontal surfaces leads to errors less that $3\%$, while sampling at the vertical surfaces can result in close to $4\%$ error. However, when considering the imaginary parts, sampling along the vertical surface results in less error. Still, errors will be present regardless of which of these sampling locations is chosen. While accurate hydrodynamic coefficients were obtained using the MEEM formulation discussed in Sec.~\ref{sec:mathematical-formulation}, Fig~\ref{fig:contour potential comparison plots} (c-e) show that systematic approaches for sampling the potential may be effective ways to mitigate inaccuracies and reduce the number of discretizations needed.
+
+
 
 \begin{figure}
     \centering
     \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
     \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
-    \caption{Show discontinuities, motivate sampling, \textcolor{red}{Need to add a0, b), .., so we can refer to each plot within this figure.}}
+    \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.}
     \label{fig:contour potential comparison plots}
 \end{figure}
 
@@ -781,12 +785,13 @@ Instead of altering the MEEM procedure for slanted geometries, the same procedur
 % [TODO: "Import the citation for Hydrodynamic Behavior of a Submerged Spheroid in Close Proximity to the Sea Surface" and contrast its success with the cones here, and also the different configs of the same height in Fig. 5]
 
 \subsubsection{Dependence on Slant Steepness} \label{subsection: slant intro hydros}
-To determine the number of subdivisions needed to accurately model a slant with a given steepness, we compared the hydrodynamic coefficients from Capytaine and MEEM for a variety of steepnesses and number of subdivisions. As shown in Fig.~\ref{fig:slope-dependence}, steeper slants (smaller angle $\beta$) require more subdivisions for the same level of accuracy, and the error in the approximation is roughly inversely proportional to the number of subdivisions. Convergence of the added mass with respect to the number of subdivisions appears to be slower than that of damping. It is achievable for damping to approach a similar level of error/difference to that of purely cylindrical (non-slanted) configurations. However, while added mass can approach acceptable ($<3\%$) errors, the errors are still larger than those in the cylindrical case. 
+To determine the number of subdivisions needed to accurately model a slant with a given steepness, we compared the hydrodynamic coefficients from Capytaine and MEEM for a variety of steepnesses and number of subdivisions when modeling a cone. As shown in Fig.~\ref{fig:slope-dependence}, steeper slants (smaller angle $\beta$) require more subdivisions for the same level of accuracy, and the error in the approximation is roughly inversely proportional to the number of subdivisions. Convergence of the added mass with respect to the number of subdivisions is slower than that of damping, as shown by the added mass for an angle of $\pi/12$ being unable to achieve less that $10 \%$ error with the number of subdivisions considered. Meanwhile, less than $5 \%$ error in damping was achieved for all angles when 30 subdivisions were used. While it is possible to achieve more accurate solutions using more subdivisions, the computation cost of modeling these steeper geometries will be higher due to the size of the $\mathbf{A}$ matrix growing with the number of subdivisions.
 
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{figs/Vary-Slopes.pdf}
-    \caption{Convergence of the hydrodynamic coefficients of five cones of varying steepness calculated with MEEM's step approximation (radius $10$, $h=50$, $\omega = 1$, $N^{i_m} = N^e = 400$). Subdivisions calculated ranged from $1$ to $30$. Error was calculated relative to values given by Capytaine. The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. }
+    \caption{Convergence of the hydrodynamic coefficients of five cones of varying steepness calculated with MEEM's step approximation (radius $10$, $h=50$, $\omega = 1$, $N^{i_m} = N^e = 400$). Subdivisions calculated ranged from $1$ to $30$. Error was calculated relative to values given by Capytaine. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. 
+    }
     \label{fig:slope-dependence}
 \end{figure}
 
