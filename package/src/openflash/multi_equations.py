@@ -255,14 +255,14 @@ def R_2n_vectorized(n, r, i, a, h, d):
     outer_r = scale(a)[i]
 
     cond_n_is_zero = (n == 0)
-    cond_r_at_scale = (r == scale_r)
+    cond_r_at_boundary = (r == outer_r)
 
     # Case 1: n = 0
     with np.errstate(divide='ignore', invalid='ignore'):
-         outcome_for_n_zero = 0.5 * np.log(np.divide(r, scale_r))
+         outcome_for_n_zero = 0.5 * np.log(np.divide(r, outer_r))
 
     # Case 2: n > 0 and r is at the boundary
-    outcome_for_r_scale = 1.0
+    outcome_for_r_boundary = 1.0
 
     # Case 3: n > 0
     lambda_val = lambda_ni(n, i, h, d)
@@ -273,7 +273,7 @@ def R_2n_vectorized(n, r, i, a, h, d):
         # Direct division order
         bessel_term = (besselke(0, lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
 
-    result_if_n_not_zero = np.where(cond_r_at_scale, outcome_for_r_scale, bessel_term)
+    result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
 
     return np.where(cond_n_is_zero, outcome_for_n_zero, result_if_n_not_zero)
 
