@@ -1,4 +1,4 @@
-\section{Governing Equations and Boundary Conditions (\textcolor{blue}{Collin})}\label{appA}
+\section{Governing Equations and Boundary Conditions }\label{appA}
 The velocity potentials for the internal regions must satisfy
 \begin{equation}\label{Laplace equation internal region}
     \nabla^2\phi^{i_m}=0,   
@@ -50,7 +50,7 @@ The expression for $N_{n_e}$ is defined as:
     \end{cases}.
 \end{equation}
 
-\section{Matching Equations (\textcolor{blue}{Collin})}\label{appB}
+\section{Matching Equations }\label{appB}
 Since both the value of the potential and fluid velocity must match at the boundary of neighboring regions, there are a total of $2M$ matching equations. However, these equations alone are not enough to solve for all eigencoefficients since the number of unknowns is greater than the number of equations ($N_\mathrm{T} >2M$). To generate an equal number of equations as unknowns, the orthogonality of the vertical eigenfunctions can be leveraged to isolate the unknown coefficients in the finite series. 
 
 Consider a generic function $Y(x)$ expressed as a series with coefficients $\alpha$ and basis functions $e(x)$: $Y(x)=\sum_i \alpha_i e_i(x)$.
@@ -474,7 +474,7 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
 \end{landscape}
 
 
-\section{Added Mass and Damping (\textcolor{blue}{Collin})}\label{appC}
+\section{Added Mass and Damping }\label{appC}
 We will define the velocity of the $q$th body as 
 $v_q(t) = \mathrm{Re} \{ \hat{v}_q e^{- \text{i} \omega t}\}$ 
 so that $\hat{f}_{pq} = (\text{i} \omega A_{pq}(\omega) - B_{pq}(\omega)) \hat{v}_q$. 
