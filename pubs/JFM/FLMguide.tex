@@ -1,66 +1,69 @@
-%\documentclass[lineno]{jfm}
-\documentclass[lineno]{JFM-FLM_Au}
+\ifdefined\DISSERTATION
+\else
+    %\documentclass[lineno]{jfm}
+    \documentclass[lineno]{JFM-FLM_Au}
 
-%\usepackage{showframe}
-\usepackage{pdflscape}
-\usepackage{array}
-\usepackage{amsmath,amssymb}
-\usepackage{multirow}
-\usepackage{subcaption}
-\usepackage{float}
+    %\usepackage{showframe}
+    \usepackage{pdflscape}
+    \usepackage{array}
+    \usepackage{amsmath,amssymb}
+    \usepackage{multirow}
+    \usepackage{subcaption}
+    \usepackage{float}
 
 
-\newtheorem{lemma}{Lemma}
-\newtheorem{corollary}{Corollary}
+    \newtheorem{lemma}{Lemma}
+    \newtheorem{corollary}{Corollary}
 
-\lefttitle{Y. Bimali, R. McCabe, C. Treacy, K. Khanal, E. Lo,  and M. N. Haji}
-\righttitle{Journal of Fluid Mechanics}
+    \lefttitle{Y. Bimali, R. McCabe, C. Treacy, K. Khanal, E. Lo,  and M. N. Haji}
+    \righttitle{Journal of Fluid Mechanics}
 
-\title{Numerics of the matched eigenfunction method for computing wave forces on concentric bodies}
+    \title{Numerics of the matched eigenfunction method for computing wave forces on concentric bodies}
 
-% Numerics of using matched eigenfunction expansions to compute wave forces on concentric bodies
+    % Numerics of using matched eigenfunction expansions to compute wave forces on concentric bodies
 
-\author{Yinghui Bimali\aff{1,\textdagger},
-Rebecca McCabe\aff{2,\textdagger}, 
-Collin Treacy\aff{3},
-Kapil Khanal\aff{4},
-En Lo\aff{5,6},
-\and 
-Maha Haji\aff{3}}
+    \author{Yinghui Bimali\aff{1,\textdagger},
+    Rebecca McCabe\aff{2,\textdagger}, 
+    Collin Treacy\aff{3},
+    Kapil Khanal\aff{4},
+    En Lo\aff{5,6},
+    \and 
+    Maha Haji\aff{3}}
 
-\affiliation{
-\aff{1} Dept. of Applied and Engineering Physics, Cornell Univ., 142 Sciences Dr., Ithaca, NY 14853, USA
-\aff{2}Sibley Sch. of Mechanical \& Aerospace Engineering, Cornell Univ., 124 Hoy Rd, Ithaca, NY 14853, USA
-\aff{3} Dept. of Mechanical Engineering, Univ. of Michigan, 2350 Hayward St., Ann Arbor, MI 48109, USA
-\aff{4}Dept. of Systems Engineering, Cornell Univ., 136 Hoy Road, Ithaca, NY 14853, USA
-\aff{5} Dept. of Environmental Engineering, Cornell Univ., 616 Thurston Ave, Ithaca, NY 14853, USA
-\aff{6} Dept. of Engineering Science, Parks Road, Univ. of Oxford, OX1 3PJ, UK
-\aff{\textdagger}These authors contributed equally to this work.
-}
+    \affiliation{
+    \aff{1} Dept. of Applied and Engineering Physics, Cornell Univ., 142 Sciences Dr., Ithaca, NY 14853, USA
+    \aff{2}Sibley Sch. of Mechanical \& Aerospace Engineering, Cornell Univ., 124 Hoy Rd, Ithaca, NY 14853, USA
+    \aff{3} Dept. of Mechanical Engineering, Univ. of Michigan, 2350 Hayward St., Ann Arbor, MI 48109, USA
+    \aff{4}Dept. of Systems Engineering, Cornell Univ., 136 Hoy Road, Ithaca, NY 14853, USA
+    \aff{5} Dept. of Environmental Engineering, Cornell Univ., 616 Thurston Ave, Ithaca, NY 14853, USA
+    \aff{6} Dept. of Engineering Science, Parks Road, Univ. of Oxford, OX1 3PJ, UK
+    \aff{\textdagger}These authors contributed equally to this work.
+    }
 
-\corresau{Rebecca McCabe, \email{rgm222@cornell.edu}}
-\begin{document}
-\maketitle
-\begin{abstract}
-Structural survival of offshore structures is important for the growing marine economy.
-Calculating the added mass, damping, and excitation coefficients to quantify wave loads with the traditional boundary element method presents a computational bottleneck.
-The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature.
-This paper generalizes existing matched eigenfunction solutions for the radiation of specific cylindrical geometries, serving to unify the literature under a consistent nomenclature and structure that applies to all surface-piercing compound annular cylinders with continuous and radially-monotonic body profiles.
-The revealed matrix structure drives insights into numerical properties including accuracy, convergence, and runtime, which are confirmed with systematic computational experiments using the authors' modern open-source implementation OpenFLASH.
-Comparisons to the Capytaine boundary element method software show that OpenFLASH has XX\% accuracy, XX times faster runtime, and XX better convergence. 
-Performance depends on geometry: larger diameters converge more slowly, and larger drafts require scaling to prevent numerical overflow.
-Finally, the paper documents and discusses mathematical and computational subtleties not previously detailed, including the formulation's merit and limitations for approximating conically slanted geometries.
-This extension, if combined with known extensions for moonpools and multi-valued vertical profiles, broadens the method's applicability to all concentric bodies of arbitrary profile, including concentric multi-body systems.
-These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
+    \corresau{Rebecca McCabe, \email{rgm222@cornell.edu}}
+    \begin{document}
+    \maketitle
+    \begin{abstract}
+    Structural survival of offshore structures is important for the growing marine economy.
+    Calculating the added mass, damping, and excitation coefficients to quantify wave loads with the traditional boundary element method presents a computational bottleneck.
+    The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature.
+    This paper generalizes existing matched eigenfunction solutions for the radiation of specific cylindrical geometries, serving to unify the literature under a consistent nomenclature and structure that applies to all surface-piercing compound annular cylinders with continuous and radially-monotonic body profiles.
+    The revealed matrix structure drives insights into numerical properties including accuracy, convergence, and runtime, which are confirmed with systematic computational experiments using the authors' modern open-source implementation OpenFLASH.
+    Comparisons to the Capytaine boundary element method software show that OpenFLASH has XX\% accuracy, XX times faster runtime, and XX better convergence. 
+    Performance depends on geometry: larger diameters converge more slowly, and larger drafts require scaling to prevent numerical overflow.
+    Finally, the paper documents and discusses mathematical and computational subtleties not previously detailed, including the formulation's merit and limitations for approximating conically slanted geometries.
+    This extension, if combined with known extensions for moonpools and multi-valued vertical profiles, broadens the method's applicability to all concentric bodies of arbitrary profile, including concentric multi-body systems.
+    These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
 
-Full author instructions can be found on the \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions}{JFM website}. All papers should feature a single-paragraph abstract of no more than 250 words which must not spill onto the second page of the manuscript.
-\end{abstract}
+    Full author instructions can be found on the \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions}{JFM website}. All papers should feature a single-paragraph abstract of no more than 250 words which must not spill onto the second page of the manuscript.
+    \end{abstract}
 
-\begin{keywords}
-Authors should not enter keywords on the manuscript, as these must be chosen by the author during the online submission process and will then be added during the typesetting process (see \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/list-of-keywords}{Keyword PDF} for the full list).  Other classifications will be added at the same time.
-\end{keywords}
+    \begin{keywords}
+    Authors should not enter keywords on the manuscript, as these must be chosen by the author during the online submission process and will then be added during the typesetting process (see \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/list-of-keywords}{Keyword PDF} for the full list).  Other classifications will be added at the same time.
+    \end{keywords}
 
-%{\bf MSC Codes }  {\it(Optional)} Please enter your MSC Codes here
+    %{\bf MSC Codes }  {\it(Optional)} Please enter your MSC Codes here
+\fi
 
 \section{Introduction (\textcolor{teal}{Becca})}
 \label{sec:Introduction}
@@ -1288,9 +1291,12 @@ Further generalizations should be the focus of future work on this method. While
 
 % \cite{mundy_metaphysics_1987,Field1980,Field1980y,Field1980z,field_can_1984,PerryForthcoming-PERPEQ,Hoelder1901,eddon_fundamental_????,Arntzenius2012}
 %
-\bibliographystyle{jfm}
-\bibliography{jfm}
 
+\ifdefined\DISSERTATION
+\else
+    \bibliographystyle{jfm}
+    \bibliography{jfm}
+\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1981,5 +1987,7 @@ in Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec} are
 
 %% End of file `jfm.bib'.
 
-
-\end{document}
+\ifdefined\DISSERTATION
+\else
+    \end{document}
+\fi
