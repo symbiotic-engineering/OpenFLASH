@@ -1320,29 +1320,55 @@ Further generalizations should be the focus of future work on this method. While
 
 % Where there are up to ten authors, all authors' names should be given in the reference list. Where there are more than ten authors, only the first name should appear, followed by {\it {et al.}}
 
+\ifdefined\DISSERTATION
+    \section*{Code Availability}
+    Code for all simulation, analysis, and visualization to fully reproduce this work is available open-source via the \texttt{OpenFLASH} project at \url{https://github.com/symbiotic-engineering/OpenFLASH} \cite{openflash}.
+    Questions and contributions via GitHub issues and pull requests are welcomed.
+    \end{bmhead}
 
-\begin{bmhead}[Code Availability.]
-Code for all simulation, analysis, and visualization to fully reproduce this work is available open-source via the \texttt{OpenFLASH} project at \url{https://github.com/symbiotic-engineering/OpenFLASH} \cite{openflash}.
-Questions and contributions via GitHub issues and pull requests are welcomed.
-\end{bmhead}
+    \section{Acknowledgements}
+    We acknowledge Hope Best, Ruiyang Jiang, and John Fernandez who contributed to the software development of the \texttt{OpenFLASH} package.
+    \end{bmhead}
 
-\begin{bmhead}[Acknowledgements.]
-We acknowledge Hope Best, Ruiyang Jiang, and John Fernandez who contributed to the software development of the \texttt{OpenFLASH} package.
-\end{bmhead}
+    \section{Declaration of Interests}
+    The authors report no conflict of interest.
+    \end{bmhead}
 
-\begin{bmhead}[Declaration of Interests.]
-The authors report no conflict of interest.
-\end{bmhead}
+    \section{Funding Information}
+    Please provide details of the sources of financial support for all authors, including grant numbers.
+    \end{bmhead}
 
-\begin{bmhead}[Funding Information.]
-Please provide details of the sources of financial support for all authors, including grant numbers.
-\end{bmhead}
+    \section{Author ORCIDs}
+    Authors may include the ORCID identifers as follows.  F. Smith, https://orcid.org/0000-0001-2345-6789; B. Jones, https://orcid.org/0000-0009-8765-4321
+    \end{bmhead}
 
-\begin{bmhead}[Author ORCIDs.]{Authors may include the ORCID identifers as follows.  F. Smith, https://orcid.org/0000-0001-2345-6789; B. Jones, https://orcid.org/0000-0009-8765-4321}
-\end{bmhead}
+    \section{Author contributions}
+    Authors may include details of the contributions made by each author to the manuscript.
+    \end{bmhead}
+\else
+    \begin{bmhead}[Code Availability.]
+    Code for all simulation, analysis, and visualization to fully reproduce this work is available open-source via the \texttt{OpenFLASH} project at \url{https://github.com/symbiotic-engineering/OpenFLASH} \cite{openflash}.
+    Questions and contributions via GitHub issues and pull requests are welcomed.
+    \end{bmhead}
 
-\begin{bmhead}[Author contributions.]{Authors may include details of the contributions made by each author to the manuscript}
-\end{bmhead}
+    \begin{bmhead}[Acknowledgements.]
+    We acknowledge Hope Best, Ruiyang Jiang, and John Fernandez who contributed to the software development of the \texttt{OpenFLASH} package.
+    \end{bmhead}
+
+    \begin{bmhead}[Declaration of Interests.]
+    The authors report no conflict of interest.
+    \end{bmhead}
+
+    \begin{bmhead}[Funding Information.]
+    Please provide details of the sources of financial support for all authors, including grant numbers.
+    \end{bmhead}
+
+    \begin{bmhead}[Author ORCIDs.]{Authors may include the ORCID identifers as follows.  F. Smith, https://orcid.org/0000-0001-2345-6789; B. Jones, https://orcid.org/0000-0009-8765-4321}
+    \end{bmhead}
+
+    \begin{bmhead}[Author contributions.]{Authors may include details of the contributions made by each author to the manuscript}
+    \end{bmhead}
+\fi
 % \backsection[Supplementary data]{\label{SupMat}Supplementary material and movies are available at \\https://doi.org/10.1017/jfm.2019...}
 %
 % \backsection[Acknowledgements]{Acknowledgements may be included at the end of the paper, before the References section or any appendices. Several anonymous individuals are thanked for contributions to these instructions.}
