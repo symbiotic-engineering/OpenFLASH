@@ -65,7 +65,7 @@
     %{\bf MSC Codes }  {\it(Optional)} Please enter your MSC Codes here
 \fi
 
-\section{Introduction (\textcolor{teal}{Becca})}
+\section{Introduction}
 \label{sec:Introduction}
 % this is the UMERC abstract copy-pasted
 % Floating body hydrodynamics are typically solved numerically using the boundary element method.
@@ -105,7 +105,7 @@ Finally, section~\ref{sec:compute-time} benchmarks computational runtime and acc
 We conclude in section~\ref{sec:conclusion} with a summary of findings and outlook on future work.
 
 \section{Mathematical Formulation and Validation}\label{sec:mathematical-formulation}
-\subsection{Linear Hydrodynamics and eigenfunctions (\textcolor{blue}{Collin})}
+\subsection{Linear Hydrodynamics and eigenfunctions }
 
 The objective of this method is to determine the hydrodynamic forces on a series of $M$ heaving surface-piercing compound annular cylinders, 
 as shown in Fig.~\ref{fig:Diagram}. 
@@ -231,7 +231,7 @@ by $N^{i_m}$ and $N^{e}$ in Table~\ref{tab:MEEM-eigenfunctions}.
 \end{table}
 \end{landscape}
 
-\subsection{Matching Across Fluid Boundaries (\textcolor{blue}{Collin})}\label{Matching Across Fluid Boundaries}
+\subsection{Matching Across Fluid Boundaries }\label{Matching Across Fluid Boundaries}
 
 The eigencoefficients must be selected to enforce the radial velocity body boundary condition and the matching of the potentials and radial velocities at the edges of each region, 
 earning this technique the name Matched Eigenfunction Expansion Method (MEEM). 
@@ -278,7 +278,7 @@ and the properties of orthogonality, a system of linear algebraic equations can 
 The details of this process are discussed in Appendix~\ref{appB}.  
 
 
-\subsection{Block Matrix Structure (\textcolor{blue}{Collin})}\label{Block Matrix Structure}
+\subsection{Block Matrix Structure }\label{Block Matrix Structure}
 The system of equations is in the form $\mathbf{A} \vec{x}=\vec{b}$. 
 $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ 
 is a block diagonal matrix composed of sub-matrices 
@@ -603,7 +603,7 @@ The potential can then be used to find the hydrodynamic forces on the body.
 
 
 
-\subsection{Hydrodynamic and Hydrostatic Forces (\textcolor{blue}{Collin})}\label{Hydrodynamic Forces}
+\subsection{Hydrodynamic and Hydrostatic Forces }\label{Hydrodynamic Forces}
 In this section, we will characterize the radiation, excitation, and hydrostatic forces of a system with $M$ internal regions and $Q$ heave degrees of freedom. Also, while there are $M$ internal regions, multiple regions may form a single body if the regions are rigidly fixed to one another. Thus, for a system with a total of $M$ internal regions and $Q$ heave degrees of freedom (DOFs), $Q \le M$. 
 
 Moving forward, $\mathbf{A} \vec{x}_q = \vec{b}^q$ will indicate the system of equations associated with the motion of only the $q$th body (and DOF) of the system, while all other bodies are fixed. Thus, $\vec{b}^q=[\vec{b}^q_1,\vec{b}^q_2,...,\vec{b}^q_M]^T$. Note that the matrix $\mathbf{A}$ does not depend on which body is moving. Meanwhile, $\vec{b}^q$, and hence the solution $\vec{x}_q$, does. This is because $\vec{b}^q$ contains integrals of particular potentials, which are zero for stationary regions and, in general, non-zero for moving regions.
@@ -835,7 +835,7 @@ In particular, the A-matrix is block tri-diagonal, opening up the possibility fo
 \end{figure}
 
 
-\subsection{Validation (\textcolor{blue}{Collin})}\label{sec:validation}
+\subsection{Validation }\label{sec:validation}
 The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation magnitude $|X_1(\omega)|$, and excitation phase $\angle X_1(\omega)$ from MEEM and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \cite{faedo2021energy}. This is shown in Fig.~\ref{fig:hydro coeff validation}. Note that the geometry is simplified in the MEEM and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. In reality, the Cor-power WEC geometry also consists of a slanted section. This will be accounted for later in Sec.~\ref{sec:slant}. The geometry settings of this comparison were set as follows: $a_1=1.25 \text{~m}$, $a_2=4.2 \text{~m}$, $d_1=14.45 \text{~m}$, $d_2=2.05 \text{~m}$, and $h=50 \text{~m}$. The series in each region was truncated to 150 for MEEM ($N^{i_1}=N^{i_2}=N^{e}=150$) and 1060 panels were used in Capytaine. The hydrodynamic coefficients from MEEM and Capytaine are on average within 1\% of one another. Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. In Sec.~\ref{sec:convergence}, the dependence of MEEM's convergence on the geometry will be discussed more in depth, and the trade-offs between accuracy and computation time for MEEM and Capytaine will be compared in Sec.~\ref{sec:compute-time}.
 
 \begin{figure}[htbp]
@@ -870,8 +870,8 @@ After confirming these assumptions, the main objective of the convergence study 
 [Section Incomplete: More cohesive conclusions needed.]
 \subsection{Influential Dimensionless Parameters}
 \begin{itemize}
-    \item For cylindrical geometries without slants, discuss what dimensionless parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The dimensionless parameters are $\lambda_0^eh$, $d_i/h$, $(r_{i}-r_{i-1})/h$, where $i$ indicates the region number of a multi-region geometry. Written by \textcolor{orange}{Bimali}.
-    \item Figure showing the correlation between the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence and the influential parameters. Figure made by \textcolor{orange}{Bimali}.
+    \item For cylindrical geometries without slants, discuss what dimensionless parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The dimensionless parameters are $\lambda_0^eh$, $d_i/h$, $(r_{i}-r_{i-1})/h$, where $i$ indicates the region number of a multi-region geometry. %Written by \textcolor{orange}{Bimali}.
+    \item Figure showing the correlation between the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence and the influential parameters. %Figure made by \textcolor{orange}{Bimali}.
 \end{itemize}
 \subsubsection{Theory \& Procedure}
 The set of dimensionless parameters that characterize a region's convergence can be divided into local and cumulative parameters. Local parameters are extracted from the geometry of the region itself, such as its fluid height, radial width, or the ratio of its fluid height to those of its neighbors. Cumulative parameters are overall metrics combining the geometries of other regions, such as total radial distance to the center/exterior region. Neither parameter type should depend on a specific other non-neighboring region or the number of other regions, because they should be generalizable to a configuration with any number of regions. Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
@@ -909,8 +909,8 @@ Especially in the case the outer neighboring region the, the impact of fluid hei
 
 \subsection{Limiting Factors}
 \begin{itemize}
-    \item For cylindrical geometries without slants, identify which dimensionless parameters determine the required number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. Written by \textcolor{orange}{Bimali}.
-    \item Table showing the required number of terms needed for the hydrodynamic coefficients to reach 1\% convergence as a function of key parameters. Figure made by \textcolor{orange}{Bimali}.
+    \item For cylindrical geometries without slants, identify which dimensionless parameters determine the required number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. %Written by \textcolor{orange}{Bimali}.
+    \item Table showing the required number of terms needed for the hydrodynamic coefficients to reach 1\% convergence as a function of key parameters. %Figure made by \textcolor{orange}{Bimali}.
 \end{itemize}
 
 
@@ -957,7 +957,9 @@ Instead of altering the MEEM procedure for slanted geometries, the same procedur
     \centering
     \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
     \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
-    \caption{Show discontinuities, motivate sampling, \textcolor{red}{Need to add a0, b), .., so we can refer to each plot within this figure.}}
+    \caption{Show discontinuities, motivate sampling, 
+    %\textcolor{red}{Need to add a0, b), .., so we can refer to each plot within this figure.}
+    }
     \label{fig:contour potential comparison plots}
 \end{figure}
 
