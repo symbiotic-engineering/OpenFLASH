@@ -14,7 +14,7 @@ src_dir = os.path.join(package_base_dir, 'src')
 sys.path.insert(0, os.path.abspath(src_dir))
 
 # Import the class to be tested
-from problem_cache import ProblemCache
+from openflash.problem_cache import ProblemCache
 # No need to import MEEMProblem or multi_equations directly here for these tests,
 # as we'll mock the 'problem' object and the functions.
 
@@ -72,8 +72,8 @@ def test_initialization(problem_cache, mock_problem):
 
 def test_set_and_get_A_template(problem_cache, sample_A_template):
     """Test setting and retrieving the A_template."""
-    problem_cache.set_A_template(sample_A_template)
-    retrieved_A = problem_cache.get_A_template()
+    problem_cache._set_A_template(sample_A_template)
+    retrieved_A = problem_cache._get_A_template()
 
     # Check if the template was set
     np.testing.assert_array_equal(retrieved_A, sample_A_template)
@@ -83,12 +83,12 @@ def test_set_and_get_A_template(problem_cache, sample_A_template):
 def test_get_A_template_not_set(problem_cache):
     """Test ValueError is raised if A_template is accessed before being set."""
     with pytest.raises(ValueError, match="A_template has not been set."):
-        problem_cache.get_A_template()
+        problem_cache._get_A_template()
 
 def test_set_and_get_b_template(problem_cache, sample_b_template):
     """Test setting and retrieving the b_template."""
-    problem_cache.set_b_template(sample_b_template)
-    retrieved_b = problem_cache.get_b_template()
+    problem_cache._set_b_template(sample_b_template)
+    retrieved_b = problem_cache._get_b_template()
 
     # Check if the template was set
     np.testing.assert_array_equal(retrieved_b, sample_b_template)
@@ -98,15 +98,15 @@ def test_set_and_get_b_template(problem_cache, sample_b_template):
 def test_get_b_template_not_set(problem_cache):
     """Test ValueError is raised if b_template is accessed before being set."""
     with pytest.raises(ValueError, match="b_template has not been set."):
-        problem_cache.get_b_template()
+        problem_cache._get_b_template()
 
 def test_add_m0_dependent_A_entry(problem_cache, mock_calc_func):
     """Test adding m0-dependent A matrix entries."""
-    problem_cache.add_m0_dependent_A_entry(0, 0, mock_calc_func)
+    problem_cache._add_m0_dependent_A_entry(0, 0, mock_calc_func)
     assert problem_cache.m0_dependent_A_indices == [(0, 0, mock_calc_func)]
 
     another_mock_func = MagicMock(return_value=200.0)
-    problem_cache.add_m0_dependent_A_entry(1, 2, another_mock_func)
+    problem_cache._add_m0_dependent_A_entry(1, 2, another_mock_func)
     assert problem_cache.m0_dependent_A_indices == [
         (0, 0, mock_calc_func),
         (1, 2, another_mock_func)
@@ -114,11 +114,11 @@ def test_add_m0_dependent_A_entry(problem_cache, mock_calc_func):
 
 def test_add_m0_dependent_b_entry(problem_cache, mock_calc_func):
     """Test adding m0-dependent b vector entries."""
-    problem_cache.add_m0_dependent_b_entry(0, mock_calc_func)
+    problem_cache._add_m0_dependent_b_entry(0, mock_calc_func)
     assert problem_cache.m0_dependent_b_indices == [(0, mock_calc_func)]
 
     another_mock_func = MagicMock(return_value=300.0)
-    problem_cache.add_m0_dependent_b_entry(5, another_mock_func)
+    problem_cache._add_m0_dependent_b_entry(5, another_mock_func)
     assert problem_cache.m0_dependent_b_indices == [
         (0, mock_calc_func),
         (5, another_mock_func)
@@ -126,7 +126,31 @@ def test_add_m0_dependent_b_entry(problem_cache, mock_calc_func):
 
 def test_set_m_k_and_N_k_funcs(problem_cache, mock_m_k_entry_func, mock_N_k_func):
     """Test setting the m_k_entry_func and N_k_func references."""
-    problem_cache.set_m_k_and_N_k_funcs(mock_m_k_entry_func, mock_N_k_func)
+    problem_cache._set_m_k_and_N_k_funcs(mock_m_k_entry_func, mock_N_k_func)
 
     assert problem_cache.m_k_entry_func is mock_m_k_entry_func
     assert problem_cache.N_k_func is mock_N_k_func
+
+# --- New Test Cases Added ---
+
+def test_get_integration_constants_not_set(problem_cache):
+    """Test ValueError is raised if integration constants are accessed before being set."""
+    # Ensure attributes are initialized to None to simulate uninitialized state correctly.
+    problem_cache.int_R1_vals = None
+    
+    with pytest.raises(ValueError, match="Integration constants have not been set."):
+        problem_cache._get_integration_constants()
+
+def test_set_and_get_integration_constants(problem_cache):
+    """Test setting and retrieving integration constants."""
+    mock_R1 = {'key': 1}
+    mock_R2 = {'key': 2}
+    mock_phi = np.array([1.0, 2.0])
+    
+    problem_cache._set_integration_constants(mock_R1, mock_R2, mock_phi)
+    
+    r1, r2, phi = problem_cache._get_integration_constants()
+    
+    assert r1 == mock_R1
+    assert r2 == mock_R2
+    np.testing.assert_array_equal(phi, mock_phi)

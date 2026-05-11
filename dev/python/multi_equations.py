@@ -28,6 +28,7 @@ scale = a #np.append((np.mean([[0]+a[0:-1], a], axis = 0)), a[-1])
 
 # After which the k = 0 e-region eigenfunction is well approximated by its limiting form.
 # Empirically the true and approximating form differ by a fraction of < 1e-10 after this.
+# The limiting form is used to prevent inf/inf errors.
 LARGE_M0H = 14
 
 def lambda_ni(n, i): # factor used often in calculations
@@ -348,4 +349,4 @@ def excitation_phase(x): # x-vector of unknown coefficients
 def excitation_force(damping):
     # Chau 2012 eq 98
     const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
-    return sqrt((2 * const * rho * (g ** 2) * damping)/(omega * m0)) ** (1/2)
+    return ( (2 * const * rho * (g ** 2) * damping) / (omega * m0) ) ** (1/2)

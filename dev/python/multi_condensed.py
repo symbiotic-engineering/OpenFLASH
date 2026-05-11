@@ -967,6 +967,3 @@ class Problem:
             b_vector[index] = self.b_velocity_end_entry(k, -1)
             index += 1
         return b_vector
-        
-        
-        
