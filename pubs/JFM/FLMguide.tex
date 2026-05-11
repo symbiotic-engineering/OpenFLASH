@@ -41,17 +41,21 @@ Maha Haji\aff{3}}
 \corresau{Rebecca McCabe, \email{rgm222@cornell.edu}}
 \begin{document}
 \maketitle
-\begin{abstract}
-Structural survival of offshore structures is important for the growing marine economy.
-Calculating the added mass, damping, and excitation coefficients to quantify wave loads with the traditional boundary element method presents a computational bottleneck.
-The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature.
-This paper generalizes existing matched eigenfunction solutions for the radiation of specific cylindrical geometries, serving to unify the literature under a consistent nomenclature and structure that applies to all surface-piercing compound annular cylinders with continuous and radially-monotonic body profiles.
-The revealed matrix structure drives insights into numerical properties including accuracy, convergence, and runtime, which are confirmed with systematic computational experiments using the authors' modern open-source implementation OpenFLASH.
-Comparisons to the Capytaine boundary element method software show that OpenFLASH has XX\% accuracy, XX times faster runtime, and XX better convergence. 
-Performance depends on geometry: larger diameters converge more slowly, and larger drafts require scaling to prevent numerical overflow.
-Finally, the paper documents and discusses mathematical and computational subtleties not previously detailed, including the formulation's merit and limitations for approximating conically slanted geometries.
-This extension, if combined with known extensions for moonpools and multi-valued vertical profiles, broadens the method's applicability to all concentric bodies of arbitrary profile, including concentric multi-body systems.
-These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
+\begin{abstract}Structural survival of offshore structures is crucial for the growing marine economy.
+However, calculating the added mass, radiation damping, and excitation coefficients to quantify wave loads with the traditional boundary element method (BEM) presents a computational bottleneck. The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. However, previous work fails to directly compare its accuracy and computational performance with BEM, leaving the extent of its usefulness unknown. Furthermore, the geometry-dependent convergence and angle-dependent discretization of slanted geometries have not yet been documented, making the method’s accuracy and ability to model more general geometries unclear. This paper presents a unifying mathematical MEEM framework for modeling an arbitrary number of fixed or heaving surface-piercing annular cylinders, and explores the method’s convergence behavior, ability to accurately approximate slanted geometries, and computational advantages over the BEM solver Capytaine. The numerical experiments show that, despite inaccuracies in the velocity potential, MEEM can compute hydrodynamic coefficients of slanted geoemtries within 5\% of Capytaine, but requires finer discretizations for steeper slant angles. Finally, due to its rapid convergence behavior, MEEM can achieve 2\% convergence of its hydrodynamic coefficients an order of magnitude faster than Capytaine, making it a computationally effective alternative to traditional BEM solvers. These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
+
+% Structural survival of offshore structures is important for the growing marine economy.
+% Calculating the added mass, damping, and excitation coefficients to quantify wave loads with the traditional boundary element method presents a computational bottleneck.
+% The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature.
+% This paper generalizes existing matched eigenfunction solutions for the radiation of specific cylindrical geometries, serving to unify the literature under a consistent nomenclature and structure that applies to all surface-piercing compound annular cylinders with continuous and radially-monotonic body profiles.
+% The revealed matrix structure drives insights into numerical properties including accuracy, convergence, and runtime, which are confirmed with systematic computational experiments using the authors' modern open-source implementation OpenFLASH.
+% Comparisons to the Capytaine boundary element method software show that OpenFLASH has XX\% accuracy, XX times faster runtime, and XX better convergence. 
+% Performance depends on geometry: larger diameters converge more slowly, and larger drafts require scaling to prevent numerical overflow.
+% Finally, the paper documents and discusses mathematical and computational subtleties not previously detailed, including the formulation's merit and limitations for approximating conically slanted geometries.
+% This extension, if combined with known extensions for moonpools and multi-valued vertical profiles, broadens the method's applicability to all concentric bodies of arbitrary profile, including concentric multi-body systems.
+% These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
+
+
 
 Full author instructions can be found on the \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions}{JFM website}. All papers should feature a single-paragraph abstract of no more than 250 words which must not spill onto the second page of the manuscript.
 \end{abstract}
@@ -62,7 +66,7 @@ Authors should not enter keywords on the manuscript, as these must be chosen by 
 
 %{\bf MSC Codes }  {\it(Optional)} Please enter your MSC Codes here
 
-\section{Introduction (\textcolor{teal}{Becca})}
+\section{Introduction}
 \label{sec:Introduction}
 % this is the UMERC abstract copy-pasted
 % Floating body hydrodynamics are typically solved numerically using the boundary element method.
@@ -102,7 +106,7 @@ Finally, section~\ref{sec:compute-time} benchmarks computational runtime and acc
 We conclude in section~\ref{sec:conclusion} with a summary of findings and outlook on future work.
 
 \section{Mathematical Formulation and Validation}\label{sec:mathematical-formulation}
-\subsection{Linear Hydrodynamics and eigenfunctions (\textcolor{blue}{Collin})}
+\subsection{Linear Hydrodynamics and Eigenfunctions }
 
 The objective of this method is to determine the hydrodynamic forces on a series of $M$ heaving surface-piercing compound annular cylinders, 
 as shown in Fig.~\ref{fig:Diagram}. 
@@ -228,7 +232,7 @@ by $N^{i_m}$ and $N^{e}$ in Table~\ref{tab:MEEM-eigenfunctions}.
 \end{table}
 \end{landscape}
 
-\subsection{Matching Across Fluid Boundaries (\textcolor{blue}{Collin})}\label{Matching Across Fluid Boundaries}
+\subsection{Matching Across Fluid Boundaries }\label{Matching Across Fluid Boundaries}
 
 The eigencoefficients must be selected to enforce the radial velocity body boundary condition and the matching of the potentials and radial velocities at the edges of each region, 
 earning this technique the name Matched Eigenfunction Expansion Method (MEEM). 
@@ -275,7 +279,7 @@ and the properties of orthogonality, a system of linear algebraic equations can 
 The details of this process are discussed in Appendix~\ref{appB}.  
 
 
-\subsection{Block Matrix Structure (\textcolor{blue}{Collin})}\label{Block Matrix Structure}
+\subsection{Block Matrix Structure}\label{Block Matrix Structure}
 The system of equations is in the form $\mathbf{A} \vec{x}=\vec{b}$. 
 $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ 
 is a block diagonal matrix composed of sub-matrices 
@@ -537,70 +541,87 @@ The potential can then be used to find the hydrodynamic forces on the body.
       &size& \\ \hline \hline 
       
       % Row 1
-      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$ & $\left\{\begin{matrix} \frac{1}{2}\left(\frac{\eta_{m+1}}{h-d_{m+1}}-\frac{\eta_{m}}{h-d_{m}} \right) \left(\frac{(h-d_m)^3}{3}-\frac{(h-d_m)a_m^2}{2} \right) & \text{when} \ n_m =0 \\
-    \sqrt{2} \left(\frac{\eta_{m+1}}{h-d_{m+1}}-\frac{\eta_{m}}{h-d_{m}} \right)(h-d_m) \left( \frac{(-1)^{n_m}}{(\lambda_{n_m}^{i_m})^2}\right) & \text{when} \ n_m \ge 1 
-    \end{matrix}\right.$\\ \hline
+      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$ & $\int_{-h}^{-d_m}\left( \phi_\mathrm{p}^{i_{m+1}} - \phi_\mathrm{p}^{i_m} \right) \vec{Z}^{i_m} \mathrm{d}z$\\ \hline
       
       % Row 2
       \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$
-        & $\left\{\begin{matrix} \frac{a_m}{2}\left(\eta_{m+1}-\eta_{m} \right) & \text{when} \ n_{m+1} =0 \\
-    - \sqrt{2} a_m \eta_m \frac{\sin(\lambda_{n_{m+1}}^{i_{m+1}} (h-d_m))}{2 (h-d_m)\lambda_{n_{m+1}}^{i_{m+1}}} & \text{when} \ n_{m+1} \ge 1 
-    \end{matrix}\right.$ \\ \hline
+        & $\int_{-h}^{-d_{m+1}}\frac{\partial \phi_\mathrm{p}^{i_{m+1}}}{\partial r} \vec{Z}^{i_{m+1}} \mathrm{d}z-\int_{-h}^{-d_m}\frac{\partial \phi_\mathrm{p}^{{i_{m}}}}{\partial r} \vec{Z}^{i_{m+1}}{} \mathrm{d}z$ \\ \hline
     \end{tabular}
-    \caption{Elements in MEEM $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).}
-    \label{tab:MEEM-b_m-vector-case-1-simplified}
+    \caption{MEEM $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
+    \label{tab:MEEM-b_m-vector-case-1}
 \end{table}
 
-\begin{table}
-    \centering
-    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
-      \hline
-      &size& \\ \hline \hline 
+% % \begin{table}
+% %     \centering
+% %     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
+% %       \hline
+% %       &size& \\ \hline \hline 
       
-      % Row 1
-      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$ & $\left\{\begin{matrix} \frac{1}{2}\left(\frac{\eta_{m+1}}{h-d_{m+1}}-\frac{\eta_{m}}{h-d_{m}} \right) \left(\frac{(h-d_{m+1})^3}{3}-\frac{(h-d_{m+1})a_m^2}{2} \right) & \text{when} \ n_{m+1} =0 \\
-    \sqrt{2} \left(\frac{\eta_{m+1}}{h-d_{m+1}}-\frac{\eta_{m}}{h-d_{m}} \right)(h-d_{m+1}) \left( \frac{(-1)^{n_{m+1}}}{(\lambda_{n_{m+1}}^{i_{m+1}})^2}\right) & \text{when} \ n_{m+1} \ge 1 
-    \end{matrix}\right.$\\ \hline
+% %       % Row 1
+% %       \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$ & $\left\{\begin{matrix} \frac{1}{2}\left(\frac{\eta_{m+1}}{h-d_{m+1}}-\frac{\eta_{m}}{h-d_{m}} \right) \left(\frac{(h-d_m)^3}{3}-\frac{(h-d_m)a_m^2}{2} \right) & \text{when} \ n_m =0 \\
+% %     \sqrt{2} \left(\frac{\eta_{m+1}}{h-d_{m+1}}-\frac{\eta_{m}}{h-d_{m}} \right)(h-d_m) \left( \frac{(-1)^{n_m}}{(\lambda_{n_m}^{i_m})^2}\right) & \text{when} \ n_m \ge 1 
+% %     \end{matrix}\right.$\\ \hline
       
-      % Row 2
-      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$
-        & $\left\{\begin{matrix} \frac{a_m}{2}\left(\eta_{m+1}-\eta_{m} \right) & \text{when} \ n_{m} =0 \\
-    \sqrt{2} a_m \eta_{m+1} \frac{\sin(\lambda_{n_{m}}^{i_{m}} (h-d_{m+1}))}{2 (h-d_{m+1})\lambda_{n_{m}}^{i_{m}}} & \text{when} \ n_{m} \ge 1 
-    \end{matrix}\right.$ \\ \hline
-    \end{tabular}
-    \caption{Elements in MEEM $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).}
-    \label{tab:MEEM-b_m-vector-case-2-simplified}
-\end{table}
+% %       % Row 2
+% %       \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$
+% %         & $\left\{\begin{matrix} \frac{a_m}{2}\left(\eta_{m+1}-\eta_{m} \right) & \text{when} \ n_{m+1} =0 \\
+% %     - \sqrt{2} a_m \eta_m \frac{\sin(\lambda_{n_{m+1}}^{i_{m+1}} (h-d_m))}{2 (h-d_m)\lambda_{n_{m+1}}^{i_{m+1}}} & \text{when} \ n_{m+1} \ge 1 
+% %     \end{matrix}\right.$ \\ \hline
+% %     \end{tabular}
+% %     \caption{Elements in MEEM $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).}
+% %     \label{tab:MEEM-b_m-vector-case-1-simplified}
+% % \end{table}
 
-
-
-
-\begin{table}
-    \centering
-    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
-      \hline
-      &size& \\ \hline \hline 
+% % \begin{table}
+% %     \centering
+% %     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
+% %       \hline
+% %       &size& \\ \hline \hline 
       
-      % Row 1
-      \shortstack{$\phi^{i_M}=\phi^{e}$ \\ at $r=a_m$} & $N^{i_M}$ & $\left\{\begin{matrix} -\frac{1}{2}\left(\frac{\eta_{M}}{h-d_{M}} \right) \left(\frac{(h-d_M)^3}{3}-\frac{(h-d_M)a_M^2}{2} \right) & \text{when} \ n_M =0 \\
-    -\sqrt{2} \left(\frac{\eta_{M}}{h-d_{M}} \right)(h-d_M) \left( \frac{(-1)^{n_M}}{(\lambda_{n_M}^{i_M})^2}\right) & \text{when} \ n_M \ge 1 
-    \end{matrix}\right.$\\ \hline
+% %       % Row 1
+% %       \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$ & $\left\{\begin{matrix} \frac{1}{2}\left(\frac{\eta_{m+1}}{h-d_{m+1}}-\frac{\eta_{m}}{h-d_{m}} \right) \left(\frac{(h-d_{m+1})^3}{3}-\frac{(h-d_{m+1})a_m^2}{2} \right) & \text{when} \ n_{m+1} =0 \\
+% %     \sqrt{2} \left(\frac{\eta_{m+1}}{h-d_{m+1}}-\frac{\eta_{m}}{h-d_{m}} \right)(h-d_{m+1}) \left( \frac{(-1)^{n_{m+1}}}{(\lambda_{n_{m+1}}^{i_{m+1}})^2}\right) & \text{when} \ n_{m+1} \ge 1 
+% %     \end{matrix}\right.$\\ \hline
       
-      % Row 2
-      \shortstack{$\frac{\partial}{\partial r}\phi^{i_M}=\frac{\partial}{\partial r}\phi^{e}$ \\ at $r=a_m$} & $N^{e}$
-        & $\left\{\begin{matrix}   -\frac{\eta_M a_M}{2(h-d_M)} \frac{\sinh(\lambda_{0}^{e} (h-d_M))}{\sqrt{ N_0}\lambda_{0}^{e}}   & \text{when} \ n_{e} =0 \\ -\frac{\eta_M a_M}{2(h-d_M)} \frac{\sin(\lambda_{n_e}^{e}(h-d_M))}{\sqrt{N_{n_e}} \lambda_{n_e}^{e}}
-     & \text{when} \ n_{e} \ge 1 
-    \end{matrix}\right.$ \\ \hline
-    \end{tabular}
-    \caption{Elements in MEEM $\vec{b}_m$ vector when $m=M$ ($i_M = \mathrm{s}$ and $e = \mathrm{t}$).}
-    \label{tab:MEEM-b_m-vector-case-3-simplified}
-\end{table}
+% %       % Row 2
+% %       \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$
+% %         & $\left\{\begin{matrix} \frac{a_m}{2}\left(\eta_{m+1}-\eta_{m} \right) & \text{when} \ n_{m} =0 \\
+% %     \sqrt{2} a_m \eta_{m+1} \frac{\sin(\lambda_{n_{m}}^{i_{m}} (h-d_{m+1}))}{2 (h-d_{m+1})\lambda_{n_{m}}^{i_{m}}} & \text{when} \ n_{m} \ge 1 
+% %     \end{matrix}\right.$ \\ \hline
+% %     \end{tabular}
+% %     \caption{Elements in MEEM $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).}
+% %     \label{tab:MEEM-b_m-vector-case-2-simplified}
+% % \end{table}
+
+
+
+
+% \begin{table}
+%     \centering
+%     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
+%       \hline
+%       &size& \\ \hline \hline 
+      
+%       % Row 1
+%       \shortstack{$\phi^{i_M}=\phi^{e}$ \\ at $r=a_m$} & $N^{i_M}$ & $\left\{\begin{matrix} -\frac{1}{2}\left(\frac{\eta_{M}}{h-d_{M}} \right) \left(\frac{(h-d_M)^3}{3}-\frac{(h-d_M)a_M^2}{2} \right) & \text{when} \ n_M =0 \\
+%     -\sqrt{2} \left(\frac{\eta_{M}}{h-d_{M}} \right)(h-d_M) \left( \frac{(-1)^{n_M}}{(\lambda_{n_M}^{i_M})^2}\right) & \text{when} \ n_M \ge 1 
+%     \end{matrix}\right.$\\ \hline
+      
+%       % Row 2
+%       \shortstack{$\frac{\partial}{\partial r}\phi^{i_M}=\frac{\partial}{\partial r}\phi^{e}$ \\ at $r=a_m$} & $N^{e}$
+%         & $\left\{\begin{matrix}   -\frac{\eta_M a_M}{2(h-d_M)} \frac{\sinh(\lambda_{0}^{e} (h-d_M))}{\sqrt{ N_0}\lambda_{0}^{e}}   & \text{when} \ n_{e} =0 \\ -\frac{\eta_M a_M}{2(h-d_M)} \frac{\sin(\lambda_{n_e}^{e}(h-d_M))}{\sqrt{N_{n_e}} \lambda_{n_e}^{e}}
+%      & \text{when} \ n_{e} \ge 1 
+%     \end{matrix}\right.$ \\ \hline
+%     \end{tabular}
+%     \caption{Elements in MEEM $\vec{b}_m$ vector when $m=M$ ($i_M = \mathrm{s}$ and $e = \mathrm{t}$).}
+%     \label{tab:MEEM-b_m-vector-case-3-simplified}
+% \end{table}
 
 
 
 
 
-\subsection{Hydrodynamic and Hydrostatic Forces (\textcolor{blue}{Collin})}\label{Hydrodynamic Forces}
+\subsection{Hydrodynamic and Hydrostatic Forces}\label{Hydrodynamic Forces}
 In this section, we will characterize the radiation, excitation, and hydrostatic forces of a system with $M$ internal regions and $Q$ heave degrees of freedom. Also, while there are $M$ internal regions, multiple regions may form a single body if the regions are rigidly fixed to one another. Thus, for a system with a total of $M$ internal regions and $Q$ heave degrees of freedom (DOFs), $Q \le M$. 
 
 Moving forward, $\mathbf{A} \vec{x}_q = \vec{b}^q$ will indicate the system of equations associated with the motion of only the $q$th body (and DOF) of the system, while all other bodies are fixed. Thus, $\vec{b}^q=[\vec{b}^q_1,\vec{b}^q_2,...,\vec{b}^q_M]^T$. Note that the matrix $\mathbf{A}$ does not depend on which body is moving. Meanwhile, $\vec{b}^q$, and hence the solution $\vec{x}_q$, does. This is because $\vec{b}^q$ contains integrals of particular potentials, which are zero for stationary regions and, in general, non-zero for moving regions.
@@ -832,7 +853,7 @@ In particular, the A-matrix is block tri-diagonal, opening up the possibility fo
 \end{figure}
 
 
-\subsection{Validation (\textcolor{blue}{Collin})}\label{sec:validation}
+\subsection{Validation}\label{sec:validation}
 The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation magnitude $|X_1(\omega)|$, and excitation phase $\angle X_1(\omega)$ from MEEM and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \cite{faedo2021energy}. This is shown in Fig.~\ref{fig:hydro coeff validation}. Note that the geometry is simplified in the MEEM and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. In reality, the Cor-power WEC geometry also consists of a slanted section. This will be accounted for later in Sec.~\ref{sec:slant}. The geometry settings of this comparison were set as follows: $a_1=1.25 \text{~m}$, $a_2=4.2 \text{~m}$, $d_1=14.45 \text{~m}$, $d_2=2.05 \text{~m}$, and $h=50 \text{~m}$. The series in each region was truncated to 150 for MEEM ($N^{i_1}=N^{i_2}=N^{e}=150$) and 1060 panels were used in Capytaine. The hydrodynamic coefficients from MEEM and Capytaine are on average within 1\% of one another. Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. In Sec.~\ref{sec:convergence}, the dependence of MEEM's convergence on the geometry will be discussed more in depth, and the trade-offs between accuracy and computation time for MEEM and Capytaine will be compared in Sec.~\ref{sec:compute-time}.
 
 \begin{figure}[htbp]
@@ -864,8 +885,19 @@ After confirming these assumptions, the main objective of the convergence study 
     \label{fig:nmk-predict-flowchart}
 \end{figure}
 
-\subsection{Setup \& Methods}
-Define the local parameters of a target region to be those extracted from its local geometry, such as its fluid height, radial width, or the fluid heights of its neighbors. Cumulative parameters are overall metrics combining the geometries of other regions, such as the total radial distance to the center/exterior region. Each dimensionless parameter chosen to characterize the target's convergence should be either a local or cumulative parameter, as opposed to some quantity specific to a non-neighboring region's local geometry or the number of other regions. This allows the convergence study results to be generalizable to a configuration with any number of regions. Sets of dimensionless parameters are not unique, but good sets will depend more directly on each parameter individually instead of exhibiting complicated coupling between them.
+[Section Incomplete: More cohesive conclusions needed.]
+\subsection{Influential Dimensionless Parameters}
+% \begin{itemize}
+%     \item For cylindrical geometries without slants, discuss what dimensionless parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The dimensionless parameters are $\lambda_0^eh$, $d_i/h$, $(r_{i}-r_{i-1})/h$, where $i$ indicates the region number of a multi-region geometry. Written by \textcolor{orange}{Bimali}.
+%     \item Figure showing the correlation between the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence and the influential parameters. Figure made by \textcolor{orange}{Bimali}.
+% \end{itemize}
+\subsubsection{Theory \& Procedure}
+The set of dimensionless parameters that characterize a region's convergence can be divided into local and cumulative parameters. 
+Local parameters are extracted from the geometry of the region itself, such as its fluid height, radial width, or the ratio of its fluid height to those of its neighbors. 
+Cumulative parameters are overall metrics combining the geometries of other regions, such as total radial distance to the center/exterior region. 
+Neither parameter type should depend on a specific other non-neighboring region or the number of other regions, because they should be generalizable to a configuration with any number of regions. 
+Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
+[TODO transition/section reorder?]
 
 [Data generation setup, isolating dimensionless parameters, functions fitting procedure, verification.]
 
@@ -909,6 +941,12 @@ Especially in the case the outer neighboring region the, the impact of fluid hei
     \caption{Randomly generate geometries (explain randomness formula in text), find limiting hydro coeffs, predict NMK/region for 1 percent error with fitted functions, plot box and whiskers of actual percent off and actual NMK needed. Perhaps separate into shielded and unshielded inner regions, and data sets with 4 rather than 3 body regions.}
     \label{fig:placeholder}
 \end{figure}
+
+\subsection{Limiting Factors}
+% \begin{itemize}
+%     \item For cylindrical geometries without slants, identify which dimensionless parameters determine the required number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. Written by \textcolor{orange}{Bimali}.
+%     \item Table showing the required number of terms needed for the hydrodynamic coefficients to reach 1\% convergence as a function of key parameters. Figure made by \textcolor{orange}{Bimali}.
+% \end{itemize}
 
 
 
@@ -1222,10 +1260,6 @@ For geometries that MEEM represents exactly, it tends to converge faster than Ca
 
 
 \section{Conclusion}\label{sec:conclusion}
-\begin{itemize}
-    \item Summarize main findings and contributions of this work. Written by \textcolor{teal}{Becca}.
-    \item Discuss areas of future work. Written by \textcolor{teal}{Becca}.
-\end{itemize}
 
 This work generalizes the matched eigenfunction expansion method (MEEM) for computing the hydrodynamic forces on an arbitrary number of heaving surface-piercing axisymmetric geometries under linear potential flow theory. The method consists of separating the fluid domain into cylindrical regions, defining the velocity potential in each region in terms of eigenfunctions and unknown eigencoefficients, and using boundary conditions and orthogonality to derive a system of linear algebraic equations, which can be organized into a matrix-vector structure. This new extension overviews the undocumented accuracy, convergence, and runtime of the method. Furthermore, the ability of this method to be used to approximate the hydrodynamic forces on geometries with slants is discussed. This is done by subdividing slanted regions into cylindrical regions that can be modeled through MEEM. We have found that, while the velocity potential computed from MEEM may have inaccuracies locally, the hydrodynamic coefficients can be computed with less than 5\% error. Additionally, geometries with steeper slants require more subdivisions for MEEM to achieve accurate results. When compared against the boundary element method solver Capytaine, MEEM is able to achieve 2\% convergence in both hydrodynamic coefficients an order of magnitude faster than Capytaine, making it a computationally effective alternative to traditional BEM solvers. Such an advantage can have significant implications for the design optimization of marine structures, especially in situations when the hydrodynamic model is the bottleneck of the simulation model. 
 
@@ -1365,7 +1399,7 @@ Please provide details of the sources of financial support for all authors, incl
 
 
 
-\section{Governing Equations and Boundary Conditions (\textcolor{blue}{Collin})}\label{appA}
+\section{Governing Equations and Boundary Conditions}\label{appA}
 The velocity potentials for the internal regions must satisfy
 \begin{equation}\label{Laplace equation internal region}
     \nabla^2\phi^{i_m}=0,   
@@ -1417,7 +1451,7 @@ The expression for $N_{n_e}$ is defined as:
     \end{cases}.
 \end{equation}
 
-\section{Matching Equations (\textcolor{blue}{Collin})}\label{appB}
+\section{Matching Equations}\label{appB}
 Since both the value of the potential and fluid velocity must match at the boundary of neighboring regions, there are a total of $2M$ matching equations. However, these equations alone are not enough to solve for all eigencoefficients since the number of unknowns is greater than the number of equations ($N_\mathrm{T} >2M$). To generate an equal number of equations as unknowns, the orthogonality of the vertical eigenfunctions can be leveraged to isolate the unknown coefficients in the finite series. 
 
 Consider a generic function $Y(x)$ expressed as a series with coefficients $\alpha$ and basis functions $e(x)$: $Y(x)=\sum_i \alpha_i e_i(x)$.
@@ -1529,24 +1563,6 @@ Rewriting Eq.~\ref{potential matching vector equations} and~\ref{velocity matchi
 The structure of these equations is in the form of $\mathbf{A} \vec{x}=\vec{b}$ where the matrix $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ contains the left-hand-side of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} (excluding the eigencoefficients), the vector $\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^T \in \mathbb{C}^{N_\mathrm{T}}$ contains all eigencoefficients, and the vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ contains the right-hand-side of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations}.
 As shown in Table~\ref{tab:MEEM-A-matrix}, $\mathbf{A}$ is a block diagonal matrix composed of sub-matrices $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices. Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $m$th boundary.
 The corresponding right-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} are contained in $\vec{b}_m$, which form the vector $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. Tables~\ref{tab:MEEM-b_m-vector-case-1} and~\ref{tab:MEEM-b_m-vector-case-2} can be used without modification to obtain all the vectors $\vec{b}_m$ for $1 \le m \le M-1$ while, for $m=M$, Table~\ref{tab:MEEM-b_m-vector-case-1} should be modified so that all indices with $i_{m+1}$ are replaced with $e$ and $d_{m+1}$ is set to zero.
-
-
-\begin{table}
-    \centering
-    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
-      \hline
-      &size& \\ \hline \hline 
-      
-      % Row 1
-      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$ & $\int_{-h}^{-d_m}\left( \phi_\mathrm{p}^{i_{m+1}} - \phi_\mathrm{p}^{i_m} \right) \vec{Z}^{i_m} \mathrm{d}z$\\ \hline
-      
-      % Row 2
-      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$
-        & $\int_{-h}^{-d_{m+1}}\frac{\partial \phi_\mathrm{p}^{i_{m+1}}}{\partial r} \vec{Z}^{i_{m+1}} \mathrm{d}z-\int_{-h}^{-d_m}\frac{\partial \phi_\mathrm{p}^{{i_{m}}}}{\partial r} \vec{Z}^{i_{m+1}}{} \mathrm{d}z$ \\ \hline
-    \end{tabular}
-    \caption{MEEM $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
-    \label{tab:MEEM-b_m-vector-case-1}
-\end{table}
 
 
 \begin{table}
@@ -1841,7 +1857,7 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
 \end{landscape}
 
 
-\section{Added Mass and Damping (\textcolor{blue}{Collin})}\label{appC}
+\section{Added Mass and Damping}\label{appC}
 We will define the velocity of the $q$th body as 
 $v_q(t) = \mathrm{Re} \{ \hat{v}_q e^{- \text{i} \omega t}\}$ 
 so that $\hat{f}_{pq} = (\text{i} \omega A_{pq}(\omega) - B_{pq}(\omega)) \hat{v}_q$. 
