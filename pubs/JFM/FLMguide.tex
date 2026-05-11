@@ -313,13 +313,9 @@ Consequently, $A_m \in \mathbb{R}^{(N^{i_m} + N^{i_{m+1}}) \times (2N^{i_m} + 2N
 while $A_1 \in \mathbb{R}^{(N^{i_1} + N^{i_{2}}) \times (N^{i_1} + 2N^{i_2})}$ 
 and $A_M \in \mathbb{R}^{(N^{i_M} + N^{e}) \times (2N^{i_M} + N^e)}$.
 This is consistent with what is shown in Table~\ref{tab:MEEM-A-matrix}. 
-Tables~\ref{tab:MEEM-b_m-vector-case-1-simplified}-\ref{tab:MEEM-b_m-vector-case-3-simplified} 
-show the three cases of $\vec{b}_m$ sub-vectors, where
-\begin{equation}
-    \eta_m = \left\{\begin{matrix} 1& \text{Body in region $i_m$ heaving}  \\
-    0 & \text{Body in region $i_m$ fixed} 
-    \end{matrix}.\right.
-\end{equation}
+Tables~\ref{tab:MEEM-b_m-vector-case-1} and \ref{tab:MEEM-b_m-vector-case-2} 
+show the two cases of $\vec{b}_m$ sub-vectors, which have closed form solutions.
+
 Additionally, each sub-matrix $\mathbf{A}_m$ can be broken into 
 a matrix dependent on radial eigenfunctions $\mathbf{A}_{m,r}$ 
 and a matrix dependent on vertical eigenfunctions $ \mathbf{A}_{m,z}$, 
@@ -534,6 +530,8 @@ The potential can then be used to find the hydrodynamic forces on the body.
 \end{table}
 \end{landscape}
 
+
+
 \begin{table}
     \centering
     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
@@ -550,6 +548,32 @@ The potential can then be used to find the hydrodynamic forces on the body.
     \caption{MEEM $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
     \label{tab:MEEM-b_m-vector-case-1}
 \end{table}
+
+
+\begin{table}
+    \centering
+    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
+    \hline 
+      &size& \\ \hline \hline 
+      
+      % Row 1
+      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$ & $\int_{-h}^{-d_{m+1}}\left( \phi_\mathrm{p}^{i_{m}} - \phi_\mathrm{p}^{i_{m+1}} \right) \vec{Z}^{i_{m+1}} \mathrm{d}z$\\ \hline
+      
+      % Row 2
+      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m}}$
+        &  $\int_{-h}^{-d_m}\frac{\partial \phi_\mathrm{p}^{i_{m}}}{\partial r} \vec{Z}^{i_{m}} \mathrm{d}z-\int_{-h}^{-d_{m+1}}\frac{\partial \phi_\mathrm{p}^{i_{m+1}}}{\partial r} \vec{Z}^{{i_{m}}} \mathrm{d}z$\\ \hline
+    \end{tabular}
+    \caption{MEEM $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_{m+1} = \mathrm{s}$ and $i_{m} = \mathrm{t}$). 
+    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
+    \label{tab:MEEM-b_m-vector-case-2}
+\end{table}
+
+% where
+% \begin{equation}
+%     \eta_m = \left\{\begin{matrix} 1& \text{Body in region $i_m$ heaving}  \\
+%     0 & \text{Body in region $i_m$ fixed} 
+%     \end{matrix}.\right.
+% \end{equation}
 
 % % \begin{table}
 % %     \centering
@@ -1564,24 +1588,6 @@ The structure of these equations is in the form of $\mathbf{A} \vec{x}=\vec{b}$ 
 As shown in Table~\ref{tab:MEEM-A-matrix}, $\mathbf{A}$ is a block diagonal matrix composed of sub-matrices $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices. Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $m$th boundary.
 The corresponding right-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} are contained in $\vec{b}_m$, which form the vector $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. Tables~\ref{tab:MEEM-b_m-vector-case-1} and~\ref{tab:MEEM-b_m-vector-case-2} can be used without modification to obtain all the vectors $\vec{b}_m$ for $1 \le m \le M-1$ while, for $m=M$, Table~\ref{tab:MEEM-b_m-vector-case-1} should be modified so that all indices with $i_{m+1}$ are replaced with $e$ and $d_{m+1}$ is set to zero.
 
-
-\begin{table}
-    \centering
-    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
-    \hline 
-      &size& \\ \hline \hline 
-      
-      % Row 1
-      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$ & $\int_{-h}^{-d_{m+1}}\left( \phi_\mathrm{p}^{i_{m}} - \phi_\mathrm{p}^{i_{m+1}} \right) \vec{Z}^{i_{m+1}} \mathrm{d}z$\\ \hline
-      
-      % Row 2
-      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m}}$
-        &  $\int_{-h}^{-d_m}\frac{\partial \phi_\mathrm{p}^{i_{m}}}{\partial r} \vec{Z}^{i_{m}} \mathrm{d}z-\int_{-h}^{-d_{m+1}}\frac{\partial \phi_\mathrm{p}^{i_{m+1}}}{\partial r} \vec{Z}^{{i_{m}}} \mathrm{d}z$\\ \hline
-    \end{tabular}
-    \caption{MEEM $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_{m+1} = \mathrm{s}$ and $i_{m} = \mathrm{t}$). 
-    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
-    \label{tab:MEEM-b_m-vector-case-2}
-\end{table}
 
 
 
