@@ -711,9 +711,14 @@ def fit_parameters(cf, m0, hydro, local_maxima = False, plot_comparison = False,
 def reorder(lst, order):
     return [lst[i] for i in order]
 
+def fit_and_plot(f, xs, ys):
+  popt, pcov = curve_fit(f, xs, ys)
+  new_ys = [f(x, *popt) for x in xs]
+  plt.plot(xs, new_ys)
+
 def multi_fit_parameters(cfs, sort_func, hydro, sort_label = "No Label", local_maxima = False, plot_comparison = False,
                          print_params = True, plot_multi_log_comparison = True, plot_multi_params = True, nmk_max = 150,
-                         linear_model = False, r2_lin = False, underweight = 1):
+                         linear_model = False, r2_lin = False, underweight = 1, multi_plot_fit_alpha = None, multi_plot_fit_beta = None):
   meta_xs, meta_ys1, meta_ys2, covs, r2s, r2_unders = [], [], [], [], [], []
   for cf in cfs:
     for m0 in cf["m0s"]:
@@ -744,6 +749,8 @@ def multi_fit_parameters(cfs, sort_func, hydro, sort_label = "No Label", local_m
 
   if plot_multi_params:
     plt.plot(meta_xs, meta_ys1)
+    if multi_plot_fit_alpha is not None:
+      fit_and_plot(multi_plot_fit_alpha, meta_xs, meta_ys1)
     plt.xlabel(sort_label)
     plt.ylabel("alpha")
     plt.show()
@@ -751,6 +758,8 @@ def multi_fit_parameters(cfs, sort_func, hydro, sort_label = "No Label", local_m
     print(f"fitted slope: {result.slope:.3g}, slope/avg: {result.slope/np.mean(meta_ys1):.3g}")
 
     plt.plot(meta_xs, meta_ys2)
+    if multi_plot_fit_beta is not None:
+      fit_and_plot(multi_plot_fit_beta, meta_xs, meta_ys2)
     plt.xlabel(sort_label)
     plt.ylabel("beta")
     plt.show()

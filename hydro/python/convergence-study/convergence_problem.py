@@ -126,3 +126,67 @@ class ConvergenceProblem(Problem):
             c[col + M + m] = heaving[i] * self.int_R_2n(i, m)* self.z_n_d(m)
         col += 2 * M
     return c
+  
+# Define class for convergence study in exterior region
+class ConvergenceProblemE(ConvergenceProblem):
+  def convergence_study_over_m0s(self, nmk_max, m0s, region = None): # First m0 should be the one given in Problem instantiation
+    full_a_matrix = self.a_matrix()
+    output = {}
+    b_vector_lst = []
+    c_vector_lst = [] # If inner regions don't change in NMK, c_vectors are the same.
+    for i in range(self.boundary_count):
+      self.heaving = [1 if index == i else 0 for index in range(self.boundary_count)]
+      b_vector_lst.append(self.b_vector())
+      c_vector_lst.append(self.c_vector())
+    
+    for m0 in m0s:
+      out_for_m0 = {}
+      if m0 != self.m0:
+          self.change_m0(m0)
+          full_a_matrix = self.a_matrix_from_old(full_a_matrix)
+          for i in range(self.boundary_count):
+            self.heaving = [1 if index == i else 0 for index in range(self.boundary_count)]
+            b_vector_lst[i] = self.b_vector_from_old(b_vector_lst[i])
+      all_a_matrices = self.get_sub_matrices(full_a_matrix, nmk_max)
+      omega = self.angular_freq(self.m0)
+
+      if region == None: regions = range(self.boundary_count)
+      else: regions = [region]
+      for i in regions:
+        self.heaving = [1 if index == i else 0 for index in range(self.boundary_count)]
+        full_b_vector = b_vector_lst[i]
+        full_c_vector = c_vector_lst[i]
+        all_b_vectors = self.get_sub_vectors(full_b_vector, nmk_max)
+        particular_contribution = self.int_phi_p_i(i) # only region i is heaving
+        am_lst = []
+        dp_lst = []
+        for nmk in range(1, nmk_max + 1):
+          x = self.get_unknown_coeffs(all_a_matrices[nmk - 1], all_b_vectors[nmk - 1])
+          raw_hydro = 2 * np.pi * (np.dot(full_c_vector, x[:-nmk]) + particular_contribution)
+          # follow the capytaine convention
+          am_lst.append(raw_hydro.real * self.rho) # added mass
+          dp_lst.append(raw_hydro.imag * omega * self.rho) # damping
+        out_for_m0["ams" + str(i)] = am_lst
+        out_for_m0["dps" + str(i)] = dp_lst
+        x = self.get_unknown_coeffs(full_a_matrix, full_b_vector)
+        am, dp = self.hydro_coeffs(x, "capytaine")
+        out_for_m0["am" + str(i)] = am
+        out_for_m0["dp" + str(i)] = dp
+      output[m0] = out_for_m0
+    return output
+  
+  def get_sub_matrices(self, full_a_matrix, nmk_max):
+    big_nmk = self.NMK[-1]
+    all_a_matrices = []
+    for i in range(1, nmk_max + 1):
+      a_matrix = full_a_matrix[: (self.size - big_nmk + i), : (self.size - big_nmk + i)]
+      all_a_matrices.append(a_matrix)
+    return all_a_matrices
+
+  def get_sub_vectors(self, full_vector, nmk_max):
+    big_nmk = self.NMK[-1]
+    all_b_vectors = []
+    for i in range(1, nmk_max + 1):
+      b_vector = full_vector[: (self.size - big_nmk + i)]
+      all_b_vectors.append(b_vector)
+    return all_b_vectors
