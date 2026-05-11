@@ -104,16 +104,7 @@ We conclude in section~\ref{sec:conclusion} with a summary of findings and outlo
 \section{Mathematical Formulation and Validation}\label{sec:mathematical-formulation}
 \subsection{Linear Hydrodynamics and eigenfunctions (\textcolor{blue}{Collin})}
 
-The objective of this method is to determine the hydrodynamic forces on a series of $M$ heaving surface-piercing compound annular cylinders, 
-as shown in Fig.~\ref{fig:Diagram}. 
-The internal fluid regions underneath each cylindrical ring are denoted by $i_1$, $i_2$, $\dots, i_M$. 
-Each cylindrical ring can be an independent body or rigidly fixed to any other cylindrical rings. 
-The external fluid region surrounding the body is denoted by $e$. 
-The geometry of the $m$th internal region is defined in terms of the radius $a_m$ measured from the axis of symmetry 
-and the draft $d_m$ measured from the mean free surface. 
-The origin $O$ is located at the intersection of the axis of symmetry of the body and the mean free surface of the fluid. 
-It is assumed that $a_{m+1}>a_m$ and $d_m<h$ for all $m$, where $h$ is the sea depth. 
-Note that, for large $M$, the geometry shown in Fig.~\ref{fig:Diagram} can approximate a more general heaving surface-piercing axisymmetric bodies, as we will show in Sec.~\ref{sec:slant}.
+The objective of this method is to determine the hydrodynamic forces on a series of $M$ heaving surface-piercing compound annular cylinders, as shown in Fig.~\ref{fig:Diagram}. The internal fluid regions underneath each cylindrical ring are denoted by $i_1$, $i_2$, $\dots, i_M$. Each cylindrical ring can be an independent body or rigidly fixed to any other cylindrical rings. The external fluid region surrounding the body is denoted by $e$. The geometry of the $m$th internal region is defined in terms of the radius $a_m$ measured from the axis of symmetry and the draft $d_m$ measured from the mean free surface. The origin $O$ is located at the intersection of the axis of symmetry of the body and the mean free surface of the fluid. It is assumed that $a_{m+1}>a_m$ and $d_m<h$ for all $m$, where $h$ is the sea depth. Note that, for large $M$, the geometry shown in Fig.~\ref{fig:Diagram} can approximate a more general heaving surface-piercing axisymmetric bodies, as we will show in Sec.~\ref{sec:slant}.
 
 \begin{figure}[htbp]
     \centering
@@ -122,70 +113,21 @@ Note that, for large $M$, the geometry shown in Fig.~\ref{fig:Diagram} can appro
     \label{fig:Diagram}
 \end{figure} 
 
-To model the fluid in the internal and external regions, linear potential flow theory is used. 
-The fluid is assumed to be inviscid, irrotational, and incompressible. 
-Additionally, the body motion is assumed to be small, and the ratio between the wave amplitude and wavelength is assumed to be less than unity [\cite{mei2005theory}]. 
-With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \Phi_\mathrm{T}(\mathbf{x},t)=0$, where the fluid velocity is $\mathbf{v} = \nabla \Phi_\mathrm{T}(\mathbf{x},t)$. 
-The potential function $\Phi_\mathrm{T}$ is both a function of spatial coordinates $\mathbf{x}$ and time $t$. 
-Since only axisymmetric bodies are modeled in this work, the cylindrical coordinate system 
-$\mathbf{x}=(r, \theta, z)$ is used, as shown in Fig.~\ref{fig:Diagram}. 
-The spacial and temporal dependencies can be separated as 
-$\Phi_\mathrm{T}(\mathbf{x},t) = \mathrm{Re} \{ \phi_\mathrm{T}(\mathbf{x})e^{-i \omega t}\}$, 
-where $\phi_\mathrm{T} \in \mathbb{C}$ 
-and $\omega$ is the angular frequency of the incident wave. 
+To model the fluid in the internal and external regions, linear potential flow theory is used. The fluid is assumed to be inviscid, irrotational, and incompressible. Additionally, the body motion is assumed to be small, and the ratio between the wave amplitude and wavelength is assumed to be less than unity [\cite{mei2005theory}]. With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \Phi_\mathrm{T}(\mathbf{x},t)=0$, where the fluid velocity is $\mathbf{v} = \nabla \Phi_\mathrm{T}(\mathbf{x},t)$. The potential function $\Phi_\mathrm{T}$ is both a function of spatial coordinates $\mathbf{x}$ and time $t$. Since only axisymmetric bodies are modeled in this work, the cylindrical coordinate system $\mathbf{x}=(r, \theta, z)$ is used, as shown in Fig.~\ref{fig:Diagram}. The spacial and temporal dependencies can be separated as $\Phi_\mathrm{T}(\mathbf{x},t) = \mathrm{Re} \{ \phi_\mathrm{T}(\mathbf{x})e^{-i \omega t}\}$, where $\phi_\mathrm{T} \in \mathbb{C}$ and $\omega$ is the angular frequency of the incident wave. 
 
-The total complex potential $\phi_\mathrm{T}$ can be written as 
-the superposition of the incident $\phi_\mathrm{I}$, 
-diffracted (or scattered) $\phi_\mathrm{D}$, 
-and radiated $\phi_\mathrm{R}$ potentials. 
-The incident wave potential for a regular wave propagating in a direction at an angle $\beta$ from the x-axis is
+The total complex potential $\phi_\mathrm{T}$ can be written as the superposition of the incident $\phi_\mathrm{I}$, diffracted (or scattered) $\phi_\mathrm{D}$, and radiated $\phi_\mathrm{R}$ potentials. The incident wave potential for a regular wave propagating in a direction at an angle $\beta$ from the x-axis is
 \begin{equation}
-    \phi_\mathrm{I} = -i \frac{g A}{\omega} 
-                         \frac{\cosh \lambda_0^e (z+h)}{\cosh \lambda_0^e h}  
-                         e^{i\lambda_0^er\cos(\theta- \beta)}
+    \phi_\mathrm{I} = -i \frac{g A}{\omega} \frac{\cosh \lambda_0^e (z+h)}{\cosh \lambda_0^e h}  e^{i\lambda_0^er\cos(\theta- \beta)}
 \end{equation}
-where $g$ is the acceleration due to gravity, 
-$A$ is the wave amplitude, 
-$\omega$ is the angular wave frequency, 
-$\lambda_0^e$ is the wave number, and $h$ is the water depth~\cite{chatzigeorgiou2018analytical}. 
-The angle $\beta$ is set to zero without loss of generality, 
-as the hydrodynamic forces are invariant with the incident wave direction for axisymmetric bodies restricted to heave motion exclusively. 
+where $g$ is the acceleration due to gravity, $A$ is the wave amplitude, $\omega$ is the angular wave frequency, $\lambda_0^e$ is the wave number, and $h$ is the water depth~\cite{chatzigeorgiou2018analytical}. The angle $\beta$ is set to zero without loss of generality, as the hydrodynamic forces are invariant with the incident wave direction for axisymmetric bodies restricted to heave motion exclusively. 
 
-The diffracted and radiated wave potentials can be solved by finding velocity potentials that satisfy the boundary conditions on the wetted surface of the body. 
-However, to find the hydrodynamic forces on the floating body, only the incident and radiated potential are needed, as explained in Sec.~\ref{Hydrodynamic Forces}. 
-Thus, the main focus of Sec.~\ref{Matching Across Fluid Boundaries} and~\ref{Block Matrix Structure} is solving the radiation problem. 
-For simplicity, $\phi$ is used throughout the rest of this work 
-to denote the complex radiated potential instead of $\phi_\mathrm{R}$. 
+The diffracted and radiated wave potentials can be solved by finding velocity potentials that satisfy the boundary conditions on the wetted surface of the body. However, to find the hydrodynamic forces on the floating body, only the incident and radiated potential are needed, as explained in Sec.~\ref{Hydrodynamic Forces}. Thus, the main focus of Sec.~\ref{Matching Across Fluid Boundaries} and~\ref{Block Matrix Structure} is solving the radiation problem. For simplicity, $\phi$ is used throughout the rest of this work to denote the complex radiated potential instead of $\phi_\mathrm{R}$. 
 
-To solve the radiation problem, the radiated potential $\phi$ is defined separately 
-for the internal and external regions as $\phi^{i_m}$ and $\phi^{e}$, respectively. 
-The velocity potentials must satisfy the Laplace equation and boundary conditions 
-on the sea floor, wetted surface of the bodies, and free surface. 
-The velocity potential in the interior regions can be written as the superposition 
-of a homogeneous part $\phi^{i_m}_\mathrm{h}$, which corresponds to the body in region $m$ being fixed, 
-and a particular part $\phi^{i_m}_\mathrm{p}$, which corresponds to the body in region $m$ heaving with unit amplitude velocity. 
-The total velocity potential in the $m$th region is 
-$\phi^{i_m}= \phi^{i_m}_\mathrm{h} + \phi^{i_m}_\mathrm{p}$. 
-The velocity potentials can be written as a product of eigenfunctions 
-$\phi (r, \theta, z)= R(r)\Theta(\theta)Z(z)$, 
-and the Laplace equation can be solved using separation of variables. 
-The details of this are discussed in Appendix~\ref{appA}.
+To solve the radiation problem, the radiated potential $\phi$ is defined separately for the internal and external regions as $\phi^{i_m}$ and $\phi^{e}$, respectively. The velocity potentials must satisfy the Laplace equation and boundary conditions on the sea floor, wetted surface of the bodies, and free surface. The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\phi^{i_m}_\mathrm{h}$, which corresponds to the body in region $m$ being fixed, and a particular part $\phi^{i_m}_\mathrm{p}$, which corresponds to the body in region $m$ heaving with unit amplitude velocity. The total velocity potential in the $m$th region is $\phi^{i_m}= \phi^{i_m}_\mathrm{h} + \phi^{i_m}_\mathrm{p}$. The velocity potentials can be written as a product of eigenfunctions $\phi (r, \theta, z)= R(r)\Theta(\theta)Z(z)$, and the Laplace equation can be solved using separation of variables. The details of this are discussed in Appendix~\ref{appA}.
 
-The corresponding functions for the velocity potential, eigenfunctions, and eigenvalues 
-are summarized in Table~\ref{tab:MEEM-eigenfunctions}. 
-These solutions are chosen since they satisfy Eq.~\ref{Laplace equation internal region}-\ref{eq:R-ODE} for their corresponding region. 
-Note that, when modeling a set of cylindrical rings heaving while all other rings are fixed, 
-$\phi^{i_m}_\mathrm{p}$ will only be non-zero in the heaving regions. 
-This is indicated by the separate cases of the particular potentials shown in Table~\ref{tab:MEEM-eigenfunctions}. 
-$\textrm{I}_0$, $\textrm{K}_0$, and $\textrm{H}_0^1$ 
-are the zeroth-order modified Bessel function of the first kind, modified Bessel function of the second kind, and Hankel function of the first kind, respectively. 
-The expression for $N_{n_e}$ is defined in Appendix~\ref{appA}. 
+The corresponding functions for the velocity potential, eigenfunctions, and eigenvalues are summarized in Table~\ref{tab:MEEM-eigenfunctions}. These solutions are chosen since they satisfy Eq.~\ref{Laplace equation internal region}-\ref{eq:R-ODE} for their corresponding region. Note that, when modeling a set of cylindrical rings heaving while all other rings are fixed, $\phi^{i_m}_\mathrm{p}$ will only be non-zero in the heaving regions. This is indicated by the separate cases of the particular potentials shown in Table~\ref{tab:MEEM-eigenfunctions}. $\textrm{I}_0$, $\textrm{K}_0$, and $\textrm{H}_0^1$ are the zeroth-order modified Bessel function of the first kind, modified Bessel function of the second kind, and Hankel function of the first kind, respectively. The expression for $N_{n_e}$ is defined in Appendix~\ref{appA}. 
 
-As shown in Table~\ref{tab:MEEM-eigenfunctions}, when specifying the frequency $\omega$ and geometry of the cylindrical rings, 
-the eigencoefficients in the series representation of the homogeneous potentials are the only quantities left to be determined. 
-Note that the exact solutions of the homogeneous potentials are infinite series. 
-However, in practice, the infinite series are truncated as indicated 
-by $N^{i_m}$ and $N^{e}$ in Table~\ref{tab:MEEM-eigenfunctions}.  
+As shown in Table~\ref{tab:MEEM-eigenfunctions}, when specifying the frequency $\omega$ and geometry of the cylindrical rings, the eigencoefficients in the series representation of the homogeneous potentials are the only quantities left to be determined. Note that the exact solutions of the homogeneous potentials are infinite series. However, in practice, the infinite series are truncated as indicated by $N^{i_m}$ and $N^{e}$ in Table~\ref{tab:MEEM-eigenfunctions}.  
 
 \begin{landscape}
 \begin{table}
@@ -240,19 +182,15 @@ For a geometry with $M$ internal regions (and one external region), there are $M
     \label{fig:Matching Diagram}
 \end{figure} The two fluid regions will be defined as the taller $\mathrm{t}$ and shorter $\mathrm{s}$ fluid regions. When considering the vertical boundary dividing the two regions at $r=a$, there are three different conditions to enforce: 1) the value of the velocity potentials at fluid-fluid boundaries are equal
 \begin{equation}\label{potential matching}
-    \phi^\mathrm{t}(a,z)=\phi^\mathrm{s}(a,z) 
-    \text{ for } -h \le z \le -d_\mathrm{s},
+    \phi^\mathrm{t}(a,z)=\phi^\mathrm{s}(a,z) \text{ for } -h \le z \le -d_\mathrm{s},
 \end{equation}
 2) the radial fluid velocities at the fluid-fluid boundary are equal
 \begin{equation}\label{velocity matching}
-    \frac{\partial \phi^\mathrm{s}}{\partial r}(a,z)
-    =\frac{\partial \phi^\mathrm{t}}{\partial r}(a,z) 
-    \text{ for } -h \le z \le -d_\mathrm{s},
+    \frac{\partial \phi^\mathrm{s}}{\partial r}(a,z)=\frac{\partial \phi^\mathrm{t}}{\partial r}(a,z) \text{ for } -h \le z \le -d_\mathrm{s},
 \end{equation}
 and 3) the radial fluid velocity at the body-fluid boundary is zero
 \begin{equation}\label{no radial velocity}
-    \frac{\partial \phi^\mathrm{t}}{\partial r}(a,z)=0 
-    \text{ for } -d_\mathrm{s} \le z \le -d_\mathrm{t}.
+    \frac{\partial \phi^\mathrm{t}}{\partial r}(a,z)=0 \text{ for } -d_\mathrm{s} \le z \le -d_\mathrm{t}.
 \end{equation}
 \noindent Using Eq.~\ref{potential matching}-\ref{no radial velocity}, the eigenfunctions in Table~\ref{tab:MEEM-eigenfunctions}, and the properties of orthogonality, a system of linear algebraic equations can be derived in terms of the eigencoefficients. The details of this process are discussed in Appendix~\ref{appB}.  
 
@@ -270,16 +208,12 @@ This is consistent with what is shown in Table~\ref{tab:MEEM-A-matrix}. Tables~\
     0 & \text{Body in region $i_m$ fixed} 
     \end{matrix}.\right.
 \end{equation}
-Additionally, each sub-matrix $\mathbf{A}_m$ can be broken into 
-a matrix dependent on radial eigenfunctions $\mathbf{A}_{m,r}$ 
+Additionally, each sub-matrix $\mathbf{A}_m$ can be broken into a matrix dependent on radial eigenfunctions $\mathbf{A}_{m,r}$ 
 and a matrix dependent on vertical eigenfunctions $ \mathbf{A}_{m,z}$, 
-where $\mathbf{A}_m = \mathbf{A}_{m,r} \odot \mathbf{A}_{m,z}$, 
-as shown in Appendix~\ref{sec:Forms of Matrix A}.
+where $\mathbf{A}_m = \mathbf{A}_{m,r} \odot \mathbf{A}_{m,z}$, as shown in Appendix~\ref{sec:Forms of Matrix A}.
 
-After constructing the $\mathbf{A}$ matrix and $\vec{b}$ vector 
-that correspond to the problem's geometry and wave conditions, 
-numerically solving the $\mathbf{A} \vec{x}=\vec{b}$ 
-equation yields the unknown eigencoefficients $\vec{x}$, 
+After constructing the $\mathbf{A}$ matrix and $\vec{b}$ vector that correspond to the problem's geometry and wave conditions, 
+numerically solving the $\mathbf{A} \vec{x}=\vec{b}$ equation yields the unknown eigencoefficients $\vec{x}$, 
 which can be substituted into the expressions of Table~\ref{tab:MEEM-eigenfunctions} 
 to yield the velocity potential everywhere in the fluid.
 The potential can then be used to find the hydrodynamic forces on the body.
