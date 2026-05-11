@@ -13,6 +13,12 @@ from scipy.optimize import curve_fit, least_squares
 
 
 import sys
+from pathlib import Path
+HERE = Path.cwd().resolve()
+condensed_path_str = str((HERE / ".." ).resolve())
+if condensed_path_str not in sys.path:
+  sys.path.insert(0, condensed_path_str)
+
 import os
 sys.path.append(os.path.relpath('../../'))
 from multi_condensed import Problem
