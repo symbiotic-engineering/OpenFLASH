@@ -52,6 +52,16 @@ pipeline:
         - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
         - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
         - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
+    convergence-figs:
+      kind: jupyter-notebook
+      notebook_path: analysis/convergence-results.ipynb
+      environment: openflash-on-branch
+      inputs:
+        - sea-lab-utils
+      outputs:
+        - pubs/JFM/figs/alpha-beta-explanation.pdf
+        - pubs/JFM/figs/alpha-beta-to-trend.pdf
+        - pubs/JFM/figs/convergence-fit-assessment.pdf
     sparsity-figs:
       kind: jupyter-notebook
       notebook_path: analysis/sparsity_plots.ipynb

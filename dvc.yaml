@@ -70,6 +70,23 @@ stages:
           cache: true
     desc: Automatically generated from the 'timing-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
+  convergence-figs:
+    cmd: calkit nb execute --environment openflash-on-branch 
+      --no-check --to html "analysis/convergence-results.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
+      - sea-lab-utils
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - pubs/JFM/figs/alpha-beta-explanation.pdf
+      - pubs/JFM/figs/alpha-beta-to-trend.pdf
+      - pubs/JFM/figs/convergence-fit-assessment.pdf
+      - .calkit/notebooks/executed/analysis/convergence-results.ipynb:
+          cache: true
+      - .calkit/notebooks/html/analysis/convergence-results.html:
+          cache: true
+    desc: Automatically generated from the 'convergence-figs' stage in
+      calkit.yaml. Changes made here will be overwritten.
   sparsity-figs:
     cmd: calkit nb execute --environment openflash-on-main --no-check 
       --to html "analysis/sparsity_plots.ipynb"

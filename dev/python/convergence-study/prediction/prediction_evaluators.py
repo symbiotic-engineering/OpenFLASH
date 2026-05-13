@@ -48,12 +48,10 @@ def filter_one_convergence_plus(cf, plus):
     cf[m0]["dps"] = cf[m0]["dps"][:cutoff_dp]
   return cf
 
-# NEED EXTERIOR
 innermost_vars_cf = lambda cf, m0 : innermost_vars(cf["h"], cf["d"], cf["a"], m0)
 middle_vars_cf = lambda cf, m0, region = 1 : middle_vars(cf["h"], cf["d"], cf["a"], m0, region)
 outermost_vars_cf = lambda cf, m0 : outermost_vars(cf["h"], cf["d"], cf["a"], m0)
 exterior_vars_cf = lambda cf, m0 : exterior_vars(cf["h"], cf["d"], cf["a"], m0)
-# NEED EXTERIOR
 
 def variables_guess_variants(model, region_type, *params):
   inner_model, variables_used, guess = model(*params)
