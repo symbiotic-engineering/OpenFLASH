@@ -16,7 +16,9 @@
 \lefttitle{Y. Bimali, R. McCabe, C. Treacy, K. Khanal, E. Lo,  and M. N. Haji}
 \righttitle{Journal of Fluid Mechanics}
 
-\title{Numerics of the matched eigenfunction method for computing wave forces on concentric bodies}
+%\title{Numerics of the matched eigenfunction method for computing wave forces on concentric bodies}
+% accuracy-runtime tradeoff
+\title{Matrix structure and convergence behavior of the matched eigenfunction method for computing heave wave forces on generalized concentric bodies}
 
 % Numerics of using matched eigenfunction expansions to compute wave forces on concentric bodies
 
@@ -42,14 +44,20 @@ Maha Haji\aff{3}}
 \begin{document}
 \maketitle
 \begin{abstract}Structural survival of offshore structures is crucial for the growing marine economy.
-Calculating the added mass, radiation damping, and excitation coefficients to quantify wave loads with the traditional boundary element method (BEM) presents a computational bottleneck. The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. However, previous work fails to directly compare its accuracy and computational performance with BEM, leaving the extent of its usefulness unknown. Furthermore, the geometry-dependent convergence and angle-dependent discretization of slanted geometries have not yet been documented, making the method’s accuracy and ability to model more general geometries unclear. 
-This paper presents a unifying matrix-based MEEM framework for modeling an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous and radially-monotonic body profiles
+Calculating the added mass, radiation damping, and excitation coefficients to quantify wave loads with the traditional boundary element method (BEM) presents a computational bottleneck. 
+The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. 
+However, previous work fails to directly compare its accuracy and computational performance with BEM, leaving the extent of its utility unknown. 
+Furthermore, the geometry-dependent convergence for cylindrical and slanted geometries has not yet been documented, making the method’s practicality for general geometries unclear. 
+This paper presents a unifying MEEM framework for modeling an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous and radially-monotonic body profiles,
 %split here
-, and explores the method’s convergence behavior, ability to accurately approximate slanted geometries, and computational advantages over the BEM solver Capytaine. 
-The numerical experiments show that with sufficient discretization, MEEM can compute hydrodynamic coefficients of slanted geometries within 5\% of Capytaine, even for angles as steep as $15^\circ$ from vertical.
+and explores the method’s block matrix structure, convergence behavior, ability to accurately approximate slanted geometries, and computational advantages over the BEM solver Capytaine. 
+The numerical experiments show that %with sufficient discretization, 
+MEEM can compute hydrodynamic coefficients of slanted geometries within 5\% of Capytaine, even for angles as steep as $15^\circ$ from vertical.
 %but requires finer discretizations for steeper slant angles. 
 % linear relation between # subdivisions and relative accuracy, with a slope that depends on the steepness
-Finally, due to its rapid convergence behavior, MEEM can achieve 2\% convergence of its hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers. These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
+Finally, %due to its rapid convergence behavior, 
+MEEM can achieve 2\% convergence of its hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers.
+These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
 
 % Structural survival of offshore structures is important for the growing marine economy.
 % Calculating the added mass, damping, and excitation coefficients to quantify wave loads with the traditional boundary element method presents a computational bottleneck.
@@ -64,7 +72,7 @@ Finally, due to its rapid convergence behavior, MEEM can achieve 2\% convergence
 
 
 
-Full author instructions can be found on the \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions}{JFM website}. All papers should feature a single-paragraph abstract of no more than 250 words which must not spill onto the second page of the manuscript.
+%Full author instructions can be found on the \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions}{JFM website}. All papers should feature a single-paragraph abstract of no more than 250 words which must not spill onto the second page of the manuscript.
 \end{abstract}
 
 \begin{keywords}
@@ -141,6 +149,8 @@ With these assumptions, the Navier-Stokes equations simplify to the Laplace equa
 The potential function $\Phi_\mathrm{T}$ is both a function of spatial coordinates $\mathbf{x}$ and time $t$. 
 Since only heaving vertically axisymmetric bodies are modeled in this work, the cylindrical coordinate system 
 $\mathbf{x}=(r, \theta, z)$ is used, as shown in Fig.~\ref{fig:Diagram}. 
+Specifically, the body profile of radius versus depth must be continuous and monotonic,
+which excludes cases where the bottom of a fluid region touches a body.
 The spacial and temporal dependencies can be separated as 
 $\Phi_\mathrm{T}(\mathbf{x},t) = \mathrm{Re} \{ \phi_\mathrm{T}(\mathbf{x})e^{-i \omega t}\}$, 
 where $\phi_\mathrm{T} \in \mathbb{C}$ 
@@ -193,8 +203,9 @@ $\textrm{I}_0$, $\textrm{K}_0$, and $\textrm{H}_0^1$
 are the zeroth-order modified Bessel function of the first kind, modified Bessel function of the second kind, and Hankel function of the first kind, respectively. 
 The expression for $N_{n_e}$ is defined in Appendix~\ref{appA}. 
 
-As shown in Table~\ref{tab:MEEM-eigenfunctions}, when specifying the frequency $\omega$ and geometry of the cylindrical rings, 
-the eigencoefficients in the series representation of the homogeneous potentials are the only quantities left to be determined. While the exact solutions of the homogeneous potentials are an infinite series, in practice the series are truncated as indicated 
+As Table~\ref{tab:MEEM-eigenfunctions} shows, after specifying the frequency $\omega$ and geometry of the cylindrical rings, 
+the only quantities left unknown are the eigencoefficients in the series representation of the homogeneous potentials. 
+While the exact solutions of the homogeneous potentials are infinite series, in practice the series are truncated as indicated 
 by $N^{i_m}$ and $N^{e}$ in Table~\ref{tab:MEEM-eigenfunctions}.  
 
 \begin{landscape}
@@ -1014,7 +1025,7 @@ $\beta_A^{i_{2 \leq m < M}}$\
 &$p = \frac{h}{h-d_M}$
 &$p = \frac{h-d_{M-1}}{h-d_M}$
 &$p = \frac{a_M - a_{M-1}}{a_{M-1}}$
-&$p = m_0 h$\\
+&$p = \lambda_0^e h$\\
 \hline
 $\alpha_A^{i_M}$
 & $c_1\ln(p + c_2) + c_3$
@@ -1388,7 +1399,12 @@ For geometries that MEEM represents exactly, it tends to converge faster than Ca
 This work generalizes the matched eigenfunction expansion method (MEEM) for computing the hydrodynamic forces on an arbitrary number of heaving surface-piercing axisymmetric geometries under linear potential flow theory. The method consists of separating the fluid domain into cylindrical regions, defining the velocity potential in each region in terms of eigenfunctions and unknown eigencoefficients, and using boundary conditions and orthogonality to derive a system of linear algebraic equations, which can be organized into a matrix structure. This new extension overviews the undocumented accuracy, convergence, and runtime of the method. Furthermore, the ability of this method to be used to approximate the hydrodynamic forces on geometries with slants is discussed. This is done by subdividing slanted regions into cylindrical regions that can be modeled through MEEM. We have found that, while the velocity potential computed from MEEM may have inaccuracies locally, the hydrodynamic coefficients can be computed with less than 5\% error. Additionally, geometries with steeper slants require more subdivisions for MEEM to achieve accurate results. When compared against the boundary element method (BEM) solver Capytaine, MEEM is able to achieve 2\% convergence in both hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers. Such an advantage can have significant implications for the design optimization of marine structures, especially in situations when the hydrodynamic model is the bottleneck of the simulation model. 
 
 
-Further generalizations should be the focus of future work on this method. While only heaving motions are considered in this work, this MEEM framework should be extended to other degrees-of freedom. Additionally, this work should be extended to geometries with submerged bodies, as in the case of damping plates, or bodies of non-concentric cylinders, such as the OC4 semisubmersible floating offshore wind turbine. Fewer geometric restrictions may be obtained if a unifying solving process is developed in other coordinate systems, such as Cartesian, elliptical, and spherical. These should be compared against traditional BEM solvers to further evaluate their accuracy and computation time. Finally, automatic differentiation should be used with MEEM to enable scalable gradient-based optimization of marine structures.
+Further generalizations should be the focus of future work on this method. While only heaving motions are considered in this work, this MEEM framework should be extended to other degrees-of freedom. 
+Additionally, this work should be extended to geometries with bodies for which the radius varies non-monotonically with depth, as in the case of damping plates, and bodies with discontinuous profiles creating so-called ``moon-pools.''
+Further generalization could explore bodies of non-concentric cylinders, such as the OC4 semisubmersible floating offshore wind turbine. 
+Fewer geometric restrictions may be obtained if a unifying solving process is developed in other coordinate systems, such as Cartesian, elliptical, and spherical. 
+These should be compared against traditional BEM solvers to further evaluate their accuracy and computation time. 
+Finally, automatic differentiation should be used with MEEM to enable scalable gradient-based optimization of marine structures.
 
 % future work
 % - extension to more region types to support damping plates and other geometries
