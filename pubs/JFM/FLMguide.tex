@@ -909,7 +909,7 @@ This study made two major simplifying assumptions about the behavior of the conv
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\linewidth]{figs/alpha-beta-explain-placeholder.jpg}
+    \includegraphics[width=0.9\linewidth]{figs/alpha-beta-explanation.pdf}
     \caption{show the regular and log error plot and explain what alpha and beta mean. Convergence is faster with larger $\alpha$ and smaller $\beta$. }
     \label{fig:error-model}
 \end{figure}
@@ -945,7 +945,7 @@ To find the dependence of $\alpha$ and $\beta$ on geometry, we considered config
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{figs/choosing-fitting-functions-placeholder.jpg}
+    \includegraphics[width=0.9\linewidth]{figs/alpha-beta-to-trend.pdf}
     \caption{Process of choosing fitting functions. More flowchart-style to show sequence of events.}
     \label{fig:choosing-fitting-functions}
 \end{figure}
@@ -964,18 +964,104 @@ Especially in the case the outer neighboring region the, the impact of fluid hei
 
 [wavenumber * height]
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\linewidth]{figs/final-fitting-functions-placeholder.jpg}
+\begin{table}
+\centering \begin{tabular}{|c|c|c|c|}
+\hline
+&$p = \frac{h-d_m}{a_m - a_{m-1}}$
+&$p = \frac{h-d_{m+1}}{h-d_m}$
+&$p = \frac{h-d_{m-1}}{h-d_m}$\\
+\hline
+$\alpha_A^{i_{m=1}}$
+& $c_1\ln(p + c_2) + c_3$
+& $\begin{cases}
+    c_1, & p < 1\\
+    c_2, & p \geq 1
+\end{cases}$ & N/A\\
+\hline
+$\beta_A^{i_{m=1}}$
+& $c_1\cdot p$
+& $\begin{cases}
+    \frac{c_1}{1 + e^{-c_2(p-1)}} + c_3, & p < 1\\
+    c_4, & p \geq 1
+\end{cases}$
+& N/A\\
+\hline
+$\alpha_A^{i_{2 \leq m < M}}$
+& $c_1\ln(p + c_2) + c_3$
+& $\begin{cases}
+    c_1, &p < 1\\
+    c_2, &p \geq 1
+\end{cases}$
+& $\begin{cases}
+    c_1, &p < 1\\
+    c_2, &p \geq 1
+\end{cases}$ \\
+\hline
+$\beta_A^{i_{2 \leq m < M}}$\
+& $c_1\cdot p$
+& $\begin{cases}
+    \frac{c_1}{1 + e^{-c_2(p-1)}} + c_3, & p < 1\\
+    c_4, & p \geq 1
+\end{cases}$
+& $\begin{cases}
+    c_1, &p < 1\\
+    c_2, &p \geq 1
+\end{cases}$\\
+\hline
+\end{tabular}
+\begin{tabular}{|c|c|c|c|c|c|}\hline
+&$p = \frac{h-d_M}{a_M - a_{M-1}}$
+&$p = \frac{h}{h-d_M}$
+&$p = \frac{h-d_{M-1}}{h-d_M}$
+&$p = \frac{a_M - a_{M-1}}{a_{M-1}}$
+&$p = m_0 h$\\
+\hline
+$\alpha_A^{i_M}$
+& $c_1\ln(p + c_2) + c_3$
+& $c_1\ln(p + c_2) + c_3$
+& $\begin{cases}
+    c_1, & p < 1\\
+    c_2, & p \geq 1
+\end{cases}$
+& Independent
+& Independent\\
+\hline
+$\beta_A^{i_M}$
+& $c_1\cdot p$
+& $c_1\ln(p + c_2) + c_3$
+& $\begin{cases}
+    c_1, & p < 1\\
+    c_2, & p \geq 1
+\end{cases}$
+& $c_1\cdot p + c_2$
+& Independent\\
+\hline
+$\alpha_B^{i_M}$
+& Independent
+& $c_1\ln(p + c_2) + c_3$
+& Independent
+& Independent
+& $c_1e^{-c_2p} + c_3$\\
+\hline
+$\beta_B^{i_M}$\
+& $c_1\cdot p + c_2$
+& $c_1e^{-c_2p}$
+& Independent
+& Independent
+& $\begin{cases}
+    c_1 \frac{p}{\sqrt 5}, & p < 5\\
+    c_1 \sqrt p, & p \geq 5
+\end{cases}$\\
+\hline
+\end{tabular}
     \caption{Table-like figure with images of dependencies. Differentiate between inapplicable (e.g. neighbor required for formula doesn't exist) and independent (plottable but no relation) for unplotted boxes. Separate for added mass and damping (likely ignore damping in interior regions for time). Only some examples will actually be plotted, most dependencies will just be formulas (or independent/inapplicable).}
-    \label{fig:final-fitting-functions}
-\end{figure}
+    \label{fig:final-fitting-functions}\end{table}
 
 \subsection{Assessment}
 [Verification results, accuracy discussion, recommendations meanings, limitation.]
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{example-image-a}
+    \includegraphics[width=0.9\linewidth]{figs/convergence-fit-assessment.pdf}
     \caption{Randomly generate geometries (explain randomness formula in text), find limiting hydro coeffs, predict NMK/region for 1 percent error with fitted functions, plot box and whiskers of actual percent off and actual NMK needed. Perhaps separate into shielded and unshielded inner regions, and data sets with 4 rather than 3 body regions.}
     \label{fig:placeholder}
 \end{figure}
@@ -1024,7 +1110,7 @@ When modeling a slanted geometry as a discretized one using MEEM, inaccuracies c
 
 Instead of altering the MEEM procedure for slanted geometries, the same procedure can be used for modeling slanted geometries with the assumption that, as the number of subdivisions increases, the discretized geometry approaches the true geometry, and, consequently, inaccuracies in the hydrodynamic coefficients diminish. Thus, a proper choice of the number of subdivisions is required to mitigate these inaccuracies.
 
-\subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using MEEM may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally. Fig~\ref{fig:contour potential comparison plots} (a) and (b) show the real value and error in the real value of the radiated velocity potential for a discretized body (modeled with MEEM) relative to a slanted body (modeled with Capytaine). There is an overall trend of error moving from positive to negative as the depth becomes shallower. Fig~\ref{fig:contour potential comparison plots} (c) and (d) show a more detailed view of the local behavior of the velocity potential. The contours of constant velocity potential, indicated as solid black lines in Fig~\ref{fig:contour potential comparison plots} (c), either start and end at vertical and horizontal sections of the discretized surface, or are parallel to the slant that is being approximated, indicated as dashed blue lines in Fig~\ref{fig:contour potential comparison plots} (c). Fig~\ref{fig:contour potential comparison plots} (d) shows the corresponding error in the real value of the velocity potential (relative to Capytaine). The largest positive error is within the discretized body. For each step, there is positive error on the horizontal surface and negative error on the vertical surface. 
+\subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using MEEM may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally. Fig~\ref{fig:contour potential comparison plots} (a) and (b) show the real value and error in the real value of the radiated velocity potential for a discretized body (modeled with MEEM) relative to a slanted body (modeled with Capytaine). Note the error in the hatched region in Fig~\ref{fig:contour potential comparison plots} (b) is removed as the value of the velocity potential is small in this region ($\mathrm{Re}(\phi)<0.2$). There is an overall trend of error moving from positive to negative as the depth becomes shallower. Fig~\ref{fig:contour potential comparison plots} (c) and (d) show a more detailed view of the local behavior of the velocity potential. The contours of constant velocity potential, indicated as solid black lines in Fig~\ref{fig:contour potential comparison plots} (c), either start and end at vertical and horizontal sections of the discretized surface, or are parallel to the slant that is being approximated, indicated as dashed blue lines in Fig~\ref{fig:contour potential comparison plots} (c). Fig~\ref{fig:contour potential comparison plots} (d) shows the corresponding error in the real value of the velocity potential (relative to Capytaine). The largest positive error is within the discretized body. For each step, there is positive error on the horizontal surface and negative error on the vertical surface. 
 
 If one were to consider a different integration scheme to minimize the error in the velocity potential that is used in the hydrodynamic coefficient calculations, one may seek to sample points in Fig~\ref{fig:contour potential comparison plots} (d) where error is zero, and numerically integrate over the true slant outline. However, the precise radial and vertical coordinates where the error is zero are unknown before performing the computation and comparing with a BEM solver. A different option is to systematically sample the velocity potential at spatial points that are determined by the slant and discretized geometries. For example, one could sample the velocity potential at locations where the slant surface intersects with the discretized surface. These points are indicated in Fig~\ref{fig:contour potential comparison plots} (c-e) with dots and diamonds for points sampled along the vertical and horizontal surfaces, respectively. Fig~\ref{fig:contour potential comparison plots} (e) shows the error in the real and imaginary parts of the velocity potential along the slant and stepped (discretized) surfaces across the entire radial width. When comparing the real parts, sampling at the horizontal surfaces leads to errors less that $3\%$, while sampling at the vertical surfaces can result in close to $4\%$ error. However, when considering the imaginary parts, sampling along the vertical surface results in less error. Still, errors will be present regardless of which of these sampling locations is chosen. While accurate hydrodynamic coefficients were obtained using the MEEM formulation discussed in Sec.~\ref{sec:mathematical-formulation}, Fig~\ref{fig:contour potential comparison plots} (c-e) show that systematic approaches for sampling the potential may be effective ways to mitigate inaccuracies and reduce the number of discretizations needed.
 
@@ -1059,9 +1145,7 @@ The CorePower-like geometry was modeled again using MEEM, where the slant angle 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/MEEM-CPT-Slant-Freq.pdf}
-    \caption{Left: Computed hydrodynamic coefficients for the CorPower-like WEC geometry with a slanted region (the slant intersects the vertical at $d=7.13$). MEEM approximates the slanted region using 30 subdivisions. Right: Geometry from left plots at $\omega = 1$. In both cases, MEEM uses $N^{i_m} = N^e = 400$ and Capytaine has $TODO$ panels.
-    % Apparent convergence to values differing from Capytaine can be for two major reasons: First, MEEM is likely not converged with respect to terms per region (computed with $N_{i_m} = 250$). Second, Capytaine may not being converged, but its error at this resolution ($\approx 6000$ panels) is likely less than $1\%$ (Section~\ref{sec:meem-cpt-timing}).
-    }
+    \caption{Left: Computed hydrodynamic coefficients for the CorPower-like WEC geometry with a slanted region (the slant intersects the vertical at $d=7.13$). MEEM approximates the slanted region using 30 subdivisions. Right: Geometry from left plots at $\omega = 1$. In both cases, MEEM uses $N^{i_m} = N^e = 400$ and Capytaine has $5940$ panels.}
     \label{fig:MEEM slant comparison}
 \end{figure} 
 
@@ -1265,7 +1349,7 @@ Coupling integrals ($\boldsymbol{\mathcal{Z}}^{i_m i_{m+1}}, \boldsymbol{\mathca
 \hline
 Bessel Functions in $\mathbf{A}$ *& $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m}) + N^e$\\
 \hline
-Matrix solve ($\mathbf{A}\vec x = \vec b$) & $(N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m}) + N^e)^3$\\
+Matrix solve ($\mathbf{A}\vec x^q = \vec b^q$) & $(N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m}) + N^e)^3$\\
 \hline
 Hydrodynamic Coefficients* & $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m})$\\
 \hline
@@ -1408,10 +1492,10 @@ The authors report no conflict of interest.
 \end{bmhead}
 
 \begin{bmhead}[Funding Information.]
-Please provide details of the sources of financial support for all authors, including grant numbers.
+Y. Bimali, ELI through the Fund for Undergraduate Research on Solutions to Climate Change, the Bill Nye ’77 Award in Undergraduate Research \& Robert A. Cowie ’55 ME; R. McCabe, NSF, Provost Fellowship, ME Fellowship; C. Treacy, Sandia LDRD; K. Khanal, Sandia Seedlings program, Sandia LDRD; E. Lo, ELI through the Dean Archer Undergraduate Research Program 
 \end{bmhead}
 
-\begin{bmhead}[Author ORCIDs.]{R. McCabe, https://orcid.org/0000-0001-5108-998X; C. Treacy, https://orcid.org/0009-0000-9381-2697}
+\begin{bmhead}[Author ORCIDs.]{R. McCabe, https://orcid.org/0000-0001-5108-998X; C. Treacy, https://orcid.org/0009-0000-9381-2697; K. Khanal, https://orcid.org/0000-0002-0327-5945; M. Haji, https://orcid.org/0000-0002-2953-7253}
 \end{bmhead}
 
 % \begin{bmhead}[Author ORCIDs.]{Authors may include the ORCID identifers as follows.  F. Smith, https://orcid.org/0000-0001-2345-6789; B. Jones, https://orcid.org/0000-0009-8765-4321}
