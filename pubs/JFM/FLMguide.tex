@@ -143,15 +143,14 @@ While this geometry may seem niche, it can be used to model more general geometr
 \end{figure} 
 
 To model the fluid in the internal and external regions, linear potential flow theory is used. 
-The fluid is assumed to be inviscid, irrotational, and incompressible. 
-Additionally, the body motion is assumed to be small, and the ratio between the wave amplitude and wavelength is assumed to be less than unity [\cite{mei2005theory}]. 
+This assumes an inviscid, irrotational, and incompressible fluid, small body motion, and a wave amplitude-to-wavelength ratio less than unity [\cite{mei2005theory}]. 
 With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \Phi_\mathrm{T}(\mathbf{x},t)=0$, where the fluid velocity is $\mathbf{v} = \nabla \Phi_\mathrm{T}(\mathbf{x},t)$. 
-The potential function $\Phi_\mathrm{T}$ is both a function of spatial coordinates $\mathbf{x}$ and time $t$. 
+The potential $\Phi_\mathrm{T}$ is a function of both time $t$ and spatial coordinates $\mathbf{x}$. 
 Since only heaving vertically axisymmetric bodies are modeled in this work, the cylindrical coordinate system 
 $\mathbf{x}=(r, \theta, z)$ is used, as shown in Fig.~\ref{fig:Diagram}. 
-Specifically, the body profile of radius versus depth must be continuous and monotonic,
+Specifically, the body's radius versus depth profile must be continuous and monotonic,
 which excludes cases where the bottom of a fluid region touches a body.
-The spacial and temporal dependencies can be separated as 
+Spatial and temporal dependencies can be separated as 
 $\Phi_\mathrm{T}(\mathbf{x},t) = \mathrm{Re} \{ \phi_\mathrm{T}(\mathbf{x})e^{-i \omega t}\}$, 
 where $\phi_\mathrm{T} \in \mathbb{C}$ 
 and $\omega$ is the angular frequency of the incident wave. 
@@ -1508,7 +1507,12 @@ The authors report no conflict of interest.
 \end{bmhead}
 
 \begin{bmhead}[Funding Information.]
-Y. Bimali, Cornell Engineering Learning Initiatives through the Fund for Undergraduate Research on Solutions to Climate Change, the Bill Nye ’77 Award in Undergraduate Research \& Robert A. Cowie ’55 ME; R. McCabe, National Science Foundation Graduate Research Fellowship Program, Cornell Provost's Diversity Fellowship, Cornell Mechanical and Aerospace Engineering McMullen Fellowship; C. Treacy, Sandia LDRD; K. Khanal, Sandia Seedlings program, Sandia LDRD; E. Lo, ELI through the Dean Archer Undergraduate Research Program 
+Y. Bimali, Cornell Engineering Learning Initiatives through the Fund for Undergraduate Research on Solutions to Climate Change, the Bill Nye ’77 Award in Undergraduate Research \& Robert A. Cowie ’55 ME;
+R. McCabe, National Science Foundation Graduate Research Fellowship Program, Cornell Provost's Diversity Fellowship, Cornell Mechanical and Aerospace Engineering McMullen Fellowship; 
+C. Treacy, Sandia LDRD; 
+K. Khanal, Sandia Seedlings program, Sandia LDRD; 
+E. Lo, Cornell Engineering Learning Initiatives through the Dean Archer Undergraduate Research Program.
+This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE–2139899. Any opinion, findings, and conclusions or recommendations expressed in this material are those of the author and do not necessarily reflect the views of the National Science Foundation.
 \end{bmhead}
 
 \begin{bmhead}[Author ORCIDs.]{R. McCabe, https://orcid.org/0000-0001-5108-998X; C. Treacy, https://orcid.org/0009-0000-9381-2697; K. Khanal, https://orcid.org/0000-0002-0327-5945; M. Haji, https://orcid.org/0000-0002-2953-7253}
