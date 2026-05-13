@@ -29,20 +29,20 @@ stages:
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 3abcbc32b2e0c6ca07fa0e3d2b6b18f1
-      size: 165067
+      md5: b3ec08875ac96f49beddae32fb984c98
+      size: 165708
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 3abcbc32b2e0c6ca07fa0e3d2b6b18f1
-      size: 165067
+      md5: b3ec08875ac96f49beddae32fb984c98
+      size: 165708
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 864be9729766edebcaa70abd1acf79ab.dir
-      size: 6645007
+      md5: 77cdda2a1e19904018567b9de5fe3346.dir
+      size: 6644728
       nfiles: 34
     - path: pubs/JFM/jfm.bib
       hash: md5
@@ -63,8 +63,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: f8e7c22b4a068eb4ecd87f0801ab3f9d
-      size: 1444380
+      md5: 5ce2b908324c01f4e50a10754b07c192
+      size: 1444195
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
@@ -295,8 +295,8 @@ stages:
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       hash: md5
-      md5: c83624c49cc59182670917065526fff4
-      size: 22443
+      md5: 3d8acfcba713200795b331612bbb3d1e
+      size: 22441
     - path: analysis/data/timing.pkl
       hash: md5
       md5: 8f44378ee5eed677e435c38ac905d0af
@@ -309,24 +309,24 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: 7d6298e031ccdb7911e275fbac2517dc
-      size: 382960
+      md5: 5cf53b3e37bcb34313df27dafe87e9a3
+      size: 383583
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
-      md5: 165b6dd2f2937ff556be3e1138cbd822
-      size: 729585
+      md5: 82797a6ad5e460be663720442521782b
+      size: 730207
     - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: 9ffeeb3d06a562296f55deed295b96a1
+      md5: 74c4b3662c74b1c27906427ea2689bcb
       size: 136509
     - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: f8ef0491baf5eeab3202bbae23cfa862
+      md5: d0358f44d4c98ed3917758c89cbed43d
       size: 104574
     - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: 4cc58e794f3aff90207a54e9b5a07f02
-      size: 137777
+      md5: e85b9f4d4b3e453d3a3b4e37047202e0
+      size: 137498
   sparsity-figs:
     cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
       "analysis/sparsity_plots.ipynb"
