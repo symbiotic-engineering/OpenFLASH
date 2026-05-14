@@ -41,8 +41,8 @@ stages:
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 1f91357c1325c88f9a0cd3664607de08.dir
-      size: 6644731
+      md5: ae33ab04bbedf52c0af0530d4b1fe6f9.dir
+      size: 6644730
       nfiles: 34
     - path: pubs/JFM/jfm.bib
       hash: md5
@@ -63,8 +63,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: f9f1eff2de0ab09930d4553baa1cd23c
-      size: 1444478
+      md5: 01d0c7784d6db9b23a2b555a3421380f
+      size: 1444474
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
@@ -184,7 +184,7 @@ stages:
       size: 5745
     - path: package/src/
       hash: md5
-      md5: 42fb8ba9e527fcbc4341906c0c9081d8.dir
+      md5: 1440cfde157b5b671f25fecf70973d2e.dir
       size: 557852
       nfiles: 51
     - path: sea-lab-utils
@@ -195,15 +195,15 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: 1632c8dc9375d1991df68022cc12ee86
-      size: 86243
+      md5: 3ebd1b4f49e6303cdbc26f2bf0c10324
+      size: 86241
     - path: .calkit/notebooks/html/analysis/low_m0_plots.html
       hash: md5
       md5: ce010ff53408f14d4195d55a034dec1d
       size: 397513
     - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: 30765fe0a0d48dbacb0aec054e971812
+      md5: 553d18737f0efcf284512f7acdb07b67
       size: 402983
   _clean-nb-slant-figs:
     cmd: calkit nb clean "analysis/slant_data_plots.ipynb"
@@ -368,7 +368,7 @@ stages:
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
       hash: md5
-      md5: 2afbe04cccd3f0a9a68a9c713e5d99f0
+      md5: 529065ba229b878493f035ea6be28113
       size: 29663
     - path: sea-lab-utils
       hash: md5
@@ -378,21 +378,21 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/convergence-results.ipynb
       hash: md5
-      md5: b5616d184246cbe5c4c12646c11b2ca2
-      size: 234981
+      md5: 481097670a64c1607dfadc364666caa9
+      size: 234942
     - path: .calkit/notebooks/html/analysis/convergence-results.html
       hash: md5
-      md5: 2f3c45dbc4cbe11cf14c9189fea62526
-      size: 615352
+      md5: 4d71cb595bfb7dd37a1efa725044ed5b
+      size: 615312
     - path: pubs/JFM/figs/alpha-beta-explanation.pdf
       hash: md5
-      md5: 64bbe1e54e439f8d5b0a23ac76c4bd15
+      md5: 331ba2f3854c0d2583ac0f5bd9177a53
       size: 380170
     - path: pubs/JFM/figs/alpha-beta-to-trend.pdf
       hash: md5
-      md5: 6f9c89e1bc67c61abd3a2238818672b5
-      size: 403021
+      md5: b40fd294ec859506d5e322fa282dee67
+      size: 403020
     - path: pubs/JFM/figs/convergence-fit-assessment.pdf
       hash: md5
-      md5: 63d712549bb0c0aa1706eb270b62d519
+      md5: 9fedd527d9e0d9a7c728765e76f0499f
       size: 209365
