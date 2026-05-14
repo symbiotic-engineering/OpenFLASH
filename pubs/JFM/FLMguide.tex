@@ -1722,6 +1722,7 @@ is an $N^\mathrm{s} \times N^\mathrm{t}$ matrix of coupling integrals; $\mathbf{
 
 
   Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} contain $N^\mathrm{s}$ and $N^\mathrm{t}$ equations, respectively. However, they have $2N^\mathrm{s} + 2N^\mathrm{t}$ unknown eigencoefficients. Recall that these equations correspond to enforcing conditions at a single boundary between fluid regions, as shown in Fig.~\ref{fig:Matching Diagram}. Section~\ref{Block Matrix Structure} shows how to organize Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} for the $M$ boundaries so that all eigencoefficients can be solved for simultaneously.
+  Because the innermost and outermost regions have just one eigenfunction instead of two and therefore half as many eigencoefficients, the full system has exactly as many equations as unknowns.
 
 Note that all coupling integrals have closed form solutions. The element in the $n_\mathrm{s}$th row and $n_\mathrm{t}$th column of the coupling integral matrix associated with matching between region $i_m$ and $i_{m+1}$ is
 
