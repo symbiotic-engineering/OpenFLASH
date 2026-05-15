@@ -99,14 +99,14 @@ Authors should not enter keywords on the manuscript, as these must be chosen by 
 % Future work will extend this formulation to different kinds of bodies and arrays.
 % end UMERC abstract
 Linear potential flow theory is a simplification of the Navier-Stokes equations widely used to model wave-structure interactions.
-Early analytical solutions for the wave force on vertical cylindrical bodies under linear potential flow include solutions for infinite cylinders in infinite depth (\cite{havelock_forces_1936}) and bottom-mounted cylinders in finite depth (\cite{fuchs_wave_1954}).
+Early analytical solutions for the wave force on vertical cylindrical bodies under linear potential flow include solutions for infinite cylinders in infinite depth \citep{havelock_forces_1936} and bottom-mounted cylinders in finite depth \citep{fuchs_wave_1954}.
 Both take advantage of the separability of the Laplace equation in cylindrical coordinates.
 Fully analytical solutions are not available for truncated cylinders (those whose bottoms do not touch the sea floor) since it is impossible to analytically enforce continuity of potential between the water under the body and the water surrounding it.
 
 \cite{yeung_added_1981} presents a semi-analytical method called the matched eigenfunction expansion method (MEEM) to address this challenge.
 The solution in each fluid region is obtained analytically in terms of unknown coefficients, and these coefficients are found numerically by enforcing continuity of potential and radial velocity at region boundaries.
-The method received thorough coverage in a recent analytical hydrodynamics textbook (\cite{chatzigeorgiou2018analytical}) and has been extended to cover increasingly complex concentric geometries, 
-including two truncated cylinders (\cite{mavrakos_hydrodynamic_2004,chau2012inertia}), three truncated cylinders (\cite{zhang_performance_2024}), damping plates (\cite{olaya_hydrodynamic_2015}), and many cylinders approximating complex concentric bodies (\cite{kokkinowrachos_behaviour_1986}).
+The method received thorough coverage in a recent analytical hydrodynamics textbook \citep{chatzigeorgiou2018analytical} and has been extended to cover increasingly complex concentric geometries, 
+including two truncated cylinders \citep{mavrakos_hydrodynamic_2004,chau2012inertia}, three truncated cylinders \citep{zhang_performance_2024}, damping plates \citep{olaya_hydrodynamic_2015}, and many cylinders approximating complex concentric bodies \citep{kokkinowrachos_behaviour_1986}.
 
 Despite this interest from hydrodynamics researchers, MEEM has not been widely adopted by the offshore engineering community, likely due to the complexity of its implementation 
 and the rise of boundary element method (BEM) software packages that are easier to use and applicable to arbitrary geometries, albeit more computationally costly.
@@ -120,7 +120,7 @@ Additionally, previous work does not directly address the convergence behavior a
 This work presents a unifying MEEM framework that arranges equations into an organized sparse matrix structure. 
 This framework is used to model an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous radially-monotonic profiles. 
 The method’s convergence behavior, ability to accurately approximate slanted bodies, and computational advantages over the BEM solver Capytaine are explored. 
-The authors build on their preliminary work (\cite{mccabe_open-source_2024}) and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \cite{best_openflash_2026}) that is used for numerical studies herein.
+The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \cite{best_openflash_2026}) that is used for numerical studies herein.
 % The lack of an accessible computational implementation, including the numerical properties and accuracy thereof, has been a barrier.
 
 Section~\ref{sec:mathematical-formulation} formulates the mathematics, unifies the aforementioned literature in a consistent notation, 
@@ -143,7 +143,7 @@ The geometry of the $m$th internal region is defined in terms of the radius $a_m
 and the draft $d_m$ measured from the mean free surface. 
 The origin $O$ is located at the intersection of the axis of symmetry of the body and the mean free surface of the fluid. 
 It is assumed that $a_{m+1}>a_m$ and $d_m<h$ for all $m$, where $h$ is the sea depth. 
-This geometry can be used to model more general geometries, such as the CorPower WEC (\cite{de2016techno}), WaveBot WEC (\cite{strofer2023control}), AquaHarmonics WEC (\cite{weaver2020super}), LUPA WEC float (\cite{beringer2025degrees}), and RM3 WEC float (\cite{neary2014methodology}), 
+This geometry can be used to model more general geometries, such as the CorPower WEC \citep{de2016techno}, WaveBot WEC \citep{strofer2023control}, AquaHarmonics WEC \citep{weaver2020super}, LUPA WEC float \citep{beringer2025degrees}, and RM3 WEC float \citep{neary2014methodology}, 
 by discretizing slanted sections into a finite number of annular cylindrical regions, as we will show in Sec.~\ref{sec:slant}. 
 \begin{figure}[htbp]
     \centering
@@ -154,7 +154,7 @@ by discretizing slanted sections into a finite number of annular cylindrical reg
 
 \subsection{Linear Hydrodynamics and Eigenfunctions}
 To model the fluid in the internal and external regions, linear potential flow theory is used. 
-This implies small body motion, an inviscid, irrotational, and incompressible fluid, and a wave amplitude-to-wavelength ratio less than unity [\cite{mei2005theory}]. 
+This implies small body motion, an inviscid, irrotational, and incompressible fluid, and a wave amplitude-to-wavelength ratio less than unity \citep{mei2005theory}. 
 With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \Phi_\mathrm{T}(\mathbf{x},t)=0$, where the fluid velocity is $\mathbf{v} = \nabla \Phi_\mathrm{T}(\mathbf{x},t)$. 
 The potential $\Phi_\mathrm{T}$ is a function of both time $t$ and spatial coordinates $\mathbf{x}$. 
 Since this work models only heaving vertically-axisymmetric bodies, the cylindrical coordinate system 
@@ -170,17 +170,17 @@ The total complex potential $\phi_\mathrm{T}$ can be written as
 the superposition of the incident $\phi_\mathrm{I}$, 
 diffracted (or scattered) $\phi_\mathrm{D}$, 
 and radiated $\phi_\mathrm{R}$ potentials. 
-The incident wave potential for a regular wave propagating at an angle $\beta$ from the x-axis is
+The incident wave potential for a regular wave propagating at an angle $\psi$ from the x-axis is
 \begin{equation}
     \phi_\mathrm{I} = -i \frac{g A}{\omega} 
                          \frac{\cosh \lambda_0^e (z+h)}{\cosh \lambda_0^e h}  
-                         e^{i\lambda_0^er\cos(\theta- \beta)}
+                         e^{i\lambda_0^er\cos(\theta- \psi)}
 \end{equation}
 where $g$ is the acceleration due to gravity, 
 $A$ is the wave amplitude, 
 $\omega$ is the angular wave frequency, 
-$\lambda_0^e$ is the wavenumber, and $h$ is the water depth~[\cite{chatzigeorgiou2018analytical}]. 
-The angle $\beta$ is set to zero without loss of generality, 
+$\lambda_0^e$ is the wavenumber, and $h$ is the water depth~\citep{chatzigeorgiou2018analytical}. 
+The angle $\psi$ is set to zero without loss of generality, 
 as the hydrodynamic forces in heave are invariant with the incident wave direction for vertically axisymmetric bodies. 
 
 The diffracted and radiated wave potentials can be solved by finding velocity potentials that satisfy the boundary conditions on the wetted surface of the body. 
@@ -317,7 +317,7 @@ The vector of unknowns has the form
 $\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^T \in \mathbb{C}^{N_\mathrm{T}}$, 
 where $\vec{C}_{\chi}^{j} = [C_{\chi1}^j, C_{\chi2}^j, ..., C_{\chi(N^j-1)}^j]$.
 Index $j\in\{i_1,i_2,...,i_M,e\}$ specifies the region and $\chi\in\{1,2\}$ specifies the eigenfunction type. 
-The column vector $\vec{b} \in \mathbb{C}^{N_\mathrm{T}}$ consists of sub-vectors $\vec{b}_m$ such that 
+The column vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ consists of sub-vectors $\vec{b}_m$ such that 
 $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. 
 Each sub-matrix $\mathbf{A}_m$ and sub-vector $\vec{b}_m$ contains information about the matching of the potential and velocity at $r=a_m$. 
 
@@ -734,7 +734,7 @@ where the element in the $p$th row and column of the diagonal matrix $\mathbf{C}
     \mathbf{B}_\mathrm{r}(\omega) = 2\pi \rho \omega \ \mathrm{Im} \{ \mathbf{C}_0 + \mathbf{C} \ \mathbf{A}^{-1} \ \mathbf{B} \}.
 \end{equation}
 
-To find the heave excitation force $X_q$ on the $q$th body due to an incident wave, a form of the Haskind relation can be used [\cite{newman2018marine}]. This was done in~\cite{chau2012inertia} and~\cite{zhang_performance_2024} for geometries with two and three internal regions, respectively. The results are the same for this configuration, as the derivation for the force on the $q$th body only involves the solution in the external region when the $q$th body is heaving. The heave excitation force on the $q$th body is
+To find the heave excitation force $X_q$ on the $q$th body due to an incident wave, a form of the Haskind relation can be used \citep{newman2018marine}. This was done in~\cite{chau2012inertia} and~\cite{zhang_performance_2024} for geometries with two and three internal regions, respectively. The results are the same for this configuration, as the derivation for the force on the $q$th body only involves the solution in the external region when the $q$th body is heaving. The heave excitation force on the $q$th body is
 \begin{equation}\label{eq:excitation force}
     X_q = \frac{-4 \text{i} \rho g h \sqrt{N_0} }{\cosh(\lambda_0^eh)\text{H}_0^1(\lambda_0^e a_M)} \ _{}^{q}C_{10}^e
 \end{equation}
@@ -889,7 +889,7 @@ However, the validation in section~\ref{sec:validation} will show that these hig
 A potential explanation is that the sparsity of the $\vec{b}$ and $\vec{c_p}$ vectors might zero contributions from amplifying portions of $\mathbf{A}$, leaving the hydrodynamic coefficients unaffected.
 
 \subsubsection{Matrix Sparsity}
-Examples of the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} are shown in Fig.~\ref{fig:sparsity}, where $M=4$ and $d_{i+1}<d_i$. The $\mathbf{A}$ matrix features a block tri-diagonal structure, which is a consequence of the ordering of the potential and velocity matching equations. Each sub-matrix within $\mathbf{A}$ features its own sparsity pattern, where some portions are completely populated, and others have multiple individual bands of elements due to the diagonal blocks in Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}. Although a standard linear solver was used in this work, the computation complexity of MEEM may be reduced further by exploiting the sparsity of $\mathbf{A}$. This is discussed further in Section~\ref{sec:compute-time}.
+Examples of the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} are shown in Fig.~\ref{fig:sparsity}, where $M=4$ and $d_{i+1}<d_i$. The $\mathbf{A}$ matrix features a block tri-diagonal structure, which is a consequence of the ordering of the potential and velocity matching equations. Each sub-matrix within $\mathbf{A}$ features its own sparsity pattern, where some portions are completely populated, and others have multiple individual bands of elements due to the diagonal blocks in Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}. Although a standard linear solver was used in this work (\texttt{scipy}'s LU decomposition), the computational complexity of MEEM may be reduced further by exploiting the sparsity of $\mathbf{A}$. This is discussed further in Section~\ref{sec:compute-time}.
 
 The $\mathbf{B}$ matrix features a sparsity pattern that is dependent on the degrees of freedom prescribed to each cylindrical ring. Finally, the sparsity pattern in the $\mathbf{C}$ matrix depends on which cylindrical rings are influenced. This is a consequence of Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec}.
 
@@ -929,12 +929,9 @@ The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation 
 
 
 \section{Convergence of Hydrodynamic Coefficients}\label{sec:convergence}
-Higher numbers of unknown coefficients 
-% $|\vec x| = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$
-$N_\mathrm{T} = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$
-require longer solve times. The goal of this convergence study was to predict from input geometry alone the number of terms $N^{i_m}$ needed per region for a desired maximum error $\epsilon$ in the hydrodynamic coefficients from their true values (the values they converge to as each $N^{i_m}, N^e \to \infty$). [TODO: Why this is useful? Avoid computing way too low, avoid computing way too high, avoid using MEEM if it's infeasible and other solvers would likely be better.]
+Characterizing the convergence behavior of numerical solvers is crucial for ensuring accuracy while avoiding unnecessarily long runtimes. For BEM solvers, a mesh convergence study is typically performed, where the number of panels is increased until a desired level of accuracy of the hydrodynamic coefficients is achieved. As the matrix size of BEM is equal to the number of panels, improving accuracy through finer meshes comes with added computational cost. In the case of MEEM, the behavior is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $N_\mathrm{T} = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$ can be increased. Furthermore, higher values of $N_\mathrm{T}$ imply larger matrix sizes, leading to longer runtime. The goal of this convergence study was to determine the number of terms $N^{i_m}$ per region needed to achieve a desired maximum error $\epsilon$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being modeled. 
 
-This study made two major simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. First, the number of terms needed in each in each region depends directly on dimensionless parameters ([TODO SECTION LINK]) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). [TODO as opposed to maybe needing to iteratively increase nmk needed in a region if its neighbors have higher nmk needed]. Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. Dependencies differ between the two hydrodynamic coefficients, so each is modeled separately with its own final $\alpha^{i_m}_A, \beta^{i_m}_A$ (added mass) or $\alpha^{i_m}_B, \beta^{i_m}_B$ (damping). Convergence is faster for larger $\alpha^{i_m}$ and smaller $\beta^{i_m}$. 
+This study made two simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. First, the number of terms needed in each region depends directly on dimensionless parameters (Sec.~\ref{sec:finding-dimensionless-parameters}) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). \textcolor{red}{[TODO as opposed to maybe needing to iteratively increase nmk needed in a region if its neighbors have higher nmk needed]}. Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. Dependencies differ between the two hydrodynamic coefficients, so each is modeled separately with its own final $\alpha^{i_m}_A, \beta^{i_m}_A$ (added mass) or $\alpha^{i_m}_B, \beta^{i_m}_B$ (damping). As the excitation force is a result of the radiation problem, due to the Haskind relation, convergence of the added mass and radiation damping was assumed to imply the convergence of the excitation force. Convergence is faster for larger $\alpha^{i_m}$ and smaller $\beta^{i_m}$. 
 
 \begin{figure}
     \centering
@@ -943,7 +940,7 @@ This study made two major simplifying assumptions about the behavior of the conv
     \label{fig:error-model}
 \end{figure}
 
-After confirming these assumptions, the main objective of the convergence study was to find the dimensionless parameters and $\alpha$ and $\beta$ as a function of them. Then the number of terms needed in each region can be predicted by taking the maximum of the number required for a converged added mass and that required for a converged radiation damping (Fig.~\ref{fig:nmk-predict-flowchart}).
+After confirming these assumptions, the main objective of the convergence study was to find key dimensionless parameters for a given problem, and find $\alpha$ and $\beta$ as a function of these dimensionless parameters. Once this analysis is complete, the number of terms needed in each region can be predicted by taking the maximum of the number required to converge added mass and radiation damping. This process is shown in Fig.~\ref{fig:nmk-predict-flowchart}.
 
 \begin{figure}
     \centering
@@ -951,26 +948,28 @@ After confirming these assumptions, the main objective of the convergence study 
     \caption{Flowchart of term count prediction. A geometry and desired error (green) are passed into the formula (blue) determined by the convergence study, producing a term count recommendation (orange).}
     \label{fig:nmk-predict-flowchart}
 \end{figure}
-
-[Section Incomplete: More cohesive conclusions needed.]
-\subsection{Influential Dimensionless Parameters}
+\subsection{Convergence Study Procedure} \label{sec:finding-dimensionless-parameters}
 % \begin{itemize}
 %     \item For cylindrical geometries without slants, discuss what dimensionless parameters have the most influence on the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence. The dimensionless parameters are $\lambda_0^eh$, $d_i/h$, $(r_{i}-r_{i-1})/h$, where $i$ indicates the region number of a multi-region geometry. Written by \textcolor{orange}{Bimali}.
 %     \item Figure showing the correlation between the number of terms needed for the hydrodynamic coefficients to reach 1\% convergence and the influential parameters. Figure made by \textcolor{orange}{Bimali}.
 % \end{itemize}
-\subsubsection{Theory \& Procedure}
 The set of dimensionless parameters that characterize a region's convergence can be divided into local and cumulative parameters. 
 Local parameters are extracted from the geometry of the region itself, such as its fluid height, radial width, or the ratio of its fluid height to those of its neighbors. 
-Cumulative parameters are overall metrics combining the geometries of other regions, such as total radial distance to the center/exterior region. 
-Neither parameter type should depend on a specific other non-neighboring region or the number of other regions, because they should be generalizable to a configuration with any number of regions. 
+Cumulative parameters are overall metrics combining the geometries of other regions, such as total radial distance from the center or exterior region. 
+Neither parameter type should depend on a specific non-neighboring region or the number of other regions, because their form should be generalizable to a configuration with any number of regions. 
 Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
-[TODO transition/section reorder?]
 
-[Data generation setup, isolating dimensionless parameters, functions fitting procedure, verification.]
+We categorized regions into four types by their local geometry: innermost ($i_1$), middle ($i_{2\leq m < M}$), outermost ($i_M$), and exterior ($e$). The local geometry of the $i$-type regions differ by region type ($r=0$, body region, or exterior region) of their inner and outer neighbors. In this study, the single cylinder case with an inner boundary of $r=0$ and outer neighbor of the exterior region was not considered. To capture these region types, the majority of configurations we generated convergence data for had three body regions and one exterior region (i.e. $M = 3$).
 
-To find the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, compute them with all $N^{k}$ ($k=i_1,...,i_M, e$) at a high number $N^{max}$ for their ``true values.'' Then, fix all $N^{k}, k\neq i_m$ to $N^{max}$, compute hydrodynamic coefficients with $N^{i_m}$ over a range of $[1, 2, \dots, N^{big}]$ where $N^{big}$ is less than $N^{max}$ by a reasonably large margin, and find the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of the hydrodynamic coefficients calculated at each $N^{i_m}$.
+To obtain numerical values for the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, they were first computed with all $N^{k}$ ($k=i_1,...,i_M, e$) at a high number $N^{max} = 200$ for their ``true values.'' Then they were recomputed with all $N^{k}, k\neq i_m$ fixed to $N^{max}$, while, for the $m$th region, which we will refer to as the target region, $N^{i_m}$ was varied over $[1, 2, \dots, N^{big}]$, where $N^{big} = 150$ was less than $N^{max}$ by a reasonably large margin. From this, the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $N^{i_m}$ was calculated.
 
-To find the dependence of $\alpha$ and $\beta$ on geometry, we considered configurations with three body regions (and one exterior region), and found a good set of dimensionless parameters. After a dominant dimensionless parameter was found, it was kept constant in the search for the next most important parameter. After a set of dimensionless parameters capturing most of the variation was found, we kept all but one constant to measure a single parameter's effect. Effects were quantified by fitting an $\alpha$ and $\beta$ value to each configuration (geometry + target region) and plotting them against the dimensionless parameter.
+We observed that for a fixed geometry, convergence is slower (1) for added mass than damping in innermost and middle regions, (2) for body regions when the targeted region is the only one heaving (as opposed to any other combination of heave states), and (3) for the exterior region when the outermost region is the only one heaving. The remainder of this convergence study is restricted to these upper bound cases. In particular, claims about a region's convergence are in the context of it being the only one heaving (for body regions) or only the outermost region heaving (for the exterior region).
+
+For each region, we began by generating convergence data for random geometries, plotting the $N^{i_m}$ of $1\%$ convergence against theorized dimensionless parameters, and identifying the one with the clearest correlation. We then fixed dominant dimensionless parameter and repeated the process to find the next most important parameter. This was repeated until a set of dimensionless parameters capturing most of the variation was found (i.e. for random geometries with all of them fixed, the set of $1\%$ convergence points had sufficiently low variance).
+
+Next, we swept each identified parameter over a range of reasonable values while keeping all other dimensionless parameters fixed. These isolated effects were quantified by plotting the $\alpha^{i_m}$ and $\beta^{i_m}$ fitted to each geometry against the dimensionless parameter. These plots suggested functional forms for the relationship between the dimensionless parameters and fit parameters (Fig.~\ref{fig:choosing-fitting-functions}).
+
+Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) were theorized and assessed by fitting them to sets of randomized geometry and their associated $(N^{i_m}, \epsilon)$ pairs. Functions explored had to remain positive on the domain of the dimensionless parameter, restricting their form. For example, some relationships appeared nearly linear with negative slope on the range of the dimensionless parameter they were observed at, but were expressed as decaying exponentials to avoid straying below zero.
 
 \begin{figure}
     \centering
@@ -980,18 +979,16 @@ To find the dependence of $\alpha$ and $\beta$ on geometry, we considered config
 \end{figure}
 
 \subsection{Final Models}
-[Dimensionless parameters found, interpretations, approximations/ignoring dependencies to defer to overestimates like not calculating damping or shielding, actual functions.]
+%Cite table, explain spatial frequency of detail vs resolving frequency
+The most influential dimensionless parameter for the convergence of body region $i_m$ is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. The characteristic length of an eigenfunction is the inverse of its eigenvalue. Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width.
 
-The most influential dimensionless parameter for the convergence of body region $i_m$ is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. The characteristic length of an eigenfunction is the inverse of its eigenvalue. Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width. 
+The other notable local parameter is the ratio of region's neighbor's fluid heights to that of its own. We observed that convergence is significantly faster for region $i_m$ when $\frac{h-d_{m-1}}{h-d_m} < 1$ than when it's greater than $1$. The convergence speed changes quickly (almost step-like) near $1$. The trend is the same for $\frac{h-d_{m+1}}{h-d_m}$.
 
-The ratio of region's neighbor's fluid heights to that of its own also influences convergence. We observed that convergence is significantly faster for region $m$ when $\frac{h-d_{m-1}}{h-d_m} > 1$ than when it's less than $1$. There is some correlation before and after this transition point, but the convergence speed changes quickly (almost step-like) near $1$. The behavior is the same for $\frac{h-d_{m+1}}{h-d_m}$.
+This is theorized to result from the boundary condition represented by the ratio. If $\frac{h-d_{m-1}}{h-d_m} < 1$, then region $m$'s entire inner boundary condition is the continuity conditions between regions $m$ and $m-1$, but if $\frac{h-d_{m-1}}{h-d_m} > 1$, the boundary includes a section of $\frac{\partial \phi}{\partial r} = 0$ near $z = d_m$, where the hydrodynamic coefficients are being integrated. 
 
-This is theorized to result from the boundary condition represented by the ratio. If $\frac{h-d_{m-1}}{h-d_m} < 1$, then region $m$'s entire inner boundary condition is the continuity conditions between regions $m$ and $m-1$, but if $\frac{h-d_{m-1}}{h-d_m} > 1$, the BC includes a section of $\frac{\partial \phi}{\partial r} = 0$ near $z = d_m$, where the hydrodynamic coefficients are being integrated. [more explanation needed]
+A cumulative parameter observed for the innermost region ($i_1)$ was some dependence on the depth of the outermost region ($i_3$), where convergence for $N^{i_1}$ was faster if $d_3 > d_2$, which we termed a shielding effect. We removed this complicating factor by only considering the upper bounding case $d_3 < d_2$ when predicting for the innermost region (e.g. the data set for $i_1$ in Fig.~\ref{fig:convergence-fit-assessment}). However, this suggests the possibility that the impact of fluid height ratios, especially in the case of the outer neighbor, might be a special case of the shielding effect.
 
-[Shielding effects]
-Especially in the case the outer neighboring region the, the impact of fluid height ratio might be a special case of what we've termed a ``shielding effect''. 
-
-[wavenumber * height]
+The major dimensionless parameter in the exterior region is $\lambda_0^eh$, a relationship between its two characteristic lengths analogous to $\frac{\text{fluid height}}{\text{radial width}}$ in the interior regions. Convergence slows as $\lambda_0^eh$ increases, particularly in the case of damping. Other influential parameters here are $\frac{h-d_M}{a_M-a_{M-1}}$ and $\frac{h-d_M}{h}$ for both hydrodynamic coefficients and $\frac{a_M}{h}$ for added mass only. Forms for these dependencies were not pursued, but the functional forms of important dependencies in the body regions are listed in Table~\ref{tab:final-fitting-functions}. %TODO find original plots for h-d_M/h to list he positive/negative correlation.
 
 \begin{table}
 \centering \begin{tabular}{|c|c|c|c|}
@@ -1083,17 +1080,25 @@ $\beta_B^{i_M}$\
 \end{cases}$\\
 \hline
 \end{tabular}
-    \caption{Dependency trends on individual dimensionless parameter identified/used for fitting error predictions in body regions, based on the procedure in Fig.~\ref{fig:choosing-fitting-functions}. The constants $c_i$ in each box are placeholders and not intended have the same value between boxes. Damping nearly always converges faster than added mass in the interior regions ($m<M$), so the associated parameters ($\alpha_B^{i_m}$, $\beta_B^{i_m}$) were not analyzed. 
+    \caption{Dependency trends on individual dimensionless parameter identified/used for fitting error predictions in body regions, based on the procedure in Fig.~\ref{fig:choosing-fitting-functions}. The constants $c_i$ in each box are placeholders and not intended have the same value between boxes. Damping nearly always converges faster than added mass in the interior regions ($m<M$), so the associated fit parameters ($\alpha_B^{i_m}$, $\beta_B^{i_m}$) were not analyzed. 
     % Table-like figure with images of dependencies. Differentiate between inapplicable (e.g. neighbor required for formula doesn't exist) and independent (plottable but no relation) for unplotted boxes. Separate for added mass and damping (likely ignore damping in interior regions for time). Only some examples will actually be plotted, most dependencies will just be formulas (or independent/inapplicable).
     }
     \label{tab:final-fitting-functions}\end{table}
 
 \subsection{Assessment} \label{sec:convergence-fit-assessment}
-[Verification results, accuracy discussion, recommendations meanings, limitation.]
+
+The final fits chosen are assessed in Fig.~\ref{fig:convergence-fit-assessment}. The $\alpha^{i_m}$ and $\beta^{i_m}$ calculated from the dimensionless parameters are used to predict the $N^{i_m}$ of $1\%$ convergence, and that $N^{i_m}$ and associated error compared to reality. The configurations in those sets were generated from uniformly at random choosing: $1<\lambda_0^eh<80$, three $1<\frac{h-d_m}{a_m-a_{m-1}}<30$, and three $0.05 < \frac{d_m}{h} < 0.95$ for a three body configurations. Also, all fits had the additional condition that if the prediction was less than $N^{i_m} = 20$, it was changed to $20$ to avoid egregiously high errors if the prediction was wrong. In reality, many configurations can achieve $1\%$ convergence before $N^{i_m} = 20$.
+
+As shown in Fig.~\ref{fig:convergence-fit-assessment}, the fits provide acceptable amounts of error and predictions of the required $N^{i_m}$, as $95\%$ of the time, hydrodynamic coefficients are modeled with less than $2\%$ error, and the number of terms per region $N^{i_m}$ is not overpredicted by more than 40 terms. In practice, this means if the models produced by fitting the data sets in Fig.~\ref{fig:convergence-fit-assessment} were used to predict the terms needed to model some new configuration within $1\%$ accuracy, the actual accuracy would almost certainly be better than $3\%$, and better than $1.5\%$ over three quarters of the time. Meanwhile, $N^{i_m}$ overestimates are in the tens even though the necessary amount could be over $100$, saving computation time over setting $N^{i_m}$ to $200$ in all regions. More conservative predictions can be obtained by adding weights in the fitting stage to penalize underestimates of $N^{i_m}$, or modifying $\alpha^{i_m}$, $\beta^{i_m}$, and/or the final number of terms by some constant value.
+
+The main limitations of this convergence study stem from the simplifying assumptions (Sec.~\ref{sec:convergence}). Beyond these, another complication encountered is that some convergences exhibit decaying oscillations about the true value (as opposed to the monotonic behavior in Fig.~\ref{fig:error-model}), obfuscating the envelope's relative errors and $1\%$ convergence point, and ability to measure the true fit parameters. Furthermore, we observed in the outermost region that the convergence would initially follow one logarithmic curve, but then move along another, steeper one at a particular $N^{i_M}$, rendering the first curve an overestimate. Our formulation tended to fit to the first curve, which is why the associated box plot in Fig.~\ref{fig:convergence-fit-assessment} has more significant overestimates than the other regions do. 
+
+Overall, the results of the convergence study enable users to accurately compute hydrodynamic coefficients without added computation time. Determining sufficient parameter settings before modeling is particularly useful in the field of optimization, where the hydrodynamic coefficients for a wide variety of geometries may be computed numerous times. By characterizing the convergence behavior a priori and using the predicted number of terms, users can perform optimizations with confidence that their model's accuracy is acceptable.
+
 \begin{figure}
     \centering
     \includegraphics[width=0.9\linewidth]{figs/convergence-fit-assessment.pdf}
-    \caption{Randomly generated (described in Sec.~\ref{sec:convergence-fit-assessment}) configurations with the target region heaving were fit with the product of the dependencies in Table~\ref{tab:final-fitting-functions}; the accuracy of the resulting fits for predicting $1\%$ error are shown. Note that the whiskers are at the 5th and 95th percentile, and $n$ here is the size of each configuration set.} 
+    \caption{Randomly generated (described in Sec.~\ref{sec:convergence-fit-assessment}) configurations with the target region heaving were fit with the product of the dependencies in Table~\ref{tab:final-fitting-functions}; the accuracy of the resulting fits for predicting $1\%$ error are shown. Note that the whiskers are at the 5th and 95th percentile, $n$ here is the size of each set of configurations, and configurations were selected that converged by $N^{i_m} = 150$.} 
     \label{fig:convergence-fit-assessment}
 \end{figure}
 
@@ -1106,7 +1111,7 @@ $\beta_B^{i_M}$\
 
 
 \section{Slanted Geometries}\label{sec:slant}
-So far, we have only considered geometries in the form of a series of surface-piercing compound annular cylinders, as shown in Fig.~\ref{fig:Diagram}. In this section, we will discuss how MEEM can be used to approximate the first-order hydrodynamic forces on vertically axisymmetric surface-piercing bodies with radially-monotonic profiles. This generalization is important for modeling body shapes that are seen in engineering applications. The CorPower WEC (\cite{de2016techno}), WaveBot WEC (\cite{strofer2023control}), AquaHarmonics WEC (\cite{weaver2020super}), LUPA WEC float (\cite{beringer2025degrees}), and RM3 WEC float (\cite{neary2014methodology}) are all examples of geometries that can be modeled with this extension. In literature, toroidal (\cite{mavrakos1997hydrodynamic}) and spherical bodies (\cite{zhang_hydrodynamic_2016}) have also been modeled using MEEM. However, little discussion has been given on the accuracy of this approximation, how slanted geometries should be discretized, and how the steepness of the slanted geometry influences the convergence of the MEEM solution. In this section, we will address these topics.
+So far, we have only considered geometries in the form of a series of surface-piercing compound annular cylinders, as shown in Fig.~\ref{fig:Diagram}. In this section, we will discuss how MEEM can be used to approximate the first-order hydrodynamic forces on vertically axisymmetric surface-piercing bodies with radially-monotonic profiles. This generalization is important for modeling body shapes that are seen in engineering applications. The CorPower WEC \citep{de2016techno}, WaveBot WEC \citep{strofer2023control}, AquaHarmonics WEC \citep{weaver2020super}, LUPA WEC float \citep{beringer2025degrees}, and RM3 WEC float \citep{neary2014methodology} are all examples of geometries that can be modeled with this extension. In literature, toroidal \citep{mavrakos1997hydrodynamic} and spherical bodies \citep{zhang_hydrodynamic_2016} have also been modeled using MEEM. However, little discussion has been given on the accuracy of this approximation, how slanted geometries should be discretized, and how the steepness of the slanted geometry influences the convergence of the MEEM solution. In this section, we will address these topics.
 
 \subsection{Discretization}
 
@@ -1121,7 +1126,7 @@ Since the forces applied to regions with smaller radial widths get weighted less
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/slant_figures.pdf}
-    \caption{Cross-sectional view of a slanted geometry and its equivalent discretized geometry. The close-up shown on the right-hand side shows how a slanted region can be approximated by a finite number of cylindrical rings. The unit vector normal to the horizontal part of all cylindrical rings is $\hat{n}$, while the unit vector normal to the true slanted body in the $m$th region is $\hat{n}_{\beta_m}$.}
+    \caption{Cross-sectional view of a slanted geometry and its equivalent discretized geometry. The close-up shown on the right-hand side shows how a slanted region can be approximated by a finite number of cylindrical rings. The unit vector normal to the horizontal part of all cylindrical rings is $\hat{n}$, while the unit vector normal to the true slanted body in the $m$th region is $\hat{n}_{\zeta_m}$.}
     \label{fig:Discretization Diagram}
 \end{figure} 
 
@@ -1137,7 +1142,7 @@ Since the forces applied to regions with smaller radial widths get weighted less
 % \subsection{Standard Representations for Slanted Geometries} \label{subsection: slant intro}
 
 \subsection{Sources of Inaccuracies}
-When modeling a slanted geometry as a discretized one using MEEM, inaccuracies can accrue when 1) computing the radiated velocity potential and 2) integrating pressure over the discretized wetted surface. Since the radial and vertical dependence was separated in Table~\ref{tab:MEEM-eigenfunctions}, coupling between the radial and vertical directions cannot be captured. Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using MEEM on the discretized geometry. This leads to discrepancies in the velocity potential. Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points. If one considers integrating the pressure on a slanted surface $S_p$ at constant angle $\beta$, instead of over the horizontal sections of the discretized geometry, $\hat n_p \cdot \hat e_z = \sin(\beta)$ and $dS = \frac{r}{\sin(\beta)}drd\theta$ in Eq.~\ref{eq:freq domain scalar rad force}. When these are substituted, the $\sin(\beta)$ cancels and the result is the same as Eq.~\ref{eq:freq domain scalar rad force in terms of regions}, except $d_m$ now has $r$ dependence. However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ mean that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{eq:freq domain scalar rad force in terms of added mass and damping} and onward. Unless the region's outline is flat and $d_m(r)$ is constant, the hydrodynamic coefficient integrals (given $\vec x$) do not admit closed forms. 
+When modeling a slanted geometry as a discretized one using MEEM, inaccuracies can accrue when 1) computing the radiated velocity potential and 2) integrating pressure over the discretized wetted surface. Since the radial and vertical dependence was separated in Table~\ref{tab:MEEM-eigenfunctions}, coupling between the radial and vertical directions cannot be captured. Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using MEEM on the discretized geometry. This leads to discrepancies in the velocity potential. Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points. If one considers integrating the pressure on a slanted surface $S_p$ at constant angle $\zeta$, instead of over the horizontal sections of the discretized geometry, $\hat n_p \cdot \hat e_z = \sin(\zeta)$ and $dS = \frac{r}{\sin(\zeta)}drd\theta$ in Eq.~\ref{eq:freq domain scalar rad force}. When these are substituted, the $\sin(\zeta)$ cancels and the result is the same as Eq.~\ref{eq:freq domain scalar rad force in terms of regions}, except $d_m$ now has $r$ dependence. However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ mean that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{eq:freq domain scalar rad force in terms of added mass and damping} and onward. Unless the region's outline is flat and $d_m(r)$ is constant, the hydrodynamic coefficient integrals (given $\vec x$) do not admit closed forms. 
 
 Instead of altering the MEEM procedure for slanted geometries, the same procedure can be used for modeling slanted geometries with the assumption that, as the number of subdivisions increases, the discretized geometry approaches the true geometry, and, consequently, inaccuracies in the hydrodynamic coefficients diminish. Thus, a proper choice of the number of subdivisions is required to mitigate these inaccuracies.
 
@@ -1151,7 +1156,7 @@ If one were to consider a different integration scheme to minimize the error in 
     \centering
     \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
     \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
-    \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.}
+    \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines. The hatched area in (b) contains relative errors where the potential is near zero ($\Phi < 0.2$).}
     \label{fig:contour potential comparison plots}
 \end{figure}
 
@@ -1160,7 +1165,7 @@ If one were to consider a different integration scheme to minimize the error in 
 
 \subsubsection{Dependence on Slant Steepness} \label{subsection: slant intro hydros}
 To determine the number of subdivisions needed to accurately model a slant with a given steepness, we compare the hydrodynamic coefficients from Capytaine and MEEM for a variety of steepnesses and number of subdivisions when modeling a cone. 
-As shown in Fig.~\ref{fig:slope-dependence}, steeper slants (smaller angle $\beta$) require more subdivisions for the same level of accuracy, 
+As shown in Fig.~\ref{fig:slope-dependence}, steeper slants (smaller angle $\zeta$) require more subdivisions for the same level of accuracy, 
 and the error in the approximation is roughly inversely proportional to the number of subdivisions. 
 Convergence of the added mass with respect to the number of subdivisions is slower than that of damping, 
 as shown by the added mass for an angle of $\pi/12$ (15\textsuperscript{o}) from vertical being unable to achieve less that $10 \%$ error with the number of subdivisions considered. 
@@ -1341,7 +1346,7 @@ Independent of all $\eta_m$ & $\lambda_n^e, \boldsymbol{\mathcal{Z}}^{i_M e},\ma
 \subsection{Future Speed Enhancements}\label{sec:speedups}
 \paragraph{Matrix Solve}
 Given that MEEM's matrix is sparse and its construction can be decomposed into element-wise products, there exist additional ways to speed up its solution.
-In particular, the $\mathbf{A}$ matrix is block tri-diagonal, which can be solved in $\mathcal{O}(N_T)$ complexity via the Thomas algorithm, compared to the $\mathcal{O}(N_T^3)$ complexity of typical matrix solves (\cite[Section 3.8.3]{quarteroni_numerical_2006}). 
+In particular, the $\mathbf{A}$ matrix is block tri-diagonal, which can be solved in $\mathcal{O}(N_T)$ complexity via the Thomas algorithm, compared to the $\mathcal{O}(N_T^3)$ complexity of typical matrix solves \cite[Section 3.8.3]{quarteroni_numerical_2006}. 
 However, \texttt{numpy/scipy} linear algebra solvers do not implement the Thomas algorithm in block form, so a standard direct solver is used in the present implementation.
 For large matrix sizes where the linear solve dominates computation, the use of a sparse iterative solver or the Thomas algorithm could unlock computational savings, enabling the modeling of more complex geometries during expensive optimization studies.
 
@@ -1425,12 +1430,12 @@ For geometries that MEEM represents exactly, it tends to converge faster than Ca
 
 \section{Conclusion}\label{sec:conclusion}
 
-This work generalizes the matched eigenfunction expansion method (MEEM) for computing the hydrodynamic forces on an arbitrary number of heaving surface-piercing axisymmetric geometries under linear potential flow theory. The method consists of separating the fluid domain into cylindrical regions, defining the velocity potential in each region in terms of eigenfunctions and unknown eigencoefficients, and using boundary conditions and orthogonality to derive a system of linear algebraic equations, which can be organized into a matrix structure. This new extension overviews the undocumented accuracy, exponential convergence, and polynomial runtime of the method. Furthermore, the ability of this method to be used to approximate the hydrodynamic forces on geometries with slants is discussed. This is done by subdividing slanted regions into cylindrical regions that can be modeled through MEEM. We have found that, while the velocity potential computed from MEEM may have inaccuracies locally, the hydrodynamic coefficients can be computed with less than 5\% error. Additionally, geometries with steeper slants require more subdivisions for MEEM to achieve accurate results. When compared against the boundary element method (BEM) solver Capytaine, MEEM is able to achieve 2\% convergence in both hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers. Such an advantage can have significant implications for the design optimization of marine structures, especially in situations when the hydrodynamic model is the bottleneck of the simulation model. 
+This work generalizes the matched eigenfunction expansion method (MEEM) for computing the hydrodynamic forces on an arbitrary number of heaving surface-piercing axisymmetric geometries under linear potential flow theory. The method consists of separating the fluid domain into cylindrical regions, defining the velocity potential in each region in terms of eigenfunctions and unknown eigencoefficients, and using boundary conditions and orthogonality to derive a system of linear algebraic equations, which can be organized into a matrix structure. This new extension overviews the undocumented accuracy, convergence, and polynomial runtime of the method. Furthermore, the ability of this method to be used to approximate the hydrodynamic forces on geometries with slants is discussed. This is done by subdividing slanted regions into cylindrical regions that can be modeled through MEEM. We have found that, while the velocity potential computed from MEEM may have inaccuracies locally, the hydrodynamic coefficients can be computed with less than 5\% error. Additionally, geometries with steeper slants require more subdivisions for MEEM to achieve accurate results. In the convergence study, a set of influential dimensionless parameters was identified, and the fitting models developed can predict the required settings of MEEM to achieve less than $2\%$ error in the hydrodynamic coefficients $95\%$ of the time. When compared against the boundary element method (BEM) solver Capytaine, MEEM is able to achieve 2\% convergence in both hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers. Such an advantage can have significant implications for the design optimization of marine structures, especially in situations when the hydrodynamic model is the bottleneck of the simulation model. 
 
 
 Further generalizations should be the focus of future work on this method.
 Many geometric extensions have already been mathematically demonstrated for simple one-off cases, but they have yet to be integrated into a general multi-region matrix framework akin to the one presented here, nor have their numerical properties been examined.
-Examples include degrees-of freedom beyond heave (\cite{yeung_added_1981}), axisymmetric geometries for which the body radius varies non-monotonically with depth, as in the case of damping plates (\cite{olaya_hydrodynamic_2015}), and axisymmetric bodies with discontinuous profiles creating so-called ``moon-pools'' (\cite{seah_symmetric_2006}).
+Examples include degrees-of freedom beyond heave \citep{yeung_added_1981}, axisymmetric geometries for which the body radius varies non-monotonically with depth, as in the case of damping plates \citep{olaya_hydrodynamic_2015}, and axisymmetric bodies with discontinuous profiles creating so-called ``moon-pools'' \citep{seah_symmetric_2006}.
 Equivalent analytical and semi-analytical potential flow solutions for other coordinate systems, such as Cartesian, elliptical, and spherical, should be synthesized and unified with the present cylindrical approach.
 To the authors' knowledge, no prior work has explored the use of MEEM for bodies of non-concentric cylinders, such as the OC4 semisubmersible floating offshore wind turbine, which could likely be accomplished via integration with the multiple scattering method. 
 Each of these extensions would help ease the geometric restrictions that still plague MEEM compared to traditional BEM solvers.
@@ -1440,17 +1445,17 @@ It is the authors' hope that the OpenFLASH python package developed for this wor
 An additional avenue for further research is the practical application of the MEEM method, and especially of the insights gained from its mathematical structure and convergence behavior exposed here, for hydrodynamic design.
 \cite{mccabe_development_2026} describes the authors' initial attempt at such an endeavor, primarily leveraging MEEM's faster computational speed to widely explore the design space, and future work should implement the geometry-dependent number of terms heuristic from the convergence study in optimization.
 Furthermore, MEEM's sparse linear solution structure could be leveraged in design by applying the adjoint method or other analytic or automatic differentiation techniques to enable scalable gradient-based optimization and sensitivity analysis of marine structures.
-MEEM's smaller sparse matrices could help address the issues with large dense matrices encountered in the authors' BEM sensitivity work (\cite{khanal_fully_2025}).
+MEEM's smaller sparse matrices could help address the issues with large dense matrices encountered in the authors' BEM sensitivity work \citep{khanal_fully_2025}.
 
 Finally, future work should investigate techniques similar to MEEM that exist across other fields.
 Wave propagation boundary value problems are common in acoustics, electromagnetics, quantum mechanics, and seismology, 
 and the notion of breaking a structured domain into analytically tractable subdomains has surely been tried in all of them to various degrees.
 Understanding, comparing, and applying the insights from analogous problems in these diverse subjects could hasten the maturity of MEEM for hydrodynamics.
 In particular, MEEM has striking similarity to the ``indirect Trefftz collocation method'' in finite element analysis.
-This is a subset of the larger family of Trefftz methods, which refer to eigenfunctions as ``T-complete functions'' and also include least-square, Galerkin, variational, and direct versions (\cite{kita_trefftz_1995}).
+This is a subset of the larger family of Trefftz methods, which refer to eigenfunctions as ``T-complete functions'' and also include least-square, Galerkin, variational, and direct versions \citep{kita_trefftz_1995}.
 Exploring this connection could be especially relevant because of the large amount of attention that finite element analysis receives in the engineering and numerical computation communities.
 
-All in all, MEEM holds computational promise as a result of its semi-analytical nature, sparse block structure, and exponential convergence properties.
+All in all, MEEM holds computational promise as a result of its semi-analytical nature, sparse block structure, and rapid convergence properties.
 
 % future work
 % - extension to more region types to support damping plates and other geometries
@@ -1541,7 +1546,7 @@ All in all, MEEM holds computational promise as a result of its semi-analytical 
 
 
 \begin{bmhead}[Code Availability.]
-Code for all simulation, analysis, and visualization to fully reproduce this work is available open-source via the \texttt{OpenFLASH} project at \url{https://github.com/symbiotic-engineering/OpenFLASH} (\cite{best_openflash_2026}).
+Code for all simulation, analysis, and visualization to fully reproduce this work is available open-source via the \texttt{OpenFLASH} project at \url{https://github.com/symbiotic-engineering/OpenFLASH} \citep{best_openflash_2026}.
 Questions and contributions via GitHub issues and pull requests are welcomed.
 \end{bmhead}
 
