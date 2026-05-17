@@ -927,7 +927,19 @@ This is a consequence of Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec}.
 
 
 \subsection{Validation}\label{sec:validation}
-The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation magnitude $|X_1(\omega)|$, and excitation phase $\angle X_1(\omega)$ from MEEM and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \cite{faedo2021energy}. This is shown in Fig.~\ref{fig:hydro coeff validation}. Note that the geometry is simplified in the MEEM and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. In reality, the CorPower WEC geometry also consists of a slanted section. This will be accounted for later in Sec.~\ref{sec:slant}. The geometry settings of this comparison were set as follows: $a_1=1.25 \text{~m}$, $a_2=4.2 \text{~m}$, $d_1=14.45 \text{~m}$, $d_2=2.05 \text{~m}$, and $h=50 \text{~m}$. The series in each region was truncated to 150 for MEEM ($N^{i_1}=N^{i_2}=N^{e}=150$) and 1060 panels were used in Capytaine. The hydrodynamic coefficients from MEEM and Capytaine are on average within 1\% of one another. Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. In Sec.~\ref{sec:convergence}, the dependence of MEEM's convergence on the geometry will be discussed more in depth, and the trade-offs between accuracy and computation time for MEEM and Capytaine will be compared in Sec.~\ref{sec:compute-time}.
+The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation magnitude $|X_1(\omega)|$, and excitation phase $\angle X_1(\omega)$ 
+from MEEM and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \cite{faedo2021energy}. 
+This is shown in Fig.~\ref{fig:hydro coeff validation}. 
+Note that the geometry is simplified in the MEEM and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. 
+In reality, the CorPower WEC geometry also consists of a slanted section. 
+This will be accounted for later in Sec.~\ref{sec:slant}. 
+The geometry settings of this comparison were set as follows: 
+$a_1=1.25 \text{~m}$, $a_2=4.2 \text{~m}$, $d_1=14.45 \text{~m}$, $d_2=2.05 \text{~m}$, and $h=50 \text{~m}$. 
+The series in each region was truncated to 150 for MEEM ($N^{i_1}=N^{i_2}=N^{e}=150$) and 1060 panels were used in Capytaine. 
+The hydrodynamic coefficients from MEEM and Capytaine are on average within 1\% of one another. 
+Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. 
+In Sec.~\ref{sec:convergence}, the dependence of MEEM's convergence on the geometry will be discussed more in depth, 
+and the trade-offs between accuracy and computation time for MEEM and Capytaine will be compared in Sec.~\ref{sec:compute-time}.
 
 \begin{figure}[htbp]
     \centering
@@ -938,18 +950,31 @@ The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation 
 
 
 \section{Convergence of Hydrodynamic Coefficients}\label{sec:convergence}
-Characterizing the convergence behavior of numerical solvers is crucial for ensuring accuracy while avoiding unnecessarily long runtimes. For BEM solvers, a mesh convergence study is typically performed, where the number of panels is increased until a desired level of accuracy of the hydrodynamic coefficients is achieved. As the matrix size of BEM is equal to the number of panels, improving accuracy through finer meshes comes with added computational cost. In the case of MEEM, the behavior is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $N_\mathrm{T} = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$ can be increased. Furthermore, higher values of $N_\mathrm{T}$ imply larger matrix sizes, leading to longer runtime. The goal of this convergence study was to determine the number of terms $N^{i_m}$ per region needed to achieve a desired maximum error $\epsilon$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being modeled. 
+Characterizing the convergence behavior of numerical solvers is crucial for ensuring accuracy while avoiding unnecessarily long runtimes. 
+For BEM solvers, a mesh convergence study is typically performed, where the number of panels is increased until a desired level of accuracy of the hydrodynamic coefficients is achieved. 
+As the matrix size of BEM is equal to the number of panels, improving accuracy through finer meshes comes with added computational cost. In the case of MEEM, the behavior is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $N_\mathrm{T} = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$ can be increased. 
+Furthermore, higher values of $N_\mathrm{T}$ imply larger matrix sizes, leading to longer runtime. 
+The goal of this convergence study was to determine the number of terms $N^{i_m}$ per region 
+needed to achieve a desired maximum error $\epsilon$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being modeled. 
 
-This study made two simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. First, the number of terms needed in each region depends directly on dimensionless parameters (Sec.~\ref{sec:finding-dimensionless-parameters}) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). \textcolor{red}{[TODO as opposed to maybe needing to iteratively increase nmk needed in a region if its neighbors have higher nmk needed]}. Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. Dependencies differ between the two hydrodynamic coefficients, so each is modeled separately with its own final $\alpha^{i_m}_A, \beta^{i_m}_A$ (added mass) or $\alpha^{i_m}_B, \beta^{i_m}_B$ (damping). As the excitation force is a result of the radiation problem, due to the Haskind relation, convergence of the added mass and radiation damping was assumed to imply the convergence of the excitation force. Convergence is faster for larger $\alpha^{i_m}$ and smaller $\beta^{i_m}$. 
+This study made two simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. 
+First, the number of terms needed in each region depends directly on dimensionless parameters (Sec.~\ref{sec:finding-dimensionless-parameters}) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). \textcolor{red}{[TODO as opposed to maybe needing to iteratively increase nmk needed in a region if its neighbors have higher nmk needed]}. Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. 
+Dependencies differ between the two hydrodynamic coefficients, so each is modeled separately with its own final $\alpha^{i_m}_A, \beta^{i_m}_A$ (added mass) or $\alpha^{i_m}_B, \beta^{i_m}_B$ (damping). 
+As the excitation force is a result of the radiation problem, due to the Haskind relation, convergence of the added mass and radiation damping was assumed to imply the convergence of the excitation force. 
+Convergence is faster for larger $\alpha^{i_m}$ and smaller $\beta^{i_m}$. 
 
 \begin{figure}
     \centering
     \includegraphics[width=0.9\linewidth]{figs/alpha-beta-explanation.pdf}
-    \caption{Left: Added mass and damping calculated for a three body region configuration at $N^{i_1} = N^{i_3} = N^e = 200$ with region $i_2$ heaving, for varying $N^{i_2}$. Right: The data at left is transformed to the natural log of the associated error, and fitted to obtain error envelope parameters $\alpha, \beta$ for each of added mass and damping.}
+    \caption{Left: Added mass and damping calculated for a three body region configuration at $N^{i_1} = N^{i_3} = N^e = 200$ with region $i_2$ heaving, for varying $N^{i_2}$. 
+    Right: The data at left is transformed to the natural log of the associated error, 
+    and fitted to obtain error envelope parameters $\alpha, \beta$ for each of added mass and damping.}
     \label{fig:error-model}
 \end{figure}
 
-After confirming these assumptions, the main objective of the convergence study was to find key dimensionless parameters for a given problem, and find $\alpha$ and $\beta$ as a function of these dimensionless parameters. Once this analysis is complete, the number of terms needed in each region can be predicted by taking the maximum of the number required to converge added mass and radiation damping. This process is shown in Fig.~\ref{fig:nmk-predict-flowchart}.
+After confirming these assumptions, the main objective of the convergence study was to find key dimensionless parameters for a given problem, and find $\alpha$ and $\beta$ as a function of these dimensionless parameters. 
+Once this analysis is complete, the number of terms needed in each region can be predicted by taking the maximum of the number required to converge added mass and radiation damping.
+This process is shown in Fig.~\ref{fig:nmk-predict-flowchart}.
 
 \begin{figure}
     \centering
@@ -968,17 +993,36 @@ Cumulative parameters are overall metrics combining the geometries of other regi
 Neither parameter type should depend on a specific non-neighboring region or the number of other regions, because their form should be generalizable to a configuration with any number of regions. 
 Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
 
-We categorized regions into four types by their local geometry: innermost ($i_1$), middle ($i_{2\leq m < M}$), outermost ($i_M$), and exterior ($e$). The local geometry of the $i$-type regions differ by region type ($r=0$, body region, or exterior region) of their inner and outer neighbors. In this study, the single cylinder case with an inner boundary of $r=0$ and outer neighbor of the exterior region was not considered. To capture these region types, the majority of configurations we generated convergence data for had three body regions and one exterior region (i.e. $M = 3$).
+We categorized regions into four types by their local geometry: innermost ($i_1$), middle ($i_{2\leq m < M}$), outermost ($i_M$), and exterior ($e$). 
+The local geometry of the $i$-type regions differ by region type ($r=0$, body region, or exterior region) of their inner and outer neighbors. 
+In this study, the single cylinder case with an inner boundary of $r=0$ and outer neighbor of the exterior region was not considered. 
+To capture these region types, the majority of configurations we generated convergence data for had three body regions and one exterior region (i.e. $M = 3$).
 
-To obtain numerical values for the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, they were first computed with all $N^{k}$ ($k=i_1,...,i_M, e$) at a high number $N^{max} = 200$ for their ``true values.'' Then they were recomputed with all $N^{k}, k\neq i_m$ fixed to $N^{max}$, while, for the $m$th region, which we will refer to as the target region, $N^{i_m}$ was varied over $[1, 2, \dots, N^{big}]$, where $N^{big} = 150$ was less than $N^{max}$ by a reasonably large margin. From this, the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $N^{i_m}$ was calculated.
+To obtain numerical values for the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, they were first computed with all $N^{k}$ ($k=i_1,...,i_M, e$) at a high number $N^{max} = 200$ for their ``true values.'' 
+Then they were recomputed with all $N^{k}, k\neq i_m$ fixed to $N^{max}$, while, for the $m$th region, which we will refer to as the target region, $N^{i_m}$ was varied over $[1, 2, \dots, N^{big}]$, where $N^{big} = 150$ was less than $N^{max}$ by a reasonably large margin. 
+From this, the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $N^{i_m}$ was calculated.
 
-We observed that for a fixed geometry, convergence is slower (1) for added mass than damping in innermost and middle regions, (2) for body regions when the targeted region is the only one heaving (as opposed to any other combination of heave states), and (3) for the exterior region when the outermost region is the only one heaving. The remainder of this convergence study is restricted to these upper bound cases. In particular, claims about a region's convergence are in the context of it being the only one heaving (for body regions) or only the outermost region heaving (for the exterior region).
+We observed that for a fixed geometry, convergence is slower 
+(1) for added mass than damping in innermost and middle regions, 
+(2) for body regions when the targeted region is the only one heaving (as opposed to any other combination of heave states), and 
+(3) for the exterior region when the outermost region is the only one heaving. 
+The remainder of this convergence study is restricted to these upper bound cases. 
+In particular, claims about a region's convergence are in the context of it being the only one heaving (for body regions) or only the outermost region heaving (for the exterior region).
 
-For each region, we began by generating convergence data for random geometries, plotting the $N^{i_m}$ of $1\%$ convergence against theorized dimensionless parameters, and identifying the one with the clearest correlation. We then fixed dominant dimensionless parameter and repeated the process to find the next most important parameter. This was repeated until a set of dimensionless parameters capturing most of the variation was found (i.e. for random geometries with all of them fixed, the set of $1\%$ convergence points had sufficiently low variance).
+For each region, we began by generating convergence data for random geometries, plotting the $N^{i_m}$ of $1\%$ convergence against theorized dimensionless parameters, and identifying the one with the clearest correlation. 
+We then fixed dominant dimensionless parameter and repeated the process to find the next most important parameter. 
+This was repeated until a set of dimensionless parameters capturing most of the variation was found 
+(i.e. for random geometries with all of them fixed, the set of $1\%$ convergence points had sufficiently low variance).
 
-Next, we swept each identified parameter over a range of reasonable values while keeping all other dimensionless parameters fixed. These isolated effects were quantified by plotting the $\alpha^{i_m}$ and $\beta^{i_m}$ fitted to each geometry against the dimensionless parameter. These plots suggested functional forms for the relationship between the dimensionless parameters and fit parameters (Fig.~\ref{fig:choosing-fitting-functions}).
+Next, we swept each identified parameter over a range of reasonable values while keeping all other dimensionless parameters fixed. 
+These isolated effects were quantified by plotting the $\alpha^{i_m}$ and $\beta^{i_m}$ fitted to each geometry against the dimensionless parameter. 
+These plots suggested functional forms for the relationship between the dimensionless parameters and fit parameters (Fig.~\ref{fig:choosing-fitting-functions}).
 
-Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) were theorized and assessed by fitting them to sets of randomized geometry and their associated $(N^{i_m}, \epsilon)$ pairs. Functions explored had to remain positive on the domain of the dimensionless parameter, restricting their form. For example, some relationships appeared nearly linear with negative slope on the range of the dimensionless parameter they were observed at, but were expressed as decaying exponentials to avoid straying below zero.
+Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) 
+were theorized and assessed by fitting them to sets of randomized geometry and their associated $(N^{i_m}, \epsilon)$ pairs. 
+Functions explored had to remain positive on the domain of the dimensionless parameter, restricting their form. 
+For example, some relationships appeared nearly linear with negative slope on the range of the dimensionless parameter they were observed at, 
+but were expressed as decaying exponentials to avoid straying below zero.
 
 \begin{figure}
     \centering
@@ -989,15 +1033,30 @@ Finally, functions incorporating all relevant dimensionless parameters in a regi
 
 \subsection{Final Models}
 %Cite table, explain spatial frequency of detail vs resolving frequency
-The most influential dimensionless parameter for the convergence of body region $i_m$ is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. The characteristic length of an eigenfunction is the inverse of its eigenvalue. Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width.
+The most influential dimensionless parameter for the convergence of body region $i_m$ is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. 
+For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. 
+The characteristic length of an eigenfunction is the inverse of its eigenvalue. 
+Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width.
 
-The other notable local parameter is the ratio of region's neighbor's fluid heights to that of its own. We observed that convergence is significantly faster for region $i_m$ when $\frac{h-d_{m-1}}{h-d_m} < 1$ than when it's greater than $1$. The convergence speed changes quickly (almost step-like) near $1$. The trend is the same for $\frac{h-d_{m+1}}{h-d_m}$.
+The other notable local parameter is the ratio of region's neighbor's fluid heights to that of its own. 
+We observed that convergence is significantly faster for region $i_m$ when $\frac{h-d_{m-1}}{h-d_m} < 1$ than when it's greater than $1$. 
+The convergence speed changes quickly (almost step-like) near $1$. 
+The trend is the same for $\frac{h-d_{m+1}}{h-d_m}$.
 
-This is theorized to result from the boundary condition represented by the ratio. If $\frac{h-d_{m-1}}{h-d_m} < 1$, then region $m$'s entire inner boundary condition is the continuity conditions between regions $m$ and $m-1$, but if $\frac{h-d_{m-1}}{h-d_m} > 1$, the boundary includes a section of $\frac{\partial \phi}{\partial r} = 0$ near $z = d_m$, where the hydrodynamic coefficients are being integrated. 
+This is theorized to result from the boundary condition represented by the ratio. 
+If $\frac{h-d_{m-1}}{h-d_m} < 1$, then region $m$'s entire inner boundary condition is the continuity conditions between regions $m$ and $m-1$, 
+but if $\frac{h-d_{m-1}}{h-d_m} > 1$, the boundary includes a section of $\frac{\partial \phi}{\partial r} = 0$ near $z = d_m$, where the hydrodynamic coefficients are being integrated. 
 
-A cumulative parameter observed for the innermost region ($i_1)$ was some dependence on the depth of the outermost region ($i_3$), where convergence for $N^{i_1}$ was faster if $d_3 > d_2$, which we termed a shielding effect. We removed this complicating factor by only considering the upper bounding case $d_3 < d_2$ when predicting for the innermost region (e.g. the data set for $i_1$ in Fig.~\ref{fig:convergence-fit-assessment}). However, this suggests the possibility that the impact of fluid height ratios, especially in the case of the outer neighbor, might be a special case of the shielding effect.
+A cumulative parameter observed for the innermost region ($i_1)$ was some dependence on the depth of the outermost region ($i_3$), 
+where convergence for $N^{i_1}$ was faster if $d_3 > d_2$, which we termed a shielding effect. 
+We removed this complicating factor by only considering the upper bounding case $d_3 < d_2$ when predicting for the innermost region (e.g. the data set for $i_1$ in Fig.~\ref{fig:convergence-fit-assessment}). 
+However, this suggests the possibility that the impact of fluid height ratios, especially in the case of the outer neighbor, might be a special case of the shielding effect.
 
-The major dimensionless parameter in the exterior region is $\lambda_0^eh$, a relationship between its two characteristic lengths analogous to $\frac{\text{fluid height}}{\text{radial width}}$ in the interior regions. Convergence slows as $\lambda_0^eh$ increases, particularly in the case of damping. Other influential parameters here are $\frac{h-d_M}{a_M-a_{M-1}}$ and $\frac{h-d_M}{h}$ for both hydrodynamic coefficients and $\frac{a_M}{h}$ for added mass only. Forms for these dependencies were not pursued, but the functional forms of important dependencies in the body regions are listed in Table~\ref{tab:final-fitting-functions}. %TODO find original plots for h-d_M/h to list he positive/negative correlation.
+The major dimensionless parameter in the exterior region is $\lambda_0^eh$, 
+a relationship between its two characteristic lengths analogous to $\frac{\text{fluid height}}{\text{radial width}}$ in the interior regions. 
+Convergence slows as $\lambda_0^eh$ increases, particularly in the case of damping. 
+Other influential parameters here are $\frac{h-d_M}{a_M-a_{M-1}}$ and $\frac{h-d_M}{h}$ for both hydrodynamic coefficients and $\frac{a_M}{h}$ for added mass only. 
+Forms for these dependencies were not pursued, but the functional forms of important dependencies in the body regions are listed in Table~\ref{tab:final-fitting-functions}. %TODO find original plots for h-d_M/h to list he positive/negative correlation.
 
 \begin{table}
 \centering \begin{tabular}{|c|c|c|c|}
@@ -1089,25 +1148,47 @@ $\beta_B^{i_M}$\
 \end{cases}$\\
 \hline
 \end{tabular}
-    \caption{Dependency trends on individual dimensionless parameter identified/used for fitting error predictions in body regions, based on the procedure in Fig.~\ref{fig:choosing-fitting-functions}. The constants $c_i$ in each box are placeholders and not intended have the same value between boxes. Damping nearly always converges faster than added mass in the interior regions ($m<M$), so the associated fit parameters ($\alpha_B^{i_m}$, $\beta_B^{i_m}$) were not analyzed. 
+    \caption{Dependency trends on individual dimensionless parameter identified/used for fitting error predictions in body regions, based on the procedure in Fig.~\ref{fig:choosing-fitting-functions}. 
+    The constants $c_i$ in each box are placeholders and not intended have the same value between boxes. 
+    Damping nearly always converges faster than added mass in the interior regions ($m<M$), so the associated fit parameters ($\alpha_B^{i_m}$, $\beta_B^{i_m}$) were not analyzed. 
     % Table-like figure with images of dependencies. Differentiate between inapplicable (e.g. neighbor required for formula doesn't exist) and independent (plottable but no relation) for unplotted boxes. Separate for added mass and damping (likely ignore damping in interior regions for time). Only some examples will actually be plotted, most dependencies will just be formulas (or independent/inapplicable).
     }
     \label{tab:final-fitting-functions}\end{table}
 
 \subsection{Assessment} \label{sec:convergence-fit-assessment}
 
-The final fits chosen are assessed in Fig.~\ref{fig:convergence-fit-assessment}. The $\alpha^{i_m}$ and $\beta^{i_m}$ calculated from the dimensionless parameters are used to predict the $N^{i_m}$ of $1\%$ convergence, and that $N^{i_m}$ and associated error compared to reality. The configurations in those sets were generated from uniformly at random choosing: $1<\lambda_0^eh<80$, three $1<\frac{h-d_m}{a_m-a_{m-1}}<30$, and three $0.05 < \frac{d_m}{h} < 0.95$ for a three body configurations. Also, all fits had the additional condition that if the prediction was less than $N^{i_m} = 20$, it was changed to $20$ to avoid egregiously high errors if the prediction was wrong. In reality, many configurations can achieve $1\%$ convergence before $N^{i_m} = 20$.
+The final fits chosen are assessed in Fig.~\ref{fig:convergence-fit-assessment}. 
+The $\alpha^{i_m}$ and $\beta^{i_m}$ calculated from the dimensionless parameters are used to predict the $N^{i_m}$ of $1\%$ convergence, and that $N^{i_m}$ and associated error compared to reality. 
+The configurations in those sets were generated from uniformly at random choosing: 
+$1<\lambda_0^eh<80$, three $1<\frac{h-d_m}{a_m-a_{m-1}}<30$, and three $0.05 < \frac{d_m}{h} < 0.95$ for a three body configurations. 
+Also, all fits had the additional condition that if the prediction was less than $N^{i_m} = 20$, it was changed to $20$ to avoid egregiously high errors if the prediction was wrong. 
+In reality, many configurations can achieve $1\%$ convergence before $N^{i_m} = 20$.
 
-As shown in Fig.~\ref{fig:convergence-fit-assessment}, the fits provide acceptable amounts of error and predictions of the required $N^{i_m}$, as $95\%$ of the time, hydrodynamic coefficients are modeled with less than $2\%$ error, and the number of terms per region $N^{i_m}$ is not overpredicted by more than 40 terms. In practice, this means if the models produced by fitting the data sets in Fig.~\ref{fig:convergence-fit-assessment} were used to predict the terms needed to model some new configuration within $1\%$ accuracy, the actual accuracy would almost certainly be better than $3\%$, and better than $1.5\%$ over three quarters of the time. Meanwhile, $N^{i_m}$ overestimates are in the tens even though the necessary amount could be over $100$, saving computation time over setting $N^{i_m}$ to $200$ in all regions. More conservative predictions can be obtained by adding weights in the fitting stage to penalize underestimates of $N^{i_m}$, or modifying $\alpha^{i_m}$, $\beta^{i_m}$, and/or the final number of terms by some constant value.
+As shown in Fig.~\ref{fig:convergence-fit-assessment}, the fits provide acceptable amounts of error and predictions of the required $N^{i_m}$, 
+as $95\%$ of the time, hydrodynamic coefficients are modeled with less than $2\%$ error, and the number of terms per region $N^{i_m}$ is not overpredicted by more than 40 terms. 
+In practice, this means if the models produced by fitting the data sets in Fig.~\ref{fig:convergence-fit-assessment} were used to predict the terms needed to model some new configuration within $1\%$ accuracy, 
+the actual accuracy would almost certainly be better than $3\%$, and better than $1.5\%$ over three quarters of the time. 
+Meanwhile, $N^{i_m}$ overestimates are in the tens even though the necessary amount could be over $100$, saving computation time over setting $N^{i_m}$ to $200$ in all regions. 
+More conservative predictions can be obtained by adding weights in the fitting stage to penalize underestimates of $N^{i_m}$, 
+or modifying $\alpha^{i_m}$, $\beta^{i_m}$, and/or the final number of terms by some constant value.
 
-The main limitations of this convergence study stem from the simplifying assumptions (Sec.~\ref{sec:convergence}). Beyond these, another complication encountered is that some convergences exhibit decaying oscillations about the true value (as opposed to the monotonic behavior in Fig.~\ref{fig:error-model}), obfuscating the envelope's relative errors and $1\%$ convergence point, and ability to measure the true fit parameters. Furthermore, we observed in the outermost region that the convergence would initially follow one logarithmic curve, but then move along another, steeper one at a particular $N^{i_M}$, rendering the first curve an overestimate. Our formulation tended to fit to the first curve, which is why the associated box plot in Fig.~\ref{fig:convergence-fit-assessment} has more significant overestimates than the other regions do. 
+The main limitations of this convergence study stem from the simplifying assumptions (Sec.~\ref{sec:convergence}). 
+Beyond these, another complication encountered is that some convergences exhibit decaying oscillations about the true value (as opposed to the monotonic behavior in Fig.~\ref{fig:error-model}), 
+obfuscating the envelope's relative errors and $1\%$ convergence point, and ability to measure the true fit parameters. 
+Furthermore, we observed in the outermost region that the convergence would initially follow one logarithmic curve, 
+but then move along another, steeper one at a particular $N^{i_M}$, rendering the first curve an overestimate. 
+Our formulation tended to fit to the first curve, which is why the associated box plot in Fig.~\ref{fig:convergence-fit-assessment} has more significant overestimates than the other regions do. 
 
-Overall, the results of the convergence study enable users to accurately compute hydrodynamic coefficients without added computation time. Determining sufficient parameter settings before modeling is particularly useful in the field of optimization, where the hydrodynamic coefficients for a wide variety of geometries may be computed numerous times. By characterizing the convergence behavior a priori and using the predicted number of terms, users can perform optimizations with confidence that their model's accuracy is acceptable.
+Overall, the results of the convergence study enable users to accurately compute hydrodynamic coefficients without added computation time. 
+Determining sufficient parameter settings before modeling is particularly useful in the field of optimization, where the hydrodynamic coefficients for a wide variety of geometries may be computed numerous times. 
+By characterizing the convergence behavior a priori and using the predicted number of terms, users can perform optimizations with confidence that their model's accuracy is acceptable.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.9\linewidth]{figs/convergence-fit-assessment.pdf}
-    \caption{Randomly generated (described in Sec.~\ref{sec:convergence-fit-assessment}) configurations with the target region heaving were fit with the product of the dependencies in Table~\ref{tab:final-fitting-functions}; the accuracy of the resulting fits for predicting $1\%$ error are shown. Note that the whiskers are at the 5th and 95th percentile, $n$ here is the size of each set of configurations, and configurations were selected that converged by $N^{i_m} = 150$.} 
+    \caption{Randomly generated (described in Sec.~\ref{sec:convergence-fit-assessment}) configurations with the target region heaving were fit with the product of the dependencies in Table~\ref{tab:final-fitting-functions}; 
+    the accuracy of the resulting fits for predicting $1\%$ error are shown. 
+    Note that the whiskers are at the 5th and 95th percentile, $n$ here is the size of each set of configurations, and configurations were selected that converged by $N^{i_m} = 150$.} 
     \label{fig:convergence-fit-assessment}
 \end{figure}
 
@@ -1120,7 +1201,13 @@ Overall, the results of the convergence study enable users to accurately compute
 
 
 \section{Slanted Geometries}\label{sec:slant}
-So far, we have only considered geometries in the form of a series of surface-piercing compound annular cylinders, as shown in Fig.~\ref{fig:Diagram}. In this section, we will discuss how MEEM can be used to approximate the first-order hydrodynamic forces on vertically axisymmetric surface-piercing bodies with radially-monotonic profiles. This generalization is important for modeling body shapes that are seen in engineering applications. The CorPower WEC \citep{de2016techno}, WaveBot WEC \citep{strofer2023control}, AquaHarmonics WEC \citep{weaver2020super}, LUPA WEC float \citep{beringer2025degrees}, and RM3 WEC float \citep{neary2014methodology} are all examples of geometries that can be modeled with this extension. In literature, toroidal \citep{mavrakos1997hydrodynamic} and spherical bodies \citep{zhang_hydrodynamic_2016} have also been modeled using MEEM. However, little discussion has been given on the accuracy of this approximation, how slanted geometries should be discretized, and how the steepness of the slanted geometry influences the convergence of the MEEM solution. In this section, we will address these topics.
+So far, we have only considered geometries in the form of a series of surface-piercing compound annular cylinders, as shown in Fig.~\ref{fig:Diagram}. 
+In this section, we will discuss how MEEM can be used to approximate the first-order hydrodynamic forces on vertically axisymmetric surface-piercing bodies with radially-monotonic profiles. 
+This generalization is important for modeling body shapes that are seen in engineering applications. 
+The CorPower WEC \citep{de2016techno}, WaveBot WEC \citep{strofer2023control}, AquaHarmonics WEC \citep{weaver2020super}, LUPA WEC float \citep{beringer2025degrees}, and RM3 WEC float \citep{neary2014methodology} are all examples of geometries that can be modeled with this extension. 
+In literature, toroidal \citep{mavrakos1997hydrodynamic} and spherical bodies \citep{zhang_hydrodynamic_2016} have also been modeled using MEEM. 
+However, little discussion has been given on the accuracy of this approximation, how slanted geometries should be discretized, and how the steepness of the slanted geometry influences the convergence of the MEEM solution. 
+In this section, we will address these topics.
 
 \subsection{Discretization}
 
