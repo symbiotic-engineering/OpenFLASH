@@ -889,9 +889,18 @@ However, the validation in section~\ref{sec:validation} will show that these hig
 A potential explanation is that the sparsity of the $\vec{b}$ and $\vec{c_p}$ vectors might zero contributions from amplifying portions of $\mathbf{A}$, leaving the hydrodynamic coefficients unaffected.
 
 \subsubsection{Matrix Sparsity}
-Examples of the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} are shown in Fig.~\ref{fig:sparsity}, where $M=4$ and $d_{i+1}<d_i$. The $\mathbf{A}$ matrix features a block tri-diagonal structure, which is a consequence of the ordering of the potential and velocity matching equations. Each sub-matrix within $\mathbf{A}$ features its own sparsity pattern, where some portions are completely populated, and others have multiple individual bands of elements due to the diagonal blocks in Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}. Although a standard linear solver was used in this work (\texttt{scipy}'s LU decomposition), the computational complexity of MEEM may be reduced further by exploiting the sparsity of $\mathbf{A}$. This is discussed further in Section~\ref{sec:compute-time}.
+Examples of the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} are shown in Fig.~\ref{fig:sparsity}, 
+where $M=4$, $N_{i_m}=N_e=10 \forall m$, and $d_{i+1}<d_i$. 
+The $\mathbf{A}$ matrix features a block tri-diagonal structure, which is a consequence of the ordering of the potential and velocity matching equations.
+Each sub-matrix within $\mathbf{A}$ features its own sparsity pattern, where some portions are completely populated, 
+and others have multiple individual bands of elements due to the diagonal blocks in Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}. 
+Although a standard linear solver was used in this work (\texttt{scipy}'s LU decomposition), 
+the computational complexity of MEEM may be reduced further by exploiting the sparsity of $\mathbf{A}$. 
+This is discussed further in Section~\ref{sec:compute-time}.
 
-The $\mathbf{B}$ matrix features a sparsity pattern that is dependent on the degrees of freedom prescribed to each cylindrical ring. Finally, the sparsity pattern in the $\mathbf{C}$ matrix depends on which cylindrical rings are influenced. This is a consequence of Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec}.
+The $\mathbf{B}$ matrix features a sparsity pattern that is dependent on the degrees of freedom prescribed to each cylindrical ring. 
+Finally, the sparsity pattern in the $\mathbf{C}$ matrix depends on which cylindrical rings are influenced. 
+This is a consequence of Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec}.
 
 \begin{figure}[h!]
     \centering
@@ -908,8 +917,8 @@ The $\mathbf{B}$ matrix features a sparsity pattern that is dependent on the deg
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.15\textwidth}
-        \includegraphics[width=\textwidth]{example-image-a}
-        \caption{$\mathbf{C}$}
+        \includegraphics[width=\textwidth]{figs/C_sparsity_plot.pdf}
+        \caption{$\mathbf{C}^T$}
         \label{fig:sparsityC}
     \end{subfigure}
     \caption{Sparsity pattern in the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices.}
