@@ -96,6 +96,7 @@ stages:
     outs:
       - pubs/JFM/figs/A_sparsity_plot.pdf
       - pubs/JFM/figs/B_sparsity_plot.pdf
+      - pubs/JFM/figs/C_sparsity_plot.pdf
       - .calkit/notebooks/executed/analysis/sparsity_plots.ipynb:
           cache: true
       - .calkit/notebooks/html/analysis/sparsity_plots.html:
