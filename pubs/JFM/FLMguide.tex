@@ -883,10 +883,15 @@ Bounds of $180^\textrm{o}\cdot[k-\frac{1}{2}, k]$ are placed on $\lambda_k^eh$ i
 Degrees are used instead of radians so asymptotes occur at rational values.
 
 \subsubsection{Matrix Condition Number}
-The $\mathbf{A}_m$ sub-matrix, and consequently the $\mathbf{A}$ matrix, frequently has a high condition number. This arises because of the large range of the radial eigenfunction across values of $n_m$.
+The $\mathbf{A}_m$ sub-matrix, and consequently the $\mathbf{A}$ matrix, frequently has a high condition number. 
+This arises because of the large range of the radial eigenfunction across values of $n_m$.
+More specifically, using the exponentially scalled modified bessel function of the first kind from \ref{tab:modified-bessel-functions}, 
+the ratio of the $n_m=1$ term to the $n_m=N^{i_m}$ term of the $\vec{R}_{1}^{i_m}$ vector in a given block of the $\mathbf{A}_m$ sub-matrix scales approximately with $\exp(2\pi (N^{i_m}-1) a_m/(h-d_m))$.
+This means that the condition number of $\mathbf{A}$ grows roughly exponentially with the maximum truncation order of the series, and more rapidly for geometries in which large radii co-occur with large drafts.
 In principle, a high condition number means that the $\mathbf{A}$ matrix will amplify small deviations or numerical errors in the $\vec{b}$ vector to produce large errors in the $\vec{x}$ vector, or equivalently that the $\vec{x}$ vector is close to non-unique.
 However, the validation in section~\ref{sec:validation} will show that these high condition numbers do not appear to interfere with the accuracy or convergence of the solution, even when the linear algebra solver produces warnings about ill-conditioned inputs.
-A potential explanation is that the sparsity of the $\vec{b}$ and $\vec{c_p}$ vectors might zero contributions from amplifying portions of $\mathbf{A}$, leaving the hydrodynamic coefficients unaffected.
+In their review of a related method, \cite[Section 4.3]{hiptmair_survey_2016} explain the high condition number as a consequence of the eigenfunctions becoming nearly linearly dependent at large truncation orders.
+They reference some studies which likewise find no issue with the high condition number and others which choose the number of terms per region to balance truncation error and conditioning.
 
 \subsubsection{Matrix Sparsity}
 Examples of the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} are shown in Fig.~\ref{fig:sparsity}, 
