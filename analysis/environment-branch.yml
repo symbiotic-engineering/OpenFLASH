@@ -15,5 +15,6 @@ dependencies:
   - streamlit
   - ipykernel
   - capytaine
+  - seaborn
   - pip:
       - -e ..
