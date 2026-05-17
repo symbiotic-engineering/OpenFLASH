@@ -766,12 +766,12 @@ where $\vec{\xi}(t) = [\xi_1(t), \xi_2(t), \dots,  \xi_Q(t)]^T$ is a vector cont
 \subsection{Low, High, and Infinite Frequency Approximations}
 The wave frequency $\omega$ and wavenumber $\lambda_0^e$ are related by the dispersion relation in Table \ref{tab:MEEM-eigenfunctions}, which is monotonic and depends on $h$. Extreme values of $\lambda_0^e$ and/or $h$ push solutions towards edge cases, enabling simplification or requiring modifications to avoid numerical errors.
 
-\subsubsection{Low Frequency}
+\subsubsection{Low Frequency}\label{sec:low-freq}
 As $\omega \to 0$, the components of $\vec x$ exhibit the following asymptotic behavior: $\text{Re}(C^{i_m}_{1n_m})$ and $\text{Re}(C^{i_m}_{2n_m})$ behave like $K_1 + K_2\ln(\lambda_0^e h)$ for $n_m = 0$, where $K_1$ and $K_2$ are nonzero constants that are different for each coefficient and region, and approach nonzero constants for $n_m>0$. Meanwhile, $\text{Im}(C^{i_m}_{1n_m})$ and $\text{Im}(C^{i_m}_{2n_m})$ approach nonzero constants for $n_m=0$ and zero for $n_m>0$, as shown in Fig.~\ref{fig: extreme-frequencies}.
 
 Since $\vec c_p$ is frequency independent, the hydrodynamic coefficients vary with frequency only through their dependence on $C^{i_m}_{1n_m}$ and $C^{i_m}_{2n_m}$.
 From their forms, we can see that as $\omega \to 0$, the behaviors of the $n_m = 0$ coefficients dominate the others. Consequently, $A_{11}(\omega)$ grows proportional to $\ln(\lambda_0^e h)$ (although the constant term is still significant for the frequency range in Fig.~\ref{fig: extreme-frequencies}) while $B_{11}(\omega)/\omega$ approaches a constant.
-This is consistent with behavior of the analytical low frequency limits for a single heaving cylinder described in \cite{yeung_added_1981}, where $\lim_{\omega \to 0} A_{11}(\omega) = A_{11}(\infty) - \frac{B_{11}(0)}{\pi\omega}\ln(\lambda^e a_1) \approx - \frac{B_{11}(0)}{\pi\omega}\ln(\lambda^e a_1)$. 
+This is consistent with behavior of the analytical low frequency limits for a single heaving cylinder described in \cite{yeung_added_1981}, $\lim_{\omega \to 0} A_{11}(\omega) = K - \frac{2B_{11}(0)}{\pi\omega}\ln(\lambda_0^e h) \approx - \frac{2B_{11}(0)}{\pi\omega}\ln(\lambda_0^e h)$, where $K$ is a constant. 
 
 %$A_{11}(\omega) \to K- \frac{\rho \pi a_1^4}{2h}\ln{(\lambda_0^e a_1)}$ for some constant $K$ and $B_{11}(\omega)/\omega \to \frac{\rho \pi^2 a^4}{4h}$
 
@@ -952,13 +952,15 @@ and the trade-offs between accuracy and computation time for MEEM and Capytaine 
 \section{Convergence of Hydrodynamic Coefficients}\label{sec:convergence}
 Characterizing the convergence behavior of numerical solvers is crucial for ensuring accuracy while avoiding unnecessarily long runtimes. 
 For BEM solvers, a mesh convergence study is typically performed, where the number of panels is increased until a desired level of accuracy of the hydrodynamic coefficients is achieved. 
-As the matrix size of BEM is equal to the number of panels, improving accuracy through finer meshes comes with added computational cost. In the case of MEEM, the behavior is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $N_\mathrm{T} = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$ can be increased. 
+As the matrix size of BEM is equal to the number of panels, improving accuracy through finer meshes comes with added computational cost. 
+In the case of MEEM, the behavior is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $N_\mathrm{T} = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$ can be increased. 
 Furthermore, higher values of $N_\mathrm{T}$ imply larger matrix sizes, leading to longer runtime. 
-The goal of this convergence study was to determine the number of terms $N^{i_m}$ per region 
-needed to achieve a desired maximum error $\epsilon$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being modeled. 
+The goal of this convergence study was to determine the number of terms $N^{i_m}$ per region needed to achieve a desired maximum error $\epsilon$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being modeled. 
 
 This study made two simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. 
-First, the number of terms needed in each region depends directly on dimensionless parameters (Sec.~\ref{sec:finding-dimensionless-parameters}) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). \textcolor{red}{[TODO as opposed to maybe needing to iteratively increase nmk needed in a region if its neighbors have higher nmk needed]}. Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. 
+First, the number of terms needed in each region depends directly on dimensionless parameters (Sec.~\ref{sec:finding-dimensionless-parameters}) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). 
+This is as opposed to needing to raise a region's base term count, dependent on its own geometry, to support neighboring regions with higher requirements. 
+Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. 
 Dependencies differ between the two hydrodynamic coefficients, so each is modeled separately with its own final $\alpha^{i_m}_A, \beta^{i_m}_A$ (added mass) or $\alpha^{i_m}_B, \beta^{i_m}_B$ (damping). 
 As the excitation force is a result of the radiation problem, due to the Haskind relation, convergence of the added mass and radiation damping was assumed to imply the convergence of the excitation force. 
 Convergence is faster for larger $\alpha^{i_m}$ and smaller $\beta^{i_m}$. 
@@ -998,9 +1000,11 @@ The local geometry of the $i$-type regions differ by region type ($r=0$, body re
 In this study, the single cylinder case with an inner boundary of $r=0$ and outer neighbor of the exterior region was not considered. 
 To capture these region types, the majority of configurations we generated convergence data for had three body regions and one exterior region (i.e. $M = 3$).
 
-To obtain numerical values for the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, they were first computed with all $N^{k}$ ($k=i_1,...,i_M, e$) at a high number $N^{max} = 200$ for their ``true values.'' 
-Then they were recomputed with all $N^{k}, k\neq i_m$ fixed to $N^{max}$, while, for the $m$th region, which we will refer to as the target region, $N^{i_m}$ was varied over $[1, 2, \dots, N^{big}]$, where $N^{big} = 150$ was less than $N^{max}$ by a reasonably large margin. 
-From this, the errors $\epsilon = \frac{\text{val}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $N^{i_m}$ was calculated.
+To obtain numerical values for the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, 
+they were first computed with all $N^{j}$ ($j\in\{i_1,...,i_M, e\}$) at a high number $N^{max} = 200$ for their ``true values.'' 
+Then they were recomputed with all $N^{j}, j\neq i_m$ fixed to $N^{max}$, while, for the $m$th region, which we will refer to as the target region, 
+$N^{i_m}$ was varied over $[1, 2, \dots, N^{big}]$, where $N^{big} = 150$ was less than $N^{max}$ by a reasonably large margin. 
+From this, the errors $\epsilon = \frac{\text{value}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $N^{i_m}$ was calculated.
 
 We observed that for a fixed geometry, convergence is slower 
 (1) for added mass than damping in innermost and middle regions, 
@@ -1018,11 +1022,9 @@ Next, we swept each identified parameter over a range of reasonable values while
 These isolated effects were quantified by plotting the $\alpha^{i_m}$ and $\beta^{i_m}$ fitted to each geometry against the dimensionless parameter. 
 These plots suggested functional forms for the relationship between the dimensionless parameters and fit parameters (Fig.~\ref{fig:choosing-fitting-functions}).
 
-Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) 
-were theorized and assessed by fitting them to sets of randomized geometry and their associated $(N^{i_m}, \epsilon)$ pairs. 
+Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) were theorized and assessed by fitting them to sets of randomized geometry and their associated $(N^{i_m}, \epsilon)$ pairs. 
 Functions explored had to remain positive on the domain of the dimensionless parameter, restricting their form. 
-For example, some relationships appeared nearly linear with negative slope on the range of the dimensionless parameter they were observed at, 
-but were expressed as decaying exponentials to avoid straying below zero.
+For example, some relationships appeared nearly linear with negative slope on the range of the dimensionless parameter they were observed at, but were expressed as decaying exponentials to avoid straying below zero.
 
 \begin{figure}
     \centering
@@ -1033,31 +1035,6 @@ but were expressed as decaying exponentials to avoid straying below zero.
 
 \subsection{Final Models}
 %Cite table, explain spatial frequency of detail vs resolving frequency
-The most influential dimensionless parameter for the convergence of body region $i_m$ is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. 
-For our set of eigenfunctions, the radial eigenfunctions inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. 
-The characteristic length of an eigenfunction is the inverse of its eigenvalue. 
-Therefore, tall regions require more eigenfunctions to resolve the detail on surfaces of the same radial width.
-
-The other notable local parameter is the ratio of region's neighbor's fluid heights to that of its own. 
-We observed that convergence is significantly faster for region $i_m$ when $\frac{h-d_{m-1}}{h-d_m} < 1$ than when it's greater than $1$. 
-The convergence speed changes quickly (almost step-like) near $1$. 
-The trend is the same for $\frac{h-d_{m+1}}{h-d_m}$.
-
-This is theorized to result from the boundary condition represented by the ratio. 
-If $\frac{h-d_{m-1}}{h-d_m} < 1$, then region $m$'s entire inner boundary condition is the continuity conditions between regions $m$ and $m-1$, 
-but if $\frac{h-d_{m-1}}{h-d_m} > 1$, the boundary includes a section of $\frac{\partial \phi}{\partial r} = 0$ near $z = d_m$, where the hydrodynamic coefficients are being integrated. 
-
-A cumulative parameter observed for the innermost region ($i_1)$ was some dependence on the depth of the outermost region ($i_3$), 
-where convergence for $N^{i_1}$ was faster if $d_3 > d_2$, which we termed a shielding effect. 
-We removed this complicating factor by only considering the upper bounding case $d_3 < d_2$ when predicting for the innermost region (e.g. the data set for $i_1$ in Fig.~\ref{fig:convergence-fit-assessment}). 
-However, this suggests the possibility that the impact of fluid height ratios, especially in the case of the outer neighbor, might be a special case of the shielding effect.
-
-The major dimensionless parameter in the exterior region is $\lambda_0^eh$, 
-a relationship between its two characteristic lengths analogous to $\frac{\text{fluid height}}{\text{radial width}}$ in the interior regions. 
-Convergence slows as $\lambda_0^eh$ increases, particularly in the case of damping. 
-Other influential parameters here are $\frac{h-d_M}{a_M-a_{M-1}}$ and $\frac{h-d_M}{h}$ for both hydrodynamic coefficients and $\frac{a_M}{h}$ for added mass only. 
-Forms for these dependencies were not pursued, but the functional forms of important dependencies in the body regions are listed in Table~\ref{tab:final-fitting-functions}. %TODO find original plots for h-d_M/h to list he positive/negative correlation.
-
 \begin{table}
 \centering \begin{tabular}{|c|c|c|c|}
 \hline
@@ -1112,7 +1089,7 @@ $\beta_A^{i_{2 \leq m < M}}$\
 \hline
 $\alpha_A^{i_M}$
 & $c_1\ln(p + c_2) + c_3$
-& $c_1\ln(p + c_2) + c_3$
+& $c_1\ln(p + c_2 - 1) + c_3$
 & $\begin{cases}
     c_1, & p < 1\\
     c_2, & p \geq 1
@@ -1122,7 +1099,7 @@ $\alpha_A^{i_M}$
 \hline
 $\beta_A^{i_M}$
 & $c_1\cdot p$
-& $c_1\ln(p + c_2) + c_3$
+& $c_1\ln(p + c_2 - 1) + c_3$
 & $\begin{cases}
     c_1, & p < 1\\
     c_2, & p \geq 1
@@ -1132,7 +1109,7 @@ $\beta_A^{i_M}$
 \hline
 $\alpha_B^{i_M}$
 & Independent
-& $c_1\ln(p + c_2) + c_3$
+& $c_1\ln(p + c_2 - 1) + c_3$
 & Independent
 & Independent
 & $c_1e^{-c_2p} + c_3$\\
@@ -1149,11 +1126,31 @@ $\beta_B^{i_M}$\
 \hline
 \end{tabular}
     \caption{Dependency trends on individual dimensionless parameter identified/used for fitting error predictions in body regions, based on the procedure in Fig.~\ref{fig:choosing-fitting-functions}. 
-    The constants $c_i$ in each box are placeholders and not intended have the same value between boxes. 
+    The constants $c_i \geq 0$ in each box are placeholders and not intended have the same value between boxes. 
     Damping nearly always converges faster than added mass in the interior regions ($m<M$), so the associated fit parameters ($\alpha_B^{i_m}$, $\beta_B^{i_m}$) were not analyzed. 
+    The choice of the piecewise form of $\beta_B^{i_M}(\lambda_0^eh)$ is out of practicality for fitting: 
+    to capture the clear $\beta_B^{i_M} \propto \sqrt{\lambda_e^0 h}$ relation at high $\lambda_e^0 h$ while approximating the different behavior near zero.
     % Table-like figure with images of dependencies. Differentiate between inapplicable (e.g. neighbor required for formula doesn't exist) and independent (plottable but no relation) for unplotted boxes. Separate for added mass and damping (likely ignore damping in interior regions for time). Only some examples will actually be plotted, most dependencies will just be formulas (or independent/inapplicable).
     }
     \label{tab:final-fitting-functions}\end{table}
+Approximate dependencies between fit parameters and dimensionless parameters in the body regions are listed in Table~\ref{tab:final-fitting-functions}. In this section, we interpret some of the most influential dimensionless parameters.
+
+The number of terms in a region's eigenfunction expansion necessary to sufficiently resolve the velocity potential's detail there (i.e. achieve convergence) depends on the detail itself and the resolving power. In other words, influential dimensionless parameters relate the spatial frequency of the detail (variation in the true value of the potential) to the characteristic length of a region's eigenfunctions.
+
+In the body region $i_m$, the most important parameter is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{h - d_{m}}{a_{m} - a_{{m-1}}}$. The radial eigenfunctions here inherit their eigenvalues $\lambda_n^{i_m} = \frac{n\pi}{h-d_m}$ from the corresponding vertical eigenfunction. Thus, taller regions need higher harmonics to create the same characteristic length of resolution for radial details, and the ratio of fluid height to radial width is a ratio of resolving scale to detail.
+
+In the exterior region, the analogous relationship between the two major characteristic lengths is captured by $\lambda_0^eh$. Convergence slows as $\lambda_0^eh$ increases, particularly in the case of damping. This trend is consistent with Sec.~\ref{sec:low-freq}, which shows that only one term per region (exterior or otherwise) is needed when $\lambda_0^e$ is near zero.
+
+In the body regions, another notable local parameter is the ratio of region's neighbor's fluid heights to that of its own. We observed that convergence is significantly faster for region $i_m$ when $\frac{h-d_{m-1}}{h-d_m} < 1$ than when it's greater than $1$. The convergence speed changes quickly (almost step-like) near $1$. The trend is the same for $\frac{h-d_{m+1}}{h-d_m}$.
+
+This is theorized to result from the boundary condition represented by the ratio. If $\frac{h-d_{m-1}}{h-d_m} < 1$, then region $m$'s entire inner boundary condition is the continuity conditions between regions $m$ and $m-1$, but if $\frac{h-d_{m-1}}{h-d_m} > 1$, the boundary includes a section of $\frac{\partial \phi}{\partial r} = 0$ near $z = d_m$, where the hydrodynamic coefficients are being integrated. This constant rather than matching boundary condition may create simpler spatial details, leading to faster convergence.
+
+A cumulative parameter observed for the innermost region ($i_1)$ was some dependence on the depth of the outermost region ($i_3$), where convergence for $N^{i_1}$ was faster if $d_3 > d_2$, which we termed a shielding effect. 
+We removed this complicating factor by only considering the upper bounding case $d_3 < d_2$ when predicting for the innermost region (e.g. the data set for $i_1$ in Fig.~\ref{fig:convergence-fit-assessment}). 
+However, this suggests the possibility that the impact of fluid height ratios, especially in the case of the outer neighbor, might be a special case of the shielding effect.
+
+In the exterior region, other influential parameters include $\frac{h-d_M}{a_M-a_{M-1}}$ and $\frac{h-d_M}{h}$ for both hydrodynamic coefficients and $\frac{a_M}{h}$ for added mass only. Convergence was slower for larger $\frac{h-d_M}{a_M-a_{M-1}}$ (the outermost region's main resolution-detail ratio) and smaller $\frac{a_M}{h}$. However, the convergence relation with $\frac{h-d_M}{h}$ was complicated by large waves of variation in the hydrodynamic coefficients with respect to increasing $N^{i_m}$ (i.e. the configurations exhibited significant nonmonotonic convergence) for values of $\frac{h-d_M}{h}$ near $1$. By $\frac{h-d_M}{h} < 0.8$ though, there is a clear trend of slower convergence for smaller $\frac{h-d_M}{h}$.
+%TODO find original plots for h-d_M/h to list he positive/negative correlation.
 
 \subsection{Assessment} \label{sec:convergence-fit-assessment}
 
@@ -1164,19 +1161,17 @@ $1<\lambda_0^eh<80$, three $1<\frac{h-d_m}{a_m-a_{m-1}}<30$, and three $0.05 < \
 Also, all fits had the additional condition that if the prediction was less than $N^{i_m} = 20$, it was changed to $20$ to avoid egregiously high errors if the prediction was wrong. 
 In reality, many configurations can achieve $1\%$ convergence before $N^{i_m} = 20$.
 
-As shown in Fig.~\ref{fig:convergence-fit-assessment}, the fits provide acceptable amounts of error and predictions of the required $N^{i_m}$, 
-as $95\%$ of the time, hydrodynamic coefficients are modeled with less than $2\%$ error, and the number of terms per region $N^{i_m}$ is not overpredicted by more than 40 terms. 
+As shown in Fig.~\ref{fig:convergence-fit-assessment}, the fits provide acceptable amounts of error and predictions of the required $N^{i_m}$. 
+In over $95\%$ of cases, hydrodynamic coefficients are modeled with less than $2\%$ error and the overprediction of $N^{i_m}$ does not exceed $30$ terms. 
 In practice, this means if the models produced by fitting the data sets in Fig.~\ref{fig:convergence-fit-assessment} were used to predict the terms needed to model some new configuration within $1\%$ accuracy, 
 the actual accuracy would almost certainly be better than $3\%$, and better than $1.5\%$ over three quarters of the time. 
 Meanwhile, $N^{i_m}$ overestimates are in the tens even though the necessary amount could be over $100$, saving computation time over setting $N^{i_m}$ to $200$ in all regions. 
-More conservative predictions can be obtained by adding weights in the fitting stage to penalize underestimates of $N^{i_m}$, 
-or modifying $\alpha^{i_m}$, $\beta^{i_m}$, and/or the final number of terms by some constant value.
+More conservative predictions can be obtained by adding weights in the fitting stage to penalize underestimates of $N^{i_m}$, or modifying $\alpha^{i_m}$, $\beta^{i_m}$, and/or the final number of terms by some constant value.
 
 The main limitations of this convergence study stem from the simplifying assumptions (Sec.~\ref{sec:convergence}). 
 Beyond these, another complication encountered is that some convergences exhibit decaying oscillations about the true value (as opposed to the monotonic behavior in Fig.~\ref{fig:error-model}), 
 obfuscating the envelope's relative errors and $1\%$ convergence point, and ability to measure the true fit parameters. 
-Furthermore, we observed in the outermost region that the convergence would initially follow one logarithmic curve, 
-but then move along another, steeper one at a particular $N^{i_M}$, rendering the first curve an overestimate. 
+Furthermore, we observed in the outermost region that the convergence would initially follow one logarithmic curve, but then move along another, steeper one at a particular $N^{i_M}$, rendering the first curve an overestimate. 
 Our formulation tended to fit to the first curve, which is why the associated box plot in Fig.~\ref{fig:convergence-fit-assessment} has more significant overestimates than the other regions do. 
 
 Overall, the results of the convergence study enable users to accurately compute hydrodynamic coefficients without added computation time. 
@@ -1222,7 +1217,7 @@ Since the forces applied to regions with smaller radial widths get weighted less
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/slant_figures.pdf}
-    \caption{Cross-sectional view of a slanted geometry and its equivalent discretized geometry. The close-up shown on the right-hand side shows how a slanted region can be approximated by a finite number of cylindrical rings. The unit vector normal to the horizontal part of all cylindrical rings is $\hat{n}$, while the unit vector normal to the true slanted body in the $m$th region is $\hat{n}_{\zeta_m}$.}
+    \caption{Cross-sectional view of a slanted geometry and its equivalent discretized geometry. The close-up shown on the right-hand side shows how a slanted region can be approximated by a finite number of cylindrical rings. The unit vector normal to the horizontal part of all cylindrical rings is $\hat{n}$, while the unit vector normal to the true slanted body in the $m$th region is $\hat{n}_{\beta_m}$.}
     \label{fig:Discretization Diagram}
 \end{figure} 
 
@@ -1238,7 +1233,7 @@ Since the forces applied to regions with smaller radial widths get weighted less
 % \subsection{Standard Representations for Slanted Geometries} \label{subsection: slant intro}
 
 \subsection{Sources of Inaccuracies}
-When modeling a slanted geometry as a discretized one using MEEM, inaccuracies can accrue when 1) computing the radiated velocity potential and 2) integrating pressure over the discretized wetted surface. Since the radial and vertical dependence was separated in Table~\ref{tab:MEEM-eigenfunctions}, coupling between the radial and vertical directions cannot be captured. Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using MEEM on the discretized geometry. This leads to discrepancies in the velocity potential. Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points. If one considers integrating the pressure on a slanted surface $S_p$ at constant angle $\zeta$, instead of over the horizontal sections of the discretized geometry, $\hat n_p \cdot \hat e_z = \sin(\zeta)$ and $dS = \frac{r}{\sin(\zeta)}drd\theta$ in Eq.~\ref{eq:freq domain scalar rad force}. When these are substituted, the $\sin(\zeta)$ cancels and the result is the same as Eq.~\ref{eq:freq domain scalar rad force in terms of regions}, except $d_m$ now has $r$ dependence. However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ mean that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{eq:freq domain scalar rad force in terms of added mass and damping} and onward. Unless the region's outline is flat and $d_m(r)$ is constant, the hydrodynamic coefficient integrals (given $\vec x$) do not admit closed forms. 
+When modeling a slanted geometry as a discretized one using MEEM, inaccuracies can accrue when 1) computing the radiated velocity potential and 2) integrating pressure over the discretized wetted surface. Since the radial and vertical dependence was separated in Table~\ref{tab:MEEM-eigenfunctions}, coupling between the radial and vertical directions cannot be captured. Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using MEEM on the discretized geometry. This leads to discrepancies in the velocity potential. Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points. If one considers integrating the pressure on a slanted surface $S_p$ at constant angle $\beta$, instead of over the horizontal sections of the discretized geometry, $\hat n_p \cdot \hat e_z = \sin(\beta)$ and $dS = \frac{r}{\sin(\beta)}drd\theta$ in Eq.~\ref{eq:freq domain scalar rad force}. When these are substituted, the $\sin(\beta)$ cancels and the result is the same as Eq.~\ref{eq:freq domain scalar rad force in terms of regions}, except $d_m$ now has $r$ dependence. However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ mean that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{eq:freq domain scalar rad force in terms of added mass and damping} and onward. Unless the region's outline is flat and $d_m(r)$ is constant, the hydrodynamic coefficient integrals (given $\vec x$) do not admit closed forms. 
 
 Instead of altering the MEEM procedure for slanted geometries, the same procedure can be used for modeling slanted geometries with the assumption that, as the number of subdivisions increases, the discretized geometry approaches the true geometry, and, consequently, inaccuracies in the hydrodynamic coefficients diminish. Thus, a proper choice of the number of subdivisions is required to mitigate these inaccuracies.
 
@@ -1252,7 +1247,7 @@ If one were to consider a different integration scheme to minimize the error in 
     \centering
     \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
     \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
-    \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines. The hatched area in (b) contains relative errors where the potential is near zero ($\Phi < 0.2$).}
+    \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.} %In (b), points with $\mathrm{Re}(\Phi) < 0.2$ (near zero, creating large relative errors) are masked.
     \label{fig:contour potential comparison plots}
 \end{figure}
 
@@ -1261,7 +1256,7 @@ If one were to consider a different integration scheme to minimize the error in 
 
 \subsubsection{Dependence on Slant Steepness} \label{subsection: slant intro hydros}
 To determine the number of subdivisions needed to accurately model a slant with a given steepness, we compare the hydrodynamic coefficients from Capytaine and MEEM for a variety of steepnesses and number of subdivisions when modeling a cone. 
-As shown in Fig.~\ref{fig:slope-dependence}, steeper slants (smaller angle $\zeta$) require more subdivisions for the same level of accuracy, 
+As shown in Fig.~\ref{fig:slope-dependence}, steeper slants (smaller angle $\beta$) require more subdivisions for the same level of accuracy, 
 and the error in the approximation is roughly inversely proportional to the number of subdivisions. 
 Convergence of the added mass with respect to the number of subdivisions is slower than that of damping, 
 as shown by the added mass for an angle of $\pi/12$ (15\textsuperscript{o}) from vertical being unable to achieve less that $10 \%$ error with the number of subdivisions considered. 
