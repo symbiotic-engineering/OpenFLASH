@@ -896,7 +896,7 @@ In their review of a related method, \cite[Section 4.3]{hiptmair_survey_2016} ex
 They reference some studies which likewise find no issue with the high condition number and others which choose the number of terms per region to balance truncation error and conditioning.
 
 \subsubsection{Matrix Sparsity}
-Fig.~\ref{fig:sparsity} shows the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} for an example configuration consisting of two bi-cylinder bodies with $M=4$, $\mathcal{M}_1 = \{1, 2\}$, $\mathcal{M}_2 = \{3, 4\}$, $N_{i_m}=N_e=10$, and $d_{i+1}<d_i$. 
+Fig.~\ref{fig:sparsity} shows the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} for an example configuration consisting of two bi-cylinder bodies with $M=4$, $\mathcal{M}_1 = \{1, 2\}$, $\mathcal{M}_2 = \{3, 4\}$, $N^{i_m}=N^e=10$, and $d_{i+1}<d_i$. 
 The $\mathbf{A}$ matrix features a block bi-diagonal structure.
 This can be observed by partitioning $\mathbf{A}$ into rectangular blocks such that each block encompasses the full height and half the blockwise width of the $\mathbf{A}_m$ sub-matrix.
 The bi-diagonal structure occurs because the matching equations at a given boundary contain only unknowns from the two regions at that boundary, and not from other regions.
