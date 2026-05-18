@@ -211,11 +211,12 @@ $\phi^{i_m}_\mathrm{p}$ will only be non-zero in the heaving regions.
 This is indicated by the separate cases of the particular potentials shown in Table~\ref{tab:MEEM-eigenfunctions}. 
 $\textrm{I}_0$, $\textrm{K}_0$, and $\textrm{H}_0^1$ 
 are the zeroth-order modified Bessel function of the first kind, modified Bessel function of the second kind, and Hankel function of the first kind, respectively. 
-All eigenfunctions in Table~\ref{tab:MEEM-eigenfunctions} are real with the exception of $R_{10}^{e}(r)\in\mathbb{C}$.
-The expression for $N_{n_e}$ is defined in Appendix~\ref{appA}. 
+All eigenfunctions in Table~\ref{tab:MEEM-eigenfunctions} are real, except $R_{10}^{e}(r)\in\mathbb{C}$.
+The expression for $N_{n_e}$ is defined in Appendix~\ref{appA}.
+This expression scales the vertical eigenfunctions of the exterior region, and is not to be confused with $N^{e}$ the number of terms in that region. 
 
 As Table~\ref{tab:MEEM-eigenfunctions} shows, after specifying the frequency $\omega$ and geometry of the cylindrical rings, 
-the only quantities left unknown are the eigencoefficients in the series representation of the homogeneous potentials. 
+the only quantities left unknown are the eigencoefficients $C$ in the series representation of the homogeneous potentials. 
 While the exact solutions of the homogeneous potentials are infinite series, in practice the series are truncated as indicated 
 by $N^{i_m}$ and $N^{e}$ in Table~\ref{tab:MEEM-eigenfunctions}.  
 
@@ -310,7 +311,7 @@ The details of this process are discussed in Appendix~\ref{appB}.
 \subsection{Block Matrix Structure}\label{Block Matrix Structure}
 The system of equations is in the form $\mathbf{A} \vec{x}=\vec{b}$. 
 $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ 
-is a block diagonal matrix composed of sub-matrices 
+is a block bi-diagonal matrix composed of sub-matrices 
 $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices, 
 as shown in Table~\ref{tab:MEEM-A-matrix}. 
 The vector of unknowns has the form 
@@ -342,11 +343,10 @@ Consequently, $\mathbf{A}_m \in \mathbb{R}^{(N^{i_m} + N^{i_{m+1}}) \times (2N^{
 while $\mathbf{A}_1 \in \mathbb{R}^{(N^{i_1} + N^{i_{2}}) \times (N^{i_1} + 2N^{i_2})}$ 
 and $\mathbf{A}_M \in \mathbb{C}^{(N^{i_M} + N^{e}) \times (2N^{i_M} + N^e)}$.
 This is consistent with what is shown in Table~\ref{tab:MEEM-A-matrix}. 
-Comparing Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}, we see that each sub-matrix is composed of eight blocks,
+Comparing Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}, we see that each $\mathbf{A}_m$ sub-matrix is composed of eight blocks,
 four of which are square diagonal and four of which are rectangular dense, although the locations of each block type differ in the two versions.
 The diagonal blocks correspond to orthogonality of the vertical eigenfunctions within a given region,
-while the dense blocks correspond to coupling of the vertical eigenfunctions between adjacent reasons.
-The derivation in Appendix~\ref{sec:Forms of Matrix A}
+while the dense blocks correspond to coupling of the vertical eigenfunctions between adjacent regions.
 
 Tables~\ref{tab:MEEM-b_m-vector-case-1} and \ref{tab:MEEM-b_m-vector-case-2} 
 show the two cases of $\vec{b}_m$ sub-vectors, which have closed form solutions. These can be used without modification to obtain all the vectors $\vec{b}_m$ for $1 \le m \le M-1$ while, for $m=M$, Table~\ref{tab:MEEM-b_m-vector-case-1} should be modified so that all indices with $i_{m+1}$ are replaced with $e$ and $d_{m+1}$ is set to zero. Additionally, each sub-matrix $\mathbf{A}_m$ can be broken into 
@@ -713,17 +713,19 @@ with output scalar $c_{p} \in \mathbb{R}$
 \end{equation}
 where $\delta_{pq}$ is the Kronecker delta symbol, and output row vector $\vec{c}_p =[\vec{c}_p^{ \ i_1}, \ \vec{c}_p^{ \ i_2}, \dots,  \vec{c}_p^{ \ i_M},  \vec{c}_p^{ \ e}]\in \mathbb{C}^{N_\mathrm{T}}$, where
 \begin{equation}\label{eq:c_q_i1_vec}
-    \vec{c}_p^{ \ i_1} = \left\{\begin{matrix} \vec{Z}_n^{i_1}(-d_1) \odot\vec{\mathcal{R}}_{1n}^{i_1} & \text{when} \ m \in \mathcal{M}_p \\
+    \vec{c}_p^{ \ i_1} = \left\{\begin{matrix} \vec{Z}^{i_1}(-d_1) \odot\vec{\mathcal{R}}_{1}^{i_1} & \text{when} \ m \in \mathcal{M}_p \\
     \vec{0}_{N^{i_1}} & \text{when} \ m \notin \mathcal{M}_p
     \end{matrix}\right. ,
 \end{equation}
 \begin{equation}\label{eq:c_q_im_vec}
-    \vec{c}_p^{ \ i_m} = \left\{\begin{matrix} [\vec{Z}_n^{i_m}(-d_m) \odot\vec{\mathcal{R}}_{1n}^{i_m}, \ \vec{Z}_n^{i_m}(-d_m) \odot\vec{\mathcal{R}}_{2n}^{i_m}] & \text{when} \ m \in \mathcal{M}_p \vspace{0.5em} \\
+    \vec{c}_p^{ \ i_m} = \left\{\begin{matrix} [\vec{Z}^{i_m}(-d_m) \odot\vec{\mathcal{R}}_{1}^{i_m}, \ \vec{Z}^{i_m}(-d_m) \odot\vec{\mathcal{R}}_{2}^{i_m}] & \text{when} \ m \in \mathcal{M}_p \vspace{0.5em} \\
     
     \vec{0}_{2N^{i_m}} & \text{when} \ m \notin \mathcal{M}_p
     \end{matrix}\right. ,
 \end{equation}
-for $2\le m \le M$, and $\vec{c}_p^{ \ e} = \vec{0}_{N^{e}}$. Note that $\vec{0}_{k}$ denotes a $k$-long row vector of zeros and $\vec{\mathcal{R}}_{i}^{j}$ is a vector of integrals of radial eigenfunctions for region $j$ with closed form solutions in Appendix~\ref{appC}. The vector $\vec{c}_p$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $m$th region in the $\vec{x}_q$ vector in Eq.~\ref{A_pq B_pq scalar form}. 
+for $2\le m \le M$, and $\vec{c}_p^{ \ e} = \vec{0}_{N^{e}}$. 
+Note that $\vec{0}_{k}$ denotes a $k$-long row vector of zeros and $\vec{\mathcal{R}}_{\chi}^{j}$ is a vector of integrals of radial eigenfunctions for region $j$ with closed form solutions in Appendix~\ref{appC}. 
+The vector $\vec{c}_p$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $m$th region in the $\vec{x}_q$ vector in Eq.~\ref{A_pq B_pq scalar form}. 
 By applying Eq.~\ref{A_pq B_pq scalar form} for $q=1,2,\dots, Q$ and $p=1,2,\dots, Q$, we can express the added mass matrix $\mathbf{A}_\mathrm{r}(\omega) \in \mathbb{R}^{Q \times Q}$ and radiation damping matrix $\mathbf{B}_\mathrm{r}(\omega) \in \mathbb{R}^{Q \times Q}$ as
 \begin{equation}\label{A_pq B_pq matrix form}
     \mathbf{A}_\mathrm{r}(\omega) + \frac{\mathrm{i}\mathbf{B}_\mathrm{r}(\omega)}{\omega}=2\pi \rho (\mathbf{C}_0 + \mathbf{C} \ \mathbf{X}) =2\pi \rho (\mathbf{C}_0 + \mathbf{C} \ \mathbf{A}^{-1} \ \mathbf{B})
@@ -801,7 +803,7 @@ In general, that is the lower bound for $\lambda_n^e$.
 % For finite frequency, $(n - \frac{1}{2})\pi \le \lambda_n^e h \le n\pi$ can be passed into a root-finding solver as bounds for $\lambda_n^e$.
 %The sentence above is redundant since there is a section that discusses this
 
-Lastly, damping approaches zero as $\lambda_n^e$ approaches infinity. Mathematically, this is evident from the matrix formulation: the Hankel functions $H_0^1$ are the only Bessel functions involved that give imaginary values for real inputs, so they supply the only imaginary elements to the $\mathbf{A}$ matrix. When their contribution goes to zero, the matrix (and its solution) become real, leaving no imaginary component in the hydrodynamic coefficient integral.
+Lastly, damping approaches zero as $\lambda_0^e$ approaches infinity. Mathematically, this is evident from the matrix formulation: the Hankel functions $H_0^1$ are the only Bessel functions involved that give imaginary values for real inputs, so they supply the only imaginary elements to the $\mathbf{A}$ matrix. When their contribution goes to zero, the matrix (and its solution) become real, leaving no imaginary component in the hydrodynamic coefficient integral.
 
 \begin{figure}[htbp]
     \centering    \includegraphics[width=\linewidth]{figs/MEEM-Low-Freq.pdf}
@@ -877,16 +879,16 @@ and the corresponding limit for the vertical coupling integral
 \end{equation}
 %\hl{check this formula}
 
-\subsubsection{Nonlinear Solve of $\lambda_k^e$}\label{sec:nonlin-solve}
-A final numerical subtlety worth discussing is finite precision effects in calculating $\lambda_k^e$.
-Bounds of $180^\textrm{o}\cdot[k-\frac{1}{2}, k]$ are placed on $\lambda_k^eh$ in a root-finding algorithm to ensure the $k$th root is identified.
+\subsubsection{Nonlinear Solve of $\lambda_{n_e}^e$}\label{sec:nonlin-solve}
+A final numerical subtlety worth discussing is finite precision effects in calculating $\lambda_{n_e}^e$.
+Bounds of $180^\textrm{o}\cdot[n_e-\frac{1}{2}, n_e]$ are placed on $\lambda_{n_e}^eh$ in a root-finding algorithm to ensure the $n_e$th root is identified.
 Degrees are used instead of radians so asymptotes occur at rational values.
 
 \subsubsection{Matrix Condition Number}
 The $\mathbf{A}_m$ sub-matrix, and consequently the $\mathbf{A}$ matrix, frequently has a high condition number. 
 This arises because of the large range of the radial eigenfunction across values of $n_m$.
-More specifically, using the exponentially scalled modified bessel function of the first kind from \ref{tab:modified-bessel-functions}, 
-the ratio of the $n_m=1$ term to the $n_m=N^{i_m}$ term of the $\vec{R}_{1}^{i_m}$ vector in a given block of the $\mathbf{A}_m$ sub-matrix scales approximately with $\exp(2\pi (N^{i_m}-1) a_m/(h-d_m))$.
+More specifically, using the exponentially scaled modified bessel function of the first kind from Table~\ref{table:exp-bessels}, 
+the ratio of the $n_m=1$ term to the $n_m=N^{i_m}-1$ term of the $\vec{R}_{1}^{i_m}$ vector in a given block of the $\mathbf{A}_m$ sub-matrix scales approximately with $\exp(2\pi (N^{i_m}-2) a_m/(h-d_m))$.
 This means that the condition number of $\mathbf{A}$ grows roughly exponentially with the maximum truncation order of the series, and more rapidly for geometries in which large radii co-occur with large drafts.
 In principle, a high condition number means that the $\mathbf{A}$ matrix will amplify small deviations or numerical errors in the $\vec{b}$ vector to produce large errors in the $\vec{x}$ vector, or equivalently that the $\vec{x}$ vector is close to non-unique.
 However, the validation in section~\ref{sec:validation} will show that these high condition numbers do not appear to interfere with the accuracy or convergence of the solution, even when the linear algebra solver produces warnings about ill-conditioned inputs.
@@ -894,10 +896,11 @@ In their review of a related method, \cite[Section 4.3]{hiptmair_survey_2016} ex
 They reference some studies which likewise find no issue with the high condition number and others which choose the number of terms per region to balance truncation error and conditioning.
 
 \subsubsection{Matrix Sparsity}
-Examples of the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} are shown in Fig.~\ref{fig:sparsity}, 
-where $M=4$, $N_{i_m}=N_e=10 \forall m$, and $d_{i+1}<d_i$. 
-The $\mathbf{A}$ matrix features a block tri-diagonal structure, which is a consequence of the ordering of the potential and velocity matching equations.
-Each sub-matrix within $\mathbf{A}$ features its own sparsity pattern, where some portions are completely populated, 
+Fig.~\ref{fig:sparsity} shows the sparsity pattern of the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices from Eq.~\ref{eq: added mass and damping matrices} for an example configuration consisting of two bi-cylinder bodies with $M=4$, $\mathcal{M}_1 = \{1, 2\}$, $\mathcal{M}_2 = \{3, 4\}$, $N_{i_m}=N_e=10$, and $d_{i+1}<d_i$. 
+The $\mathbf{A}$ matrix features a block bi-diagonal structure.
+This can be observed by partitioning $\mathbf{A}$ into rectangular blocks such that each block encompasses the full height and half the blockwise width of the $\mathbf{A}_m$ sub-matrix.
+The bi-diagonal structure occurs because the matching equations at a given boundary contain only unknowns from the two regions at that boundary, and not from other regions.
+Each block features its own sparsity pattern, where some portions are completely populated, 
 and others have multiple individual bands of elements due to the diagonal blocks in Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}. 
 Although a standard linear solver was used in this work (\texttt{scipy}'s LU decomposition), 
 the computational complexity of MEEM may be reduced further by exploiting the sparsity of $\mathbf{A}$. 
@@ -960,14 +963,14 @@ For BEM solvers, a mesh convergence study is typically performed, where the numb
 As the matrix size of BEM is equal to the number of panels, improving accuracy through finer meshes comes with added computational cost. 
 In the case of MEEM, the behavior is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $N_\mathrm{T} = N^{i_1} + 2\sum_{m=2}^M N^{i_m} + N^e$ can be increased. 
 Furthermore, higher values of $N_\mathrm{T}$ imply larger matrix sizes, leading to longer runtime. 
-The goal of this convergence study was to determine the number of terms $N^{i_m}$ per region needed to achieve a desired maximum error $\epsilon$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being modeled. 
+The goal of this convergence study is to determine the number of terms $N^{i_m}$ per region needed to achieve a desired maximum error $\epsilon$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being modeled. 
 
-This study made two simplifying assumptions about the behavior of the convergence, which were found to be reasonably accurate for the configurations considered. 
+This study makes two simplifying assumptions about the behavior of the convergence, which are found to be reasonably accurate for the configurations considered. 
 First, the number of terms needed in each region depends directly on dimensionless parameters (Sec.~\ref{sec:finding-dimensionless-parameters}) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). 
 This is as opposed to needing to raise a region's base term count, dependent on its own geometry, to support neighboring regions with higher requirements. 
-Second, we modeled the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions were sufficiently converged, as an envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. 
+Second, we model the error $\epsilon$ for $N^{i_m}$ terms in region $m$, assuming all other regions are sufficiently converged, as a power-law envelope of $\epsilon \approx (\frac{N^{i_m}}{\beta^{i_m}})^{-\alpha^{i_m}}$ (Fig.~\ref{fig:error-model}), with the dimensionless parameters informing $\alpha^{i_m}, \beta^{i_m} > 0$. 
 Dependencies differ between the two hydrodynamic coefficients, so each is modeled separately with its own final $\alpha^{i_m}_A, \beta^{i_m}_A$ (added mass) or $\alpha^{i_m}_B, \beta^{i_m}_B$ (damping). 
-As the excitation force is a result of the radiation problem, due to the Haskind relation, convergence of the added mass and radiation damping was assumed to imply the convergence of the excitation force. 
+As the excitation force is a result of the radiation problem, due to the Haskind relation, convergence of the added mass and radiation damping is assumed to imply the convergence of the excitation force. 
 Convergence is faster for larger $\alpha^{i_m}$ and smaller $\beta^{i_m}$. 
 
 \begin{figure}
@@ -979,7 +982,7 @@ Convergence is faster for larger $\alpha^{i_m}$ and smaller $\beta^{i_m}$.
     \label{fig:error-model}
 \end{figure}
 
-After confirming these assumptions, the main objective of the convergence study was to find key dimensionless parameters for a given problem, and find $\alpha$ and $\beta$ as a function of these dimensionless parameters. 
+After confirming these assumptions, the main objective of the convergence study is to find key dimensionless parameters for a given problem, and find $\alpha$ and $\beta$ as a function of these dimensionless parameters. 
 Once this analysis is complete, the number of terms needed in each region can be predicted by taking the maximum of the number required to converge added mass and radiation damping.
 This process is shown in Fig.~\ref{fig:nmk-predict-flowchart}.
 
@@ -1000,36 +1003,37 @@ Cumulative parameters are overall metrics combining the geometries of other regi
 Neither parameter type should depend on a specific non-neighboring region or the number of other regions, because their form should be generalizable to a configuration with any number of regions. 
 Sets of dimensionless parameters are not unique, but good sets will have more direct dependencies on each parameter individually.
 
-We categorized regions into four types by their local geometry: innermost ($i_1$), middle ($i_{2\leq m < M}$), outermost ($i_M$), and exterior ($e$). 
+We categorize regions into four types by their local geometry: innermost ($i_1$), middle ($i_{2\leq m < M}$), outermost ($i_M$), and exterior ($e$). 
 The local geometry of the $i$-type regions differ by region type ($r=0$, body region, or exterior region) of their inner and outer neighbors. 
-In this study, the single cylinder case with an inner boundary of $r=0$ and outer neighbor of the exterior region was not considered. 
-To capture these region types, the majority of configurations we generated convergence data for had three body regions and one exterior region (i.e. $M = 3$).
+To capture these region types, the majority of configurations we generate convergence data for have three body regions and one exterior region (i.e. $M = 3$).
+In this study, the single cylinder case with an inner boundary of $r=0$ and outer neighbor of the exterior region is not considered. 
+
 
 To obtain numerical values for the convergence of a configuration's hydrodynamic coefficients with respect to $N^{i_m}$, 
-they were first computed with all $N^{j}$ ($j\in\{i_1,...,i_M, e\}$) at a high number $N^{max} = 200$ for their ``true values.'' 
-Then they were recomputed with all $N^{j}, j\neq i_m$ fixed to $N^{max}$, while, for the $m$th region, which we will refer to as the target region, 
-$N^{i_m}$ was varied over $[1, 2, \dots, N^{big}]$, where $N^{big} = 150$ was less than $N^{max}$ by a reasonably large margin. 
-From this, the errors $\epsilon = \frac{\text{value}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $N^{i_m}$ was calculated.
+they are first computed with all $N^{j}$ ($j\in\{i_1,...,i_M, e\}$) at a high number $N^{max} = 200$ for their ``true values.'' 
+Then they are recomputed with all $N^{j}, j\neq i_m$ fixed to $N^{max}$, while, for the $m$th region, which we will refer to as the target region, 
+$N^{i_m}$ is varied over $[1, 2, \dots, N^{big}]$, where $N^{big} = 150$ is less than $N^{max}$ by a reasonably large margin. 
+From this, the errors $\epsilon = \frac{\text{value}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $N^{i_m}$ are calculated.
 
-We observed that for a fixed geometry, convergence is slower 
+We observe that for a fixed geometry, convergence is slower 
 (1) for added mass than damping in innermost and middle regions, 
 (2) for body regions when the targeted region is the only one heaving (as opposed to any other combination of heave states), and 
 (3) for the exterior region when the outermost region is the only one heaving. 
 The remainder of this convergence study is restricted to these upper bound cases. 
 In particular, claims about a region's convergence are in the context of it being the only one heaving (for body regions) or only the outermost region heaving (for the exterior region).
 
-For each region, we began by generating convergence data for random geometries, plotting the $N^{i_m}$ of $1\%$ convergence against theorized dimensionless parameters, and identifying the one with the clearest correlation. 
-We then fixed dominant dimensionless parameter and repeated the process to find the next most important parameter. 
-This was repeated until a set of dimensionless parameters capturing most of the variation was found 
-(i.e. for random geometries with all of them fixed, the set of $1\%$ convergence points had sufficiently low variance).
+For each region, we begin by generating convergence data for random geometries, plotting the $N^{i_m}$ of $1\%$ convergence against theorized dimensionless parameters, and identifying the one with the clearest correlation. 
+We then fix the dominant dimensionless parameter and repeat the process to find the next most important parameter. 
+This is repeated until a set of dimensionless parameters capturing most of the variation is found 
+(i.e. for random geometries with all of them fixed, the set of $1\%$ convergence points have sufficiently low variance).
 
-Next, we swept each identified parameter over a range of reasonable values while keeping all other dimensionless parameters fixed. 
-These isolated effects were quantified by plotting the $\alpha^{i_m}$ and $\beta^{i_m}$ fitted to each geometry against the dimensionless parameter. 
-These plots suggested functional forms for the relationship between the dimensionless parameters and fit parameters (Fig.~\ref{fig:choosing-fitting-functions}).
+Next, we sweep each identified parameter over a range of reasonable values while keeping all other dimensionless parameters fixed. 
+These isolated effects are quantified by plotting the $\alpha^{i_m}$ and $\beta^{i_m}$ fitted to each geometry against the dimensionless parameter. 
+These plots suggest functional forms for the relationship between the dimensionless parameters and fit parameters (Fig.~\ref{fig:choosing-fitting-functions}).
 
-Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) were theorized and assessed by fitting them to sets of randomized geometry and their associated $(N^{i_m}, \epsilon)$ pairs. 
-Functions explored had to remain positive on the domain of the dimensionless parameter, restricting their form. 
-For example, some relationships appeared nearly linear with negative slope on the range of the dimensionless parameter they were observed at, but were expressed as decaying exponentials to avoid straying below zero.
+Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) are theorized and assessed by fitting them to sets of randomized geometry and their associated $(N^{i_m}, \epsilon)$ pairs. 
+Functions explored have to remain positive on the domain of the dimensionless parameter, restricting their form. 
+For example, some relationships appear nearly linear with negative slope on the range of the dimensionless parameter they are observed at, but are expressed as decaying exponentials to avoid straying below zero.
 
 \begin{figure}
     \centering
@@ -1154,7 +1158,7 @@ A cumulative parameter observed for the innermost region ($i_1)$ was some depend
 We removed this complicating factor by only considering the upper bounding case $d_3 < d_2$ when predicting for the innermost region (e.g. the data set for $i_1$ in Fig.~\ref{fig:convergence-fit-assessment}). 
 However, this suggests the possibility that the impact of fluid height ratios, especially in the case of the outer neighbor, might be a special case of the shielding effect.
 
-In the exterior region, other influential parameters include $\frac{h-d_M}{a_M-a_{M-1}}$ and $\frac{h-d_M}{h}$ for both hydrodynamic coefficients and $\frac{a_M}{h}$ for added mass only. Convergence was slower for larger $\frac{h-d_M}{a_M-a_{M-1}}$ (the outermost region's main resolution-detail ratio) and smaller $\frac{a_M}{h}$. However, the convergence relation with $\frac{h-d_M}{h}$ was complicated by large waves of variation in the hydrodynamic coefficients with respect to increasing $N^{i_m}$ (i.e. the configurations exhibited significant nonmonotonic convergence) for values of $\frac{h-d_M}{h}$ near $1$. By $\frac{h-d_M}{h} < 0.8$ though, there is a clear trend of slower convergence for smaller $\frac{h-d_M}{h}$.
+In the exterior region, other influential parameters include $\frac{h-d_M}{a_M-a_{M-1}}$ and $\frac{h-d_M}{h}$ for both hydrodynamic coefficients and $\frac{a_M}{h}$ for added mass only. Convergence was slower for larger $\frac{h-d_M}{a_M-a_{M-1}}$ (the outermost region's main resolution-detail ratio) and smaller $\frac{a_M}{h}$. However, the convergence relation with $\frac{h-d_M}{h}$ was complicated by large oscillatory variation in the hydrodynamic coefficients with respect to increasing $N^{i_m}$ (i.e. the configurations exhibited significant nonmonotonic convergence) for values of $\frac{h-d_M}{h}$ near $1$. By $\frac{h-d_M}{h} < 0.8$ though, there is a clear trend of slower convergence for smaller $\frac{h-d_M}{h}$.
 %TODO find original plots for h-d_M/h to list he positive/negative correlation.
 
 \subsection{Assessment} \label{sec:convergence-fit-assessment}
@@ -1162,7 +1166,7 @@ In the exterior region, other influential parameters include $\frac{h-d_M}{a_M-a
 The final fits chosen are assessed in Fig.~\ref{fig:convergence-fit-assessment}. 
 The $\alpha^{i_m}$ and $\beta^{i_m}$ calculated from the dimensionless parameters are used to predict the $N^{i_m}$ of $1\%$ convergence, and that $N^{i_m}$ and associated error compared to reality. 
 The configurations in those sets were generated from uniformly at random choosing: 
-$1<\lambda_0^eh<80$, three $1<\frac{h-d_m}{a_m-a_{m-1}}<30$, and three $0.05 < \frac{d_m}{h} < 0.95$ for a three body configurations. 
+$1<\lambda_0^eh<80$, three $1<\frac{h-d_m}{a_m-a_{m-1}}<30$, and three $0.05 < \frac{d_m}{h} < 0.95$ for a three body configuration. 
 Also, all fits had the additional condition that if the prediction was less than $N^{i_m} = 20$, it was changed to $20$ to avoid egregiously high errors if the prediction was wrong. 
 In reality, many configurations can achieve $1\%$ convergence before $N^{i_m} = 20$.
 
@@ -1176,12 +1180,12 @@ More conservative predictions can be obtained by adding weights in the fitting s
 The main limitations of this convergence study stem from the simplifying assumptions (Sec.~\ref{sec:convergence}). 
 Beyond these, another complication encountered is that some convergences exhibit decaying oscillations about the true value (as opposed to the monotonic behavior in Fig.~\ref{fig:error-model}), 
 obfuscating the envelope's relative errors and $1\%$ convergence point, and ability to measure the true fit parameters. 
-Furthermore, we observed in the outermost region that the convergence would initially follow one logarithmic curve, but then move along another, steeper one at a particular $N^{i_M}$, rendering the first curve an overestimate. 
-Our formulation tended to fit to the first curve, which is why the associated box plot in Fig.~\ref{fig:convergence-fit-assessment} has more significant overestimates than the other regions do. 
+Furthermore, in the outermost region we observe that the convergence initially follows one logarithmic curve, but then moves along another, steeper one at a particular $N^{i_M}$, rendering the first curve an overestimate. 
+Our formulation tends to fit to the first curve, which is why the associated box plot in Fig.~\ref{fig:convergence-fit-assessment} has more significant overestimates than the other regions do. 
 
 Overall, the results of the convergence study enable users to accurately compute hydrodynamic coefficients without added computation time. 
 Determining sufficient parameter settings before modeling is particularly useful in the field of optimization, where the hydrodynamic coefficients for a wide variety of geometries may be computed numerous times. 
-By characterizing the convergence behavior a priori and using the predicted number of terms, users can perform optimizations with confidence that their model's accuracy is acceptable.
+By characterizing the convergence behavior a priori and using the predicted number of terms, users can perform optimization with confidence that their model's accuracy is acceptable.
 
 \begin{figure}
     \centering
@@ -1222,7 +1226,7 @@ Since the forces applied to regions with smaller radial widths get weighted less
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/slant_figures.pdf}
-    \caption{Cross-sectional view of a slanted geometry and its equivalent discretized geometry. The close-up shown on the right-hand side shows how a slanted region can be approximated by a finite number of cylindrical rings. The unit vector normal to the horizontal part of all cylindrical rings is $\hat{n}$, while the unit vector normal to the true slanted body in the $m$th region is $\hat{n}_{\beta_m}$.}
+    \caption{Cross-sectional view of a slanted geometry and its equivalent discretized geometry. The close-up shown on the right-hand side shows how a slanted region can be approximated by a finite number of cylindrical rings. The unit vector normal to the horizontal part of all cylindrical rings is $\hat{n}$, while the unit vector normal to the true slanted body in the $m$th region is $\hat{n}_{\zeta_m}$.}
     \label{fig:Discretization Diagram}
 \end{figure} 
 
@@ -1238,13 +1242,13 @@ Since the forces applied to regions with smaller radial widths get weighted less
 % \subsection{Standard Representations for Slanted Geometries} \label{subsection: slant intro}
 
 \subsection{Sources of Inaccuracies}
-When modeling a slanted geometry as a discretized one using MEEM, inaccuracies can accrue when 1) computing the radiated velocity potential and 2) integrating pressure over the discretized wetted surface. Since the radial and vertical dependence was separated in Table~\ref{tab:MEEM-eigenfunctions}, coupling between the radial and vertical directions cannot be captured. Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using MEEM on the discretized geometry. This leads to discrepancies in the velocity potential. Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points. If one considers integrating the pressure on a slanted surface $S_p$ at constant angle $\beta$, instead of over the horizontal sections of the discretized geometry, $\hat n_p \cdot \hat e_z = \sin(\beta)$ and $dS = \frac{r}{\sin(\beta)}drd\theta$ in Eq.~\ref{eq:freq domain scalar rad force}. When these are substituted, the $\sin(\beta)$ cancels and the result is the same as Eq.~\ref{eq:freq domain scalar rad force in terms of regions}, except $d_m$ now has $r$ dependence. However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ mean that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{eq:freq domain scalar rad force in terms of added mass and damping} and onward. Unless the region's outline is flat and $d_m(r)$ is constant, the hydrodynamic coefficient integrals (given $\vec x$) do not admit closed forms. 
+When modeling a slanted geometry as a discretized one using MEEM, inaccuracies can accrue when 1) computing the radiated velocity potential and 2) integrating pressure over the discretized wetted surface. Since the radial and vertical dependence was separated in Table~\ref{tab:MEEM-eigenfunctions}, coupling between the radial and vertical directions cannot be captured. Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using MEEM on the discretized geometry. This leads to discrepancies in the velocity potential. Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points. If one considers integrating the pressure on a slanted surface $S_p$ at constant angle $\zeta$, instead of over the horizontal sections of the discretized geometry, $\hat n_p \cdot \hat e_z = \sin(\zeta)$ and $dS = \frac{r}{\sin(\zeta)}drd\theta$ in Eq.~\ref{eq:freq domain scalar rad force}. When these are substituted, the $\sin(\zeta)$ cancels and the result is the same as Eq.~\ref{eq:freq domain scalar rad force in terms of regions}, except $d_m$ now has $r$ dependence. However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ means that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{eq:freq domain scalar rad force in terms of added mass and damping} and onward. Unless the region's outline is flat and $d_m(r)$ is constant, the hydrodynamic coefficient integrals (given $\vec x$) do not admit closed forms. 
 
 Instead of altering the MEEM procedure for slanted geometries, the same procedure can be used for modeling slanted geometries with the assumption that, as the number of subdivisions increases, the discretized geometry approaches the true geometry, and, consequently, inaccuracies in the hydrodynamic coefficients diminish. Thus, a proper choice of the number of subdivisions is required to mitigate these inaccuracies.
 
 \subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using MEEM may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally. Fig~\ref{fig:contour potential comparison plots} (a) and (b) show the real value and error in the real value of the radiated velocity potential for a discretized body (modeled with MEEM) relative to a slanted body (modeled with Capytaine). Note the error in the hatched region in Fig~\ref{fig:contour potential comparison plots} (b) is removed as the value of the velocity potential is small in this region ($\mathrm{Re}(\phi)<0.2$). There is an overall trend of error moving from positive to negative as the depth becomes shallower. Fig~\ref{fig:contour potential comparison plots} (c) and (d) show a more detailed view of the local behavior of the velocity potential. The contours of constant velocity potential, indicated as solid black lines in Fig~\ref{fig:contour potential comparison plots} (c), either start and end at vertical and horizontal sections of the discretized surface, or are parallel to the slant that is being approximated, indicated as dashed blue lines in Fig~\ref{fig:contour potential comparison plots} (c). Fig~\ref{fig:contour potential comparison plots} (d) shows the corresponding error in the real value of the velocity potential (relative to Capytaine). The largest positive error is within the discretized body. For each step, there is positive error on the horizontal surface and negative error on the vertical surface. 
 
-If one were to consider a different integration scheme to minimize the error in the velocity potential that is used in the hydrodynamic coefficient calculations, one may seek to sample points in Fig~\ref{fig:contour potential comparison plots} (d) where error is zero, and numerically integrate over the true slant outline. However, the precise radial and vertical coordinates where the error is zero are unknown before performing the computation and comparing with a BEM solver. A different option is to systematically sample the velocity potential at spatial points that are determined by the slant and discretized geometries. For example, one could sample the velocity potential at locations where the slant surface intersects with the discretized surface. These points are indicated in Fig~\ref{fig:contour potential comparison plots} (c-e) with dots and diamonds for points sampled along the vertical and horizontal surfaces, respectively. Fig~\ref{fig:contour potential comparison plots} (e) shows the error in the real and imaginary parts of the velocity potential along the slant and stepped (discretized) surfaces across the entire radial width. When comparing the real parts, sampling at the horizontal surfaces leads to errors less that $3\%$, while sampling at the vertical surfaces can result in close to $4\%$ error. However, when considering the imaginary parts, sampling along the vertical surface results in less error. Still, errors will be present regardless of which of these sampling locations is chosen. While accurate hydrodynamic coefficients were obtained using the MEEM formulation discussed in Sec.~\ref{sec:mathematical-formulation}, Fig~\ref{fig:contour potential comparison plots} (c-e) show that systematic approaches for sampling the potential may be effective ways to mitigate inaccuracies and reduce the number of discretizations needed.
+If one were to consider a different integration scheme to minimize the error in the velocity potential that is used in the hydrodynamic coefficient calculations, one may seek to sample points in Fig~\ref{fig:contour potential comparison plots} (d) where error is zero, and numerically integrate over the true slant outline. However, the precise radial and vertical coordinates where the error is zero are unknown before performing the computation and comparing with a BEM solver. A different option is to systematically sample the velocity potential at spatial points that are determined by the slant and discretized geometries. For example, one could sample the velocity potential at locations where the slant surface intersects with the discretized surface. These points are indicated in Fig~\ref{fig:contour potential comparison plots} (c-e) with dots and diamonds for points sampled along the vertical and horizontal surfaces, respectively. Fig~\ref{fig:contour potential comparison plots} (e) shows the error in the real and imaginary parts of the velocity potential along the slant and stepped (discretized) surfaces across the entire radial width. When comparing the real parts, sampling at the horizontal surfaces leads to errors less than $3\%$, while sampling at the vertical surfaces can result in close to $4\%$ error. However, when considering the imaginary parts, sampling along the vertical surface results in less error. Still, errors will be present regardless of which of these sampling locations is chosen. While accurate hydrodynamic coefficients were obtained using the MEEM formulation discussed in Sec.~\ref{sec:mathematical-formulation}, Fig~\ref{fig:contour potential comparison plots} (c-e) show that systematic approaches for sampling the potential may be effective ways to mitigate inaccuracies and reduce the number of discretizations needed.
 
 
 
@@ -1261,10 +1265,10 @@ If one were to consider a different integration scheme to minimize the error in 
 
 \subsubsection{Dependence on Slant Steepness} \label{subsection: slant intro hydros}
 To determine the number of subdivisions needed to accurately model a slant with a given steepness, we compare the hydrodynamic coefficients from Capytaine and MEEM for a variety of steepnesses and number of subdivisions when modeling a cone. 
-As shown in Fig.~\ref{fig:slope-dependence}, steeper slants (smaller angle $\beta$) require more subdivisions for the same level of accuracy, 
+As shown in Fig.~\ref{fig:slope-dependence}, steeper slants (smaller angle $\zeta$) require more subdivisions for the same level of accuracy, 
 and the error in the approximation is roughly inversely proportional to the number of subdivisions. 
 Convergence of the added mass with respect to the number of subdivisions is slower than that of damping, 
-as shown by the added mass for an angle of $\pi/12$ (15\textsuperscript{o}) from vertical being unable to achieve less that $10 \%$ error with the number of subdivisions considered. 
+as shown by the added mass for an angle of $\pi/12$ (15\textsuperscript{o}) from vertical being unable to achieve less than $10 \%$ error with the number of subdivisions considered. 
 Meanwhile, less than $5 \%$ error in damping is achieved for all angles when 30 subdivisions are used. 
 While it is possible to achieve more accurate solutions using more subdivisions, 
 the computation cost of modeling these steeper geometries will be higher due to the size of the $\mathbf{A}$ matrix growing with the number of subdivisions, 
@@ -1442,12 +1446,12 @@ Independent of all $\eta_m$ & $\lambda_n^e, \boldsymbol{\mathcal{Z}}^{i_M e},\ma
 \subsection{Future Speed Enhancements}\label{sec:speedups}
 \paragraph{Matrix Solve}
 Given that MEEM's matrix is sparse and its construction can be decomposed into element-wise products, there exist additional ways to speed up its solution.
-In particular, the $\mathbf{A}$ matrix is block tri-diagonal, which can be solved in $\mathcal{O}(N_T)$ complexity via the Thomas algorithm, compared to the $\mathcal{O}(N_T^3)$ complexity of typical matrix solves \cite[Section 3.8.3]{quarteroni_numerical_2006}. 
+In particular, the $\mathbf{A}$ matrix is block bi-diagonal, which can be solved in $\mathcal{O}(N_T)$ complexity via the Thomas algorithm, compared to the $\mathcal{O}(N_T^3)$ complexity of typical matrix solves \cite[Section 3.8.3]{quarteroni_numerical_2006}. 
 However, \texttt{numpy/scipy} linear algebra solvers do not implement the Thomas algorithm in block form, so a standard direct solver is used in the present implementation.
 For large matrix sizes where the linear solve dominates computation, the use of a sparse iterative solver or the Thomas algorithm could unlock computational savings, enabling the modeling of more complex geometries during expensive optimization studies.
 
 % \paragraph{Eigenfunction Renormalization}
-Reference \cite{chau_inertia_2012} also discusses an optional convention difference, first suggested by \cite{mavrakos_hydrodynamic_2004}, to renormalize the radial eigenfunctions in each region so they evaluate to either zero or one at boundaries.
+\cite{chau_inertia_2012} also discuss an optional convention difference, first suggested by \cite{mavrakos_hydrodynamic_2004}, to renormalize the radial eigenfunctions in each region so they evaluate to either zero or one at boundaries.
 This increases the sparsity of the $\mathbf{A}$ matrix and reduces the number of coupling integral calculations and Bessel function calculations required to obtain the eigencoefficients.
 However, it does not reduce the number of Bessel calculations required to obtain the hydrodynamic coefficients because the avoided $\mathbf{A}$ matrix Bessel evaluations must still be performed in the $\vec c$ vector.
 Future work could examine whether other renormalizations exist that avoid calculations overall. 
@@ -1545,11 +1549,11 @@ MEEM's smaller sparse matrices could help address the issues with large dense ma
 
 Finally, future work should investigate techniques similar to MEEM that exist across other fields.
 Wave propagation boundary value problems are common in acoustics, electromagnetics, quantum mechanics, and seismology, 
-and the notion of breaking a structured domain into analytically tractable subdomains has surely been tried in all of them to various degrees.
+and the notion of breaking a structured domain into analytically tractable subdomains has been tried in all of them to various degrees.
 Understanding, comparing, and applying the insights from analogous problems in these diverse subjects could hasten the maturity of MEEM for hydrodynamics.
 In particular, MEEM has striking similarity to the ``indirect Trefftz collocation method'' in finite element analysis.
 This is a subset of the larger family of Trefftz methods, which refer to eigenfunctions as ``T-complete functions'' and also include least-square, Galerkin, variational, and direct versions \citep{kita_trefftz_1995}.
-Exploring this connection could be especially relevant because of the large amount of attention that finite element analysis receives in the engineering and numerical computation communities.
+Exploring this connection could be especially relevant due to the large amount of attention that finite element analysis receives in the engineering and numerical computation communities.
 
 All in all, MEEM holds computational promise as a result of its semi-analytical nature, sparse block structure, and rapid convergence properties.
 
@@ -1660,7 +1664,7 @@ R. McCabe, National Science Foundation Graduate Research Fellowship Program, Cor
 C. Treacy, Sandia LDRD; 
 K. Khanal, Sandia Seedlings program, Sandia LDRD; 
 E. Lo, Cornell Engineering Learning Initiatives through the Dean Archer Undergraduate Research Program.
-This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE–2139899. Any opinion, findings, and conclusions or recommendations expressed in this material are those of the author and do not necessarily reflect the views of the National Science Foundation.
+This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE–2139899. Any opinion, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
 \end{bmhead}
 
 \begin{bmhead}[Author ORCIDs.]{R. McCabe, https://orcid.org/0000-0001-5108-998X; C. Treacy, https://orcid.org/0009-0000-9381-2697; K. Khanal, https://orcid.org/0000-0002-0327-5945; M. Haji, https://orcid.org/0000-0002-2953-7253}
@@ -1867,7 +1871,7 @@ Note that Eq.~\ref{coupling integral i_m and i_m+1} and~\ref{coupling integral i
 
 Rewriting Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} for each of the $M$ boundaries, where the symbols representing the smaller $\mathrm{s}$ and taller $\mathrm{t}$ regions are replaced by the region names of the problem (i.e. $i_1, i_2,\dots,  i_M,e$) and $a$ is replaced by $a_m$, yields a set of $N_\mathrm{T}$ equations that are linear with respect to the unknown eigencoefficients.
 The structure of these equations is in the form of $\mathbf{A} \vec{x}=\vec{b}$ where the matrix $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ contains the left-hand-side of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} (excluding the eigencoefficients), the vector $\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^T \in \mathbb{C}^{N_\mathrm{T}}$ contains all eigencoefficients, and the vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ contains the right-hand-side of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations}.
-As shown in Table~\ref{tab:MEEM-A-matrix}, $\mathbf{A}$ is a block diagonal matrix composed of sub-matrices $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices. Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $m$th boundary.
+As shown in Table~\ref{tab:MEEM-A-matrix}, $\mathbf{A}$ is a block bi-diagonal matrix composed of sub-matrices $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices. Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $m$th boundary.
 The corresponding right-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} are contained in $\vec{b}_m$, which form the vector $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. 
 
 
@@ -2005,6 +2009,7 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
       \\ \hline
     \end{tabular}
     \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$). 
+    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.
     }
     \label{tab:MEEM-A_mr-matrix-case-2}
 \end{table}
@@ -2138,8 +2143,7 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
         $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} $ 
         \\ \hline
     \end{tabular}
-    \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$). 
-    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
+    \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).}
     \label{tab:MEEM-A_mz-matrix-case-2}
 \end{table}
 \end{landscape}
