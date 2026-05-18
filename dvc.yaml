@@ -103,6 +103,17 @@ stages:
           cache: true
     desc: Automatically generated from the 'sparsity-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
+  graphical-abstract:
+    cmd: calkit latex build -e tex --no-check 
+      pubs/JFM/figs/graph_abstract.tex
+    deps:
+      - pubs/JFM/figs/graph_abstract.tex
+      - .calkit/env-locks/tex
+    outs:
+      - pubs/JFM/figs/graph_abstract.pdf
+      - pubs/JFM/figs/graph_abstract.log
+    desc: Automatically generated from the 'graphical-abstract' stage 
+      in calkit.yaml. Changes made here will be overwritten.
   compile-overleaf:
     cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
     deps:

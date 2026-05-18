@@ -41,9 +41,9 @@ stages:
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 635362687c1c1f4a97ae951a0b086f17.dir
-      size: 5462362
-      nfiles: 33
+      md5: 67f896d815ffdee505b2e663bfdcf32d.dir
+      size: 5520708
+      nfiles: 40
     - path: pubs/JFM/jfm.bib
       hash: md5
       md5: c8b7836d4159bf040ffd5d3d4b3ab0bf
@@ -58,13 +58,13 @@ stages:
       size: 3554
     - path: pubs/JFM/zotero-meem-refs.bib
       hash: md5
-      md5: 35791382656ead5e343021787f3a7d76
-      size: 37135
+      md5: 77f53eeba8ba0b4850efe9aeaa5dafdc
+      size: 38888
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: f0cddd1e5003ae78ac8123254037d05f
-      size: 1460710
+      md5: 089a7242e0218ac4253caf511068b82e
+      size: 1460600
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
@@ -400,3 +400,24 @@ stages:
       hash: md5
       md5: 4f8c8d0d2a8d14e65edb18a7ec69567c
       size: 209396
+  graphical-abstract:
+    cmd: calkit latex build -e tex --no-check pubs/JFM/figs/graph_abstract.tex
+    deps:
+    - path: .calkit/env-locks/tex
+      hash: md5
+      md5: 5335d12b2300755418b74ba5e4bda2a5.dir
+      size: 1147
+      nfiles: 1
+    - path: pubs/JFM/figs/graph_abstract.tex
+      hash: md5
+      md5: ec8dbe649b3b67812906d82d7a78ce23
+      size: 2271
+    outs:
+    - path: pubs/JFM/figs/graph_abstract.log
+      hash: md5
+      md5: 4da3ed4de14ed654807c5ec98f3fa5a8
+      size: 16702
+    - path: pubs/JFM/figs/graph_abstract.pdf
+      hash: md5
+      md5: 075b12ab8dd2da0b20b69e8911a74ee1
+      size: 11873
