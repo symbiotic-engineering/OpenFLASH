@@ -29,12 +29,12 @@ stages:
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 6b97d4ea0c3fb745b9e13c05d442dd95
-      size: 181936
+      md5: c2d6b63461bc1960608459e34a913234
+      size: 184860
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 6b97d4ea0c3fb745b9e13c05d442dd95
-      size: 181936
+      md5: c2d6b63461bc1960608459e34a913234
+      size: 184860
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -63,8 +63,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 175d4981f6331fe73cf6e4336731bb87
-      size: 1461698
+      md5: 27cb6ee83b027b57ade4772282b3a22a
+      size: 1463555
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
