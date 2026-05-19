@@ -152,9 +152,23 @@ notebooks:
   - path: analysis/low_m0_plots.ipynb
     name: low_m0_plots
     title: Low frequency behavior
-  - path: 
+  - path: analysis/sparsity_plots.ipynb
+    name: sparsity_plots
+    title: Matrix sparsity structure
+  - path: analysis/convergence-results.ipynb
+    name: convergence-results
+    title: Convergence study
+  - path: analysis/timing_plots.ipynb
+    name: timing_plots
+    title: Runtime benchmarking
+  - path: analysis/slant_data_plots.ipynb
+    name: slant_data_plots
+    title: Accuracy of Slanted geometries
 
 showcase:
+  - figure: pubs/JFM/figs/graph_abstract.pdf
+  - figure: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
+  - figure: pubs/JFM/figs/A_sparsity_plot.pdf
 
 references:
   - path: pubs/JFM/jfm.bib
