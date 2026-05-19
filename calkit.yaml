@@ -110,10 +110,10 @@ publications:
 
 figures:
   - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
-    title: Figure 5: Validation of MEEM vs Capytaine hydro coefficients
+    title: "Figure 5: Validation of MEEM vs Capytaine hydro coefficients"
     stage: validate-w-capy
   - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
-    title: Figure 3: low frequency approximation
+    title: "Figure 3: low frequency approximation"
     stage: low-m0-figs
   - path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
     stage: slant-figs
