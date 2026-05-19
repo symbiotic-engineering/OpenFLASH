@@ -141,10 +141,11 @@ Each cylindrical ring can be an independent body or rigidly fixed to any other c
 The external fluid region surrounding the body is denoted by $e$. 
 The geometry of the $m$th internal region is defined in terms of the radius $a_m$ measured from the axis of symmetry 
 and the draft $d_m$ measured from the mean free surface. 
-The origin $O$ is located at the intersection of the axis of symmetry of the body and the mean free surface of the fluid. 
+The origin $O$ is located at the intersection of the body axis of symmetry and the mean free surface of the fluid. 
 It is assumed that $a_{m+1}>a_m$ and $d_m<h$ for all $m$, where $h$ is the sea depth. 
-This geometry can be used to model more general geometries, such as the CorPower WEC \citep{de2016techno}, WaveBot WEC \citep{strofer2023control}, AquaHarmonics WEC \citep{weaver2020super}, LUPA WEC float \citep{beringer2025degrees}, and RM3 WEC float \citep{neary2014methodology}, 
-by discretizing slanted sections into a finite number of annular cylindrical regions, as we will show in Sec.~\ref{sec:slant}. 
+This geometry can be used to model more general bodies by discretizing slanted sections into a finite number of annular regions, as we will show in Sec.~\ref{sec:slant}.
+Such geometries include the CorPower \citep{de2016techno}, WaveBot \citep{strofer2023control}, AquaHarmonics \citep{weaver2020super}, LUPA float \citep{beringer2025degrees}, and RM3 float \citep{neary2014methodology} WECs.
+ 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/Multi_MEEM_Diagram.pdf}
@@ -318,15 +319,15 @@ The vector of unknowns has the form
 $\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^T \in \mathbb{C}^{N_\mathrm{T}}$, 
 where $\vec{C}_{\chi}^{j} = [C_{\chi1}^j, C_{\chi2}^j, ..., C_{\chi(N^j-1)}^j]$.
 Index $j\in\{i_1,i_2,...,i_M,e\}$ specifies the region and $\chi\in\{1,2\}$ specifies the eigenfunction type. 
-The column vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ consists of sub-vectors $\vec{b}_m$ such that 
+Column vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ consists of sub-vectors $\vec{b}_m$ such that 
 $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. 
 Each sub-matrix $\mathbf{A}_m$ and sub-vector $\vec{b}_m$ contains information about the matching of the potential and velocity at $r=a_m$. 
 
-Depending on which fluid region is the taller, there are two cases of $\mathbf{A}_m$: 
+Depending on which fluid region is taller, there are two cases of $\mathbf{A}_m$: 
 1) when $d_m>d_{m+1}$, which is shown in Table~\ref{tab:MEEM-A_m-matrix-case-1},  and 
 2) when $d_m<d_{m+1}$, which is shown in Table~\ref{tab:MEEM-A_m-matrix-case-2}.
-The first case is more common, although the second case can occur when the body surface is non-convex.
-The corresponding right-hand-side vectors $\vec{b}_m$ are shown in 
+The first case is more common, although the second case can occur for non-convex bodies.
+Corresponding right-hand-side vectors $\vec{b}_m$ are shown in 
 Table~\ref{tab:MEEM-b_m-vector-case-1} and~\ref{tab:MEEM-b_m-vector-case-2}, respectively. 
 The matrix $\boldsymbol{\mathcal{Z}}^{ij}$ has size $N^i \times N^j$ 
 and contains the integrals of the products of vertical eigenfunctions in regions $i$ and $j$. 
@@ -337,32 +338,28 @@ and $\odot$ is the Hadamard (element-wise) product.
 The equations in Tables~\ref{tab:MEEM-A_m-matrix-case-1}-\ref{tab:MEEM-A_m-matrix-case-2} are valid as-is when $2 \le m \le M-1$. 
 When $m=1$, the $\vec{C}_2^{i_1}$ column should be excluded from $\mathbf{A}_1$ 
 since the only unknowns associated with $\phi^{i_1}$ are $\vec{C}_1^{i_1}$.
-Similarly, when $m=M$, all indices with $i_{m+1}$ should be replaced with $e$, 
+Similarly, when $m=M$, all $i_{m+1}$ indices should be replaced with $e$, 
 $d_{m+1}$ should be set to zero, and the $\vec{C}_2^{i_{m+1}}$ column should be excluded from $\mathbf{A}_M$.
 Consequently, $\mathbf{A}_m \in \mathbb{R}^{(N^{i_m} + N^{i_{m+1}}) \times (2N^{i_m} + 2N^{i_{m+1}})}$, 
 while $\mathbf{A}_1 \in \mathbb{R}^{(N^{i_1} + N^{i_{2}}) \times (N^{i_1} + 2N^{i_2})}$ 
 and $\mathbf{A}_M \in \mathbb{C}^{(N^{i_M} + N^{e}) \times (2N^{i_M} + N^e)}$.
-This is consistent with what is shown in Table~\ref{tab:MEEM-A-matrix}. 
-Comparing Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}, we see that each $\mathbf{A}_m$ sub-matrix is composed of eight blocks,
-four of which are square diagonal and four of which are rectangular dense, although the locations of each block type differ in the two versions.
-The diagonal blocks correspond to orthogonality of the vertical eigenfunctions within a given region,
-while the dense blocks correspond to coupling of the vertical eigenfunctions between adjacent regions.
+This is consistent with Table~\ref{tab:MEEM-A-matrix}. 
+Comparing Tables~\ref{tab:MEEM-A_m-matrix-case-1} and \ref{tab:MEEM-A_m-matrix-case-2}, each $\mathbf{A}_m$ sub-matrix contains four square diagonal blocks and four rectangular dense blocks but differs in the location of each block type.
+Diagonal blocks arise from orthogonality of the vertical eigenfunctions within a given region,
+and dense blocks arise from coupling of the vertical eigenfunctions between adjacent regions.
 
 Tables~\ref{tab:MEEM-b_m-vector-case-1} and \ref{tab:MEEM-b_m-vector-case-2} 
-show the two cases of $\vec{b}_m$ sub-vectors, which have closed form solutions. These can be used without modification to obtain all the vectors $\vec{b}_m$ for $1 \le m \le M-1$ while, for $m=M$, Table~\ref{tab:MEEM-b_m-vector-case-1} should be modified so that all indices with $i_{m+1}$ are replaced with $e$ and $d_{m+1}$ is set to zero. Additionally, each sub-matrix $\mathbf{A}_m$ can be broken into 
-a matrix dependent on radial eigenfunctions $\mathbf{A}_{m,r}$ 
-and a matrix dependent on vertical eigenfunctions $ \mathbf{A}_{m,z}$, 
-where $\mathbf{A}_m = \mathbf{A}_{m,r} \odot \mathbf{A}_{m,z}$, 
-as shown in Appendix~\ref{sec:Forms of Matrix A}.
+show the two cases of $\vec{b}_m$ sub-vectors, which have closed form solutions.
+For $1 \le m \le M-1$, these can be used without modification to obtain all vectors $\vec{b}_m$.
+For $m=M$, Table~\ref{tab:MEEM-b_m-vector-case-1} is modified so that any $i_{m+1}$ indices are replaced with $e$ and $d_{m+1}$ is set to zero. 
+Additionally, Appendix~\ref{sec:Forms of Matrix A} shows that each sub-matrix $\mathbf{A}_m$ decomposes into an element-wise product of purely radial and purely vertical components: $\mathbf{A}_m = \mathbf{A}_{m,r} \odot \mathbf{A}_{m,z}$.
 
 After constructing the $\mathbf{A}$ matrix and $\vec{b}$ vector 
 that correspond to the problem's geometry and wave conditions, 
 numerically solving the $\mathbf{A} \vec{x}=\vec{b}$ 
-equation yields the unknown eigencoefficients $\vec{x}$, 
-which can be substituted into the expressions of Table~\ref{tab:MEEM-eigenfunctions} 
-to yield the velocity potential everywhere in the fluid.
-The potential can then be used to find the hydrodynamic forces on the body.
-
+equation yields the unknown eigencoefficients $\vec{x}$. Substituting into the expressions of Table~\ref{tab:MEEM-eigenfunctions} 
+yields the velocity potential everywhere in the fluid.
+Potential can then be integrated to find the hydrodynamic forces.
 % \begin{landscape}
 % \begin{table}
 %     \centering
@@ -371,7 +368,6 @@ The potential can then be used to find the hydrodynamic forces on the body.
 %      & & $\vec{C}_{1n}^{i_1}$& $\vec{C}_{1n}^{i_2}$& $\vec{C}_{2n}^{i_2}$ & $\vec{C}_{1n}^{i_3}$& $\vec{C}_{2n}^{i_3}$ & ... 
 %      &$\vec{C}_{1n}^{i_{M-1}}$& $\vec{C}_{2n}^{i_{M-1}}$ &$\vec{C}_{1n}^{i_M}$& $\vec{C}_{2n}^{i_M}$ & $\vec{C}_n^e$ \\\hline 
 %       &size&  $N^{i_1}$&  $N^{i_2}$&  $N^{i_2}$& $N^{i_3}$&  $N^{i_3}$ &... & $N^{i_{M-1}}$&  $N^{i_{M-1}}$ & $N^{i_M}$ & $N^{i_M}$ & $N^e$\\ \hline \hline 
-      
 %       % A1 block
 %       \shortstack{$\phi^{i_1}=\phi^{i_2}$ \\ at $r=a_1$}
 %         & \multirow{2}{*}{$N^{i_1} + N^{i_2}$} 
@@ -380,7 +376,6 @@ The potential can then be used to find the hydrodynamic forces on the body.
 %       \shortstack{$\frac{\partial}{\partial r}\phi^{i_1}=\frac{\partial}{\partial r}\phi^{i_2}$ \\ at $r=a_1$}
 %         & & \multicolumn{3}{c|}{} 
 %         & & & & & & & & \\ \hline 
-      
 %       % A2 block
 %       \shortstack{$\phi^{i_2}=\phi^{i_3}$ \\ at $r=a_2$}
 %         & \multirow{2}{*}{$N^{i_2}+N^{i_3}$} 
@@ -389,14 +384,11 @@ The potential can then be used to find the hydrodynamic forces on the body.
 %       \shortstack{$\frac{\partial}{\partial r}\phi^{i_2}=\frac{\partial}{\partial r}\phi^{i_3}$ \\ at $r=a_2$}
 %         & & & \multicolumn{4}{c|}{} 
 %         & & & & & & \\ \hline 
-      
 %         $\vdots$ & $\vdots$
 %             & \multicolumn{2}{c|}{$\mathbf{0}$} % empty columns to left of diagonal
 %             & \multicolumn{7}{c|}{$\ddots$} % the diagonal itself
 %             & \multicolumn{2}{c|}{$\mathbf{0}$} % empty columns to right of diagonal
-%              \\ \hline
-
-      
+%              \\ \hline     
 %       % A_{M-1} block
 %       \shortstack{$\phi^{i_{M-1}}=\phi^{i_M}$ \\ at $r=a_{M-1}$}
 %         & \multirow{2}{*}{$N^{i_{M-1}} + N^{i_M}$} 
@@ -404,8 +396,7 @@ The potential can then be used to find the hydrodynamic forces on the body.
 %         & \\ \cline{1-1}\cline{3-8}\cline{13-13}
 %       \shortstack{$\frac{\partial}{\partial r}\phi^{i_{M-1}}=\frac{\partial}{\partial r}\phi^{i_M}$ \\ at $r=a_{M-1}$}
 %         & & & & & & & & \multicolumn{4}{c|}{} 
-%         & \\ \hline
-      
+%         & \\ \hline     
 %       % A_M block
 %       \shortstack{$\phi^{i_{M}}=\phi^{e}$ \\ at $r=a_M$}
 %         & \multirow{2}{*}{$N^{i_M}+N^e$} 
@@ -417,9 +408,6 @@ The potential can then be used to find the hydrodynamic forces on the body.
 %     \label{tab:MEEM-A-matrix}
 % \end{table}
 % \end{landscape}
-
-
-
 \begin{table}
     \centering
     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -448,6 +436,7 @@ The potential can then be used to find the hydrodynamic forces on the body.
       Boundary $M$ & $N^{i_M}+N^{i_e}$
         & \multicolumn{8}{c|}{$\mathbf{0}$} & \multicolumn{3}{c|}{$\mathbf{A}_M$} \\ \hline
     \end{tabular}
+    \vspace{-10pt}
     \caption{MEEM $\mathbf{A}$ matrix.}
     \label{tab:MEEM-A-matrix}
 \end{table}
