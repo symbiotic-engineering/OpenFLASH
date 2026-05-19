@@ -24,24 +24,24 @@ stages:
     deps:
     - path: .calkit/env-locks/tex
       hash: md5
-      md5: 5335d12b2300755418b74ba5e4bda2a5.dir
+      md5: 1d20723629fc752e4776c7e1d6cb328e.dir
       size: 1147
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 2b048c840a510cc7c997d4884ea1d280
-      size: 182071
+      md5: 469eb4736863262c5602ff9cfa9706bb
+      size: 182222
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 2b048c840a510cc7c997d4884ea1d280
-      size: 182071
+      md5: 469eb4736863262c5602ff9cfa9706bb
+      size: 182222
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
       size: 77883
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 67f896d815ffdee505b2e663bfdcf32d.dir
+      md5: 1e7b0b077edcc2cbf73fb8d1ae6dd10b.dir
       size: 5520708
       nfiles: 40
     - path: pubs/JFM/jfm.bib
@@ -58,13 +58,13 @@ stages:
       size: 3554
     - path: pubs/JFM/zotero-meem-refs.bib
       hash: md5
-      md5: 77f53eeba8ba0b4850efe9aeaa5dafdc
-      size: 38888
+      md5: 5cc824c709a2fe7890c57e57efe95cf8
+      size: 43002
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 2d1ba0863f9fdd7495d38c0446c38715
-      size: 1460611
+      md5: 14caf16697a810b60819650299b2903f
+      size: 1462006
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
@@ -405,7 +405,7 @@ stages:
     deps:
     - path: .calkit/env-locks/tex
       hash: md5
-      md5: 5335d12b2300755418b74ba5e4bda2a5.dir
+      md5: 1d20723629fc752e4776c7e1d6cb328e.dir
       size: 1147
       nfiles: 1
     - path: pubs/JFM/figs/graph_abstract.tex
@@ -415,9 +415,9 @@ stages:
     outs:
     - path: pubs/JFM/figs/graph_abstract.log
       hash: md5
-      md5: 4da3ed4de14ed654807c5ec98f3fa5a8
-      size: 16702
+      md5: a9b22b3b8142f53823030431b128ca89
+      size: 16701
     - path: pubs/JFM/figs/graph_abstract.pdf
       hash: md5
-      md5: 075b12ab8dd2da0b20b69e8911a74ee1
+      md5: ab6898db6da82271616f7b82ad05056a
       size: 11873
