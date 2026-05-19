@@ -111,7 +111,7 @@ Early analytical solutions for the wave force on vertical cylindrical bodies und
 Both take advantage of the separability of the Laplace equation in cylindrical coordinates.
 Fully analytical solutions are not available for truncated cylinders (those whose bottoms do not touch the sea floor) since it is impossible to analytically enforce continuity of potential between the water under the body and the water surrounding it.
 
-\cite{yeung_added_1981} presents a semi-analytical method called the matched eigenfunction expansion method (MEEM) to address this challenge.
+\citet{yeung_added_1981} presents a semi-analytical method called the matched eigenfunction expansion method (MEEM) to address this challenge.
 The solution in each fluid region is obtained analytically in terms of unknown coefficients, and these coefficients are found numerically by enforcing continuity of potential and radial velocity at region boundaries.
 The method received thorough coverage in a recent analytical hydrodynamics textbook \citep{chatzigeorgiou2018analytical} and has been extended to cover increasingly complex concentric geometries, 
 including two truncated cylinders \citep{mavrakos_hydrodynamic_2004,chau2012inertia}, three truncated cylinders \citep{zhang_performance_2024}, damping plates \citep{olaya_hydrodynamic_2015}, and many cylinders approximating complex concentric bodies \citep{kokkinowrachos_behaviour_1986}.
@@ -119,16 +119,16 @@ including two truncated cylinders \citep{mavrakos_hydrodynamic_2004,chau2012iner
 Despite this interest from hydrodynamics researchers, MEEM has not been widely adopted by the offshore engineering community, likely due to the complexity of its implementation 
 and the rise of boundary element method (BEM) software packages that are easier to use and applicable to arbitrary geometries, albeit more computationally costly.
 With the growing need for efficient hydrodynamic analysis tools to enable advanced design procedures like optimization, interest in MEEM has resurged, particularly in the offshore renewable energy space. 
-\cite{pavlidou_novel_2022} performed multi-objective optimization for a two-body wave energy converter (WEC) using MEEM to compute the hydrodynamic coefficients of a cylinder. 
-\cite{zhang_hydrodynamic_2016} optimized the shape of the wetted surface of a point absorber WEC using MEEM to model cylindrical, hemispherical, paraboloid, and conical geometries. 
-\cite{mavrakos2012hydrodynamic} used MEEM to compute the first-order and mean second-order loads on a vertical axisymmetric oscillating water column WEC. 
+\citet{pavlidou_novel_2022} performed multi-objective optimization for a two-body wave energy converter (WEC) using MEEM to compute the hydrodynamic coefficients of a cylinder. 
+\citet{zhang_hydrodynamic_2016} optimized the shape of the wetted surface of a point absorber WEC using MEEM to model cylindrical, hemispherical, paraboloid, and conical geometries. 
+\citet{mavrakos2012hydrodynamic} used MEEM to compute the first-order and mean second-order loads on a vertical axisymmetric oscillating water column WEC. 
 However, the benefits of MEEM over traditional BEM solvers remain unclear, as the tradeoffs between accuracy and computational performance of the methods are seldom compared in the literature. 
 Additionally, previous work does not directly address the convergence behaviour and angle-dependent discretization of slanted geometries, making its ability to accurately model more general geometries uncertain.
 
 This work presents a unifying MEEM framework that arranges equations into an organized sparse matrix structure. 
 This framework is used to model an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous radially-monotonic profiles. 
 The method’s convergence behaviour, ability to accurately approximate slanted bodies, and computational advantages over the BEM solver Capytaine are explored. 
-The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \cite{best_openflash_2026}) that is used for numerical studies herein.
+The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \citep{best_openflash_2026}) that is used for numerical studies herein.
 % The lack of an accessible computational implementation, including the numerical properties and accuracy thereof, has been a barrier.
 
 Section~\ref{sec:mathematical-formulation} formulates the mathematics, unifies the aforementioned literature in a consistent notation, 
@@ -733,7 +733,7 @@ where the element in the $p$th row and column of the diagonal matrix $\mathbf{C}
     \mathbf{B}_\mathrm{r}(\omega) = 2\pi \rho \omega \ \mathrm{Im} \{ \mathbf{C}_0 + \mathbf{C} \ \mathbf{A}^{-1} \ \mathbf{B} \}.
 \end{equation}
 
-To find the heave excitation force $X_q$ on the $q$th body due to an incident wave, a form of the Haskind relation can be used \citep{newman2018marine}. This was done in~\cite{chau2012inertia} and~\cite{zhang_performance_2024} for geometries with two and three internal regions, respectively. The results are the same for this configuration, as the derivation for the force on the $q$th body only involves the solution in the external region when the $q$th body is heaving. The heave excitation force on the $q$th body is
+To find the heave excitation force $X_q$ on the $q$th body due to an incident wave, a form of the Haskind relation can be used \citep{newman2018marine}. This was done in~\citet{chau2012inertia} and~\citet{zhang_performance_2024} for geometries with two and three internal regions, respectively. The results are the same for this configuration, as the derivation for the force on the $q$th body only involves the solution in the external region when the $q$th body is heaving. The heave excitation force on the $q$th body is
 \begin{equation}\label{eq:excitation force}
     X_q = \frac{-4 \text{i} \rho g h \sqrt{N_0} }{\cosh(\lambda_0^eh)\text{H}_0^1(\lambda_0^e a_M)} \ _{}^{q}C_{10}^e
 \end{equation}
@@ -770,7 +770,7 @@ As $\omega \to 0$, the components of $\vec x$ exhibit the following asymptotic b
 
 Since $\vec c_p$ is frequency independent, the hydrodynamic coefficients vary with frequency only through their dependence on $C^{i_m}_{1n_m}$ and $C^{i_m}_{2n_m}$.
 From their forms, we can see that as $\omega \to 0$, the behaviors of the $n_m = 0$ coefficients dominate the others. Consequently, $A_{11}(\omega)$ grows proportional to $\ln(\lambda_0^e h)$ (although the constant term is still significant for the frequency range in Fig.~\ref{fig: extreme-frequencies}) while $B_{11}(\omega)/\omega$ approaches a constant.
-This is consistent with behaviour of the analytical low frequency limits for a single heaving cylinder described in \cite{yeung_added_1981}, $\lim_{\omega \to 0} A_{11}(\omega) = K - \frac{2B_{11}(0)}{\pi\omega}\ln(\lambda_0^e h) \approx - \frac{2B_{11}(0)}{\pi\omega}\ln(\lambda_0^e h)$, where $K$ is a constant. 
+This is consistent with behaviour of the analytical low frequency limits for a single heaving cylinder described in \citet{yeung_added_1981}, $\lim_{\omega \to 0} A_{11}(\omega) = K - \frac{2B_{11}(0)}{\pi\omega}\ln(\lambda_0^e h) \approx - \frac{2B_{11}(0)}{\pi\omega}\ln(\lambda_0^e h)$, where $K$ is a constant. 
 
 %$A_{11}(\omega) \to K- \frac{\rho \pi a_1^4}{2h}\ln{(\lambda_0^e a_1)}$ for some constant $K$ and $B_{11}(\omega)/\omega \to \frac{\rho \pi^2 a^4}{4h}$
 
@@ -932,7 +932,7 @@ This is a consequence of Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec}.
 
 \subsection{Validation}\label{sec:validation}
 The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation magnitude $|X_1(\omega)|$, and excitation phase $\angle X_1(\omega)$ 
-from MEEM and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \cite{faedo2021energy}. 
+from MEEM and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \citet{faedo2021energy}. 
 This is shown in Fig.~\ref{fig:hydro coeff validation}. 
 Note that the geometry is simplified in the MEEM and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. 
 In reality, the CorPower WEC geometry also consists of a slanted section. 
@@ -1441,12 +1441,12 @@ Independent of all $\eta_m$ & $\lambda_n^e, \boldsymbol{\mathcal{Z}}^{i_M e},\ma
 \subsection{Future Speed Enhancements}\label{sec:speedups}
 \paragraph{Matrix Solve}
 Given that MEEM's matrix is sparse and its construction can be decomposed into element-wise products, there exist additional ways to speed up its solution.
-In particular, the $\mathbf{A}$ matrix is block bi-diagonal, which can be solved in $\mathcal{O}(N_T)$ complexity via the Thomas algorithm, compared to the $\mathcal{O}(N_T^3)$ complexity of typical matrix solves \cite[Section 3.8.3]{quarteroni_numerical_2006}. 
+In particular, the $\mathbf{A}$ matrix is block bi-diagonal, which can be solved in $\mathcal{O}(N_T)$ complexity via the Thomas algorithm, compared to the $\mathcal{O}(N_T^3)$ complexity of typical matrix solves \citep[Section 3.8.3]{quarteroni_numerical_2006}. 
 However, \texttt{numpy/scipy} linear algebra solvers do not implement the Thomas algorithm in block form, so a standard direct solver is used in the present implementation.
 For large matrix sizes where the linear solve dominates computation, the use of a sparse iterative solver or the Thomas algorithm could unlock computational savings, enabling the modelling of more complex geometries during expensive optimization studies.
 
 % \paragraph{Eigenfunction Renormalization}
-\cite{chau_inertia_2012} also discuss an optional convention difference, first suggested by \cite{mavrakos_hydrodynamic_2004}, to renormalize the radial eigenfunctions in each region so they evaluate to either zero or one at boundaries.
+\citet{chau_inertia_2012} also discuss an optional convention difference, first suggested by \citet{mavrakos_hydrodynamic_2004}, to renormalize the radial eigenfunctions in each region so they evaluate to either zero or one at boundaries.
 This increases the sparsity of the $\mathbf{A}$ matrix and reduces the number of coupling integral calculations and Bessel function calculations required to obtain the eigencoefficients.
 However, it does not reduce the number of Bessel calculations required to obtain the hydrodynamic coefficients because the avoided $\mathbf{A}$ matrix Bessel evaluations must still be performed in the $\vec c$ vector.
 Future work could examine whether other renormalizations exist that avoid calculations overall. 
@@ -1533,7 +1533,7 @@ Naturally, continued numerical comparison against BEM is necessary to evaluate t
 It is the authors' hope that the OpenFLASH python package developed for this work can serve as a centralized repository for the software to implement such studies.
 
 An additional avenue for further research is the practical application of the MEEM method, and especially of the insights gained from its mathematical structure and convergence behaviour exposed here, for hydrodynamic design.
-\cite{mccabe_development_2026} describes the authors' initial attempt at such an endeavor, primarily leveraging MEEM's faster computational speed to widely explore the design space, and future work should implement the geometry-dependent number of terms heuristic from the convergence study in optimization.
+\citet{mccabe_development_2026} describes the authors' initial attempt at such an endeavor, primarily leveraging MEEM's faster computational speed to widely explore the design space, and future work should implement the geometry-dependent number of terms heuristic from the convergence study in optimization.
 Furthermore, MEEM's sparse linear solution structure could be leveraged in design by applying the adjoint method or other analytic or automatic differentiation techniques to enable scalable gradient-based optimization and sensitivity analysis of marine structures.
 MEEM's smaller sparse matrices could help address the issues with large dense matrices encountered in the authors' BEM sensitivity work \citep{khanal_fully_2025}.
 
@@ -1720,7 +1720,7 @@ The Laplace equations in Eq.~\ref{Laplace equation internal region} and~\ref{Lap
 \begin{equation}\label{eq:R-ODE}
     r^2\frac{\mathrm{d}^2 R}{\mathrm{d}r^2}+r\frac{\mathrm{d} R}{\mathrm{d}r} + (\lambda^2r^2-\nu^2)R=0
 \end{equation}
-where $R(r)$, $\Theta(\theta)$, and $Z(z)$ are eigenfunctions, and $\lambda$ and $\nu$ are eigenvalues. Since we are considering a vertically axisymmetric geometry and only heave motion, $\Theta=1$ and $\nu=0$. This leaves the vertical and radial eigenfunctions to be determined. As discussed in \cite{chatzigeorgiou2018analytical}, there are two cases of the eigenvalue $\lambda$ to consider: $\lambda \in \mathbb{R}$ and $\lambda \in \mathbb{I}$. In the first case, Eq.~\ref{eq:R-ODE} is the Bessel differential equation with Bessel and Hankel functions of the first and second kinds being solutions. In the second case, Eq.~\ref{eq:R-ODE} is the modified Bessel differential equation with modified Bessel functions of the first and second kinds being solutions.
+where $R(r)$, $\Theta(\theta)$, and $Z(z)$ are eigenfunctions, and $\lambda$ and $\nu$ are eigenvalues. Since we are considering a vertically axisymmetric geometry and only heave motion, $\Theta=1$ and $\nu=0$. This leaves the vertical and radial eigenfunctions to be determined. As discussed in \citet{chatzigeorgiou2018analytical}, there are two cases of the eigenvalue $\lambda$ to consider: $\lambda \in \mathbb{R}$ and $\lambda \in \mathbb{I}$. In the first case, Eq.~\ref{eq:R-ODE} is the Bessel differential equation with Bessel and Hankel functions of the first and second kinds being solutions. In the second case, Eq.~\ref{eq:R-ODE} is the modified Bessel differential equation with modified Bessel functions of the first and second kinds being solutions.
 
 The expression for $N_{n_e}$ is defined as:
 
