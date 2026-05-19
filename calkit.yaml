@@ -1,7 +1,8 @@
 title: OpenFLASH
 name: openflash
 owner: symbiotic-engineering
-description: Open Source Flexible Library for Analytical and Semi-analytical Hydrodynamics
+description: Open Source Flexible Library for Analytical and 
+  Semi-analytical Hydrodynamics
 git_repo_url: https://github.com/symbiotic-engineering/OpenFLASH
 
 environments:
@@ -15,7 +16,7 @@ environments:
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda
-    
+
 pipeline:
   stages:
     validate-w-capy:
@@ -144,7 +145,7 @@ figures:
   - path: pubs/JFM/figs/graph_abstract.pdf
     stage: graphical-abstract
     title: Graphical abstract
-    
+
 notebooks:
   - path: analysis/validation_with_capytaine_plots.ipynb
     name: validation_with_capytaine_plots
