@@ -25,8 +25,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "numpy>=1.21",
-    "scipy>=1.7",
+    "numpy>=1.21,<2.0",       # Caps NumPy to the 1.x line
+    "scipy>=1.7,<1.14",       # Safe cap before major breaking internal rewrites
     "pandas>=1.5",
     "matplotlib>=3.5",
     "h5netcdf>=0.12",
@@ -41,7 +41,7 @@ urls = { Homepage = "https://github.com/symbiotic-engineering/semi-analytical-hy
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
+    "pytest>=7.0,<8.0",       
     "pytest-cov",
     "sphinx>=3.0",
     "sphinx-rtd-theme>=0.5",
