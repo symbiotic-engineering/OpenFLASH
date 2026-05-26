@@ -30,8 +30,7 @@ jobs:
 
       - name: Run tests with coverage reports
         run: |
-          pytest package/test/ --cov=package/src --cov-report=html:coverage/html --cov-report=xml:coverage/coverage.xml --junitxml=test-results/junit.xml
-
+          pytest package/test/ -x --timeout=10 --cov=package/src --cov-report=html:coverage/html --cov-report=xml:coverage/coverage.xml --junitxml=test-results/junit.xml
       - name: List Coverage Directory
         run: ls -R coverage/
 
