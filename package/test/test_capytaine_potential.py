@@ -1,4 +1,5 @@
 # package/test/test_capytaine_potential.py
+from openflash import multi_equations
 import pytest
 import numpy as np
 import pandas as pd
@@ -566,7 +567,7 @@ def test_potential_field_vs_capytaine(config_name):
     print(f"    a (radii): {p['a']}")
     print(f"    d: {p['d']}")
 
-    # --- IMPLEMENT SUPERPOSITION ---
+   # --- IMPLEMENT SUPERPOSITION (OPTIMIZED VIA LU FACTORIZATION) ---
     original_heaving_map = p["heaving_map"]
     heaving_indices = [i for i, is_heaving in enumerate(original_heaving_map) if is_heaving]
     
@@ -580,51 +581,90 @@ def test_potential_field_vs_capytaine(config_name):
         phi_total = res["phi"]
         results_template = res
     else:
-        print(f"\n  [SUPERPOSITION START] Combining {len(heaving_indices)} active bodies...")
-        for i, idx in enumerate(heaving_indices): # Use enumerate to track index
-            
-            # Create a compliant heaving map
+        print(f"\n  [SUPERPOSITION START] Combining {len(heaving_indices)} active bodies using LU Factorization...")
+        
+        # 1. Initialize a baseline compliance geometry to build the invariant matrix A
+        # Since A depends only on geometry matching (a, d, h, NMK), the heaving states don't change it.
+        base_geometry = BasicRegionGeometry.from_vectors(
+            a=p["a"], d=p["d"], h=p["h"], NMK=p["NMK"],
+            body_map=p["body_map"], heaving_map=[False] * len(original_heaving_map)
+        )
+        base_problem = MEEMProblem(base_geometry)
+        omega_final = globals()['omega'](p["m0"], p["h"], g)
+        base_problem.set_frequencies(np.array([omega_final]))
+        engine = MEEMEngine(problem_list=[base_problem])
+        
+        # 2. Assemble and Factor matrix A exactly ONCE for this configuration
+        print(f"    [LU FACTOR] Assembling and factorizing system matrix A ({sum(p['NMK'])} x {sum(p['NMK'])})...")
+        A_matrix = engine.assemble_A_multi(base_problem, p["m0"])
+        
+        # ─── ADD THIS LINE TO DEFINE THE CACHE ───────────────────────────────
+        cache = engine.cache_list[base_problem]
+        # ─────────────────────────────────────────────────────────────────────
+
+        # Scipy linalg is imported as sp or linalg in your file, make sure to use standard scipy.linalg
+        import scipy.linalg as bias_linalg
+        lu, piv = bias_linalg.lu_factor(A_matrix)
+        
+        # 3. Loop through active bodies and perform fast back-substitution solutions
+        for i, idx in enumerate(heaving_indices):
+            # Create a clean, fully compliant single-body active geometry mapping
             single_heaving_map = [False] * len(original_heaving_map)
             single_heaving_map[idx] = True
             
-            # --- FIX: Only be verbose on the FIRST body ---
-            is_first_run = (i == 0)
-            
-            res, omega = run_openflash_sim(
-                config_name, 
-                R_range=p["R_range"], 
-                Z_range=p["Z_range"],
-                heaving_map_override=single_heaving_map,
-                verbose=is_first_run # Only print diagnostics once!
+            # Re-initialize a fresh loop geometry context so all properties (bodies, arrangements, domains) 
+            # are perfectly built, bound, and mono-directional without stale state.
+            loop_geometry = BasicRegionGeometry.from_vectors(
+                a=p["a"], d=p["d"], h=p["h"], NMK=p["NMK"],
+                body_map=p["body_map"], heaving_map=single_heaving_map
             )
+            loop_problem = MEEMProblem(loop_geometry)
+            loop_problem.set_frequencies(np.array([omega_final]))
+            
+            # Map this new problem instance to the factored components inside our engine cache
+            # This completely bypasses the KeyError by letting the engine know it maps to our valid cached states!
+            engine.cache_list[loop_problem] = cache
+            
+            if i == 0:
+                diagnose_geometry_depths(loop_geometry)
+            
+            # Refresh forcing using the verified loop problem context
+            cache.refresh_forcing_terms(loop_problem)
+            b_vector = engine.assemble_b_multi(loop_problem, p["m0"])
+            
+            # Super-fast back-substitution using our factored structural matrix
+            solution_vector = bias_linalg.lu_solve((lu, piv), b_vector)
+            
+            # Reconstruct potentials using the fully verified loop context
+            potentials_dict = engine.calculate_potentials(
+                loop_problem,
+                solution_vector,
+                p["m0"],
+                spatial_res=50,
+                sharp=False,
+            )
+            
+            res = {
+                "R": potentials_dict["R"],
+                "Z": potentials_dict["Z"],
+                "phi": potentials_dict["phi"],
+                "_engine": engine,
+                "_problem": loop_problem,
+                "_solution": solution_vector,
+                "_m0": p["m0"]
+            }
             
             # --- DEBUG: Enhanced Body Stats ---
             of_mag = np.abs(res['phi'])
             cap_slice_mag = np.abs(phi_capytaine_raw[..., idx]) if phi_capytaine_raw.ndim > 2 else np.nan
             
-            print(f"    > Body {idx} Active ({single_heaving_map}):")
+            print(f"    > Body {idx} Active ({single_heaving_map}) solved via LU-substitution:")
             print(f"      OpenFlash Max |phi|: {np.nanmax(of_mag):.6e}")
-            print(f"      OpenFlash Mean |phi|: {np.nanmean(of_mag):.6e}")
             if not np.isnan(cap_slice_mag).all():
                  print(f"      Capytaine Max |phi|: {np.nanmax(cap_slice_mag):.6e}")
-            
-            if np.nanmax(of_mag) < 1e-10:
-                print(f"      🚨 ALERT: Body {idx} produced ZERO potential! This is likely the bug.")
-            
-            # Save intermediate plot
-            if np.any(res["phi"]):
-                debug_dir = DEBUG_PLOT_PATH / "contributions"
-                debug_dir.mkdir(parents=True, exist_ok=True)
-                plt.figure()
-                plt.pcolormesh(res["R"], res["Z"], res["phi"].real, cmap='viridis')
-                plt.colorbar(label="Real(phi)")
-                plt.title(f"{config_name} - Body {idx} Contribution")
-                plt.savefig(debug_dir / f"{config_name}_body_{idx}_real.png")
-                plt.close()
 
             if phi_total is None:
                 phi_total = np.zeros_like(res["phi"], dtype=complex)
-                omega_final = omega
                 results_template = res
             
             phi_total += res["phi"]
