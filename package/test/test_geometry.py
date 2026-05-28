@@ -280,7 +280,7 @@ def test_fluid_domains_empty(mock_arrangement):
     
 def test_heaving_count_validation_pathways():
     """
-    Test coverage for the explicit h_count checks in both BodyArrangement 
+    Test coverage for the explicit h_count checks in both BodyArrangement
     and ConcentricBodyGroup constructors.
     """
     # Create two bodies explicitly marked as heaving
@@ -292,16 +292,16 @@ def test_heaving_count_validation_pathways():
     with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
         ConcentricBodyGroup(bodies)
 
-    # 2. Test the BodyArrangement base constructor directly via a mock/subclass
-    class CustomBodyArrangement(BodyArrangement):
+    # 2. Test the BodyArrangement base constructor pathway explicitly
+    class MockArrangement(BodyArrangement):
         @property
-        def a(self): return np.array([])
+        def a(self) -> np.ndarray: return np.array([])
         @property
-        def d(self): return np.array([])
+        def d(self) -> np.ndarray: return np.array([])
         @property
-        def slant_angle(self): return np.array([])
+        def slant_angle(self) -> np.ndarray: return np.array([])
         @property
-        def heaving(self): return np.array([])
+        def heaving(self) -> np.ndarray: return np.array([])
 
     with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
-        CustomBodyArrangement(bodies)
+        MockArrangement(bodies)
