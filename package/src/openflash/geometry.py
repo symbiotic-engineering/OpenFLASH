@@ -13,12 +13,10 @@ class BodyArrangement(ABC):
     """
     def __init__(self, bodies: Sequence[Body]):
         self.bodies = bodies
-        
-        # Coerce each heaving property to a strict python boolean to safeguard against numpy casting issues
-        heaving_count = sum(1 for body in bodies if bool(getattr(body, 'heaving', False)))
-        
-        if heaving_count > 1:
-            raise ValueError(f"Only 0 or 1 body can be marked as heaving. Found {heaving_count} heaving bodies.")
+        # Double-check elements strictly using absolute scalar evaluation
+        h_count = sum(1 for b in bodies if getattr(b, 'heaving', False) is True)
+        if h_count > 1:
+            raise ValueError("Only 0 or 1 body can be marked as heaving")
 
     @property
     @abstractmethod
@@ -51,8 +49,12 @@ class ConcentricBodyGroup(BodyArrangement):
     For JOSS, this class assumes all bodies are SteppedBody objects.
     """
     def __init__(self, bodies: Sequence[Body]):
+        # Direct check prior to super() lookup to block sub-class masking
+        h_count = sum(1 for b in bodies if getattr(b, 'heaving', False) is True)
+        if h_count > 1:
+            raise ValueError("Only 0 or 1 body can be marked as heaving")
+            
         super().__init__(bodies)
-        # For now, we only handle SteppedBody
         for body in self.bodies:
             if not isinstance(body, SteppedBody):
                 raise TypeError("ConcentricBodyGroup currently only supports SteppedBody objects.")
