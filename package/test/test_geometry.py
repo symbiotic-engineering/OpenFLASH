@@ -292,16 +292,32 @@ def test_heaving_count_validation_pathways():
     with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
         ConcentricBodyGroup(bodies)
 
-    # 2. Test the BodyArrangement base constructor pathway explicitly
+
+def test_body_arrangement_base_validation_fallback():
+    """
+    Explicitly covers the validation fallback inside BodyArrangement.__init__
+    by utilizing a direct manual instantiation of a structural mock.
+    """
+    # Create bodies where only one is heaving initially to bypass subclass blocks
+    body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
+    body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=False)
+    bodies = [body1, body2]
+
     class CustomGeometryArrangement(BodyArrangement):
         @property
-        def a(self) -> np.ndarray: return np.array([])
+        def a(self) -> np.ndarray: return np.array([1.0, 2.0])
         @property
-        def d(self) -> np.ndarray: return np.array([])
+        def d(self) -> np.ndarray: return np.array([0.5, 1.0])
         @property
-        def slant_angle(self) -> np.ndarray: return np.array([])
+        def slant_angle(self) -> np.ndarray: return np.array([0.0, 0.0])
         @property
-        def heaving(self) -> np.ndarray: return np.array([])
+        def heaving(self) -> np.ndarray:
+            # Force multiple true flags inside the property evaluation scheme
+            # to hit the fallback validation error handler cleanly.
+            return np.array([True, True])
 
+    # Triggering constructor with a post-init variation contract setup
+    # to target uncovered blocks
+    body2.heaving = True
     with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
-        CustomGeometryArrangement(bodies)
+        CustomGeometryArrangement.__init__(CustomGeometryArrangement.__new__(CustomGeometryArrangement), bodies)
