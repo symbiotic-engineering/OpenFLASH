@@ -14,8 +14,8 @@ class BodyArrangement(ABC):
     def __init__(self, bodies: Sequence[Body]):
         self.bodies = bodies
         
-        # Robustly count heaving bodies
-        heaving_count = sum(1 for body in bodies if getattr(body, 'heaving', False))
+        # Coerce each heaving property to a strict python boolean to safeguard against numpy casting issues
+        heaving_count = sum(1 for body in bodies if bool(getattr(body, 'heaving', False)))
         
         if heaving_count > 1:
             raise ValueError(f"Only 0 or 1 body can be marked as heaving. Found {heaving_count} heaving bodies.")
