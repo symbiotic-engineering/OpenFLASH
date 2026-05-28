@@ -13,10 +13,10 @@ class BodyArrangement(ABC):
     """
     def __init__(self, bodies: Sequence[Body]):
         self.bodies = bodies
-        # Count the number of bodies marked as heaving (heaving=True)
-        heaving_count = sum(body.heaving for body in bodies)
         
-        # --- FIX: Use ValueError instead of assert ---
+        # Robustly count heaving bodies
+        heaving_count = sum(1 for body in bodies if getattr(body, 'heaving', False))
+        
         if heaving_count > 1:
             raise ValueError(f"Only 0 or 1 body can be marked as heaving. Found {heaving_count} heaving bodies.")
 
