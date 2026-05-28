@@ -38,6 +38,7 @@ class Problem:
         self.size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
         self.boundary_count = len(NMK) - 1
         self.m_k = self.m_k_array()
+        self.N_k = self.N_k_array()
 
     def angular_freq(self, m0): # omega
         if m0 == inf:
@@ -54,36 +55,37 @@ class Problem:
     
     #############################################
     def m_k_entry(self, k):
-      m0 = self.m0
-      h = self.h
-      if k == 0: return m0
-      elif m0 == inf:
-          return ((k - 1/2) * pi)/h
+        m0, h = self.m0, self.h
+        if k == 0: return m0
+        elif m0 == inf:
+            return ((k - 1/2) * pi)/h
 
-      m_k_h_err = (lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h)))
-      k_idx = k
+        m_k_h_err = (lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h)))
+        k_idx = k
 
-      # becca's version of bounds from MDOcean Matlab code
-      m_k_h_lower = pi * (k_idx - 1/2) + (pi/180)* np.finfo(float).eps * (2**(np.floor(np.log(180*(k_idx- 1/2)) / np.log(2))) + 1)
-      m_k_h_upper = pi * k_idx
+        m_k_h_lower = np.nextafter(pi * (k_idx - 1/2), np.inf)
+        m_k_h_upper = np.nextafter(pi * k_idx, np.inf)
+        m_k_initial_guess =  (m_k_h_upper + m_k_h_lower) / 2
 
-      m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
-      result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
-
-      m_k_val = result.root / h
-      return m_k_val
+        result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="brentq", bracket=[m_k_h_lower, m_k_h_upper])
+        m_k_val = result.root / h
+        return m_k_val
     
     def m_k_array(self): # create an array of m_k values for each k to avoid recomputation
         m_k = (np.vectorize(self.m_k_entry, otypes = [float]))(list(range(self.NMK[-1])))
         return m_k
     
-    def N_k(self, k):
+    def N_k_entry(self, k):
         h, m0, m_k = self.h, self.m0, self.m_k
         if m0 == inf: return 1/2
         elif k == 0:
             return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
         else:
             return 1 / 2 * (1 + sin(2 * m_k[k] * h) / (2 * m_k[k] * h))
+        
+    def N_k_array(self):
+        N_k = (np.vectorize(self.N_k_entry, otypes = [float]))(list(range(self.NMK[-1])))
+        return N_k
     
     #############################################
     # vertical eigenvector coupling computation
@@ -118,15 +120,15 @@ class Problem:
         if m == 0 and k == 0:
             if m0 == inf: return 0
             elif m0 * h < 14:
-                return (1/sqrt(N_k(0))) * sinh(m0 * (h - dj)) / m0
+                return (1/sqrt(N_k[0])) * sinh(m0 * (h - dj)) / m0
             else: # high m0h approximation
                 return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
         if m == 0 and k >= 1:
-            return (1/sqrt(N_k(k))) * sin(m_k[k] * (h - dj)) / m_k[k]
+            return (1/sqrt(N_k[k])) * sin(m_k[k] * (h - dj)) / m_k[k]
         if m >= 1 and k == 0:
             if m0 == inf: return 0
             elif m0 * h < 14:
-                num = (-1)**m * sqrt(2) * (1/sqrt(N_k(0))) * m0 * sinh(m0 * (h - dj))
+                num = (-1)**m * sqrt(2) * (1/sqrt(N_k[0])) * m0 * sinh(m0 * (h - dj))
             else: # high m0h approximation
                 num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
             denom = (m0**2 + self.lambda_ni(m, i) **2)
@@ -134,28 +136,28 @@ class Problem:
         else:
             lambda1 = self.lambda_ni(m, i)
             if abs(m_k[k]) == lambda1:
-                return sqrt(2/N_k(k)) * (h - dj)/2
+                return sqrt(2/N_k[k]) * (h - dj)/2
             else:
                 frac1 = sin((m_k[k] + lambda1)*(h-dj))/(m_k[k] + lambda1)
                 frac2 = sin((m_k[k] - lambda1)*(h-dj))/(m_k[k] - lambda1)
-                return sqrt(2/N_k(k)) * (frac1 + frac2)/2
+                return sqrt(2/N_k[k]) * (frac1 + frac2)/2
 
     def I_nm_vals(self): # Computes all necessary I_nm
-      NMK, boundary_count = self.NMK, self.boundary_count        
-      I_nm_vals = np.zeros((max(NMK), max(NMK), boundary_count - 1), dtype = complex)
-      for bd in range(boundary_count - 1):
-          for n in range(NMK[bd]):
-              for m in range(NMK[bd + 1]):
-                  I_nm_vals[n][m][bd] = self.I_nm(n, m, bd)
-      return I_nm_vals
+        NMK, boundary_count = self.NMK, self.boundary_count        
+        I_nm_vals = [np.zeros((NMK[bd], NMK[bd+1]), dtype = complex) for bd in range(boundary_count - 1)]
+        for bd in range(boundary_count - 1):
+            for n in range(NMK[bd]):
+                for m in range(NMK[bd + 1]):
+                    I_nm_vals[bd][n][m] = self.I_nm(n, m, bd)
+        return I_nm_vals
     
     def I_mk_vals(self): # Computes all necessary I_mk
-      NMK, boundary_count = self.NMK, self.boundary_count        
-      I_mk_vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype = complex)
-      for m in range(NMK[boundary_count - 1]):
-          for k in range(NMK[boundary_count]):
-              I_mk_vals[m][k]= self.I_mk(m, k, boundary_count - 1)
-      return I_mk_vals
+        NMK, boundary_count = self.NMK, self.boundary_count        
+        I_mk_vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype = complex)
+        for m in range(NMK[boundary_count - 1]):
+            for k in range(NMK[boundary_count]):
+                I_mk_vals[m][k]= self.I_mk(m, k, boundary_count - 1)
+        return I_mk_vals
 
     #############################################
     def b_vector(self):
@@ -227,11 +229,11 @@ class Problem:
         if k == 0:
             if m0 == inf: return 0
             elif m0 * h < 14:
-                return constant * (1/sqrt(self.N_k(0))) * sinh(m0 * (h - d[i])) / m0
+                return constant * (1/sqrt(self.N_k[0])) * sinh(m0 * (h - d[i])) / m0
             else: # high m0h approximation
                 return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
         else:
-            return constant * (1/sqrt(self.N_k(k))) * sin(m_k[k] * (h - d[i])) / m_k[k]
+            return constant * (1/sqrt(self.N_k[k])) * sin(m_k[k] * (h - d[i])) / m_k[k]
         
     #############################################
     # Eigenfunctions and derivatives, inner regions
@@ -338,11 +340,11 @@ class Problem:
         if k == 0:
             if m0 == inf: return 0
             elif m0 * h < 14:
-                return 1 / sqrt(N_k(k)) * cosh(m0 * (z + h))
+                return 1 / sqrt(N_k[k]) * cosh(m0 * (z + h))
             else: # high m0h approximation
                 return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
         else:
-            return 1 / sqrt(N_k(k)) * cos(m_k[k] * (z + h))
+            return 1 / sqrt(N_k[k]) * cos(m_k[k] * (z + h))
 
     # e-region vertical eigenfunction, differentiated wrt z
     def diff_Z_k_e(self, k, z):
@@ -350,11 +352,11 @@ class Problem:
         if k == 0:
             if m0 == inf: return 0
             elif m0 * h < 14:
-                return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
+                return 1 / sqrt(N_k[k]) * m0 * sinh(m0 * (z + h))
             else: # high m0h approximation
                 return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
         else:
-            return -1 / sqrt(N_k(k)) * m_k[k] * sin(m_k[k] * (z + h))
+            return -1 / sqrt(N_k[k]) * m_k[k] * sin(m_k[k] * (z + h))
         
     #############################################
     # A matrix calculations
@@ -491,7 +493,7 @@ class Problem:
     # arguments: dense block on left (T/F), vectorized radial eigenfunction, boundary number
     def p_dense_block(self, left, radfunction, bd, I_nm_vals):
         a, NMK = self.a, self.NMK
-        I_nm_array = I_nm_vals[0:NMK[bd],0:NMK[bd+1], bd]
+        I_nm_array = I_nm_vals[bd]
         if left: # determine which is region to work in and which is adjacent
             region, adj = bd, bd + 1
             sign = 1
@@ -521,7 +523,7 @@ class Problem:
     # arguments: dense block on left (T/F), vectorized radial eigenfunction, boundary number
     def v_dense_block(self, left, radfunction, bd, I_nm_vals):
         a, NMK = self.a, self.NMK
-        I_nm_array = I_nm_vals[0:NMK[bd],0:NMK[bd+1], bd]
+        I_nm_array = I_nm_vals[bd]
         if left: # determine which is region to work in and which is adjacent
             region, adj = bd, bd + 1
             sign = -1
@@ -928,6 +930,7 @@ class Problem:
     def change_m0(self, new_m0):
         self.m0 = new_m0
         self.m_k = self.m_k_array()
+        self.N_k = self.N_k_array()
 
     # Given an A matrix for the same configuration/NMK but possibly different m0, return this problem's A matrix.
     # This reduces computation.
@@ -964,6 +967,3 @@ class Problem:
             b_vector[index] = self.b_velocity_end_entry(k, -1)
             index += 1
         return b_vector
-        
-        
-        

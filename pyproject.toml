@@ -63,8 +63,12 @@ hydro = [
     "capytaine>=2.2",
 ]
 
+[tool.setuptools]
+package-dir = {"" = "package/src"}
+
 [tool.setuptools.packages.find]
 where = ["package/src"]
+include = ["openflash*"]
 
 [tool.setuptools.package-data]
 "openflash" = [] # Explicitly state no package data
