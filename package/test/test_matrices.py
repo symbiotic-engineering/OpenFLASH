@@ -14,7 +14,7 @@ from openflash.geometry import Geometry
 from openflash.meem_problem import MEEMProblem
 from openflash.meem_engine import MEEMEngine
 from openflash.domain import Domain
-from openflash.multi_equations import I_mk, N_k_multi, scale, v_dense_block_e_entry, v_diagonal_block_e_entry
+from openflash.multi_equations import I_mk, N_k_multi, scale
 from openflash.geometry import ConcentricBodyGroup
 from openflash.body import SteppedBody
 from openflash.basic_region_geometry import BasicRegionGeometry
@@ -172,16 +172,6 @@ def summarize_array_differences(arr1, arr2, name1="arr1", name2="arr2", rtol=1e-
     print(f"\nComparing {name1} and {name2}")
     for i, (v1, v2) in enumerate(zip(arr1, arr2)):
         print(f"{i}: {v1:.15f} vs {v2:.15f} => close? {np.isclose(v1, v2, rtol=rtol, atol=atol)}")
-
-def test_v_dense_block_e_entry():
-    m, k, bd = 0, 0, 2
-    # Setup dummy I_mk_vals of appropriate shape
-    I_mk_vals = np.eye(3, dtype=complex)
-    a = [1.0, 2.0, 10.0]
-    h = 1.5
-    d = [0.0, 0.0, 0.0]
-    val = v_dense_block_e_entry(m, k, bd, I_mk_vals, a, h, d)
-    print("Entry (0, 0):", val)
         
 def run_comparison_test():
     # Define a small test problem parameters here (example)
@@ -365,4 +355,3 @@ def run_comparison_test():
     
 if __name__ == "__main__":
     run_comparison_test()
-    test_v_dense_block_e_entry()
