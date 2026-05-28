@@ -1,0 +1,5 @@
+outs:
+- md5: 66bafdeeb86eb72a88458f6a8677900b
+  size: 2180
+  hash: md5
+  path: h50_2i2ii_conv_data.pkl
