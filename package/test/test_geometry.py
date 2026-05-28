@@ -82,8 +82,8 @@ def test_invalid_heaving_count_init():
     body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
     body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=True)
     
-    # This must raise an AssertionError because two bodies are heaving
-    with pytest.raises(AssertionError, match="Only 0 or 1 body can be marked as heaving"):
+    # --- FIX: Match the new ValueError ---
+    with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
         ConcentricBodyGroup([body1, body2])
         
 # -------------------------

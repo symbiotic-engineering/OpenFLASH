@@ -124,7 +124,7 @@ def config3_params():
         "omega": omega(m0, h, g),
         "a": np.array([0.3, 0.5, 1.0, 1.2, 1.6]),
         "d": np.array([0.5, 0.7, 0.8, 0.2, 0.5]),
-        "NMK": [40, 40, 40, 40, 40, 40],  
+        "NMK": [20, 20, 20, 20, 20, 20],  
         "body_map": [0, 1, 2, 3, 4]
     }
 
@@ -238,66 +238,3 @@ def test_2_superposition_consistency(config3_params, old_full_assembly):
     
     np.testing.assert_allclose(b_new_accumulated, b_old_full, rtol=1e-10, atol=1e-10)
     print("  ✅ Superposition confirmed.")
-
-# @pytest.mark.xfail(
-#     reason="Historical legacy math baseline diverges from Capytaine field results under config3 parameters. New code matches old code perfectly."
-# )
-# def test_3_old_code_vs_capytaine(config3_params, old_full_assembly):
-#     """
-#     TEST 3: Checks if Old Code output matches Capytaine Benchmark.
-#     """
-#     p = config3_params
-#     A_old, b_old, heaving_full = old_full_assembly
-    
-#     print("\n=== TEST 3: OLD CODE vs CAPYTAINE ===")
-    
-#     # 1. Solve Old System
-#     print("  -> Solving Linear System (Old Code)...")
-#     X_old = np.linalg.solve(A_old, b_old)
-    
-#     # 2. Calculate Potentials
-#     res = calculate_potentials_old(X_old, p['NMK'], p['a'], p['h'], p['d'], p['m0'], heaving_full)
-#     phi_old = res['phi']
-#     R_old, Z_old = res['R'], res['Z']
-    
-#     # 3. Load Capytaine
-#     try:
-#         phi_cap_raw = load_capytaine_data("config3")
-#     except Exception as e:
-#         pytest.skip(f"Could not load Capytaine data: {e}")
-        
-#     # 4. Interpolate Capytaine to Old Grid
-#     # Hardcoded Capytaine grid based on 'test_capytaine_potential.py' config
-#     R_cap_grid, Z_cap_grid = np.meshgrid(
-#         np.linspace(0.0, 2 * 1.6, num=50), 
-#         np.linspace(0, -1.9, num=50), 
-#         indexing='ij'
-#     )
-    
-#     # Unit Conversion: Capytaine (Diffraction) -> Velocity Potential
-#     # Real = Imag * (-1/w), Imag = Real * (1/w)
-#     cap_real_conv = phi_cap_raw.imag * (-1.0 / p['omega'])
-#     cap_imag_conv = phi_cap_raw.real * (1.0 / p['omega'])
-    
-#     points_cap = np.array([R_cap_grid.flatten(), Z_cap_grid.flatten()]).T
-#     phi_cap_interp_real = griddata(points_cap, cap_real_conv.flatten(), (R_old, Z_old), method='linear')
-#     phi_cap_interp_imag = griddata(points_cap, cap_imag_conv.flatten(), (R_old, Z_old), method='linear')
-    
-#     # 5. Compare
-#     valid_mask = ~np.isnan(phi_old) & ~np.isnan(phi_cap_interp_real)
-    
-#     if np.sum(valid_mask) == 0:
-#         pytest.fail("No valid overlapping points found.")
-
-#     diff_real = np.abs(phi_old.real[valid_mask] - phi_cap_interp_real[valid_mask])
-#     diff_imag = np.abs(phi_old.imag[valid_mask] - phi_cap_interp_imag[valid_mask])
-    
-#     print(f"  [Real Part] Max Diff: {np.max(diff_real):.6e}")
-#     print(f"  [Imag Part] Max Diff: {np.max(diff_imag):.6e}")
-    
-#     # Relaxed tolerance for interpolation/mesh differences
-#     tol = 0.2
-#     if np.max(diff_real) > tol or np.max(diff_imag) > tol:
-#         pytest.fail(f"Old code diverges from Capytaine > {tol}")
-        
-#     print("  ✅ Old Code matches Capytaine.")

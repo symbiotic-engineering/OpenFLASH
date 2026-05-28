@@ -16,8 +16,9 @@ class BodyArrangement(ABC):
         # Count the number of bodies marked as heaving (heaving=True)
         heaving_count = sum(body.heaving for body in bodies)
         
-        assert heaving_count <= 1, \
-            f"Only 0 or 1 body can be marked as heaving. Found {heaving_count} heaving bodies."
+        # --- FIX: Use ValueError instead of assert ---
+        if heaving_count > 1:
+            raise ValueError(f"Only 0 or 1 body can be marked as heaving. Found {heaving_count} heaving bodies.")
 
     @property
     @abstractmethod
