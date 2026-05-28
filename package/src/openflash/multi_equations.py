@@ -523,11 +523,6 @@ def p_diagonal_block(left, radfunction, bd, h, d, a, NMK):
     radial_vals = radfunction(list(range(NMK[region])), a[bd], region)
     block = sign * (h - d[region]) * np.diag(radial_vals)
     
-    # --- DIAGNOSTIC ASSERTION ---
-    if block.shape[0] > 1 and block.shape[1] > 1:
-        is_diag = np.allclose(block, np.diag(np.diagonal(block)), atol=1e-10)
-        assert is_diag, f"ERROR: p_diagonal_block returned NON-DIAGONAL at boundary {bd}!"
-        
     return block
 
 def p_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
@@ -546,16 +541,6 @@ def p_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
     
     block = sign * radial_array * I_nm_array
     
-    # --- DIAGNOSTIC ASSERTIONS ---
-    # A dense matching block should generally NOT be strictly diagonal 
-    # unless geometry (d) and truncation (NMK) perfectly match.
-    if block.shape[0] > 1 and block.shape[1] > 1:
-        is_diag = np.allclose(block, np.diag(np.diagonal(block)), atol=1e-10)
-        assert not is_diag, (
-            f"ERROR: p_dense_block returned a diagonal matrix at boundary {bd}! "
-            f"Left: {left}. Check I_nm lambdas and region indexing (i/j) logic."
-        )
-    
     return block
 
 def p_dense_block_e(bd, I_mk_vals, NMK, a, m0, m_k_arr):
@@ -564,11 +549,6 @@ def p_dense_block_e(bd, I_mk_vals, NMK, a, m0, m_k_arr):
     radial_vector = Lambda_k_vectorized(indices, a[bd], m0, a, m_k_arr)
     radial_array = np.outer(np.ones(NMK[bd]), radial_vector)
     block = (-1) * radial_array * I_mk_array
-    
-    # --- DIAGNOSTIC ASSERTION ---
-    if block.shape[0] > 1 and block.shape[1] > 1:
-        is_diag = np.allclose(block, np.diag(np.diagonal(block)), atol=1e-10)
-        assert not is_diag, f"ERROR: p_dense_block_e returned a DIAGONAL matrix at boundary {bd}!"
         
     return block
 
@@ -579,11 +559,6 @@ def v_diagonal_block(left, radfunction, bd, h, d, NMK, a):
     radial_vals = radfunction(indices, a[bd], region)
     block = sign * (h - d[region]) * np.diag(radial_vals)
     
-    # --- DIAGNOSTIC ASSERTION ---
-    if block.shape[0] > 1 and block.shape[1] > 1:
-        is_diag = np.allclose(block, np.diag(np.diagonal(block)), atol=1e-10)
-        assert is_diag, f"ERROR: v_diagonal_block returned NON-DIAGONAL at boundary {bd}!"
-        
     return block
 
 def v_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
@@ -600,13 +575,6 @@ def v_dense_block(left, radfunction, bd, NMK, a, I_nm_vals_bd):
     radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
     block = sign * radial_array * I_nm_array
     
-    # --- DIAGNOSTIC ASSERTION ---
-    if block.shape[0] > 1 and block.shape[1] > 1:
-        is_diag = np.allclose(block, np.diag(np.diagonal(block)), atol=1e-10)
-        assert not is_diag, (
-            f"ERROR: v_dense_block returned a DIAGONAL matrix at boundary {bd}! "
-            f"Left={left}. The coupling integral I_nm is incorrectly asserting exact orthogonality."
-        )
     return block
 
 def v_diagonal_block_e(bd, h, a, m0, m_k_arr, NMK):
@@ -614,11 +582,6 @@ def v_diagonal_block_e(bd, h, a, m0, m_k_arr, NMK):
     vals = diff_Lambda_k_vectorized(indices, a[bd], m0, a, m_k_arr)
     block = h * np.diag(vals)
     
-    # --- DIAGNOSTIC ASSERTION ---
-    if block.shape[0] > 1 and block.shape[1] > 1:
-        is_diag = np.allclose(block, np.diag(np.diagonal(block)), atol=1e-10)
-        assert is_diag, f"ERROR: v_diagonal_block_e returned NON-DIAGONAL at boundary {bd}!"
-        
     return block
 
 def v_dense_block_e(radfunction, bd, I_mk_vals, NMK, a): 
@@ -628,9 +591,4 @@ def v_dense_block_e(radfunction, bd, I_mk_vals, NMK, a):
     radial_array = np.outer(np.ones(NMK[bd + 1]), radial_vector)
     block = (-1) * radial_array * I_km_array
     
-    # --- DIAGNOSTIC ASSERTION ---
-    if block.shape[0] > 1 and block.shape[1] > 1:
-        is_diag = np.allclose(block, np.diag(np.diagonal(block)), atol=1e-10)
-        assert not is_diag, f"ERROR: v_dense_block_e returned a DIAGONAL matrix at boundary {bd}!"
-        
     return block

@@ -300,6 +300,17 @@ def test_int_R_1n_n0_i0(a, h, d):
     expected = a[0]**2/4 - 0**2/4
     assert np.isclose(int_R_1n(0, 0, a, h, d), expected)
 
+def test_int_R_1n_n0_i_positive(a, h, d):
+    # R_1n for n=0 is a constant 0.5. 
+    # Integral of 0.5 * r dr from inner_r to outer_r is 0.25 * (outer_r^2 - inner_r^2)
+    i = 1
+    outer_r = a[i]
+    inner_r = a[i-1]
+    
+    expected = 0.25 * (outer_r**2 - inner_r**2)
+    
+    assert np.isclose(int_R_1n(i, 0, a, h, d), expected)
+
 def test_int_R_1n_n_positive(test_n, test_i, a, h, d):
     if test_n == 0: pytest.skip("Test for n>0")
     local_scale = scale(a)
