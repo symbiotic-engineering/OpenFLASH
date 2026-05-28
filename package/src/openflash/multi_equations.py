@@ -498,25 +498,6 @@ def make_R_Z(a, h, d, sharp, spatial_res, R_range: Optional[np.ndarray] = None, 
     
     return np.meshgrid(r_vec, z_vec, indexing='ij')
 
-def p_dense_block_e_entry(m, k, bd, I_mk_vals, NMK, a, m0, h, m_k_arr, N_k_arr):
-    radial_val = Lambda_k_vectorized(k, a[bd], m0, a, m_k_arr)
-    return -1 * radial_val * I_mk_vals[m, k]
-
-def v_dense_block_e_entry(m, k, bd, I_mk_vals, a, h, d):
-    radial_term = diff_R_1n_vectorized(k, a[bd], bd, h, d, a)
-    imk_term = I_mk_vals[k, m]
-    return -1 * radial_term * imk_term
-
-def v_diagonal_block_e_entry(m, k, bd, m0, m_k_arr, a, h):
-    radius = a[bd]
-    val = diff_Lambda_k_vectorized(k, radius, m0, a, m_k_arr)
-    return h * val
-
-def v_dense_block_e_entry_R2(m, k, bd, I_mk_vals, a, h, d):
-    radial_term = diff_R_2n_vectorized(k, a[bd], bd, h, d, a)
-    imk_term = I_mk_vals[k, m]
-    return -1 * radial_term * imk_term
-
 def p_diagonal_block(left, radfunction, bd, h, d, a, NMK):
     region = bd if left else (bd + 1)
     sign = 1 if left else (-1)
