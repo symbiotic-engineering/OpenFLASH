@@ -140,7 +140,7 @@ class ProblemCache:
         for bd in range(boundary_count):
             if bd == (boundary_count - 1):
                 for n_local in range(NMK[-1]):
-                    calc_func = lambda p, m0, mk, Nk, Imk, n=n_local: \
+                    calc_func = lambda p, m0, mk, Nk, n=n_local: \
                         b_velocity_end_entry(n, bd, heaving, a, h, d, m0, NMK, mk, Nk)
                     self._add_m0_dependent_b_entry(index, calc_func)
                     index += 1
