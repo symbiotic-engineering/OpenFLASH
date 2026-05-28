@@ -335,7 +335,6 @@ class MEEMEngine:
         A = self.assemble_A_multi(problem, m0)
         b = self.assemble_b_multi(problem, m0) 
         X = linalg.solve(A, b)
-        # print(f"Linear system solved. Solution vector X shape: {X.shape}")
         return X
     
     def reformat_coeffs(self, x: np.ndarray, NMK, boundary_count) -> list[np.ndarray]:
