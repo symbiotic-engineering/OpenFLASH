@@ -293,11 +293,14 @@ def test_heaving_count_validation_pathways():
         ConcentricBodyGroup(bodies)
 
     # 2. Test the BodyArrangement base constructor pathway explicitly
-    # We create a minimal mock class that satisfies the ABC contract completely
     class CustomGeometryArrangement(BodyArrangement):
+        @property
         def a(self) -> np.ndarray: return np.array([])
+        @property
         def d(self) -> np.ndarray: return np.array([])
+        @property
         def slant_angle(self) -> np.ndarray: return np.array([])
+        @property
         def heaving(self) -> np.ndarray: return np.array([])
 
     with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
