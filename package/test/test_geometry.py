@@ -277,3 +277,31 @@ def test_fluid_domains_empty(mock_arrangement):
     domains = geom.domain_list
     assert isinstance(domains, dict)
     assert len(domains) == 0
+    
+def test_heaving_count_validation_pathways():
+    """
+    Test coverage for the explicit h_count checks in both BodyArrangement 
+    and ConcentricBodyGroup constructors.
+    """
+    # Create two bodies explicitly marked as heaving
+    body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
+    body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=True)
+    bodies = [body1, body2]
+
+    # 1. Test the ConcentricBodyGroup constructor pathway
+    with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
+        ConcentricBodyGroup(bodies)
+
+    # 2. Test the BodyArrangement base constructor directly via a mock/subclass
+    class CustomBodyArrangement(BodyArrangement):
+        @property
+        def a(self): return np.array([])
+        @property
+        def d(self): return np.array([])
+        @property
+        def slant_angle(self): return np.array([])
+        @property
+        def heaving(self): return np.array([])
+
+    with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
+        CustomBodyArrangement(bodies)
