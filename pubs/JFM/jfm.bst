@@ -813,7 +813,12 @@ FUNCTION {format.number.series}
              { "there's a number but no series in " cite$ * warning$ }
            if$
          }
-         { series emphasize " " * number *}
+         { series emphasize
+           number empty$
+             'skip$
+             { " " * number * }
+           if$
+         }
        if$
      }
      { "" }

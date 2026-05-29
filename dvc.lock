@@ -29,12 +29,12 @@ stages:
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 89decaaaeb04c1aa1b342b80e0d1f6f8
-      size: 186377
+      md5: 616eb39ba88bae5049e015f045b253b4
+      size: 186379
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 89decaaaeb04c1aa1b342b80e0d1f6f8
-      size: 186377
+      md5: 616eb39ba88bae5049e015f045b253b4
+      size: 186379
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -46,25 +46,25 @@ stages:
       nfiles: 34
     - path: pubs/JFM/jfm.bib
       hash: md5
-      md5: 253181c2a18a548467c0bd215eb0b049
-      size: 10019
+      md5: 94debb13be1e536dfceb909122f78e97
+      size: 4097
     - path: pubs/JFM/jfm.bst
       hash: md5
-      md5: 2f6f88c1bc6b4aa82c75c8e29d3a6984
-      size: 32244
+      md5: 87ba130f623ab9634524ef0699935c72
+      size: 32331
     - path: pubs/JFM/lineno-FLM.sty
       hash: md5
       md5: 99c3d5a9f0bdda44e752563df250e3ed
       size: 3554
     - path: pubs/JFM/zotero-meem-refs.bib
       hash: md5
-      md5: 049f7bb266fb36c793d8819f28f27af4
-      size: 46574
+      md5: 97f6f92ec5b0a4b824c45491e9555307
+      size: 48288
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 447ff3336de1d72ac920507432e45909
-      size: 1468643
+      md5: f68bf99ea9c22bb45cd2fd2568be6431
+      size: 1470709
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
