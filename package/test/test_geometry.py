@@ -298,9 +298,9 @@ def test_body_arrangement_base_validation_fallback():
     Explicitly covers the validation fallback inside BodyArrangement.__init__
     by utilizing a direct manual instantiation of a structural mock.
     """
-    # Create bodies where only one is heaving initially to bypass subclass blocks
+    # Create bodies explicitly marked as heaving right from the start
     body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
-    body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=False)
+    body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=True)
     bodies = [body1, body2]
 
     class CustomGeometryArrangement(BodyArrangement):
@@ -311,13 +311,8 @@ def test_body_arrangement_base_validation_fallback():
         @property
         def slant_angle(self) -> np.ndarray: return np.array([0.0, 0.0])
         @property
-        def heaving(self) -> np.ndarray:
-            # Force multiple true flags inside the property evaluation scheme
-            # to hit the fallback validation error handler cleanly.
-            return np.array([True, True])
+        def heaving(self) -> np.ndarray: return np.array([True, True])
 
-    # Triggering constructor with a post-init variation contract setup
-    # to target uncovered blocks
-    body2.heaving = True
+    # Standard clean instantiation (will route directly to BodyArrangement.__init__)
     with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
-        CustomGeometryArrangement.__init__(CustomGeometryArrangement.__new__(CustomGeometryArrangement), bodies)
+        CustomGeometryArrangement(bodies)

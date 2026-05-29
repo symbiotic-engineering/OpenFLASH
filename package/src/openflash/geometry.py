@@ -13,8 +13,8 @@ class BodyArrangement(ABC):
     """
     def __init__(self, bodies: Sequence[Body]):
         self.bodies = bodies
-        # Double-check elements strictly using absolute scalar evaluation
-        h_count = sum(1 for b in bodies if getattr(b, 'heaving', False) is True)
+        # Robustly count heaving bodies using bool()
+        h_count = sum(1 for b in bodies if bool(getattr(b, 'heaving', False)))
         if h_count > 1:
             raise ValueError("Only 0 or 1 body can be marked as heaving")
 
@@ -50,7 +50,7 @@ class ConcentricBodyGroup(BodyArrangement):
     """
     def __init__(self, bodies: Sequence[Body]):
         # Direct check prior to super() lookup to block sub-class masking
-        h_count = sum(1 for b in bodies if getattr(b, 'heaving', False) is True)
+        h_count = sum(1 for b in bodies if bool(getattr(b, 'heaving', False)))
         if h_count > 1:
             raise ValueError("Only 0 or 1 body can be marked as heaving")
             
