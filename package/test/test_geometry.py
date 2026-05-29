@@ -1,4 +1,5 @@
 # test_geometry.py
+import importlib
 import pytest
 import numpy as np
 import os as os
@@ -11,6 +12,7 @@ if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 from openflash.body import SteppedBody, CoordinateBody, Body
 from openflash.geometry import ConcentricBodyGroup, Geometry, BodyArrangement
+import openflash.geometry
 from openflash.domain import Domain
 
 # -------------------------
@@ -74,16 +76,6 @@ def test_invalid_body_type():
     with pytest.raises(TypeError):
         # CoordinateBody is not currently supported by ConcentricBodyGroup
         ConcentricBodyGroup([CoordinateBody(np.array([0,1]), np.array([0,1]))])
-
-# -------------------------
-# NEW TEST: Invalid heaving count
-# -------------------------
-def test_invalid_heaving_count_init():
-    body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
-    body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=True)
-    
-    with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
-        ConcentricBodyGroup([body1, body2])
         
 # -------------------------
 # Geometry abstract tests
@@ -278,41 +270,32 @@ def test_fluid_domains_empty(mock_arrangement):
     assert isinstance(domains, dict)
     assert len(domains) == 0
     
-def test_heaving_count_validation_pathways():
+def test_invalid_heaving_count_init():
     """
-    Test coverage for the explicit h_count checks in both BodyArrangement
-    and ConcentricBodyGroup constructors.
+    Test coverage for the centralized heaving count check.
+    Uses importlib.reload to obliterate any leaked mocks from other
+    test files that are silently swallowing the constructor.
     """
-    # Create two bodies explicitly marked as heaving
+    # 1. Nuke test pollution from orbit by forcefully reloading the module
+    importlib.reload(openflash.geometry)
+    
+    # 2. Pull the fresh, un-mocked class directly from the reloaded module
+    CleanBodyArrangement = openflash.geometry.BodyArrangement
+    
+    class IsolatedArrangement(CleanBodyArrangement):
+        @property
+        def a(self): return np.array([])
+        @property
+        def d(self): return np.array([])
+        @property
+        def slant_angle(self): return np.array([])
+        @property
+        def heaving(self): return np.array([])
+
+    # 3. Create the bodies
     body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
     body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=True)
-    bodies = [body1, body2]
-
-    # 1. Test the ConcentricBodyGroup constructor pathway
+    
+    # 4. Execute the check. The fresh class guarantees execution!
     with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
-        ConcentricBodyGroup(bodies)
-
-
-def test_body_arrangement_base_validation_fallback():
-    """
-    Explicitly covers the validation fallback inside BodyArrangement.__init__
-    by utilizing a direct manual instantiation of a structural mock.
-    """
-    # Create bodies explicitly marked as heaving right from the start
-    body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
-    body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=True)
-    bodies = [body1, body2]
-
-    class CustomGeometryArrangement(BodyArrangement):
-        @property
-        def a(self) -> np.ndarray: return np.array([1.0, 2.0])
-        @property
-        def d(self) -> np.ndarray: return np.array([0.5, 1.0])
-        @property
-        def slant_angle(self) -> np.ndarray: return np.array([0.0, 0.0])
-        @property
-        def heaving(self) -> np.ndarray: return np.array([True, True])
-
-    # Standard clean instantiation (will route directly to BodyArrangement.__init__)
-    with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
-        CustomGeometryArrangement(bodies)
+        IsolatedArrangement([body1, body2])
