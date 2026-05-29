@@ -1,16 +1,3 @@
-@misc{khanal_fully_2025,
-    title = {Fully {Differentiable} {Boundary} {Element} {Solver} for {Hydrodynamic} {Sensitivity} {Analysis} of {Wave}-{Structure} {Interactions}},
-    url = {http://arxiv.org/abs/2501.06988},
-    doi = {10.48550/arXiv.2501.06988},
-    abstract = {Accurately predicting wave-structure interactions is critical for the effective design and analysis of marine structures. This is typically achieved using solvers that employ the boundary element method (BEM), which relies on linear potential flow theory. Precise estimation of the sensitivity of these interactions is equally important for system-level applications such as design optimization. Current BEM solvers are unable to provide these sensitivities as they are not differentiable. To address these challenges, we have developed a fully-differentiable BEM solver for marine hydrodynamics, capable of calculating diffraction and radiation coefficients, and their derivatives with high accuracy. This new solver implements both direct and indirect BEM formulations and incorporates two Green's function expressions, offering a trade-off between accuracy and computational speed. Gradients are computed using reverse-mode automatic differentiation (AD) within the Julia programming language. As a first case study, we analyze two identical floating spheres, evaluating gradients with respect to physical dimensions, inter-sphere distance, and wave frequency. Validation studies demonstrate excellent agreement between AD-computed gradients and finite-difference results. In a second case study, we leverage AD-computed gradients to optimize the mechanical power production of a pair of wave energy converters (WECs). This represents the first application of gradients in WEC power optimization, offering valuable insights into hydrodynamic interactions and advancing the understanding of layout optimization for maximum efficiency. Beyond power optimization, the differentiable BEM solver highlights the potential of AD for offshore design studies.},
-    urldate = {2025-01-22},
-    publisher = {arXiv},
-    author = {Khanal, Kapil and Ströfer, Carlos A. Michelén and Ancellin, Matthieu and Haji, Maha},
-    month = jan,
-    year = {2025},
-    note = {arXiv:2501.06988 [cs]},
-    keywords = {Computer Science - Computational Engineering, Finance, and Science},
-}
 
 @inproceedings{mccabe_open-source_2024,
     address = {Duluth, MN},

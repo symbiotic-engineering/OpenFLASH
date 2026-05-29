@@ -79,7 +79,9 @@ ENTRY
      type
      volume
      year
+     doi
      eprint
+     url
    }
    {}
    { label extra.label sort.label short.list }
@@ -293,6 +295,25 @@ FUNCTION {cmd@org}
 { duplicate$ empty$
      { pop$ "" }
      { " \org{" swap$ * "}" * }
+   if$
+}
+
+FUNCTION {format.link}
+{ url empty$
+     { doi empty$
+         { "" }
+         { doi #1 #4 substring$ "http" =
+             { doi }
+             { "https://doi.org/" doi * }
+           if$
+         }
+       if$
+     }
+     { url }
+   if$
+   duplicate$ empty$
+     { pop$ "" }
+     { "\url{" swap$ * "}" * }
    if$
 }
 
@@ -1235,6 +1256,8 @@ FUNCTION {inproceedings}
    if$
    format.note output
    format.eprint output
+    new.sentence
+    format.link output
    fin.entry
 }
 
@@ -1284,6 +1307,8 @@ FUNCTION {misc}
    howpublished output
    format.note output
    format.eprint output
+  new.sentence
+  format.link output
    fin.entry
 }
 
@@ -1347,6 +1372,8 @@ FUNCTION {unpublished}
    new.sentence
    format.note "note" output.check
    format.eprint output
+  new.sentence
+  format.link output
    fin.entry
 }
 
