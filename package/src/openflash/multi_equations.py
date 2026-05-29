@@ -24,8 +24,10 @@ def omega(m0,h,g):
         return sqrt(m0 * np.tanh(m0 * h) * g)
     
 def wavenumber(omega, h):
-    m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
-    return (root_scalar(m0_err, x0 = 2, method="newton")).root
+    if omega == inf: return inf
+    else:
+        m0_err = (lambda m0: (m0 * np.tanh(h * m0) - omega ** 2 / g))
+        return (root_scalar(m0_err, x0 = 2, method="newton")).root
 
 def scale(a: list):
     return [val for val in a if val not in (None, np.inf, float('inf'))]
