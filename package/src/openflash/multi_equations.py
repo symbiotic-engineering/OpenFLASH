@@ -466,9 +466,10 @@ def z_n_d(n):
     
 #############################################
 def excitation_phase(x, NMK, m0, a): 
-    coeff = x[-NMK[-1]] 
-    local_scale = scale(a)
-    return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * local_scale[-1]))
+    if m0 == inf: return -(pi/2)
+    coeff = x[-NMK[-1]] # first coefficient of e-region expansion
+    exterior_scale = scale(a)[-1]
+    return -(pi/2) + np.angle(coeff) - np.angle(besselh(0, m0 * exterior_scale))
 
 def excitation_force(damping, m0, h):
     const = np.tanh(m0 * h) + m0 * h * (1 - (np.tanh(m0 * h))**2)
