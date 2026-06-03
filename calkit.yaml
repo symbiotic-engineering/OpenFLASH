@@ -190,3 +190,14 @@ overleaf_sync:
       - zotero-meem-refs.bib
       - FLMguide.pdf
       - becca-zotero-refs.bib
+releases:
+  submitted-paper:
+    kind: project
+    path: .
+    git_rev: b8293aa
+    date: '2026-06-03'
+    publisher: zenodo
+    record_id: 20530090
+    doi: 10.5281/zenodo.20530090
+    url: https://doi.org/10.5281/zenodo.20530090
+    description:
