@@ -1,7 +1,5 @@
 # OpenFLASH ⚡️
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20530090.svg)](https://handle.stage.datacite.org/10.5281/zenodo.20530090)
-
 Open-source Flexible Library for Analytical and Semi-analytical Hydrodynamics 
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
@@ -9,6 +7,7 @@ Open-source Flexible Library for Analytical and Semi-analytical Hydrodynamics
 [![codecov](https://codecov.io/gh/symbiotic-engineering/OpenFLASH/graph/badge.svg?token=BKOU81RS8Q)](https://codecov.io/gh/symbiotic-engineering/OpenFLASH)
 [![License](https://img.shields.io/github/license/symbiotic-engineering/OpenFLASH)](https://github.com/symbiotic-engineering/OpenFLASH/blob/main/LICENSE)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20530090.svg)](https://doi.org/10.5281/zenodo.20530090)
 [![GitHub Release](https://img.shields.io/github/v/release/symbiotic-engineering/OpenFLASH)](https://github.com/symbiotic-engineering/OpenFLASH/releases)
 [![PyPI - Version](https://img.shields.io/pypi/v/open-flash)](https://pypi.org/project/open-flash/)
 [![Conda Version](https://img.shields.io/conda/v/sea-lab/open-flash)](https://anaconda.org/channels/SEA-Lab/packages/open-flash/overview)
