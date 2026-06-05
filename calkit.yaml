@@ -16,6 +16,9 @@ environments:
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda
+  openflash-dev:
+    path: analysis/environment-dev.yml
+    kind: conda
 
 pipeline:
   stages:

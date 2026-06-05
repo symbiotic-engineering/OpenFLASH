@@ -202,11 +202,25 @@ class Results:
 
         print("Potentials stored in xarray dataset (batched across frequencies/modes).")
 
+    def store_velocity_field(self, velocity_data: dict, frequency_idx: int = 0, mode_idx: int = 0):
+        """
+        Stores a fully computed velocity field (vr, vz) in the dataset.
+        Follows the convention used in store_single_potential_field.
+        """
+        for component in ["vr", "vz"]:
+            self.dataset[f'velocity_{component}_real_{mode_idx}_{frequency_idx}'] = xr.DataArray(
+                velocity_data[component].real,
+                dims=['z_coord', 'r_coord']
+            )
+            self.dataset[f'velocity_{component}_imag_{mode_idx}_{frequency_idx}'] = xr.DataArray(
+                velocity_data[component].imag,
+                dims=['z_coord', 'r_coord']
+            )
 
     def store_hydrodynamic_coefficients(self, frequencies: np.ndarray,
-                                        added_mass_matrix: np.ndarray, damping_matrix: np.ndarray, excitation_force: Optional[np.ndarray] = None, excitation_phase: Optional[np.ndarray] = None, c_vector: Optional[np.ndarray] = None):
+                                        added_mass_matrix: np.ndarray, damping_matrix: np.ndarray, excitation_force: Optional[np.ndarray] = None, excitation_phase: Optional[np.ndarray] = None, c_vector_matrix: Optional[np.ndarray] = None):
         """
-        Store hydrodynamic coefficients (added mass, damping, excitation).
+        Store hydrodynamic coefficients (added mass, damping, excitation, and c_vector).
         """
         expected_shape = (len(frequencies), len(self.modes), len(self.modes))
         
@@ -225,12 +239,14 @@ class Results:
             
         if excitation_phase is not None:
             self.dataset['excitation_phase'] = (('frequency', 'mode_i'), excitation_phase)
+
+        # --- NEW: Store c_vector Data ---
+        if c_vector_matrix is not None:
+            c_len = c_vector_matrix.shape[-1]
+            if 'c_vector_index' not in self.dataset.coords:
+                self.dataset.coords['c_vector_index'] = np.arange(c_len)
+            self.dataset['c_vector'] = (('frequency', 'mode_i', 'c_vector_index'), c_vector_matrix)
             
-        # --- NEW: Store c_vector ---
-        if c_vector is not None:
-            self.dataset['c_vector'] = (('frequency', 'mode_i', 'c_vector_index'), c_vector)
-        # ---------------------------
-        
         print("Hydrodynamic coefficients stored in xarray dataset.")
 
     def export_to_netcdf(self, file_path: str):

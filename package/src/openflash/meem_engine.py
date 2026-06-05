@@ -47,11 +47,6 @@ class MEEMEngine:
         A = cache._get_A_template()
         I_mk_vals = cache._get_closure("I_mk_vals")(m0, cache.m_k_arr, cache.N_k_arr)
         
-        # 1. Fill scalar entries (if any exist)
-        for row, col, calc_func in cache.m0_dependent_A_indices:
-            A[row, col] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
-            
-        # 2. Fill vectorized blocks [NEW]
         for row_start, col_start, calc_func in cache.m0_dependent_blocks:
             block = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr, I_mk_vals)
             h_block, w_block = block.shape
@@ -67,13 +62,13 @@ class MEEMEngine:
             b[row] = calc_func(problem, m0, cache.m_k_arr, cache.N_k_arr)
         return b
     
-    def assemble_c_vector(self, problem: 'MEEMProblem', heaving: List[int]) -> np.ndarray:
+    def assemble_c_multi(self, problem: 'MEEMProblem', heaving: List[int]) -> np.ndarray:
         """
-        Assembles the c_vector based on the heaving state of the domains.
+        Assembles the c-vector used in hydrodynamic coefficient calculations.
         """
         cache = self.cache_list[problem]
         int_R1_store, int_R2_store, _ = cache._get_integration_constants()
-
+        
         geometry = problem.geometry
         domain_keys = list(geometry.domain_list.keys())
         NMK = [geometry.domain_list[idx].number_harmonics for idx in domain_keys]
@@ -85,73 +80,75 @@ class MEEMEngine:
 
         # 1. Inner Region (Index 0)
         for n in range(NMK[0]):
-            c_vector[n] = heaving[0] * int_R1_store[(0, n)] * z_n_d(n)
+            val = int_R1_store[(0, n)]
+            c_vector[n] = heaving[0] * val * z_n_d(n)
         col += NMK[0]
 
         # 2. Outer Regions
         for i in range(1, boundary_count):
             M = NMK[i]
             for m in range(M):
-                c_vector[col + m] = heaving[i] * int_R1_store[(i, m)] * z_n_d(m)
-                c_vector[col + M + m] = heaving[i] * int_R2_store[(i, m)] * z_n_d(m)
+                r1_val = int_R1_store[(i, m)]
+                c_vector[col + m] = heaving[i] * r1_val * z_n_d(m)
+                
+                r2_val = int_R2_store[(i, m)]
+                c_vector[col + M + m] = heaving[i] * r2_val * z_n_d(m)
             col += 2 * M
-
+            
         return c_vector
 
     def build_problem_cache(self, problem: 'MEEMProblem') -> ProblemCache:
         """
         Analyzes the problem and pre-computes m0-independent parts of A and b.
-        Includes optimized vectorized block generators for m0-dependent sections.
+        Includes detailed logging for row and column offsets to debug assembly logic.
         """
         cache = ProblemCache(problem)
         domain_list = problem.domain_list
-        domain_keys = list(domain_list.keys())
+        domain_keys = sorted(list(domain_list.keys()))
         
+        # --- Variables to match "Correct Code" nomenclature ---
         h = domain_list[0].h
         d = [domain_list[idx].di for idx in domain_keys]
         a = [domain_list[idx].a for idx in domain_keys]
         NMK = [domain.number_harmonics for domain in domain_list.values()]
         heaving = [domain_list[idx].heaving for idx in domain_keys]
-        
         boundary_count = len(NMK) - 1
         size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
 
         A_template = np.zeros((size, size), dtype=complex)
         b_template = np.zeros(size, dtype=complex)
 
-        # 2. Pre-compute m0-INDEPENDENT values
-        I_nm_vals_precomputed = [np.zeros((NMK[bd], NMK[bd+1]), dtype = complex) for bd in range(boundary_count - 1)]
+        # 1. Pre-compute I_nm
+        I_nm_vals_precomputed = [np.zeros((NMK[bd], NMK[bd+1]), dtype=complex) for bd in range(boundary_count - 1)]
         for bd in range(boundary_count - 1):
             for n in range(NMK[bd]):
                 for m in range(NMK[bd + 1]):
                     I_nm_vals_precomputed[bd][n, m] = I_nm(n, m, bd, d, h)
         cache._set_I_nm_vals(I_nm_vals_precomputed)
 
+        # 2. Pre-defined Partials
         R_1n_func = partial(R_1n_vectorized, h=h, d=d, a=a)
         R_2n_func = partial(R_2n_vectorized, a=a, h=h, d=d)
         diff_R_1n_func = partial(diff_R_1n_vectorized, h=h, d=d, a=a)
         diff_R_2n_func = partial(diff_R_2n_vectorized, h=h, d=d, a=a)
 
+        # 3. Dynamic I_mk closure
         def _calculate_I_mk_vals(m0, m_k_arr, N_k_arr):
-            # Optimized to use vectorized ops if possible, but keep loop for now as I_mk is complex
             vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
             for m in range(NMK[boundary_count - 1]):
                 for k in range(NMK[boundary_count]):
                     vals[m, k] = I_mk(m, k, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
             return vals
 
-        int_R1_store = {}
-        int_R2_store = {}
+        # 4. Integration constants
+        int_R1_store, int_R2_store = {}, {}
         int_phi_store = np.zeros(boundary_count, dtype=complex)
-
         for i in range(boundary_count):
             for n in range(NMK[i]):
                 int_R1_store[(i, n)] = int_R_1n(i, n, a, h, d)
-        
         for i in range(1, boundary_count):
             for n in range(NMK[i]):
                 int_R2_store[(i, n)] = int_R_2n(i, n, a, h, d)
-
         for i in range(boundary_count):
             int_phi_store[i] = int_phi_p_i(i, h, d, a)
             
@@ -159,150 +156,130 @@ class MEEMEngine:
         cache._set_closure("I_mk_vals", _calculate_I_mk_vals)
         cache._set_m_k_and_N_k_funcs(m_k_entry, N_k_multi)
 
-        ## --- Potential Matching Blocks ---
-        col_offset = 0
+        # =========================================================================
+        # MATRIX ASSEMBLY LOGIC
+        # =========================================================================
+        
+        # --- Potential Matching Blocks ---
         row_offset = 0
+        col_offset = 0 
+        
         for bd in range(boundary_count):
-            NMK_inner = NMK[bd]
-            NMK_outer = NMK[bd + 1]
+            N, M = NMK[bd], NMK[bd + 1]
 
-            if bd == (boundary_count - 1): 
-                # Exterior Boundary (m0-dependent)
-                row_height = NMK_inner
+            if bd == (boundary_count - 1): # i-e boundary
+                row_height = N
                 left_block1 = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
+                A_template[row_offset : row_offset + N, col_offset : col_offset + N] = left_block1
                 
-                if bd > 0:
-                    left_block2 = p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK)
-                    block = np.concatenate([left_block1, left_block2], axis=1)
+                right_block_col = col_offset + N
+                if bd == 0: 
+                    def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return p_dense_block_e(b_idx, Imk, NMK, a, m0, mk)
+                    cache._add_m0_dependent_block(row_offset, right_block_col, rb_gen)
+                    col_offset += (N + M)
                 else:
-                    block = left_block1
-                
-                A_template[row_offset : row_offset + row_height, col_offset : col_offset + block.shape[1]] = block
-                
-                p_dense_e_col_start = col_offset + block.shape[1]
-                
-                # --- OPTIMIZED POTENTIAL BLOCK ---
-                # A[m, k] = -1 * Lambda_k(k) * I_mk(m, k)
-                # This broadcasts a row vector (Lambda) against the matrix (I_mk)
-                
-                # We define a function that will be called in assemble_A_multi
-                def potential_block_func(p, m0, mk, Nk, Imk):
-                    # Imk is shape (N, M). 
-                    # Calculate vector Lambda for all k (0..M-1)
-                    k_indices = np.arange(M)
-                    # Use vectorized function. a[bd] is the boundary radius.
-                    lambda_vec = Lambda_k_vectorized(k_indices, a[bd], m0, a, mk)
+                    left_block2 = p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK)
+                    A_template[row_offset : row_offset + N, col_offset + N : col_offset + 2*N] = left_block2
                     
-                    # Broadcast: -1 * Imk * lambda_row
-                    # Imk[m,k] * lambda[k]
-                    return -1 * Imk * lambda_vec[None, :]
+                    right_block_col = col_offset + 2*N
+                    def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return p_dense_block_e(b_idx, Imk, NMK, a, m0, mk)
+                    cache._add_m0_dependent_block(row_offset, right_block_col, rb_gen)
+                    col_offset += (2*N + M)
 
-                cache._add_m0_dependent_block(row_offset, p_dense_e_col_start, potential_block_func)
-                # ---------------------------------
-                
-                col_offset += block.shape[1]
+            elif bd == 0:
+                left_diag = d[bd] > d[bd + 1]
+                row_height = N if left_diag else M
+                if left_diag:
+                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = p_diagonal_block(True, R_1n_func, 0, h, d, a, NMK)
+                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+N+M] = p_dense_block(False, R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                    A_template[row_offset:row_offset+N, col_offset+N+M:col_offset+N+2*M] = p_dense_block(False, R_2n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                else:
+                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = p_dense_block(True, R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+N+M] = p_diagonal_block(False, R_1n_func, 0, h, d, a, NMK)
+                    A_template[row_offset:row_offset+M, col_offset+N+M:col_offset+N+2*M] = p_diagonal_block(False, R_2n_func, 0, h, d, a, NMK)
+                col_offset += N
 
-            else: 
-                # Internal Boundary
-                project_on_left = d[bd] > d[bd+1]
-                row_height = NMK_inner if project_on_left else NMK_outer
-                blocks = []
-                
-                if project_on_left:
-                    blocks.append(p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK))
-                    if bd > 0: blocks.append(p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK))
-                    blocks.append(p_dense_block(False, R_1n_func, bd, NMK, a, I_nm_vals_precomputed))
-                    blocks.append(p_dense_block(False, R_2n_func, bd, NMK, a, I_nm_vals_precomputed))
-                else: 
-                    blocks.append(p_dense_block(True, R_1n_func, bd, NMK, a, I_nm_vals_precomputed))
-                    if bd > 0: blocks.append(p_dense_block(True, R_2n_func, bd, NMK, a, I_nm_vals_precomputed))
-                    blocks.append(p_diagonal_block(False, R_1n_func, bd, h, d, a, NMK))
-                    blocks.append(p_diagonal_block(False, R_2n_func, bd, h, d, a, NMK))
-
-                full_block = np.concatenate(blocks, axis=1)
-                A_template[row_offset : row_offset + row_height, col_offset : col_offset + full_block.shape[1]] = full_block
-                col_offset += 2*NMK_inner if bd > 0 else NMK_inner
+            else: # i-i boundary
+                left_diag = d[bd] > d[bd + 1]
+                row_height = N if left_diag else M
+                if left_diag:
+                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = p_diagonal_block(True, R_1n_func, bd, h, d, a, NMK)
+                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+2*N] = p_diagonal_block(True, R_2n_func, bd, h, d, a, NMK)
+                    A_template[row_offset:row_offset+N, col_offset+2*N:col_offset+2*N+M] = p_dense_block(False, R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+N, col_offset+2*N+M:col_offset+2*N+2*M] = p_dense_block(False, R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                else:
+                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = p_dense_block(True, R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+2*N] = p_dense_block(True, R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+M, col_offset+2*N:col_offset+2*N+M] = p_diagonal_block(False, R_1n_func, bd, h, d, a, NMK)
+                    A_template[row_offset:row_offset+M, col_offset+2*N+M:col_offset+2*N+2*M] = p_diagonal_block(False, R_2n_func, bd, h, d, a, NMK)
+                col_offset += 2*N
             
             row_offset += row_height
 
-        ## --- Velocity Matching Blocks ---
+        # --- Velocity Matching Blocks ---
         col_offset = 0
+        # Current row_offset is correctly at the start of Velocity Matching rows
         for bd in range(boundary_count):
-            N = NMK[bd]
-            M = NMK[bd + 1]
+            N, M = NMK[bd], NMK[bd + 1]
 
-            if bd == (boundary_count - 1): # Final i-e boundary
+            if bd == (boundary_count - 1): # i-e boundary
                 row_height = M
-                v_dense_e_col_start = col_offset
+                def lb1_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                    return v_dense_block_e(diff_R_1n_func, b_idx, Imk, NMK, a)
+                cache._add_m0_dependent_block(row_offset, col_offset, lb1_gen)
                 
-                # --- OPTIMIZED VELOCITY BLOCKS ---
-                
-                # 1. R1 Block (always exists)
-                # A[m, k] = - diff_R1(k) * I_mk(k, m)  <-- Note indices: k is interior (N), m is exterior (M)
-                # Therefore we need (I_mk)^T
-                
-                # Precompute geometric derivatives (m0-independent!)
-                k_indices_N = np.arange(N)
-                diff_r1_vec = diff_R_1n_vectorized(k_indices_N, a[bd], bd, h, d, a)
-                
-                def velocity_block_R1_func(p, m0, mk, Nk, Imk):
-                    # Imk is (N, M). Transpose to (M, N) to match [row=m, col=k]
-                    # Multiply columns k by diff_r1_vec[k]
-                    return -1 * Imk.T * diff_r1_vec[None, :]
-                
-                cache._add_m0_dependent_block(row_offset, v_dense_e_col_start, velocity_block_R1_func)
-
-                # 2. R2 Block (if bd > 0)
-                if bd > 0:
-                    r2n_col_start = v_dense_e_col_start + N
-                    diff_r2_vec = diff_R_2n_vectorized(k_indices_N, a[bd], bd, h, d, a)
+                if bd == 0:
+                    def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return v_diagonal_block_e(b_idx, h, a, m0, mk, NMK)
+                    cache._add_m0_dependent_block(row_offset, col_offset + N, rb_gen)
+                    col_offset += (N + M)
+                else:
+                    def lb2_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return v_dense_block_e(diff_R_2n_func, b_idx, Imk, NMK, a)
+                    cache._add_m0_dependent_block(row_offset, col_offset + N, lb2_gen)
                     
-                    def velocity_block_R2_func(p, m0, mk, Nk, Imk):
-                        return -1 * Imk.T * diff_r2_vec[None, :]
+                    def rb_gen(p, m0, mk, Nk, Imk, b_idx=bd):
+                        return v_diagonal_block_e(b_idx, h, a, m0, mk, NMK)
+                    cache._add_m0_dependent_block(row_offset, col_offset + 2*N, rb_gen)
+                    col_offset += (2*N + M)
 
-                    cache._add_m0_dependent_block(row_offset, r2n_col_start, velocity_block_R2_func)
-                
-                # 3. Diagonal Block (Exterior wave maker)
-                v_diag_e_col_start = col_offset + (2*N if bd > 0 else N)
-                
-                def velocity_diag_func(p, m0, mk, Nk, Imk):
-                    k_indices_M = np.arange(M)
-                    # diff_Lambda_k is m0-dependent
-                    val_vec = diff_Lambda_k_vectorized(k_indices_M, a[bd], m0, a, mk)
-                    return np.diag(h * val_vec)
-                
-                cache._add_m0_dependent_block(row_offset, v_diag_e_col_start, velocity_diag_func)
-                # ---------------------------------
-                
-                col_offset += (2*N if bd > 0 else N)
-
-            else: # Internal i-i boundaries
-                project_on_left = d[bd] <= d[bd+1]
-                row_height = N if project_on_left else M
-                blocks = []
-                
-                if project_on_left:
-                    blocks.append(v_diagonal_block(True, diff_R_1n_func, bd, h, d, NMK, a))
-                    if bd > 0: blocks.append(v_diagonal_block(True, diff_R_2n_func, bd, h, d, NMK, a))
-                    blocks.append(v_dense_block(False, diff_R_1n_func, bd, I_nm_vals_precomputed, NMK, a))
-                    blocks.append(v_dense_block(False, diff_R_2n_func, bd, I_nm_vals_precomputed, NMK, a))
-                else: 
-                    blocks.append(v_dense_block(True, diff_R_1n_func, bd, I_nm_vals_precomputed, NMK, a))
-                    if bd > 0: blocks.append(v_dense_block(True, diff_R_2n_func, bd, I_nm_vals_precomputed, NMK, a))
-                    blocks.append(v_diagonal_block(False, diff_R_1n_func, bd, h, d, NMK, a))
-                    blocks.append(v_diagonal_block(False, diff_R_2n_func, bd, h, d, NMK, a))
-
-                full_block = np.concatenate(blocks, axis=1)
-                A_template[row_offset : row_offset + row_height, col_offset : col_offset + full_block.shape[1]] = full_block
-                col_offset += 2*N if bd > 0 else N
+            elif bd == 0:
+                left_diag = d[bd] <= d[bd + 1] 
+                row_height = N if left_diag else M
+                if left_diag:
+                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = v_diagonal_block(True, diff_R_1n_func, 0, h, d, NMK, a)
+                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+N+M] = v_dense_block(False, diff_R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                    A_template[row_offset:row_offset+N, col_offset+N+M:col_offset+N+2*M] = v_dense_block(False, diff_R_2n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                else:
+                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = v_dense_block(True, diff_R_1n_func, 0, NMK, a, I_nm_vals_precomputed[0])
+                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+N+M] = v_diagonal_block(False, diff_R_1n_func, 0, h, d, NMK, a)
+                    A_template[row_offset:row_offset+M, col_offset+N+M:col_offset+N+2*M] = v_diagonal_block(False, diff_R_2n_func, 0, h, d, NMK, a)
+                col_offset += N
+            
+            else: # i-i boundary
+                left_diag = d[bd] <= d[bd + 1]
+                row_height = N if left_diag else M
+                if left_diag:
+                    A_template[row_offset:row_offset+N, col_offset:col_offset+N] = v_diagonal_block(True, diff_R_1n_func, bd, h, d, NMK, a)
+                    A_template[row_offset:row_offset+N, col_offset+N:col_offset+2*N] = v_diagonal_block(True, diff_R_2n_func, bd, h, d, NMK, a)
+                    A_template[row_offset:row_offset+N, col_offset+2*N:col_offset+2*N+M] = v_dense_block(False, diff_R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+N, col_offset+2*N+M:col_offset+2*N+2*M] = v_dense_block(False, diff_R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                else:
+                    A_template[row_offset:row_offset+M, col_offset:col_offset+N] = v_dense_block(True, diff_R_1n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+M, col_offset+N:col_offset+2*N] = v_dense_block(True, diff_R_2n_func, bd, NMK, a, I_nm_vals_precomputed[bd])
+                    A_template[row_offset:row_offset+M, col_offset+2*N:col_offset+2*N+M] = v_diagonal_block(False, diff_R_1n_func, bd, h, d, NMK, a)
+                    A_template[row_offset:row_offset+M, col_offset+2*N+M:col_offset+2*N+2*M] = v_diagonal_block(False, diff_R_2n_func, bd, h, d, NMK, a)
+                col_offset += 2*N
             
             row_offset += row_height
-
-        # Assemble b_template 
+            
+        # Assemble b_template
         index = 0
         for bd in range(boundary_count):
             if bd == (boundary_count - 1):
-                for n in range(NMK[-2]):
+                for n in range(NMK[bd]):
                     b_template[index] = b_potential_end_entry(n, bd, heaving, h, d, a)
                     index += 1
             else:
@@ -310,7 +287,6 @@ class MEEMEngine:
                 for n in range(num_entries):
                     b_template[index] = b_potential_entry(n, bd, d, heaving, h, a)
                     index += 1
-
         for bd in range(boundary_count):
             if bd == (boundary_count - 1):
                 for n_local in range(NMK[-1]):
@@ -326,7 +302,6 @@ class MEEMEngine:
                     
         cache._set_A_template(A_template)
         cache._set_b_template(b_template)
-        
         return cache
     
     def solve_linear_system_multi(self, problem: MEEMProblem, m0) -> np.ndarray:
@@ -349,18 +324,23 @@ class MEEMEngine:
         return cs
 
     def compute_hydrodynamic_coefficients(self, problem, X, m0, modes_to_calculate: Optional[np.ndarray] = None, rho: Optional[float] = None):
+        """
+        Computes the hydrodynamic coefficients (Added Mass and Damping) from the solution vector X.
+        """
         if rho is None:
             rho = default_rho
 
         geometry = problem.geometry
         domain_keys = list(geometry.domain_list.keys())
         a = [geometry.domain_list[idx].a for idx in domain_keys]
-        h = geometry.h
+        h = geometry.domain_list[0].h
         NMK = [geometry.domain_list[idx].number_harmonics for idx in domain_keys]
         boundary_count = len(NMK) - 1
 
         results_per_mode = []
+        
         cache = self.cache_list[problem]
+        # We only need phi constants here since R1 and R2 are handled by the helper
         _, _, int_phi_store = cache._get_integration_constants()
 
         if modes_to_calculate is None:
@@ -386,8 +366,8 @@ class MEEMEngine:
                     if r_idx < len(heaving):
                         heaving[r_idx] = 1
 
-            # --- USE YOUR NEW HELPER METHOD ---
-            c_vector = self.assemble_c_vector(problem, heaving)
+            # --- Use the new helper method ---
+            c_vector = self.assemble_c_multi(problem, heaving)
 
             hydro_p_term_sum = np.zeros(boundary_count, dtype=complex)
             for i in range(boundary_count):
@@ -407,7 +387,7 @@ class MEEMEngine:
                 "imag": hydro_coef_imag,      
                 "excitation_phase": excitation_phase(X, NMK, m0, a),
                 "excitation_force": excitation_force(hydro_coef_imag, m0, h),
-                "c_vector": c_vector # --- APPEND C_VECTOR TO OUTPUT ---
+                "c_vector": c_vector # --- Added to output dictionary ---
             })
 
         return results_per_mode
@@ -595,9 +575,9 @@ class MEEMEngine:
         full_excitation_force = np.full((num_freqs, num_modes), np.nan)
         full_excitation_phase = np.full((num_freqs, num_modes), np.nan)
         
-        # --- NEW: Initialize full_c_vector ---
-        c_vector_len = NMK_list[0] + 2 * sum(NMK_list[1:-1])
-        full_c_vector = np.full((num_freqs, num_modes, c_vector_len), np.nan + 1j * np.nan, dtype=complex)
+        # --- NEW: Initialize the c_vector collector array ---
+        c_vector_len = NMK_list[0] + 2 * sum(NMK_list[1:-1]) 
+        full_c_vector = np.full((num_freqs, num_modes, c_vector_len), np.nan + 0j, dtype=complex)
         
         all_potentials_batch_data = []
 
@@ -629,7 +609,6 @@ class MEEMEngine:
                 lu_piv = linalg.lu_factor(A_matrix)
                 
             except np.linalg.LinAlgError as e:
-                print(f"  ERROR: Matrix assembly/factorization failed for freq={omega:.4f}: {e}")
                 full_added_mass_matrix[freq_idx, :, :] = np.nan
                 full_damping_matrix[freq_idx, :, :] = np.nan
                 continue
@@ -667,10 +646,10 @@ class MEEMEngine:
                             if i_idx == j_idx:
                                 full_excitation_force[freq_idx, j_idx] = coeff_dict.get('excitation_force', np.nan)
                                 full_excitation_phase[freq_idx, j_idx] = coeff_dict.get('excitation_phase', np.nan)
-                            
-                            # --- NEW: Catch the c_vector from your new dict output ---
-                            if 'c_vector' in coeff_dict:
-                                full_c_vector[freq_idx, j_idx, :] = coeff_dict['c_vector']
+                                
+                                # --- NEW: Grab the c_vector from the dictionary ---
+                                if 'c_vector' in coeff_dict:
+                                    full_c_vector[freq_idx, j_idx, :] = coeff_dict['c_vector']
 
                     Cs = temp_engine.reformat_coeffs(X_i, NMK_list, len(NMK_list) - 1)
                     
@@ -692,19 +671,17 @@ class MEEMEngine:
                     })
 
                 except Exception as e:
-                    print(f"  ERROR: Solve failed for freq={omega:.4f}, mode={radiating_mode}: {e}")
                     full_added_mass_matrix[freq_idx, :, i_idx] = np.nan
                     full_damping_matrix[freq_idx, :, i_idx] = np.nan
                     continue 
 
-        # --- NEW: Pass the full_c_vector array to the storage function ---
         results.store_hydrodynamic_coefficients(
             frequencies=omegas_to_run,
             added_mass_matrix=full_added_mass_matrix,
             damping_matrix=full_damping_matrix,
             excitation_force=full_excitation_force,
             excitation_phase=full_excitation_phase,
-            c_vector=full_c_vector
+            c_vector_matrix=full_c_vector  # --- NEW: Pass the collected array ---
         )
 
         if all_potentials_batch_data:

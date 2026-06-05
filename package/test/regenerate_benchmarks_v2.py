@@ -28,6 +28,12 @@ CONFIGS = {
     "mini_tricylinder":  {"h": 2.001, "d": [1.0, 0.5, 0.25], "a": [0.25, 0.5, 1.0], "heaving": [1, 1, 1]},
     "small_tricylinder": {"h": 20.0,  "d": [15, 10, 5],   "a": [5, 10, 15],   "heaving": [1, 1, 1]},
     "big_tricylinder":   {"h": 25.0,  "d": [20, 15, 10],  "a": [10, 15, 20],  "heaving": [1, 1, 1]},
+    "mini_bicylinder_inc":   {"h": 1.001, "d": [0.125, 0.25], "a": [0.125, 0.25], "heaving": [1, 1]},
+    "small_bicylinder_inc":  {"h": 1.001, "d": [0.25, 0.5],   "a": [0.5, 1.0],    "heaving": [1, 1]},
+    "big_bicylinder_inc":    {"h": 1.001, "d": [0.5, 0.75],   "a": [0.5, 0.75],   "heaving": [1, 1]},
+    "mini_tricylinder_inc":  {"h": 2.001, "d": [0.25, 0.5, 1.0], "a": [0.25, 0.5, 1.0], "heaving": [1, 1, 1]},
+    "small_tricylinder_inc": {"h": 20.0,  "d": [5, 10, 15],   "a": [5, 10, 15],   "heaving": [1, 1, 1]},
+    "big_tricylinder_inc":   {"h": 25.0,  "d": [10, 15, 20],  "a": [10, 15, 20],  "heaving": [1, 1, 1]},
 }
 
 # --- 3. HELPER FUNCTIONS ---
