@@ -122,14 +122,14 @@ and the rise of boundary element method (BEM) software packages that are easier 
 With the growing need for efficient hydrodynamic analysis tools to enable advanced design procedures like optimization, interest in MEEM has resurged, particularly in the offshore renewable energy space. 
 \citet{pavlidou_novel_2022} performed multi-objective optimization for a two-body wave energy converter (WEC) using MEEM to compute the hydrodynamic coefficients of a cylinder. 
 \citet{zhang_hydrodynamic_2016} optimized the shape of the wetted surface of a point absorber WEC using MEEM to model cylindrical, hemispherical, paraboloid, and conical geometries. 
-\citet{mavrakos2012hydrodynamic} used MEEM to compute the first-order and mean second-order loads on a vertical axisymmetric oscillating water column WEC. 
+\citet{mavrakos_hydrodynamic_2012} used MEEM to compute the first-order and mean second-order loads on a vertical axisymmetric oscillating water column WEC. 
 However, the benefits of MEEM over traditional BEM solvers remain unclear, as the tradeoffs between accuracy and computational performance of the methods are seldom compared in the literature. 
 Additionally, previous work does not directly address the convergence behaviour and angle-dependent discretization of slanted geometries, making its ability to accurately model more general geometries uncertain.
 
 This work presents a unifying MEEM framework that arranges equations into an organized sparse matrix structure. 
 This framework is used to model an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous radially-monotonic profiles. 
 The method’s convergence behaviour, ability to accurately approximate slanted bodies, and computational advantages over the BEM solver Capytaine are explored. 
-The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \citep{best_openflash_2026,best_openflash_2026-1}) that is used for numerical studies herein.
+The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \citep{best_openflash_2026,best_openflash-code_2026}) that is used for numerical studies herein.
 % The lack of an accessible computational implementation, including the numerical properties and accuracy thereof, has been a barrier.
 
 Section~\ref{sec:mathematical-formulation} formulates the mathematics, unifies the aforementioned literature in a consistent notation, 
@@ -699,7 +699,7 @@ Since $\hat{n}_p=\hat{e}_z$ at the horizontal portions of $S_p$ and $\hat{n}_p=\
 % Note that this will not be the case in Sec.~\ref{sec:slant} when we use a finite number of cylindrical regions to approximate an axisymmetric body with a slanted surface that is not purely vertical or horizontal. 
 Proceeding with integration along the bottom body boundaries, the total heave force on body $p$ will be due to integrating the potential on the bottom boundaries of all cylindrical rings belonging to body $p$. We will define $\mathcal{M}_p$ as the set of all indices that correspond to regions which form the $p$th body. For example, if body 1 consists of regions $i_1$, $i_3$ and $i_4$, $\mathcal{M}_1 = \{1, 3, 4\}$. Eq.~\ref{eq:freq domain scalar rad force} can be written in terms of the potential at each region by
 \begin{equation}\label{eq:freq domain scalar rad force in terms of regions}
-    \hat{f}_{pq} = \text{i} \omega \rho \sum_{m \in \mathcal{M}_p}\int_0^{2 \pi} \int_{a_m}^{a_{m+1}} \ _{}^{q}\phi^{i_m}(r,-d_m) \ r  \ dr\ d\theta
+    \hat{f}_{pq} = \textrm{i} \omega \rho \sum_{m \in \mathcal{M}_p}\int_0^{2 \pi} \int_{a_m}^{a_{m+1}} \ _{}^{q}\phi^{i_m}(r,-d_m) \ r  \ dr\ d\theta
 \end{equation}
 where $_{}^{q}\phi^{i_m}(r,-d_m)$ is the potential in internal region $i_m$ evaluated at $z=-d_m$ when only the $q$th body is moving. $\hat{f}_{pq}$ can be rewritten in terms of frequency-dependent added mass and radiation damping coefficients $A_{pq}(\omega)$ and $B_{pq}(\omega)$, respectively, which is shown in Appendix~\ref{appC}. The result is
 \begin{equation}\label{A_pq B_pq scalar form}
@@ -926,7 +926,7 @@ This is a consequence of Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec}.
         \caption{$\mathbf{C}^T$}
         \label{fig:sparsityC}
     \end{subfigure}
-    \caption{Sparsity pattern in the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices. Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?ref=jfm-paper\&path=analysis\%2Fsparsity_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
+    \caption{Sparsity pattern in the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices. Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fsparsity_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{fig:sparsity}
 \end{figure}
 
@@ -1251,7 +1251,7 @@ If one were to consider a different integration scheme to minimize the error in 
     \centering
     \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
     \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
-    \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines. Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?ref=jfm-paper\&path=analysis\%2Fslant_data_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.} %In (b), points with $\mathrm{Re}(\Phi) < 0.2$ (near zero, creating large relative errors) are masked.
+    \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines. Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fslant_data_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.} %In (b), points with $\mathrm{Re}(\Phi) < 0.2$ (near zero, creating large relative errors) are masked.
     \label{fig:contour potential comparison plots}
 \end{figure}
 
@@ -1447,7 +1447,7 @@ However, \texttt{numpy/scipy} linear algebra solvers do not implement the Thomas
 For large matrix sizes where the linear solve dominates computation, the use of a sparse iterative solver or the Thomas algorithm could unlock computational savings, enabling the modelling of more complex geometries during expensive optimization studies.
 
 % \paragraph{Eigenfunction Renormalization}
-\citet{chau_inertia_2012} also discuss an optional convention difference, first suggested by \citet{mavrakos_hydrodynamic_2004}, to renormalize the radial eigenfunctions in each region so they evaluate to either zero or one at boundaries.
+\citet{chau2012inertia} also discuss an optional convention difference, first suggested by \citet{mavrakos_hydrodynamic_2004}, to renormalize the radial eigenfunctions in each region so they evaluate to either zero or one at boundaries.
 This increases the sparsity of the $\mathbf{A}$ matrix and reduces the number of coupling integral calculations and Bessel function calculations required to obtain the eigencoefficients.
 However, it does not reduce the number of Bessel calculations required to obtain the hydrodynamic coefficients because the avoided $\mathbf{A}$ matrix Bessel evaluations must still be performed in the $\vec c$ vector.
 Future work could examine whether other renormalizations exist that avoid calculations overall. 
@@ -1637,7 +1637,7 @@ All in all, MEEM holds computational promise as a result of its semi-analytical 
 
 
 \begin{bmhead}[Code Availability.]
-Code for all simulation, analysis, and visualization to fully reproduce this work is available open-source via the \texttt{OpenFLASH} project at \url{https://github.com/symbiotic-engineering/OpenFLASH} \citep{best_openflash_2026,best_openflash_2026-1}.
+Code for all simulation, analysis, and visualization to fully reproduce this work is available open-source via the \texttt{OpenFLASH} project at \url{https://github.com/symbiotic-engineering/OpenFLASH} \citep{best_openflash_2026,best_openflash-code_2026}.
 Questions and contributions via GitHub issues and pull requests are welcomed.
 The Calkit and CoCalc links in the figure captions direct to Jupyter notebooks showing how figures were generated, allowing for replication and further exploration in a reproducible environment.
 \end{bmhead}
