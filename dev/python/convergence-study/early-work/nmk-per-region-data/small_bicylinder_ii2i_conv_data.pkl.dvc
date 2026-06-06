@@ -1,0 +1,5 @@
+outs:
+- md5: ca6f16cf1d01a819a6ea5a1df9d06293
+  size: 2509
+  hash: md5
+  path: small_bicylinder_ii2i_conv_data.pkl

@@ -13,12 +13,16 @@ class BodyArrangement(ABC):
     """
     def __init__(self, bodies: Sequence[Body]):
         self.bodies = bodies
-        # Count the number of bodies marked as heaving (heaving=True)
-        heaving_count = sum(body.heaving for body in bodies)
         
-        assert heaving_count <= 1, \
-            f"Only 0 or 1 body can be marked as heaving. Found {heaving_count} heaving bodies."
-
+        # Centralized validation: Explicit loop to bypass lazy generator evaluation limits in coverage tools
+        heaving_count = 0
+        for b in bodies:
+            if getattr(b, 'heaving', False):
+                heaving_count += 1
+                
+        if heaving_count > 1:
+            raise ValueError("Only 0 or 1 body can be marked as heaving")
+        
     @property
     @abstractmethod
     def a(self) -> np.ndarray:
@@ -50,7 +54,9 @@ class ConcentricBodyGroup(BodyArrangement):
     For JOSS, this class assumes all bodies are SteppedBody objects.
     """
     def __init__(self, bodies: Sequence[Body]):
+        # Call super() immediately to trigger the centralized validation in the base class
         super().__init__(bodies)
+        
         # For now, we only handle SteppedBody
         for body in self.bodies:
             if not isinstance(body, SteppedBody):
