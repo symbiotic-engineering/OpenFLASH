@@ -75,6 +75,7 @@ jobs:
           auto-update-conda: false
           auto-activate-base: false
           show-channel-urls: true
+          activate-environment: build_env
 
       - name: install build deps into base
         run: conda env update -n base -f conda-recipe/build_env.yaml
