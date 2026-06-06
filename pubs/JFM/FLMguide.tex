@@ -52,46 +52,45 @@
     \AfterEndEnvironment{equation}{\end{linenomath*}}
     \BeforeBeginEnvironment{multline}{\par\vspace{-1.5\baselineskip}\begin{linenomath*}}
     \AfterEndEnvironment{multline}{\end{linenomath*}}
+
+    \begin{document}
+    \maketitle
+    \begin{abstract}Structural survival of offshore structures is crucial for the growing marine economy.
+    Calculating the added mass, radiation damping, and excitation coefficients to quantify wave loads with the traditional boundary element method (BEM) presents a computational bottleneck. 
+    The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. 
+    However, previous work fails to directly compare its accuracy and computational performance with BEM, leaving the extent of its utility unknown. 
+    Furthermore, the geometry-dependent convergence for cylindrical and slanted geometries has not yet been documented, making the method’s practicality for general geometries unclear. 
+    This paper presents a unifying MEEM framework for modelling an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous and radially-monotonic body profiles,
+    %split here
+    and explores the method’s block matrix structure, convergence behaviour, ability to accurately approximate slanted geometries, and computational advantages over the BEM solver Capytaine. 
+    The numerical experiments show that %with sufficient discretization, 
+    MEEM can compute hydrodynamic coefficients of slanted geometries within 5\% of Capytaine, even for angles as steep as $15^\circ$ from vertical.
+    %but requires finer discretizations for steeper slant angles. 
+    % linear relation between # subdivisions and relative accuracy, with a slope that depends on the steepness
+    Finally, %due to its rapid convergence behaviour, 
+    MEEM can achieve 2\% convergence of its hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers.
+    These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
+
+    % Structural survival of offshore structures is important for the growing marine economy.
+    % Calculating the added mass, damping, and excitation coefficients to quantify wave loads with the traditional boundary element method presents a computational bottleneck.
+    % The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature.
+    % This paper generalizes existing matched eigenfunction solutions for the radiation of specific cylindrical geometries, serving to unify the literature under a consistent nomenclature and structure that applies to all surface-piercing compound annular cylinders with continuous and radially-monotonic body profiles.
+    % The revealed matrix structure drives insights into numerical properties including accuracy, convergence, and runtime, which are confirmed with systematic computational experiments using the authors' modern open-source implementation OpenFLASH.
+    % Comparisons to the Capytaine boundary element method software show that OpenFLASH has XX\% accuracy, XX times faster runtime, and XX better convergence. 
+    % Performance depends on geometry: larger diameters converge more slowly, and larger drafts require scaling to prevent numerical overflow.
+    % Finally, the paper documents and discusses mathematical and computational subtleties not previously detailed, including the formulation's merit and limitations for approximating conically slanted geometries.
+    % This extension, if combined with known extensions for moonpools and multi-valued vertical profiles, broadens the method's applicability to all concentric bodies of arbitrary profile, including concentric multi-body systems.
+    % These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
+
+
+
+    %Full author instructions can be found on the \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions}{JFM website}. All papers should feature a single-paragraph abstract of no more than 250 words which must not spill onto the second page of the manuscript.
+    \end{abstract}
+
+    \begin{keywords}
+    Authors should not enter keywords on the manuscript, as these must be chosen by the author during the online submission process and will then be added during the typesetting process (see \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/list-of-keywords}{Keyword PDF} for the full list).  Other classifications will be added at the same time.
+    \end{keywords}
 \fi
-
-\begin{document}
-\maketitle
-\begin{abstract}Structural survival of offshore structures is crucial for the growing marine economy.
-Calculating the added mass, radiation damping, and excitation coefficients to quantify wave loads with the traditional boundary element method (BEM) presents a computational bottleneck. 
-The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. 
-However, previous work fails to directly compare its accuracy and computational performance with BEM, leaving the extent of its utility unknown. 
-Furthermore, the geometry-dependent convergence for cylindrical and slanted geometries has not yet been documented, making the method’s practicality for general geometries unclear. 
-This paper presents a unifying MEEM framework for modelling an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous and radially-monotonic body profiles,
-%split here
-and explores the method’s block matrix structure, convergence behaviour, ability to accurately approximate slanted geometries, and computational advantages over the BEM solver Capytaine. 
-The numerical experiments show that %with sufficient discretization, 
-MEEM can compute hydrodynamic coefficients of slanted geometries within 5\% of Capytaine, even for angles as steep as $15^\circ$ from vertical.
-%but requires finer discretizations for steeper slant angles. 
-% linear relation between # subdivisions and relative accuracy, with a slope that depends on the steepness
-Finally, %due to its rapid convergence behaviour, 
-MEEM can achieve 2\% convergence of its hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers.
-These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
-
-% Structural survival of offshore structures is important for the growing marine economy.
-% Calculating the added mass, damping, and excitation coefficients to quantify wave loads with the traditional boundary element method presents a computational bottleneck.
-% The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature.
-% This paper generalizes existing matched eigenfunction solutions for the radiation of specific cylindrical geometries, serving to unify the literature under a consistent nomenclature and structure that applies to all surface-piercing compound annular cylinders with continuous and radially-monotonic body profiles.
-% The revealed matrix structure drives insights into numerical properties including accuracy, convergence, and runtime, which are confirmed with systematic computational experiments using the authors' modern open-source implementation OpenFLASH.
-% Comparisons to the Capytaine boundary element method software show that OpenFLASH has XX\% accuracy, XX times faster runtime, and XX better convergence. 
-% Performance depends on geometry: larger diameters converge more slowly, and larger drafts require scaling to prevent numerical overflow.
-% Finally, the paper documents and discusses mathematical and computational subtleties not previously detailed, including the formulation's merit and limitations for approximating conically slanted geometries.
-% This extension, if combined with known extensions for moonpools and multi-valued vertical profiles, broadens the method's applicability to all concentric bodies of arbitrary profile, including concentric multi-body systems.
-% These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
-
-
-
-%Full author instructions can be found on the \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/author-instructions}{JFM website}. All papers should feature a single-paragraph abstract of no more than 250 words which must not spill onto the second page of the manuscript.
-\end{abstract}
-
-\begin{keywords}
-Authors should not enter keywords on the manuscript, as these must be chosen by the author during the online submission process and will then be added during the typesetting process (see \href{https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/information/list-of-keywords}{Keyword PDF} for the full list).  Other classifications will be added at the same time.
-\end{keywords}
-
 %{\bf MSC Codes }  {\it(Optional)} Please enter your MSC Codes here
 
 \section{Introduction}
