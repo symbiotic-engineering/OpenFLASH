@@ -45,7 +45,7 @@ stages:
       size: 3942
     - path: pubs/JFM/figs/
       hash: md5
-      md5: fcab0bc167d86ebeb97dd0361bd55b45.dir
+      md5: 513ca2f166e3b190cbc9d3d61c7b49b4.dir
       size: 3057161
       nfiles: 34
     - path: pubs/JFM/jfm-appendix.tex
@@ -71,8 +71,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: a1575cdfc2410f4c5db01eb1c61fcaf6
-      size: 1471010
+      md5: 2775000c5ffaf5a022b64923de0c28f7
+      size: 1471008
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
@@ -192,8 +192,8 @@ stages:
       size: 5745
     - path: package/src/
       hash: md5
-      md5: a40bb449733e1ba4d58076293857f07b.dir
-      size: 386260
+      md5: 3137e61d6aed7675890ea892b3b6392b.dir
+      size: 367291
       nfiles: 38
     - path: sea-lab-utils
       hash: md5
@@ -203,7 +203,7 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: a782314abaceaeb9390089d3f158f4cb
+      md5: 1aa7da7b1743cbad224568cc7d2231d1
       size: 79694
     - path: .calkit/notebooks/html/analysis/low_m0_plots.html
       hash: md5
@@ -211,7 +211,7 @@ stages:
       size: 384476
     - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: 2bf4a14833f71e7f6eba68fa0a802bb9
+      md5: 529821462486fb79af771c0e8962e57a
       size: 402985
   _clean-nb-slant-figs:
     cmd: calkit nb clean "analysis/slant_data_plots.ipynb"
