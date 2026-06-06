@@ -125,6 +125,8 @@ stages:
       - pubs/JFM/jfm.bst
       - pubs/JFM/lineno-FLM.sty
       - pubs/JFM/zotero-meem-refs.bib
+      - pubs/JFM/becca-zotero-refs.bib
+      - pubs/JFM/jfm-appendix.tex
       - .calkit/env-locks/tex
     outs:
       - pubs/JFM/FLMguide.pdf
