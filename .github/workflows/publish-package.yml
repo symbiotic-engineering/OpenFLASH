@@ -70,6 +70,7 @@ jobs:
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
+          environment-file: conda-recipe/build_env.yaml
           python-version: 3.11
           auto-update-conda: false
           auto-activate-base: false
