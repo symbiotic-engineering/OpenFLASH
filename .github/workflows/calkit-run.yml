@@ -1,0 +1,86 @@
+name: Run calkit pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: write
+
+# Make sure we only ever run one per branch so we don't have issues pushing
+# after running the pipeline
+concurrency:
+  group: calkit-run-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  main:
+    name: Run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # For PRs, checkout the head ref to avoid detached HEAD
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: true
+          persist-credentials: false
+      - name: Configure Git credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git remote set-url origin https://github-actions[bot]:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+      - name: Install Calkit
+        run: uv tool install --upgrade calkit-python
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: pull with retries
+        run: bash .github/workflows/calkit_pull_with_retries.sh
+        continue-on-error: true
+      - name: Run Calkit
+        id: run_calkit
+        continue-on-error: true
+        uses: calkit/run-action@v2
+        with:
+          dvc_token: ${{ secrets.CALKIT_DVC_TOKEN }}
+          run_args: --keep-going --log
+          pull_dvc: false
+          save: false
+          cache_dvc: false
+      - name: calkit save
+        run: |
+          if ! git status --porcelain | grep -vE '^.. \.calkit/' | grep -q . && dvc status -q --no-updates; then
+            exit 0    # Exit without saving if nothing changed, or if the only changes are in .calkit/
+          fi
+  
+          set +e # Continue even if pull fails
+          git pull --recurse-submodules
+          PULL_STATUS=$?
+
+          if [ $PULL_STATUS -ne 0 ]; then
+            BRANCH="calkit-run-${{github.run_number}}-${{github.run_id}}"
+            echo "Pull failed due to merge conflict. Creating a new branch $BRANCH."
+            git checkout -b "$BRANCH"
+            # git config below does the equivalent of the --set-upstream option of git push
+            git config branch."$BRANCH".remote origin
+            git config branch."$BRANCH".merge refs/heads/"$BRANCH"
+          fi
+
+          calkit dvc pull
+          calkit save dvc.lock dvc.yaml .calkit/ calkit.yaml -m "Run pipeline"
+          PUSH_STATUS=$?
+
+          if [ $PUSH_STATUS -ne 0 ]; then
+            echo "Push failed, perhaps due to dvc push timeout. Retrying."
+            calkit dvc push
+            git push || true
+          fi
+      - run: |
+          echo "Errors from latex:"
+          grep -E "^!" pubs/JFM/FLMguide.log || true
