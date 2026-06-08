@@ -1,0 +1,5 @@
+outs:
+- md5: abf0ad94987a8b92be672e700f3f6e86
+  size: 36156
+  hash: md5
+  path: ps3.pkl

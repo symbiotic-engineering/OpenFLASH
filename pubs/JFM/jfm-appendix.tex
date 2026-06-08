@@ -1,9 +1,9 @@
-\section{Governing Equations and Boundary Conditions }\label{appA}
+\section{Governing Equations and Boundary Conditions}\label{jfm:appA}
 The velocity potentials for the internal regions must satisfy
-\begin{equation}\label{Laplace equation internal region}
-    \nabla^2\phi^{i_m}=0,
+\begin{equation}\label{jfm:eq:Laplace equation internal region}
+    \nabla^2\phi^{i_m}=0,   
 \end{equation}
-\begin{equation}\label{No flux BC at wetted surface}
+\begin{equation}\label{jfm:eq:No flux BC at wetted surface}
     \left. \frac{\partial\phi^{i_m}}{\partial z} \right|_{z=-d_m}=
     \begin{cases}
         0 & \text{ when region } m \text{ is fixed} \\
@@ -11,98 +11,108 @@ The velocity potentials for the internal regions must satisfy
     \end{cases}
 \end{equation}
 and
-\begin{equation}\label{No flux BC at sea floor internal}
-    \left. \frac{\partial\phi^{i_m}}{\partial z} \right|_{z=-h}=0,
+\begin{equation}\label{jfm:eq:No flux BC at sea floor internal}
+    \left. \frac{\partial\phi^{i_m}}{\partial z} \right|_{z=-h}=0,   
 \end{equation}
 while the velocity potential for the external region must satisfy
-\begin{equation}\label{Laplace equation external region}
-    \nabla^2\phi^{e}=0,
+\begin{equation}\label{jfm:eq:Laplace equation external region}
+    \nabla^2\phi^{e}=0,   
 \end{equation}
-\begin{equation}\label{Free surface BC}
+\begin{equation}\label{jfm:eq:Free surface BC}
     \left( -\frac{\omega^2}{g}\phi^{e} + \left. \frac{\partial\phi^{e}}{\partial z} \right) \right|_{z=0}= 0,
 \end{equation}
 and
-\begin{equation}\label{No flux BC at sea floor external}
-    \left. \frac{\partial\phi^{e}}{\partial z} \right|_{z=-h}=0.
+\begin{equation}\label{jfm:eq:No flux BC at sea floor external}
+    \left. \frac{\partial\phi^{e}}{\partial z} \right|_{z=-h}=0.   
 \end{equation}
-The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\phi^{i_m}_\mathrm{h}$, which corresponds to the first case of Eq.~\ref{No flux BC at wetted surface} when the body in region $m$ is fixed, and a particular part $\phi^{i_m}_\mathrm{p}$, which corresponds to the second case of Eq.~\ref{No flux BC at wetted surface} when the body in region $m$ is heaving with unit amplitude velocity.
+The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\phi^{i_m}_\mathrm{h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $m$ is fixed, and a particular part $\phi^{i_m}_\mathrm{p}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $m$ is heaving with unit amplitude velocity.
 
-The Laplace equations in Eq.~\ref{Laplace equation internal region} and~\ref{Laplace equation external region} can be solved using separation of variables in cylindrical coordinates. The velocity potentials can be written as a product of eigenfunctions $\phi (r, \theta, z)= R(r)\Theta(\theta)Z(z)$, where $\phi$ is $\phi^{i_m}$ and $\phi^{e}$ for the internal and external regions, respectively. Substituting this into the Laplace equation and separating each variable yields the following system of ordinary differential equations
-\begin{equation}\label{eq:Z-ODE}
+The Laplace equations in Eq.~\ref{jfm:eq:Laplace equation internal region} and~\ref{jfm:eq:Laplace equation external region} can be solved using separation of variables in cylindrical coordinates. The velocity potentials can be written as a product of eigenfunctions $\phi (r, \theta, z)= R(r)\Theta(\theta)Z(z)$, where $\phi$ is $\phi^{i_m}$ and $\phi^{e}$ for the internal and external regions, respectively. Substituting this into the Laplace equation and separating each variable yields the following system of ordinary differential equations
+\begin{equation}\label{jfm:eq:Z-ODE}
     \frac{\mathrm{d}^2 Z}{\mathrm{d}z^2}-\lambda^2Z=0
 \end{equation}
-\begin{equation}\label{eq:Theta-ODE}
+\begin{equation}\label{jfm:eq:Theta-ODE}
     \frac{\mathrm{d}^2 \Theta}{\mathrm{d}\theta^2}+\nu^2\Theta=0
 \end{equation}
-\begin{equation}\label{eq:R-ODE}
+\begin{equation}\label{jfm:eq:R-ODE}
     r^2\frac{\mathrm{d}^2 R}{\mathrm{d}r^2}+r\frac{\mathrm{d} R}{\mathrm{d}r} + (\lambda^2r^2-\nu^2)R=0
 \end{equation}
-where $R(r)$, $\Theta(\theta)$, and $Z(z)$ are eigenfunctions, and $\lambda$ and $\nu$ are eigenvalues. Since we are considering an axisymmetric geometry and only heave motion, $\Theta=1$ and $\nu=0$. This leaves the vertical and radial eigenfunctions to be determined. As discussed in \cite{chatzigeorgiou2018analytical}, there are two cases of the eigenvalue $\lambda$ to consider: $\lambda \in \mathbb{R}$ and $\lambda \in \mathbb{I}$. In the first case, Eq.~\ref{eq:R-ODE} is the Bessel differential equation with Bessel and Hankel functions of the first and second kinds being solutions. In the second case, Eq.~\ref{eq:R-ODE} is the modified Bessel differential equation with modified Bessel functions of the first and second kinds being solutions.
+where $R(r)$, $\Theta(\theta)$, and $Z(z)$ are eigenfunctions, and $\lambda$ and $\nu$ are eigenvalues. Since we are considering a vertically axisymmetric geometry and only heave motion, $\Theta=1$ and $\nu=0$. This leaves the vertical and radial eigenfunctions to be determined. As discussed in \citet{chatzigeorgiou2018analytical}, there are two cases of the eigenvalue $\lambda$ to consider: $\lambda \in \mathbb{R}$ and $\lambda \in \mathbb{I}$. In the first case, Eq.~\ref{jfm:eq:R-ODE} is the Bessel differential equation with Bessel and Hankel functions of the first and second kinds being solutions. In the second case, Eq.~\ref{jfm:eq:R-ODE} is the modified Bessel differential equation with modified Bessel functions of the first and second kinds being solutions.
 
 The expression for $N_{n_e}$ is defined as:
 
 \begin{equation}
     N_{n_e} = \frac{1}{2}\left(1+\frac{f_{n_e}}{2\lambda_{n_e}^eh}  \right)~
     \textrm{ where }
-    f_n =
+    f_{n_e} = 
     \begin{cases}
-        \sinh(2 \lambda_0^e h), & n=0 \\ \sin(2\lambda_{n_e}^eh), & n\geq1
+        \sinh(2 \lambda_0^e h), & n_e=0 \\ \sin(2\lambda_{n_e}^eh), & n_e\geq1
     \end{cases}.
 \end{equation}
+%
+\section{Matching Equations}\label{jfm:appB}
+Since both the value of the potential and fluid velocity must match at the boundary of neighboring regions, there are a total of $2M$ matching equations. However, these equations alone are not enough to solve for all eigencoefficients since the number of unknowns is greater than the number of equations ($N_\mathrm{T} >2M$). To generate an equal number of equations as unknowns, the orthogonality of the vertical eigenfunctions can be leveraged to isolate the unknown coefficients in the finite series. 
 
-\section{Matching Equations }\label{appB}
-Since both the value of the potential and fluid velocity must match at the boundary of neighboring regions, there are a total of $2M$ matching equations. However, these equations alone are not enough to solve for all eigencoefficients since the number of unknowns is greater than the number of equations ($N_\mathrm{T} >2M$). To generate an equal number of equations as unknowns, the orthogonality of the vertical eigenfunctions can be leveraged to isolate the unknown coefficients in the finite series.
+% Consider a generic function $Y(x)$ expressed as a series with coefficients $\alpha$ and basis functions $e(x)$: $Y(x)=\sum_i \alpha_i e_i(x)$.
+% If $e_j(x)$ is orthogonal to $e_i(x)$ from $x = a$ to $b$, then:
 
-Consider a generic function $Y(x)$ expressed as a series with coefficients $\alpha$ and basis functions $e(x)$: $Y(x)=\sum_i \alpha_i e_i(x)$.
-If $e_j(x)$ is orthogonal to $e_i(x)$ from $x = a$ to $b$, then:
+% \begin{equation}\label{jfm:eq:orthogonality-demo}
+% \begin{aligned}
+%        & \int\limits_a^b Y(x)e_j(x)dx = (b-a) <Y,e_j>=(b-a)<\sum_i \alpha_i e_i, e_j> \\ &= (b-a) \sum_i \alpha_i <e_i,e_j> = (b-a) \sum_i \alpha_i \delta_{ij} = (b-a) \alpha_j
+% \end{aligned}
+% \end{equation}
 
-\begin{equation}\label{eq:orthogonality-demo}
-\begin{aligned}
-       & \int\limits_a^b Y(x)e_j(x)dx = (b-a) <Y,e_j>=(b-a)<\sum_i \alpha_i e_i, e_j> \\ &= (b-a) \sum_i \alpha_i <e_i,e_j> = (b-a) \sum_i \alpha_i \delta_{ij} = (b-a) \alpha_j
-\end{aligned}
-\end{equation}
+% \noindent where $<\cdot,\cdot>$ is the inner product and $\delta_{ij}$ is Kronecker's delta.
+% In the current hydrodynamics problem, the basis functions are the vertical eigenfunctions $Z_{n_m}^{i_m}$ and $Z_{n_e}^{e}$.
+% Orthogonality of each eigenfunction can be verified with the inner product.
+% In the first region, for example, $<Z_{1}^{i1},Z_{2}^{i1}>=\delta_{12}$.
+% Note that eigenfunctions of different domains are not orthogonal, and their inner products will be expressed as coupling integrals.
 
-\noindent where $<\cdot,\cdot>$ is the inner product and $\delta_{ij}$ is Kronecker's delta.
-In the current hydrodynamics problem, the basis functions are the vertical eigenfunctions $Z_{n_m}^{i_m}$ and $Z_{n_e}^{e}$.
-Orthogonality of each eigenfunction can be verified with the inner product.
-In the first region, for example, $<Z_{1}^{i1},Z_{2}^{i1}>=\delta_{12}$.
-Note that eigenfunctions of different domains are not orthogonal, and their inner products will be expressed as coupling integrals.
-
-To derive a system of linear algebraic equations in terms of the eigencoefficients, we first multiply both sides of Eq.~\ref{potential matching} and~\ref{velocity matching} by a vertical eigenfunction, $Z^\mathrm{s}_{n_\mathrm{s}}(z)$ for potential matching and $Z^\mathrm{t}_{n_\mathrm{t}}(z)$ for velocity matching, and integrate over the fluid-fluid boundary to get
-\begin{equation}\label{potential matching integral}
+To derive a system of linear algebraic equations in terms of the eigencoefficients, we first multiply both sides of Eq.~\ref{jfm:eq:potential matching} and~\ref{jfm:eq:velocity matching} by a vertical eigenfunction, $Z^\mathrm{s}_{n_\mathrm{s}}(z)$ for potential matching and $Z^\mathrm{t}_{n_\mathrm{t}}(z)$ for velocity matching, and integrate over the fluid-fluid boundary to get
+\begin{equation}\label{jfm:eq:potential matching integral}
     \int_{-h}^{-d_\mathrm{s}}\phi^\mathrm{t}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z=\int_{-h}^{-d_\mathrm{s}}\phi^\mathrm{s}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z
 \end{equation}
 for potential matching and
-\begin{equation}\label{velocity matching integral}
+\begin{equation}\label{jfm:eq:velocity matching integral}
     \int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z=\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi^\mathrm{s}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z.
 \end{equation}
 for velocity matching.
-Notice that the integrand of the left-hand-side of Eq.~\ref{velocity matching integral} is zero in the interval $-d_\mathrm{s} \le z \le -d_\mathrm{t}$, due to Eq.~\ref{no radial velocity}. For this reason, we can change the integration bounds on that side of Eq.~\ref{velocity matching integral} from $-h \le z \le -d_\mathrm{s}$ to $-h \le z \le -d_\mathrm{t}$:
-\begin{equation}\label{modified velocity matching integral}
+The correct choice of vertical eigenfunction to multiply by in this step is subtle yet critical because it determines the side on which orthogonality will occur in later steps.
+We want orthogonality to occur on the shorter side for potential matching because we have no information about the potential on the interval $z\in(-d_s,-d_t)$ which is included in the taller side's orthogonal domain.
+On the other hand, we want orthogonality to occur on the taller side for velocity matching because we not only have information about the velocity on the interval $z\in(-d_s,-d_t)$ from boundary condition Eq.~\ref{jfm:eq:no radial velocity}, but we have no other way to enforce this condition without incorporating it in the present equation.
+Specifically, incorporating the condition can be accomplished because Eq.~\ref{jfm:eq:no radial velocity} states that the integrand of the left-hand-side of Eq.~\ref{jfm:eq:velocity matching integral} is zero in the interval $-d_\mathrm{s} \le z \le -d_\mathrm{t}$, allowing us to change the integration bounds on the left-hand-side of Eq.~\ref{jfm:eq:velocity matching integral} from $-h \le z \le -d_\mathrm{s}$ to $-h \le z \le -d_\mathrm{t}$:
+\begin{equation}\label{jfm:eq:modified velocity matching integral}
     \int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi^\mathrm{t}}{\partial r}(a,z)Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z=\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi^\mathrm{s}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z.
 \end{equation}
-Thus, Eq.~\ref{no radial velocity} and~\ref{velocity matching} are simultaneously enforced by Eq.~\ref{modified velocity matching integral}, while Eq.~\ref{potential matching} is enforced by Eq.~\ref{potential matching integral}. Next, the velocity potentials of each region can be rewritten in terms of their homogeneous and particular solutions as $\phi^\mathrm{t}=\phi^\mathrm{t}_\mathrm{h} + \phi^\mathrm{t}_\mathrm{p}$ and $\phi^\mathrm{s}=\phi^\mathrm{s}_\mathrm{h} + \phi^\mathrm{s}_\mathrm{p}$. Substituting these into Eq.~\ref{potential matching integral} and~\ref{modified velocity matching integral}, and moving all homogeneous and particular potentials to the left and right-hand-side, respectively, yields
-\begin{multline}\label{separated potential matching integral}
-    \int_{-h}^{-d_\mathrm{s}} \phi^\mathrm{s}_\mathrm{h}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}} \phi^\mathrm{t}_\mathrm{h}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z \\ =\int_{-h}^{-d_\mathrm{s}}\phi^\mathrm{t}_\mathrm{p}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\phi^\mathrm{s}_\mathrm{p}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z
+It is not desired to change the bounds of the right-hand-side because $\phi^s$ is not meaningfully defined on $z\in(-d_s,-d_t)$.
+Thus, Eqs.~\ref{jfm:eq:no radial velocity} and~\ref{jfm:eq:velocity matching} are simultaneously enforced by Eq.~\ref{jfm:eq:modified velocity matching integral}, while Eq.~\ref{jfm:eq:potential matching} is enforced by Eq.~\ref{jfm:eq:potential matching integral}. 
+
+Next, the velocity potentials of each region can be rewritten in terms of their homogeneous and particular solutions as $\phi^\mathrm{t}=\phi^\mathrm{t}_\mathrm{h} + \phi^\mathrm{t}_\mathrm{p}$ and $\phi^\mathrm{s}=\phi^\mathrm{s}_\mathrm{h} + \phi^\mathrm{s}_\mathrm{p}$. Substituting these into Eq.~\ref{jfm:eq:potential matching integral} and~\ref{jfm:eq:modified velocity matching integral}, and moving all homogeneous and particular potentials to the left- and right-hand sides, respectively, yields
+\begin{multline}\label{jfm:eq:separated potential matching integral}
+    \int_{-h}^{-d_\mathrm{s}} \phi^\mathrm{s}_\mathrm{h}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}} \phi^\mathrm{t}_\mathrm{h}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z \\
+    =\int_{-h}^{-d_\mathrm{s}}\phi^\mathrm{t}_\mathrm{p}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\phi^\mathrm{s}_\mathrm{p}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z
 \end{multline}
 and
-\begin{multline}\label{separated velocity matching integral}
-    \int_{-h}^{-d_\mathrm{s}} \frac{\partial \phi^\mathrm{s}_\mathrm{h}}{\partial r}(a,z)  Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{t}} \frac{\partial \phi_\mathrm{h}^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z \\ =\int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi_\mathrm{p}^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi_\mathrm{p}^\mathrm{s}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z
+\begin{multline}\label{jfm:eq:separated velocity matching integral}
+    \int_{-h}^{-d_\mathrm{s}} \frac{\partial \phi^\mathrm{s}_\mathrm{h}}{\partial r}(a,z)  Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{t}} \frac{\partial \phi_\mathrm{h}^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z \\ 
+    =\int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi_\mathrm{p}^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi_\mathrm{p}^\mathrm{s}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z
 \end{multline}
-The right-hand-side of Eq.~\ref{separated potential matching integral} and~\ref{separated velocity matching integral} are known, while the left-hand-side contains unknowns. After substituting for the homogeneous potentials, using orthogonality of the vertical eigenfunctions per Eq.~\ref{eq:orthogonality-demo}, and rearranging, Eq.~\ref{separated potential matching integral} and~\ref{separated velocity matching integral} become
-\begin{multline}\label{separated potential matching integral simplified}
-    (h-d_\mathrm{s}) \left( C^\mathrm{s}_{1n_\mathrm{s}} R_{1n_\mathrm{s}}^\mathrm{s} (a)+ C^\mathrm{s}_{2n_\mathrm{s}} R_{2n_\mathrm{s}}^\mathrm{s}(a) \right) \\ -\sum _{n_\mathrm{t} = 0}^{N^\mathrm{t}} \left(C^\mathrm{t}_{1n_\mathrm{t}} R_{1n_\mathrm{t}}^\mathrm{t}(a)+ C^\mathrm{t}_{2n_\mathrm{t}} R_{2n_\mathrm{t}}^\mathrm{t}(a) \right)\int_{-h}^{-d_\mathrm{s}} Z^\mathrm{s}_{n_\mathrm{s}}(z) Z_{n_\mathrm{t}}^\mathrm{t}(z)\mathrm{d}z \\ =\int_{-h}^{-d_\mathrm{s}}\left( \phi_\mathrm{p}^\mathrm{t}(a,z) - \phi_\mathrm{p}^\mathrm{s}(a,z) \right) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z
+The right-hand-side of Eq.~\ref{jfm:eq:separated potential matching integral} and~\ref{jfm:eq:separated velocity matching integral} are known, while the left-hand-side contains unknowns. After substituting for the homogeneous potentials, using orthogonality of the vertical eigenfunctions and rearranging, Eq.~\ref{jfm:eq:separated potential matching integral} and~\ref{jfm:eq:separated velocity matching integral} become
+\begin{multline}\label{jfm:eq:separated potential matching integral simplified}
+    (h-d_\mathrm{s}) \left( C^\mathrm{s}_{1n_\mathrm{s}} R_{1n_\mathrm{s}}^\mathrm{s} (a)+ C^\mathrm{s}_{2n_\mathrm{s}} R_{2n_\mathrm{s}}^\mathrm{s}(a) \right) \\ 
+    -\sum _{n_\mathrm{t} = 0}^{N^\mathrm{t}} \left(C^\mathrm{t}_{1n_\mathrm{t}} R_{1n_\mathrm{t}}^\mathrm{t}(a)+ C^\mathrm{t}_{2n_\mathrm{t}} R_{2n_\mathrm{t}}^\mathrm{t}(a) \right)\int_{-h}^{-d_\mathrm{s}} Z^\mathrm{s}_{n_\mathrm{s}}(z) Z_{n_\mathrm{t}}^\mathrm{t}(z)\mathrm{d}z \\ 
+    =\int_{-h}^{-d_\mathrm{s}}\left( \phi_\mathrm{p}^\mathrm{t}(a,z) - \phi_\mathrm{p}^\mathrm{s}(a,z) \right) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z
 \end{multline}
 and
-\begin{multline}\label{separated velocity matching integral simplified}
+\begin{multline}\label{jfm:eq:separated velocity matching integral simplified}
     \sum _{n_\mathrm{s} = 0}^{N^\mathrm{s}} \left(C^\mathrm{s}_{1n_\mathrm{s}} \frac{\partial R_{1n_\mathrm{s}}^\mathrm{s}}{\partial r}(a)+ C^\mathrm{s}_{2n_\mathrm{s}} \frac{\partial R_{2n_\mathrm{s}}^\mathrm{s}}{\partial r}(a) \right)\int_{-h}^{-d_\mathrm{s}} Z^\mathrm{t}_{n_\mathrm{t}}(z) Z_{n_\mathrm{s}}^\mathrm{s}(z)  \mathrm{d}z \\ - (h-d_\mathrm{t}) \left( C^\mathrm{t}_{1n_\mathrm{t}} \frac{\partial R_{1n_\mathrm{t}}^\mathrm{t}}{\partial r} (a)+ C^\mathrm{t}_{2n_\mathrm{t}} \frac{\partial R_{2n_\mathrm{t}}^\mathrm{t}}{\partial r}(a) \right) \\ = \int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi_\mathrm{p}^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi_\mathrm{p}^\mathrm{s}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z.
 \end{multline}
-Applying Eq.~\ref{separated potential matching integral simplified} for $n_\mathrm{s}=0,1,\dots, N^\mathrm{s}-1$ and Eq.~\ref{separated velocity matching integral simplified} for $n_\mathrm{t}=0,1,\dots, N^\mathrm{t}-1$ yields the matrix equations
-\begin{multline}\label{potential matching vector equations}
+Applying Eq.~\ref{jfm:eq:separated potential matching integral simplified} for $n_\mathrm{s}=0,1,\dots, N^\mathrm{s}-1$ and Eq.~\ref{jfm:eq:separated velocity matching integral simplified} for $n_\mathrm{t}=0,1,\dots, N^\mathrm{t}-1$ yields the matrix equations
+\begin{multline}\label{jfm:eq:potential matching vector equations}
     (h-d_\mathrm{s})\mathrm{diag}\left( \vec{R}_{1}^\mathrm{s}(a)\right) \vec{C}_{1}^\mathrm{s}  + (h-d_\mathrm{s})\mathrm{diag}\left(\vec{R}_{2}^\mathrm{s}(a)\right) \vec{C}_{2}^\mathrm{s} \\ - \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot \boldsymbol{1}_{N^\mathrm{s}1}\vec{R}_{1}^\mathrm{t}(a)\vec{C}_1^\mathrm{t}  - \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot \boldsymbol{1}_{N^\mathrm{s}1}\vec{R}_{2}^\mathrm{t}(a)\vec{C}_2^\mathrm{t} \\ =\int_{-h}^{-d_\mathrm{s}}\left( \phi_\mathrm{p}^\mathrm{t}(a,z) - \phi_\mathrm{p}^\mathrm{s}(a,z) \right) \vec{Z}^\mathrm{s}(z) \mathrm{d}z
 \end{multline}
 and
-\begin{multline}\label{velocity matching vector equations}
+\begin{multline}\label{jfm:eq:velocity matching vector equations}
     \boldsymbol{\mathcal{Z}}^\mathrm{ts} \odot \mathbf{1}_{N^\mathrm{t}1}\vec{R}_1^\mathrm{s}(a)\vec{C}_1^\mathrm{s}+\boldsymbol{\mathcal{Z}}^\mathrm{ts} \odot \mathbf{1}_{N^\mathrm{t}1}\vec{R}_2^\mathrm{s}(a)\vec{C}_2^\mathrm{s}\\ -(h-d_\mathrm{t})\mathrm{diag}\left( \frac{\partial}{\partial r} \vec{R}_1^\mathrm{t}(a)\right)\vec{C}_1^\mathrm{t} -(h-d_\mathrm{t})\mathrm{diag}\left( \frac{\partial}{\partial r} \vec{R}_2^\mathrm{t}(a)\right)\vec{C}_2^\mathrm{t} \\ = \int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi_\mathrm{p}^\mathrm{t}}{\partial r}(a,z) \vec{Z}^\mathrm{t}{}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi_\mathrm{p}^\mathrm{s}}{\partial r}(a,z) \vec{Z}^\mathrm{t}{}(z) \mathrm{d}z
 \end{multline}
 where
@@ -132,24 +142,31 @@ are column vectors of vertical eigenfunctions, where $\ell$ is $\mathrm{s}$ or $
     \begin{aligned}    &\boldsymbol{\mathcal{Z}}^\mathrm{st}=\boldsymbol{\mathcal{Z}}^\mathrm{ts}{}^T=\int_{-h}^{-d_\mathrm{s}} \vec{Z}^\mathrm{s}{}(z) \otimes \vec{Z}^\mathrm{t}(z) \mathrm{d}z
 \end{aligned}
 \end{equation}
-is an $N^\mathrm{s} \times N^\mathrm{t}$ matrix of coupling integrals; $\mathbf{1}_{N^\mathrm{s}1}$ and $\mathbf{1}_{N^\mathrm{t}1}$ are $N^\mathrm{s} \times 1$ and $N^\mathrm{t} \times 1$ matrices of ones, respectively; and $\odot$ is the Hadamard (element-wise) product.
+is an $N^\mathrm{s} \times N^\mathrm{t}$ matrix of coupling integrals; $\mathbf{1}_{N^\mathrm{s}1}$ and $\mathbf{1}_{N^\mathrm{t}1}$ are $N^\mathrm{s} \times 1$ and $N^\mathrm{t} \times 1$ matrices of ones, respectively; $\odot$ is the Hadamard (element-wise) product; and $\otimes$ is outer product. 
 
 
 
-  Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} contain $N^\mathrm{s}$ and $N^\mathrm{t}$ equations, respectively. However, they have $2N^\mathrm{s} + 2N^\mathrm{t}$ unknown eigencoefficients. Recall that these equations correspond to enforcing conditions at a single boundary between fluid regions, as shown in Fig.~\ref{fig:Matching Diagram}. Section~\ref{Block Matrix Structure} shows how to organize Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} for the $M$ boundaries so that all eigencoefficients can be solved for simultaneously.
+  Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} contain $N^\mathrm{s}$ and $N^\mathrm{t}$ equations, respectively. However, they have $2N^\mathrm{s} + 2N^\mathrm{t}$ unknown eigencoefficients. Recall that these equations correspond to enforcing conditions at a single boundary between fluid regions, as shown in Fig.~\ref{jfm:fig:Matching Diagram}. Section~\ref{jfm:sec:Block Matrix Structure} shows how to organize Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for the $M$ boundaries so that all eigencoefficients can be solved for simultaneously.
+  Because the innermost and outermost regions have just one eigenfunction instead of two and therefore half as many eigencoefficients, the full system has exactly as many equations as unknowns.
 
 Note that all coupling integrals have closed form solutions. The element in the $n_\mathrm{s}$th row and $n_\mathrm{t}$th column of the coupling integral matrix associated with matching between region $i_m$ and $i_{m+1}$ is
 
-\begin{equation}\label{coupling integral i_m and i_m+1}
+\begin{equation}\label{jfm:coupling integral i_m and i_m+1}
     [\boldsymbol{\mathcal{Z}}^{\text{s} \text{t}} ]_{n_\mathrm{s}n_\mathrm{t}}=-\frac{\sin ((d_\text{s}-h) (\lambda_{n_\mathrm{s}}^{\text{s}}-\lambda_{n_\mathrm{t}}^{\text{t}}))}{\lambda_{n_\mathrm{s}}^{\text{s}}-\lambda_{n_\mathrm{t}}^{\text{t}}}-\frac{\sin ((d_\text{s}-h) (\lambda_{n_\mathrm{s}}^{\text{s}}+\lambda_{n_\mathrm{t}}^{\text{t}}))}{\lambda_{n_\mathrm{s}}^{\text{s}}+\lambda_{n_\mathrm{t}}^{\text{t}}},
 \end{equation}
 
-\noindent where the superscripts and subscripts associated with the shorter and taller fluid are assigned to $i_m$ or $i_{m+1}$ depending on if $d_m>d_{m+1}$ or $d_{m+1}>d_m$. Eq.~\ref{coupling integral i_m and i_m+1} holds for $1 \le m \le M-1$. For matching at the interface between the outermost inner region $i_M$ and the external region $e$, a different expression is used. The element in the $n_M$th row and $n_e$th column of the coupling integral matrix associated with matching between region $i_M$ and $e$ is
-
-\begin{equation}\label{coupling integral i_M and e}
-    [\boldsymbol{\mathcal{Z}}^{i_M e} ]_{n_Mn_e}=- \sqrt{\frac{1}{2N_k}} \left( \frac{\sin ((d_M-h) (\lambda_{n_e}^{e}-\lambda_{n_M}^{i_M}))}{(\lambda_{n_e}^{e}-\lambda_{n_M}^{i_M})} + \frac{\sin ((d_M-h) (\lambda_{n_e}^{e}+\lambda_{n_M}^{i_M}))}{(\lambda_{n_e}^{e}+\lambda_{n_M}^{i_M})}\right).
+\noindent where the superscripts and subscripts associated with the shorter and taller fluid are assigned to $i_m$ or $i_{m+1}$ depending on if $d_m>d_{m+1}$ or $d_{m+1}>d_m$. Eq.~\ref{jfm:coupling integral i_m and i_m+1} holds for $1 \le m \le M-1$. For matching at the interface between the outermost inner region $i_M$ and the external region $e$, a different expression is used. The element in the $n_M$th row and $n_e$th column of the coupling integral matrix associated with matching between region $i_M$ and $e$ is
+\begin{equation}\label{jfm:coupling integral i_M and e}
+    [\boldsymbol{\mathcal{Z}}^{i_M e} ]_{n_Mn_e}=
+    - \sqrt{\frac{1}{2N_{n_e}}} 
+    \left( 
+        \frac{\sin ((d_M-h) (\lambda_{n_e}^{e}-\lambda_{n_M}^{i_M}))}
+        {(\lambda_{n_e}^{e}-\lambda_{n_M}^{i_M})} 
+        + \frac{\sin ((d_M-h) (\lambda_{n_e}^{e}+\lambda_{n_M}^{i_M}))}
+        {(\lambda_{n_e}^{e}+\lambda_{n_M}^{i_M})}
+    \right).
 \end{equation}
-Note that Eq.~\ref{coupling integral i_m and i_m+1} and~\ref{coupling integral i_M and e} can simplify considerably when one or both indices are zero.
+Note that Eq.~\ref{jfm:coupling integral i_m and i_m+1} and~\ref{jfm:coupling integral i_M and e} can simplify considerably when one or both indices are zero. 
 
 
 
@@ -158,57 +175,18 @@ Note that Eq.~\ref{coupling integral i_m and i_m+1} and~\ref{coupling integral i
 
 
 
-Rewriting Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} for each of the $M$ boundaries, where the symbols representing the smaller $\mathrm{s}$ and taller $\mathrm{t}$ regions are replaced by the region names of the problem (i.e. $i_1, i_2,\dots,  i_M,e$) and $a$ is replaced by $a_m$, yields a set of $N_\mathrm{T}$ equations that are linear with respect to the unknown eigencoefficients.
-The structure of these equations is in the form of $\mathbf{A} \vec{x}=\vec{b}$ where the matrix $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ contains the left-hand-side of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} (excluding the eigencoefficients), the vector $\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^T \in \mathbb{C}^{N_\mathrm{T}}$ contains all eigencoefficients, and the vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ contains the right-hand-side of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations}.
-As shown in Table~\ref{tab:MEEM-A-matrix}, $\mathbf{A}$ is a block diagonal matrix composed of sub-matrices $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices. Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $m$th boundary.
-The corresponding right-hand-sides of Eq.~\ref{potential matching vector equations} and~\ref{velocity matching vector equations} are contained in $\vec{b}_m$, which form the vector $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. Tables~\ref{tab:MEEM-b_m-vector-case-1} and~\ref{tab:MEEM-b_m-vector-case-2} can be used without modification to obtain all the vectors $\vec{b}_m$ for $1 \le m \le M-1$ while, for $m=M$, Table~\ref{tab:MEEM-b_m-vector-case-1} should be modified so that all indices with $i_{m+1}$ are replaced with $e$ and $d_{m+1}$ is set to zero.
-
-
-\begin{table}
-    \centering
-    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
-      \hline
-      &size& \\ \hline \hline
-
-      % Row 1
-      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_m}$ & $\int_{-h}^{-d_m}\left( \phi_\mathrm{p}^{i_{m+1}} - \phi_\mathrm{p}^{i_m} \right) \vec{Z}^{i_m} \mathrm{d}z$\\ \hline
-
-      % Row 2
-      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$
-        & $\int_{-h}^{-d_{m+1}}\frac{\partial \phi_\mathrm{p}^{i_{m+1}}}{\partial r} \vec{Z}^{i_{m+1}} \mathrm{d}z-\int_{-h}^{-d_m}\frac{\partial \phi_\mathrm{p}^{{i_{m}}}}{\partial r} \vec{Z}^{i_{m+1}}{} \mathrm{d}z$ \\ \hline
-    \end{tabular}
-    \caption{MEEM $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
-    \label{tab:MEEM-b_m-vector-case-1}
-\end{table}
-
-
-\begin{table}
-    \centering
-    \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|}
-    \hline
-      &size& \\ \hline \hline
-
-      % Row 1
-      \shortstack{$\phi^{i_m}=\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$ & $\int_{-h}^{-d_{m+1}}\left( \phi_\mathrm{p}^{i_{m}} - \phi_\mathrm{p}^{i_{m+1}} \right) \vec{Z}^{i_{m+1}} \mathrm{d}z$\\ \hline
-
-      % Row 2
-      \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m}}$
-        &  $\int_{-h}^{-d_m}\frac{\partial \phi_\mathrm{p}^{i_{m}}}{\partial r} \vec{Z}^{i_{m}} \mathrm{d}z-\int_{-h}^{-d_{m+1}}\frac{\partial \phi_\mathrm{p}^{i_{m+1}}}{\partial r} \vec{Z}^{{i_{m}}} \mathrm{d}z$\\ \hline
-    \end{tabular}
-    \caption{MEEM $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_{m+1} = \mathrm{s}$ and $i_{m} = \mathrm{t}$).
-    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
-    \label{tab:MEEM-b_m-vector-case-2}
-\end{table}
-
-
-
-\section{Forms of Matrix A}\label{sec:Forms of Matrix A}
-The matrix $\mathbf{A}_m$ can be written as
-$\mathbf{A}_m = \mathbf{A}_{m,r} \odot \mathbf{A}_{m,z}$,
-where $\mathbf{A}_{m,r}$ and $\mathbf{A}_{m,z}$ are shown in
-Tables~\ref{tab:MEEM-A_mr-matrix-case-1}-\ref{tab:MEEM-A_mz-matrix-case-2}
+Rewriting Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for each of the $M$ boundaries, where the symbols representing the smaller $\mathrm{s}$ and taller $\mathrm{t}$ regions are replaced by the region names of the problem (i.e. $i_1, i_2,\dots,  i_M,e$) and $a$ is replaced by $a_m$, yields a set of $N_\mathrm{T}$ equations that are linear with respect to the unknown eigencoefficients.
+The structure of these equations is in the form of $\mathbf{A} \vec{x}=\vec{b}$ where the matrix $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ contains the left-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients), the vector $\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^T \in \mathbb{C}^{N_\mathrm{T}}$ contains all eigencoefficients, and the vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ contains the right-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
+As shown in Table~\ref{jfm:tab:MEEM-A-matrix}, $\mathbf{A}$ is a block bi-diagonal matrix composed of sub-matrices $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices. Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $m$th boundary.
+The corresponding right-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} are contained in $\vec{b}_m$, which form the vector $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. 
+%
+\section{Forms of Matrix A}\label{jfm:sec:Forms of Matrix A}
+The matrix $\mathbf{A}_m$ can be written as 
+$\mathbf{A}_m = \mathbf{A}_{m,r} \odot \mathbf{A}_{m,z}$, 
+where $\mathbf{A}_{m,r}$ and $\mathbf{A}_{m,z}$ are shown in 
+Tables~\ref{jfm:tab:MEEM-A_mr-matrix-case-1}-\ref{jfm:tab:MEEM-A_mz-matrix-case-2} 
 and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
-
+%
 \begin{landscape}
 \begin{table}
     \centering
@@ -269,10 +247,10 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
     \end{tabular}
     \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).
     Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
-    \label{tab:MEEM-A_mr-matrix-case-1}
+    \label{jfm:tab:MEEM-A_mr-matrix-case-1}
 \end{table}
 \end{landscape}
-
+%
 \begin{landscape}
 \begin{table}
     \centering
@@ -333,12 +311,13 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
       $ \mathbf{1}_{N^{i_{m}}1} \vec{R}_2^{i_{m+1}}$
       \\ \hline
     \end{tabular}
-    \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).
-    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
-    \label{tab:MEEM-A_mr-matrix-case-2}
+    \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$). 
+    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.
+    }
+    \label{jfm:tab:MEEM-A_mr-matrix-case-2}
 \end{table}
 \end{landscape}
-
+%
 \begin{landscape}
 \begin{table}
     \centering
@@ -401,12 +380,12 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
         $-(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$
         \\ \hline
     \end{tabular}
-    \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).
-    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
-    \label{tab:MEEM-A_mz-matrix-case-1}
+    \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). 
+    }
+    \label{jfm:tab:MEEM-A_mz-matrix-case-1}
 \end{table}
 \end{landscape}
-
+%
 \begin{landscape}
 \begin{table}
     \centering
@@ -467,22 +446,20 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
         $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} $
         \\ \hline
     \end{tabular}
-    \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).
-    Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
-    \label{tab:MEEM-A_mz-matrix-case-2}
+    \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).}
+    \label{jfm:tab:MEEM-A_mz-matrix-case-2}
 \end{table}
 \end{landscape}
-
-
-\section{Added Mass and Damping }\label{appC}
-We will define the velocity of the $q$th body as
-$v_q(t) = \mathrm{Re} \{ \hat{v}_q e^{- \text{i} \omega t}\}$
-so that $\hat{f}_{pq} = (\text{i} \omega A_{pq}(\omega) - B_{pq}(\omega)) \hat{v}_q$.
-Recall from Eq.~\ref{No flux BC at wetted surface} that, if a region is heaving,
-the particular potentials in Table \ref{tab:MEEM-eigenfunctions} were defined so that it does so with unit amplitude velocity.
-Thus, if regions consisting of the $q$th body are heaving, $\hat{v}_q=1$.
-Eq.~\ref{eq:freq domain scalar rad force in terms of regions} can be simplified and rearranged as
-\begin{equation}\label{eq:freq domain scalar rad force in terms of added mass and damping}
+%
+\section{Added Mass and Damping}\label{jfm:appC}
+We will define the velocity of the $q$th body as 
+$v_q(t) = \mathrm{Re} \{ \hat{v}_q e^{- \text{i} \omega t}\}$ 
+so that $\hat{f}_{pq} = (\text{i} \omega A_{pq}(\omega) - B_{pq}(\omega)) \hat{v}_q$. 
+Recall from Eq.~\ref{jfm:eq:No flux BC at wetted surface} that, if a region is heaving, 
+the particular potentials in Table \ref{jfm:tab:MEEM-eigenfunctions} were defined so that it does so with unit amplitude velocity. 
+Thus, if regions consisting of the $q$th body are heaving, $\hat{v}_q=1$. 
+Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions} can be simplified and rearranged as
+\begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of added mass and damping}
 \begin{aligned}
     A_{pq}(\omega) + \frac{\text{i}B_{pq}(\omega)}{\omega}
     &= 2 \pi \rho \sum_{m \in \mathcal{M}_p} \int_{a_m}^{a_{m+1}} \ _{}^{q}\phi^{i_m}(r,-d_m) \ r  \ dr \\
@@ -500,12 +477,12 @@ Eq.~\ref{eq:freq domain scalar rad force in terms of regions} can be simplified 
 where all symbols written with a left superscript $q$ denote
 symbols specific to solving the radiation problem when only the $q$th body is moving.
 
-Additionally, the $n_m$th element of the vectors
-$\vec{\mathcal{R}}_{1}^{i_m}$ and $\vec{\mathcal{R}}_{2}^{i_m}$
-in Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec} are
-\begin{equation}\label{radial integral 1}
-\begin{aligned}
-    \left[\vec{\mathcal{R}}_{1}^{i_m}\right]_{n_m}
+Additionally, the $n_m$th element of the vectors 
+$\vec{\mathcal{R}}_{1}^{i_m}$ and $\vec{\mathcal{R}}_{2}^{i_m}$ 
+in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are 
+\begin{equation}\label{jfm:radial integral 1}
+\begin{aligned}\relax
+    \left[\vec{\mathcal{R}}_{1}^{i_m}\right]_{n_m} 
     & = \int_{a_{m}}^{a_{{m+1}}} R_{1n_m}^{i_m}(r)\, r\, dr \\
     & = \left\{\begin{matrix}
     \frac{1}{4} (a_{{m+1}}^2-a_{m}^2) & \text{ for } n_m=0 \\[2ex]
@@ -517,9 +494,9 @@ in Eq.~\ref{eq:c_q_i1_vec} and \ref{eq:c_q_im_vec} are
 
 \noindent and
 
-\begin{equation}\label{radial integral 2}
-\begin{aligned}
-    \left[\vec{\mathcal{R}}_{2}^{i_m}\right]_{n_m}
+\begin{equation}\label{jfm:radial integral 2}
+\begin{aligned}\relax
+    \left[\vec{\mathcal{R}}_{2}^{i_m}\right]_{n_m} 
     & = \int_{a_{m}}^{a_{{m+1}}} R_{2n_m}^{i_m}(r)\, r\, dr \\
     & = \left\{\begin{matrix}
     \frac{1}{8} \left(2 a_{{m+1}}^2 \ln \left(\frac{a_{{m+1}}}{a_{m}}\right)-a_{{m+1}}^2+a_{m}^2\right)

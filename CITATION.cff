@@ -1,6 +1,7 @@
 cff-version: 1.2.0
 title: OpenFLASH
-message: "If you use this software, please cite it using the metadata from this file."
+message: "If you use this software, please cite it using the metadata from
+  this file."
 type: software
 authors:
   - family-names: "Best"
@@ -29,7 +30,7 @@ authors:
     orcid: "https://orcid.org/0000-0002-2953-7253"
 repository-code: 'https://github.com/symbiotic-engineering/OpenFLASH'
 abstract: >-
-  Open source flexible library for analytical and semi-analytical hydrodynamics
+  Open Source Flexible Library for Analytical and Semi-analytical Hydrodynamics
 keywords:
   - wave-energy
   - linear-potential-theory
@@ -49,6 +50,13 @@ preferred-citation:
     - family-names: "Haji"
       given-names: "Maha N."
       orcid: "https://orcid.org/0000-0002-2953-7253"
-  title: "Open-source toolbox for semi-analytical hydrodynamic coefficients via the matched eigenfunction expansion method"
+  title: "Open-source toolbox for semi-analytical hydrodynamic coefficients
+    via the matched eigenfunction expansion method"
   year: 2024
   doi: "10.5281/zenodo.15168251"
+version: submitted-paper
+date-released: '2026-06-03'
+identifiers:
+  - description: Release submitted-paper
+    type: doi
+    value: 10.5281/zenodo.20530090

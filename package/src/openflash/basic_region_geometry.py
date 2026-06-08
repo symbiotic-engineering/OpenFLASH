@@ -78,6 +78,12 @@ class BasicRegionGeometry(Geometry):
                 f"Length of heaving_map ({len(heaving_map)}) does not match inferred number of bodies ({num_bodies})"
             )
 
+        # ─── ADD THIS SPECIFIC VALIDATION CHECK ──────────────────────────────
+        # Enforce that only a single body can be active/heaving at a time
+        if sum(heaving_map) > 1:
+            assert False, "Only 0 or 1 body can be marked as heaving"
+        # ─────────────────────────────────────────────────────────────────────
+
         # Build radii groups based on body_map and check contiguity + global monotonicity
         reconstructed = []
         last_value = -np.inf  # Start with negative infinity for strict monotonicity check
