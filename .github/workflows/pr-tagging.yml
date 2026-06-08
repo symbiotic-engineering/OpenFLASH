@@ -24,6 +24,8 @@ permissions:
 
 jobs:
   manage-pr-tags:
+    # Don't run on forks
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
