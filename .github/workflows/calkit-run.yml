@@ -36,10 +36,6 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Install Calkit
         run: uv tool install --upgrade calkit-python
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.x'
       - name: pull with retries
         run: bash .github/workflows/calkit_pull_with_retries.sh
         continue-on-error: true
