@@ -341,9 +341,9 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-main
       hash: md5
-      md5: f54044d40708eae49d172a85254513fa.dir
-      size: 9592
-      nfiles: 1
+      md5: 98482ae17ceccf2fb913dca62c3c1c8d.dir
+      size: 16887
+      nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
       hash: md5
       md5: ee07dfad96a7d0196a3b895c62bc6502
@@ -351,24 +351,24 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/sparsity_plots.ipynb
       hash: md5
-      md5: 9f677e417bc9f3bc1489082de1ac3c7e
-      size: 109739
+      md5: 444d9d009589aaba367f8102e75051be
+      size: 109737
     - path: .calkit/notebooks/html/analysis/sparsity_plots.html
       hash: md5
-      md5: 81ffac3dae40fbb64803344eedfcfb20
-      size: 416883
+      md5: bdc6bfa41a308a72bb96a6fbde91384a
+      size: 424173
     - path: pubs/JFM/figs/A_sparsity_plot.pdf
       hash: md5
-      md5: 51308691ed65e0f0324b836298183256
-      size: 12561
+      md5: 908f78ab7fc8688b9e69e1f56b420522
+      size: 12555
     - path: pubs/JFM/figs/B_sparsity_plot.pdf
       hash: md5
-      md5: 5e51a27b563089ec5a0f50f6d830a573
-      size: 9202
+      md5: 0922ab0557c82a126c19b78fb803aa69
+      size: 9196
     - path: pubs/JFM/figs/C_sparsity_plot.pdf
       hash: md5
-      md5: 736a8d4aa4366f94204eeeef422ece15
-      size: 9863
+      md5: 12e850b022275d18c04510e9253dae77
+      size: 9857
   convergence-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/convergence-results.ipynb"
@@ -413,9 +413,9 @@ stages:
     deps:
     - path: .calkit/env-locks/tex
       hash: md5
-      md5: 1d20723629fc752e4776c7e1d6cb328e.dir
-      size: 1147
-      nfiles: 1
+      md5: b404863b132f96ede5eaceb8cc787b66.dir
+      size: 2294
+      nfiles: 2
     - path: pubs/JFM/figs/graph_abstract.tex
       hash: md5
       md5: ec8dbe649b3b67812906d82d7a78ce23
@@ -423,9 +423,9 @@ stages:
     outs:
     - path: pubs/JFM/figs/graph_abstract.log
       hash: md5
-      md5: a9b22b3b8142f53823030431b128ca89
-      size: 16701
+      md5: 85545abd70948ba95fcb792337fa9f21
+      size: 16700
     - path: pubs/JFM/figs/graph_abstract.pdf
       hash: md5
-      md5: ab6898db6da82271616f7b82ad05056a
+      md5: a9b510663f0ceecdc78b1bb033ee5ebf
       size: 11873
