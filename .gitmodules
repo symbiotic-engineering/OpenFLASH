@@ -1,4 +1,4 @@
-[submodule "sea-lab-utils"]
+[submodule "analysis/sea-lab-utils"]
 	path = analysis/sea-lab-utils
 	url = https://github.com/symbiotic-engineering/sea-lab-utils.git
 	branch = main
