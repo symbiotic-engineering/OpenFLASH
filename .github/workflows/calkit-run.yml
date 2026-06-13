@@ -36,6 +36,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Install Calkit
         run: uv tool install --upgrade calkit-python
+      - name: Setup jq
+        uses: dcarbone/install-jq-action@v3
       - name: pull with retries
         run: bash .github/workflows/calkit_pull_with_retries.sh
         continue-on-error: true
