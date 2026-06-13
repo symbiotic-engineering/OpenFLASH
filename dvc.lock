@@ -351,7 +351,7 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/sparsity_plots.ipynb
       hash: md5
-      md5: 41b5e7359c62cd79a3e4b6b174b2f963
+      md5: b20c739ddfbaf535b7867ff695bc3456
       size: 109740
     - path: .calkit/notebooks/html/analysis/sparsity_plots.html
       hash: md5
@@ -359,15 +359,15 @@ stages:
       size: 424173
     - path: pubs/JFM/figs/A_sparsity_plot.pdf
       hash: md5
-      md5: 4824eb29f7302aeaf5ce8d0357a7e8af
+      md5: 3cf3bcccb905bcd7794b00b8a0c3582e
       size: 12555
     - path: pubs/JFM/figs/B_sparsity_plot.pdf
       hash: md5
-      md5: 085ef056bd3880cd5a339047f5371f5c
+      md5: bf69471b1cfa2dc333732b72222b0226
       size: 9196
     - path: pubs/JFM/figs/C_sparsity_plot.pdf
       hash: md5
-      md5: 866c3c86205fee5b8390e117dc88f66b
+      md5: e73627b94a36537dba30cb5acd8edf40
       size: 9857
   convergence-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
@@ -423,9 +423,9 @@ stages:
     outs:
     - path: pubs/JFM/figs/graph_abstract.log
       hash: md5
-      md5: ef7b923072a748852cfa7ad30d9e49f5
+      md5: 962ae6000ed664071e47afee451bd979
       size: 16701
     - path: pubs/JFM/figs/graph_abstract.pdf
       hash: md5
-      md5: 54fc7327025672fd25459adba490723e
+      md5: 53125d8abf8b0087fd2a60a72dd25116
       size: 11873
