@@ -5,6 +5,7 @@ stages:
       "analysis/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
+      - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
