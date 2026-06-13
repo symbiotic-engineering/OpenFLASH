@@ -36,16 +36,16 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Install Calkit
         run: uv tool install --upgrade calkit-python
-      - name: pull with retries
-        run: bash .github/workflows/calkit_pull_with_retries.sh
-        continue-on-error: true
+      # - name: pull with retries
+      #   run: bash .github/workflows/calkit_pull_with_retries.sh
+      #   continue-on-error: true
       - name: Run Calkit
         id: run_calkit
         continue-on-error: true
         uses: calkit/run-action@v2
         with:
           run_args: --keep-going --log
-          pull_dvc: false
+          pull_dvc: true
           save: false
           cache_dvc: false
       - name: calkit save
