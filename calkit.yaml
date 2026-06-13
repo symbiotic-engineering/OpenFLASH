@@ -26,6 +26,8 @@ pipeline:
       kind: jupyter-notebook
       notebook_path: analysis/validation_with_capytaine_plots.ipynb
       environment: openflash-on-branch
+      inputs:
+        - analysis/sea-lab-utils
       outputs:
         - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
     low-m0-figs:
