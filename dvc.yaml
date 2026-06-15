@@ -104,6 +104,20 @@ stages:
           cache: true
     desc: Automatically generated from the 'sparsity-figs' stage in 
       calkit.yaml. Changes made here will be overwritten.
+  test-latex:
+    cmd: calkit nb execute --environment openflash-on-branch 
+      --no-check --to html "analysis/test-latex.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/analysis/test-latex.ipynb
+      - analysis/sea-lab-utils
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - .calkit/notebooks/executed/analysis/test-latex.ipynb:
+          cache: true
+      - .calkit/notebooks/html/analysis/test-latex.html:
+          cache: true
+    desc: Automatically generated from the 'test-latex' stage in 
+      calkit.yaml. Changes made here will be overwritten.
   graphical-abstract:
     cmd: calkit latex build -e tex --no-check 
       pubs/JFM/figs/graph_abstract.tex
