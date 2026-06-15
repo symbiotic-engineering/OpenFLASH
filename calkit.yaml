@@ -89,6 +89,7 @@ pipeline:
       environment: openflash-on-branch
       inputs:
         - analysis/sea-lab-utils
+      executed_ipynb_storage: git
     graphical-abstract:
       kind: latex
       target_path: pubs/JFM/figs/graph_abstract.tex
