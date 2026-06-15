@@ -13,19 +13,23 @@ environments:
   openflash-on-branch:
     path: analysis/environment-branch.yml
     kind: conda
+  openflash-on-branch-tex:
+    kind: docker
+    path: analysis/.Dockerfile
+    description: openflash-on-branch conda environment with TeXlive via Docker.
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda
   openflash-dev:
     path: analysis/environment-dev.yml
     kind: conda
-
+  
 pipeline:
   stages:
     validate-w-capy:
       kind: jupyter-notebook
       notebook_path: analysis/validation_with_capytaine_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - analysis/sea-lab-utils
       outputs:
@@ -33,7 +37,7 @@ pipeline:
     low-m0-figs:
       kind: jupyter-notebook
       notebook_path: analysis/low_m0_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - package/src/
         - dev/python/limiting-cases/low_m0.py
@@ -43,7 +47,7 @@ pipeline:
     slant-figs:
       kind: jupyter-notebook
       notebook_path: analysis/slant_data_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - analysis/data/slants.pkl
         - analysis/data/slope-slants.pkl
@@ -57,7 +61,7 @@ pipeline:
     timing-figs:
       kind: jupyter-notebook
       notebook_path: analysis/timing_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - analysis/data/timing.pkl
         - analysis/sea-lab-utils
@@ -68,7 +72,7 @@ pipeline:
     convergence-figs:
       kind: jupyter-notebook
       notebook_path: analysis/convergence-results.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - analysis/sea-lab-utils
       outputs:
@@ -86,7 +90,7 @@ pipeline:
     test-latex:
       kind: jupyter-notebook
       notebook_path: analysis/test-latex.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - analysis/sea-lab-utils
       executed_ipynb_storage: git
