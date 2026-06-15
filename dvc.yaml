@@ -113,7 +113,7 @@ stages:
       - .calkit/env-locks/openflash-on-branch
     outs:
       - .calkit/notebooks/executed/analysis/test-latex.ipynb:
-          cache: true
+          cache: false
       - .calkit/notebooks/html/analysis/test-latex.html:
           cache: true
     desc: Automatically generated from the 'test-latex' stage in 
