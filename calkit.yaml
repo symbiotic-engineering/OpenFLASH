@@ -85,7 +85,7 @@ pipeline:
         - pubs/JFM/figs/C_sparsity_plot.pdf
     test-latex:
       kind: jupyter-notebook
-      notebook_path: analysis/test_latex.ipynb
+      notebook_path: analysis/test-latex.ipynb
       environment: openflash-on-branch
       inputs:
         - analysis/sea-lab-utils
