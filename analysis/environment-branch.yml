@@ -2,7 +2,7 @@ name: openflash-openflash-on-branch
 channels:
   - conda-forge
 dependencies:
-  - python
+  - python=3.12
   - pip
   - setuptools
   - wheel
@@ -15,5 +15,6 @@ dependencies:
   - streamlit
   - ipykernel
   - capytaine
+  - seaborn
   - pip:
       - -e ..

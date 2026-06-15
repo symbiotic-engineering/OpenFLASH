@@ -1,7 +1,4 @@
-[submodule "src/sea-lab-utils"]
-	path = src/sea-lab-utils
-	url = https://github.com/symbiotic-engineering/sea-lab-utils
-[submodule "sea-lab-utils"]
-	path = sea-lab-utils
+[submodule "analysis/sea-lab-utils"]
+	path = analysis/sea-lab-utils
 	url = https://github.com/symbiotic-engineering/sea-lab-utils.git
 	branch = main
