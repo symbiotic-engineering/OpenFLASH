@@ -15,6 +15,12 @@ dependencies:
   - streamlit
   - ipykernel
   - seaborn
+  # Compiler toolchain so pip can build capytaine's Fortran extension from
+  # source (no prebuilt arm64 wheel exists). Sets CC/FC during env activation.
+  # Note: on aarch64 these don't provide libquadmath, which gfortran still
+  # links against; .Dockerfile supplies an empty stub to satisfy the linker.
+  - c-compiler
+  - fortran-compiler
   - pip:
       - capytaine
       - -e ..
