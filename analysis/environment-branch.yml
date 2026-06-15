@@ -15,9 +15,6 @@ dependencies:
   - streamlit
   - ipykernel
   - seaborn
-  - texlive-core
-  - texlive-bin
-  - dvipng
   - pip:
       - capytaine
       - -e ..

@@ -13,10 +13,21 @@ environments:
   openflash-on-branch:
     path: analysis/environment-branch.yml
     kind: conda
+    deps: 
+      - package/src
+      - pyproject.toml
   openflash-on-branch-tex:
     kind: docker
-    path: analysis/.Dockerfile
+    path: .Dockerfile
+    image: openflash-on-branch-tex
     description: openflash-on-branch conda environment with TeXlive via Docker.
+    deps:
+      - analysis/environment-branch.yml
+      - package/src
+      - pyproject.toml
+      - README.md
+      - LICENSE
+      - CITATION.cff
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda
