@@ -127,6 +127,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.new_env
 
 # Spyder project settings
 .spyderproject
@@ -204,4 +205,13 @@ html/
 # mat data files
 *.mat
 
-.vscode/settings.json
+# vscode configuration files
+.vscode/
+
+.calkit/overleaf
+
+# Calkit build artifacts
+.calkit/env-locks/
+.calkit/logs/
+.calkit/notebooks/executed/
+.calkit/notebooks/cleaned/
