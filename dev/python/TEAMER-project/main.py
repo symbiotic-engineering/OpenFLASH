@@ -4,7 +4,9 @@ import pandas as pd
 import openflash as of
 from scipy.special import hankel1e 
 import capytaine as cpt
-# from capytaine.io.legacy import _hydrostatics_writer
+import gmsh, pygmsh
+from capytaine.io.meshio import load_from_meshio
+from capytaine.io.legacy import export_hydrostatics
 import xarray as xr
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['mathtext.fontset'] = 'cm'
@@ -23,7 +25,7 @@ d3 = 14.45-7.32-5.08 # vertical distance to top of slant [m]
 # Settings
 rho=1000 # water density [kg/m**3]
 g=9.81 # acceleration due to gravity [m/s**2]
-omegas = np.linspace(0.4,1.5,10) # frequencies [rad/s]
+omegas = np.linspace(0.02,4,50) # frequencies [rad/s]
 h = 100 # water depth (m)
 
 
@@ -120,23 +122,27 @@ def compute_CorPower_data(r1,r2,d1,d2,d3,omegas,rho,g,h,show_geom=False,save_dat
     excitation_force_mag_data = OpenFLASH_results.excitation_force.values
     excitation_force_phase_data = OpenFLASH_results.excitation_phase.values
     excitation_force_data = excitation_force_mag_data[:,None] * np.exp(1j * excitation_force_phase_data[:,None])
-    diffraction_force_data = np.zeros_like(excitation_force_data)
-    FK_force_data = np.zeros_like(excitation_force_data)
-
+    
+    # Dummy data
+    dummy_added_mass_data = np.zeros((len(omegas),6,6))
+    dummy_radiation_damping_data = np.zeros((len(omegas),6,6))
+    dummy_diffraction_force_data = np.zeros((len(omegas),1,6),dtype=np.complex128)
+    dummy_FK_force_data = np.zeros((len(omegas),1,6),dtype=np.complex128)
+    dummy_excitation_force_data = np.zeros((len(omegas),1,6),dtype=np.complex128)
 
     wavenumbers = np.array([of.wavenumber(omega,h) for omega in omegas])
 
-    influenced_dof_cat = pd.Categorical(["Heave"])
-    radiating_dof_cat = pd.Categorical(["Heave"])
+    influenced_dof_cat = pd.Categorical(["Surge", "Sway", "Heave", "Roll", "Pitch", "Yaw"])
+    radiating_dof_cat = pd.Categorical(["Surge", "Sway", "Heave", "Roll", "Pitch", "Yaw"])
 
     # Create the Dataset
     hydrodynamic_dataset = xr.Dataset(
         data_vars={
-            "added_mass": (["omega", "radiating_dof", "influenced_dof"], added_mass_data),
-            "radiation_damping": (["omega", "radiating_dof", "influenced_dof"], radiation_damping_data),
-            "diffraction_force": (["omega", "wave_direction", "influenced_dof"], diffraction_force_data),
-            "Froude_Krylov_force": (["omega", "wave_direction", "influenced_dof"], FK_force_data),
-            "excitation_force": (["omega", "wave_direction", "influenced_dof"], excitation_force_data)            
+            "added_mass": (["omega", "radiating_dof", "influenced_dof"], dummy_added_mass_data),
+            "radiation_damping": (["omega", "radiating_dof", "influenced_dof"], dummy_radiation_damping_data),
+            "diffraction_force": (["omega", "wave_direction", "influenced_dof"], dummy_diffraction_force_data),
+            "Froude_Krylov_force": (["omega", "wave_direction", "influenced_dof"], dummy_FK_force_data),
+            "excitation_force": (["omega", "wave_direction", "influenced_dof"], dummy_excitation_force_data)            
         },
         coords={
             "g":g,
@@ -154,14 +160,38 @@ def compute_CorPower_data(r1,r2,d1,d2,d3,omegas,rho,g,h,show_geom=False,save_dat
         }
     )
 
+    # Now include OpenFLASH data
+    hydrodynamic_dataset['added_mass'].loc[dict(radiating_dof="Heave", influenced_dof="Heave")] = added_mass_data.flatten()
+    hydrodynamic_dataset['radiation_damping'].loc[dict(radiating_dof="Heave", influenced_dof="Heave")] = radiation_damping_data.flatten()
+    hydrodynamic_dataset['excitation_force'].loc[dict(influenced_dof="Heave")] = excitation_force_data.reshape(len(omegas), 1)
+    hydrodynamic_dataset['Froude_Krylov_force'].loc[dict(influenced_dof="Heave")] = excitation_force_data.reshape(len(omegas), 1)
+    print(hydrodynamic_dataset.added_mass)
+    print(hydrodynamic_dataset.excitation_force)
+
     # Hydrostatics
-    hydrostatic_stiffness, mass, displaced_volume = compute_hydrostatics(a_list, d_list, rho, g)
-    stiffness_matrix = np.array([hydrostatic_stiffness])[:,None]
-    inertia_matrix = np.array([mass])[:,None]
+    with pygmsh.occ.Geometry() as geom:
+        gmsh.option.setNumber('Mesh.MeshSizeFactor', 0.3)
+        cyl = geom.add_cylinder([0, 0, 1e-3], [0, 0, -d3], r2)
+        cone = geom.add_cone([0, 0, -d3], [0, 0, -d2+d3], r2, r1)
+        cyl2 = geom.add_cylinder([0, 0, -d2], [0, 0, -d1+d2], r1)
+        geom.boolean_union([cyl, cone, cyl2])
+        mesh_float = geom.generate_mesh()
+    # lid
+    mesh_obj = load_from_meshio(mesh_float, 'float')
+    lid_mesh = mesh_obj.generate_lid(z=-1e-2)
+    # floating body
+    CorPower_fb = cpt.FloatingBody(mesh=mesh_obj,
+                                lid_mesh=lid_mesh,
+                                dofs=cpt.rigid_body_dofs(rotation_center=(0, 0, 0)),
+                                center_of_mass=(0, 0, 0),
+                                name="CorPower")
+    CorPower_fb.inertia_matrix = CorPower_fb.compute_rigid_body_inertia()
+    CorPower_fb.hydrostatic_stiffness = CorPower_fb.immersed_part().compute_hydrostatic_stiffness()
+    # CorPower_fb.show()
     hydrostatic_dataset = xr.Dataset(
         data_vars={
-            "inertia_matrix": (["radiating_dof", "influenced_dof"], inertia_matrix),
-            "hydrostatic_stiffness": (["radiating_dof", "influenced_dof"], stiffness_matrix)         
+            "inertia_matrix": (["radiating_dof", "influenced_dof"], CorPower_fb.inertia_matrix.values),
+            "hydrostatic_stiffness": (["radiating_dof", "influenced_dof"], CorPower_fb.hydrostatic_stiffness.values)         
         },
         coords={
             "g":g,
@@ -172,76 +202,16 @@ def compute_CorPower_data(r1,r2,d1,d2,d3,omegas,rho,g,h,show_geom=False,save_dat
         }
     )
 
-  
     dataset = xr.merge([hydrodynamic_dataset, hydrostatic_dataset], compat="no_conflicts", join="outer")
 
     if save_data: 
         # Hydrodynamics
         cpt.export_dataset(os.path.join(output_dir, 'CorPower_hydrodynamics.nc'), dataset)
         # Hydrostatics
-        hydrostatics_file_path = os.path.join(output_dir, "Hydrostatics.dat")
-        kh_file_path = os.path.join(output_dir, "KH.dat")
-        center_of_buoyancy = (0,0,0) # This is dummy data
-        center_of_mass = (0,0,0) # This is dummy data
-        volume = displaced_volume
-
-        with open(hydrostatics_file_path, 'w') as hf:
-            for j in range(3):
-                line =  f'XF = {center_of_buoyancy[j]:7.4f} - XG = {center_of_mass[j]:7.4f} \n'
-                hf.write(line)
-            line = f'Displacement = {volume:1.6E}'
-            hf.write(line)
-            hf.close()
-            np.savetxt(kh_file_path, dataset.hydrostatic_stiffness.values, fmt='%1.6E')
-
-
-        # Make dummmy FloatingBody object with 
-        # mesh = cpt.mesh_vertical_cylinder(length=10.0, radius=1.0, center=(0, 0, 0),faces_max_radius=0.3)
-        # fb = cpt.FloatingBody(mesh=mesh,
-        #                     center_of_mass=(0,0,0))
-        # fb.rotation_center = np.array([0,0,0])
-        # fb.add_translation_dof(name="Heave")
-        # add CorPower info that is used in _hydrostatics_writer function
-        # fb.inertia_matrix = dataset.inertia_matrix
-        # fb.hydrostatic_stiffness = dataset.hydrostatic_stiffness
-        # fb.center_of_buoyancy = (0,0,0) # This is dummy data
-        # fb.center_of_mass = (0,0,0) # This is dummy data
-        # fb.volume = displaced_volume
-
-        # _hydrostatics_writer(
-        #     hydrostatics_file_path,
-        #     kh_file_path,
-        #     fb
-        # )
+        export_hydrostatics(output_dir, CorPower_fb)
+        
 
     return dataset
 
 # Run
 dataset = compute_CorPower_data(r1,r2,d1,d2,d3,omegas,rho,g,h,show_geom=False,save_data=True)
-
-
-# Practice
-# mesh = cpt.mesh_vertical_cylinder(length=10.0, radius=1.0, center=(0, 0, 0),faces_max_radius=0.3)
-# fb = cpt.FloatingBody(mesh=mesh,
-#                       center_of_mass=(0,0,0))
-# fb.rotation_center = np.array([0,0,0])
-# fb.add_translation_dof(name="Heave")
-# input_dict = {"omega":np.linspace(2,3,10),
-#                 "wave_direction":[0.0],
-#                 "radiating_dof":["Heave"],
-#                 "water_depth":1000,
-#                 "rho":1000,
-#                 "g":9.81}
-# test_matrix = xr.Dataset(coords=input_dict)
-# dataset = cpt.BEMSolver().fill_dataset(test_matrix, fb)
-
-
-
-# cpt_hydrostatics = fb.compute_hydrostatics()
-
-
-# from capytaine.io.legacy import export_hydrostatics_from_dataset
-# export_hydrostatics_from_dataset(output_dir, cpt_hydrostatics)
-
-
-# for hydrostatics, may need to use cpt since the function for generating the .dat file requires bodies.
