@@ -7,7 +7,7 @@ import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-import matplotlib.cm as cm
+from matplotlib import colormaps
 from scipy import stats
 from scipy.optimize import curve_fit, least_squares
 
@@ -503,7 +503,7 @@ def get_plasma_color(value, min_value = 1, max_value=150):
     # v = min(max(value, 1), max_value)
     # Normalize into [0,1]
     norm = (value - min_value) / (max_value - min_value)
-    return cm.get_cmap('plasma')(norm)
+    return colormaps['plasma'](norm)
 
 def filter_and_plot_shapes(all_prob_dicts, restriction, color_func, ppr = 10, figsize_per_plot = (2, 2)):
   plotting_dicts, plotting_m0s = [], []
@@ -633,7 +633,7 @@ def color_by_f_value(f, all_prob_dicts, m0 = None, m0s = None, all_m0s = False, 
     f_vals = f_vals + selective_m0(f, prob, m0 = m0, m0s = m0s, all_m0s = all_m0s)
   max_val = max(f_vals)
   min_val = min(f_vals)
-  return [cm.get_cmap(cmap)((f_val - min_val)/(max_val - min_val)) for f_val in f_vals]
+  return [colormaps[cmap]((f_val - min_val)/(max_val - min_val)) for f_val in f_vals]
 
 ####### ERROR FITTING
 def filter_local_maxima(xs, ys): # Not that useful, often not enough points
