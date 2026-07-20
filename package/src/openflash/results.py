@@ -4,6 +4,7 @@ import numpy as np
 from openflash.geometry import Geometry
 from openflash.meem_problem import MEEMProblem
 from .body import CoordinateBody
+from .converters.wecsim_export import export_to_stl, export_wecsim_hdf5
 
 class Results:
     """
@@ -267,6 +268,33 @@ class Results:
 
         safe_ds = _split_complex(self.dataset)
         safe_ds.to_netcdf(file_path, engine="h5netcdf")
+
+    def export_to_wecsim_hdf5(self, file_path: str):
+        """
+        Export results to a WEC-Sim-oriented HDF5 payload.
+        """
+        export_wecsim_hdf5(self, str(file_path))
+
+    def export_to_stl(
+        self,
+        output_dir: str,
+        freeboard: float = 5.0,
+        circumferential_segments: int = 36,
+    ):
+        """
+        Export one closed STL mesh file per body.
+
+        Args:
+            output_dir: Folder where STL files are written.
+            freeboard: Height above z=0 to extend the mesh.
+            circumferential_segments: Number of angular segments around each section.
+        """
+        return export_to_stl(
+            self,
+            output_dir=str(output_dir),
+            freeboard=float(freeboard),
+            circumferential_segments=int(circumferential_segments),
+        )
 
     def get_results(self):
         return self.dataset

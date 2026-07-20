@@ -3,6 +3,7 @@
 import pytest
 import numpy as np
 import xarray as xr
+import h5py
 from unittest.mock import Mock, MagicMock
 import os
 import sys
@@ -18,6 +19,8 @@ from openflash.results import Results
 from openflash.geometry import Geometry, ConcentricBodyGroup
 from openflash.body import SteppedBody, CoordinateBody
 from openflash.meem_problem import MEEMProblem
+from openflash.basic_region_geometry import BasicRegionGeometry
+from openflash.converters import export_to_stl, export_wecsim_hdf5
 
 # ==============================================================================
 # Mock Geometry Fixture
@@ -236,6 +239,143 @@ def test_export_to_netcdf(results_instance, tmp_path):
     assert loaded_ds['added_mass'].shape == (num_freqs, num_modes, num_modes)
     loaded_ds.close()
     print("✅ Export to NetCDF test passed.")
+
+
+def test_export_to_wecsim_hdf5(results_instance, tmp_path):
+    """
+    Minimal WEC-Sim HDF5 export coverage:
+    - required datasets/groups exist
+    - coefficient normalization is applied
+    - excitation phase is conjugated by default
+    """
+    w = np.asarray(results_instance.frequencies, dtype=float)
+    num_freqs = len(w)
+    num_modes = len(results_instance.modes)
+
+    rho_ref = 1023.0
+    g_ref = 9.81
+    rng = np.random.default_rng(12345)
+
+    a_bar = 0.1 + rng.random((num_freqs, num_modes, num_modes))
+    b_bar = 0.1 + rng.random((num_freqs, num_modes, num_modes))
+    X_bar = np.abs(0.1 + rng.random((num_freqs, num_modes)))
+    phase = rng.uniform(-np.pi, np.pi, size=(num_freqs, num_modes))
+
+    added_mass = rho_ref * a_bar
+    damping = rho_ref * w[:, np.newaxis, np.newaxis] * b_bar
+    excitation_force = rho_ref * g_ref * X_bar
+    excitation_phase = phase
+
+    results_instance.store_hydrodynamic_coefficients(
+        frequencies=w,
+        added_mass_matrix=added_mass,
+        damping_matrix=damping,
+        excitation_force=excitation_force,
+        excitation_phase=excitation_phase,
+    )
+
+    file_path = tmp_path / "wecsim_hydro.h5"
+    export_wecsim_hdf5(results_instance, str(file_path))
+    assert file_path.exists()
+
+    with h5py.File(file_path, "r") as h5:
+        for key in [
+            "Nb", "Nf", "Nh", "w", "A", "B", "A0", "Ainf",
+            "excitation_re", "excitation_im", "ra_t", "ra_w", "ra_K", "CoB", "disp_vol",
+        ]:
+            assert key in h5
+
+        nb = int(h5["Nb"][()])
+        nf = int(h5["Nf"][()])
+        ndof = 6 * nb
+        assert h5["A"].shape == (ndof, ndof, nf)
+        assert h5["B"].shape == (ndof, ndof, nf)
+        assert h5["ra_K"].shape[0] == ndof
+        assert h5["CoB"].shape == (nb, 3)
+        assert h5["disp_vol"].shape == (nb,)
+
+        # WEC-Sim/BEMIO compatibility paths.
+        for key in [
+            "/simulation_parameters/scaled",
+            "/simulation_parameters/wave_dir",
+            "/simulation_parameters/water_depth",
+            "/body1/properties/name",
+            "/body1/properties/dof",
+            "/body1/hydro_coeffs/excitation/re",
+            "/body1/hydro_coeffs/added_mass/all",
+            "/body1/hydro_coeffs/radiation_damping/all",
+            "/body1/hydro_coeffs/radiation_damping/impulse_response_fun/K",
+        ]:
+            assert key in h5
+
+        mode_to_dof = h5["mode_to_dof"][:]
+        dof0 = int(mode_to_dof[0])
+
+        rho = float(h5["rho"][()])
+        g = float(h5["g"][()])
+
+        expected_a = added_mass[:, 0, 0] / rho
+        expected_b = damping[:, 0, 0] / (rho * w)
+        expected_mag = excitation_force[:, 0] / (rho * g)
+        expected_re = expected_mag * np.cos(phase[:, 0])
+        expected_im = -expected_mag * np.sin(phase[:, 0])
+
+        np.testing.assert_allclose(h5["A"][dof0, dof0, :], expected_a, rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(h5["B"][dof0, dof0, :], expected_b, rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(h5["excitation_phase"][dof0, 0, :], -phase[:, 0], rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(h5["excitation_re"][dof0, 0, :], expected_re, rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(h5["excitation_im"][dof0, 0, :], expected_im, rtol=1e-12, atol=1e-12)
+
+
+def test_export_to_stl_defaults(tmp_path):
+    """
+    Exports closed STL meshes with defaults and checks expected facet counts.
+    Body 1 is solid; body 2 is annular.
+    """
+    body1 = SteppedBody(
+        a=np.array([1.0]),
+        d=np.array([2.0]),
+        slant_angle=np.array([0.0]),
+        heaving=False,
+    )
+    body2 = SteppedBody(
+        a=np.array([2.0]),
+        d=np.array([3.0]),
+        slant_angle=np.array([0.0]),
+        heaving=True,
+    )
+    geometry = BasicRegionGeometry(ConcentricBodyGroup([body1, body2]), h=20.0, NMK=[5, 5, 5])
+    problem = MEEMProblem(geometry)
+    problem.set_frequencies(np.array([0.5]))
+    results = Results(problem)
+
+    results.store_hydrodynamic_coefficients(
+        frequencies=problem.frequencies,
+        added_mass_matrix=np.zeros((1, 1, 1)),
+        damping_matrix=np.zeros((1, 1, 1)),
+    )
+
+    out_dir = tmp_path / "stl"
+    exported = export_to_stl(results, str(out_dir))
+    assert len(exported) == 2
+
+    body1_file = out_dir / "body_1.stl"
+    body2_file = out_dir / "body_2.stl"
+    assert body1_file.exists()
+    assert body2_file.exists()
+
+    body1_facets = body1_file.read_text(encoding="ascii").count("facet normal")
+    body2_facets = body2_file.read_text(encoding="ascii").count("facet normal")
+
+    # Defaults: 36 circumferential segments with vertical wall subdivision.
+    # Body 1 (single section, non-annular):
+    #   top(396) + bottom(396) + outer wall(2*36*40) = 3672 facets.
+    # Body 2 (single section, annular):
+    #   top(216) + bottom(216) + outer wall(2*36*23) + inner wall(2*36*46) = 5400 facets.
+    assert body1_facets == 3672
+    assert body2_facets == 5400
+
+
 
 def test_get_results(results_instance):
     """
