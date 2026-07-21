@@ -1230,7 +1230,7 @@ In the exterior region, the analogous relationship between the two major charact
 Convergence slows as $\lambda_0^eh$ increases, particularly in the case of damping.
 This trend is consistent with Sec.~\ref{jfm:sec:low-freq}, which shows that only one term per region (exterior or otherwise) is needed when $\lambda_0^e$ is near zero.
 
-In the body regions, another notable local parameter is the ratio of region's \neighbour{}'s fluid heights to that of its own.
+In the body regions, another notable local parameter is the ratio of a region's \neighbour{}s' fluid heights to that of its own.
 We observed that convergence is significantly faster for region $i_m$ when $\frac{h-d_{m-1}}{h-d_m} < 1$ than when it's greater than $1$.
 The convergence speed changes quickly (almost step-like) near $1$.
 The trend is the same for $\frac{h-d_{m+1}}{h-d_m}$.
@@ -1566,6 +1566,10 @@ Table~\ref{jfm:tab:reusable-dependence} shows the dependence of each quantity on
 % \end{itemize}
 These time complexities are listed using more explicit per-region term counts in Table~\ref{jfm:tab:time-complexities}, and examples of their distribution/dominance given the same $N^{i_m}$ per region are given in Fig~\ref{jfm:fig:time-dominance}.
 For low region counts, coupling integrals dominate.
+\ifdefined\DISSERTATION
+Note that this differs from the results of \Cref{ch:modeling}, where the Bessel function evaluations dominate.
+The discrepancy arises because the coupling integrals are vectorized in the \texttt{MDOcean} but not \texttt{OpenFLASH} MEEM implementation.
+\fi
 For large region counts and terms per region, as is commonly encountered in slant approximations, the matrix solve will eventually dominate.
 
 For comparison, Capytaine solves a matrix system whose side length scales with panel count, and its total runtime (for matrix element generation and matrix solve) empirically scales quadratically with panel count.
