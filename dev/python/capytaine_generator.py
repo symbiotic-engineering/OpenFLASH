@@ -22,7 +22,7 @@ class CapytaineSlantSolver:
       self.solver = cpt.BEMSolver()
       logging.getLogger("capytaine").setLevel(logging.ERROR)
 
-    # use to get rid of prints
+    # use to prevent prints within function
     def __deafen(self, function, *args, **kwargs):
         real_stdout = sys.stdout
         try:
@@ -34,7 +34,7 @@ class CapytaineSlantSolver:
 
     def __timed_solve(self, problem, reps):
         t_lst = []
-        for i in range(reps):
+        for _ in range(reps):
             t0 = time.perf_counter()
             result = self.solver.solve(problem, keep_details = True)
             t1 = time.perf_counter()
@@ -81,7 +81,7 @@ class CapytaineSlantSolver:
         zarr = np.linspace(p1[1], p2[1], f_density + 1)
         rarr = np.linspace(p1[0], p2[0], f_density + 1)
         xyz = np.array([np.array([x/np.sqrt(2),y/np.sqrt(2),z]) for x,y,z in zip(rarr,rarr,zarr)])
-        return cpt.AxialSymmetricMesh.from_profile(xyz, nphi = t_density)
+        return cpt.AxialSymmetricMesh.from_profile(xyz, nphi = t_density) # mesh for 1 flat face
 
     def __faces_and_heaves(self, heave_status, p1, p2, f_density, t_density, meshes, mask, panel_ct):
         mesh = self.__make_face(p1, p2, f_density, t_density)
@@ -91,7 +91,7 @@ class CapytaineSlantSolver:
             direction = [0, 0, 1]
         else:
             direction = [0, 0, 0]
-        for i in range(new_panels):
+        for _ in range(new_panels):
             mask.append(direction)
         return meshes, mask, (panel_ct + new_panels)
 
@@ -119,7 +119,7 @@ class CapytaineSlantSolver:
         # , lid_mesh = meshes.generate_lid() # consider adding lid mesh to above function
         return body, panel_ct, mask
 
-    def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, omega, rho, reps, f_densities = None):
+    def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, omega, rho, reps = 1, f_densities = None):
         pt_lst = self.get_points(a, d_in, d_out)
         if f_densities is None:
             f_densities = self.__get_f_densities(pt_lst, face_units)

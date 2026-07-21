@@ -1,22 +1,20 @@
 # For notebooks that don't deal with all the inner MEEM workings, and don't want to duplicate A-matrix, b-vector code, etc.
 # Useful for just generating hydro coefficients, test cases.
 # This file may not reflect recent edits to multi_equations, multi-MEEM.
+# For usage example, check the bottom part of the multi_MEEM.ipynb notebook
+# that uses functions in this file to reproduce results of blocks written out more explicitly in the notebook
 
 import numpy as np
 from scipy.special import hankel1 as besselh
-from scipy.special import iv as besseli
-from scipy.special import kv as besselk
 from scipy.special import ive as besselie
 from scipy.special import kve as besselke
-import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
 from numpy import sqrt, cosh, cos, sinh, sin, pi, exp, inf
-from scipy.optimize import newton, minimize_scalar, root_scalar
-import scipy as sp
-import pandas as pd
+from scipy.optimize import root_scalar
 
 g = 9.81
+LARGE_M0H = 14
 
 # generic helper function
 def insert_submatrix(mat, submat, row, col):
@@ -119,7 +117,7 @@ class Problem:
         dj = self.d[i]
         if m == 0 and k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 return (1/sqrt(N_k[0])) * sinh(m0 * (h - dj)) / m0
             else: # high m0h approximation
                 return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -127,7 +125,7 @@ class Problem:
             return (1/sqrt(N_k[k])) * sin(m_k[k] * (h - dj)) / m_k[k]
         if m >= 1 and k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 num = (-1)**m * sqrt(2) * (1/sqrt(N_k[0])) * m0 * sinh(m0 * (h - dj))
             else: # high m0h approximation
                 num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -228,7 +226,7 @@ class Problem:
         constant = - heaving[i] * a[i]/(2 * (h - d[i]))
         if k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 return constant * (1/sqrt(self.N_k[0])) * sinh(m0 * (h - d[i])) / m0
             else: # high m0h approximation
                 return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
@@ -339,7 +337,7 @@ class Problem:
         h, m0, m_k, N_k = self.h, self.m0, self.m_k, self.N_k
         if k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 return 1 / sqrt(N_k[k]) * cosh(m0 * (z + h))
             else: # high m0h approximation
                 return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
@@ -351,7 +349,7 @@ class Problem:
         h, m0, m_k, N_k = self.h, self.m0, self.m_k, self.N_k
         if k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 return 1 / sqrt(N_k[k]) * m0 * sinh(m0 * (z + h))
             else: # high m0h approximation
                 return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
