@@ -86,15 +86,15 @@
     The matched eigenfunction expansion method (MEEM), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. 
     However, previous work fails to directly compare its accuracy and computational performance with BEM, leaving the extent of its utility unknown. 
     Furthermore, the geometry-dependent convergence for cylindrical and slanted geometries has not yet been documented, making the method’s practicality for general geometries unclear. 
-    This paper presents a unifying MEEM framework for \modelling{} an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous and radially-monotonic body profiles,
+    This paper presents a unifying \acrshort{acr-meem} framework for \modelling{} an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous and radially-monotonic body profiles,
     %split here
     and explores the method’s block matrix structure, convergence \behaviour{}, ability to accurately approximate slanted geometries, and computational advantages over the BEM solver Capytaine. 
     The numerical experiments show that %with sufficient discretization, 
-    MEEM can compute hydrodynamic coefficients of slanted geometries within 5\% of Capytaine, even for angles as steep as $15^\circ$ from vertical.
+    \acrshort{acr-meem} can compute hydrodynamic coefficients of slanted geometries within 5\% of Capytaine, even for angles as steep as $15^\circ$ from vertical.
     %but requires finer discretizations for steeper slant angles. 
     % linear relation between # subdivisions and relative accuracy, with a slope that depends on the steepness
     Finally, %due to its rapid convergence \behaviour{}, 
-    MEEM can achieve 2\% convergence of its hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers.
+    \acrshort{acr-meem} can achieve 2\% convergence of its hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers.
     These contributions enable hydrodynamic analysis of a broad range of shapes with increased speed and confidence, paving the way for future optimization studies to yield improved designs.
 
     % Structural survival of offshore structures is important for the growing marine economy.
@@ -146,16 +146,16 @@ The solution in each fluid region is obtained analytically in terms of unknown c
 The method received thorough coverage in a recent analytical hydrodynamics textbook \citep{chatzigeorgiou2018analytical} and has been extended to cover increasingly complex concentric geometries, 
 including two truncated cylinders \citep{mavrakos_hydrodynamic_2004,chau2012inertia}, three truncated cylinders \citep{zhang_performance_2024}, damping plates \citep{olaya_hydrodynamic_2015}, and many cylinders approximating complex concentric bodies \citep{kokkinowrachos_behaviour_1986}.
 
-Despite this interest from hydrodynamics researchers, MEEM has not been widely adopted by the offshore engineering community, likely due to the complexity of its implementation 
+Despite this interest from hydrodynamics researchers, \acrshort{acr-meem} has not been widely adopted by the offshore engineering community, likely due to the complexity of its implementation 
 and the rise of boundary element method (BEM) software packages that are easier to use and applicable to arbitrary geometries, albeit more computationally costly.
-With the growing need for efficient hydrodynamic analysis tools to enable advanced design procedures like optimization, interest in MEEM has resurged, particularly in the offshore renewable energy space. 
-\citet{pavlidou_novel_2022} performed multi-objective optimization for a two-body wave energy converter (WEC) using MEEM to compute the hydrodynamic coefficients of a cylinder. 
-\citet{zhang_hydrodynamic_2016} optimized the shape of the wetted surface of a point absorber WEC using MEEM to model cylindrical, hemispherical, paraboloid, and conical geometries. 
-\citet{mavrakos_hydrodynamic_2012} used MEEM to compute the first-order and mean second-order loads on a vertical axisymmetric oscillating water column WEC. 
-However, the benefits of MEEM over traditional BEM solvers remain unclear, as the tradeoffs between accuracy and computational performance of the methods are seldom compared in the literature. 
+With the growing need for efficient hydrodynamic analysis tools to enable advanced design procedures like optimization, interest in \acrshort{acr-meem} has resurged, particularly in the offshore renewable energy space. 
+\citet{pavlidou_novel_2022} performed multi-objective optimization for a two-body wave energy converter (WEC) using \acrshort{acr-meem} to compute the hydrodynamic coefficients of a cylinder. 
+\citet{zhang_hydrodynamic_2016} optimized the shape of the wetted surface of a point absorber WEC using \acrshort{acr-meem} to model cylindrical, hemispherical, paraboloid, and conical geometries. 
+\citet{mavrakos_hydrodynamic_2012} used \acrshort{acr-meem} to compute the first-order and mean second-order loads on a vertical axisymmetric oscillating water column WEC. 
+However, the benefits of \acrshort{acr-meem} over traditional BEM solvers remain unclear, as the tradeoffs between accuracy and computational performance of the methods are seldom compared in the literature. 
 Additionally, previous work does not directly address the convergence \behaviour{} and angle-dependent discretization of slanted geometries, making its ability to accurately model more general geometries uncertain.
 
-This work presents a unifying MEEM framework that arranges equations into an organized sparse matrix structure. 
+This work presents a unifying \acrshort{acr-meem} framework that arranges equations into an organized sparse matrix structure. 
 This framework is used to model an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous radially-monotonic profiles. 
 The method’s convergence \behaviour{}, ability to accurately approximate slanted bodies, and computational advantages over the BEM solver Capytaine are explored. 
 The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \citep{best_openflash_2026,best_openflash-code_2026}) that is used for numerical studies herein.
@@ -443,7 +443,7 @@ Potential can then be integrated to find the hydrodynamic forces.
 %       \shortstack{$\frac{\partial}{\partial r}\phi^{i_M}=\frac{\partial}{\partial r}\phi^{e}$ \\ at $r=a_M$}
 %         & & & & & & & & & & \multicolumn{3}{c|}{} \\ \hline
 %     \end{tabular}
-%     \caption{MEEM A-matrix}
+%     \caption{\acrshort{acr-meem} A-matrix}
 %     \label{jfm:tab:MEEM-A-matrix}
 % \end{table}
 % \end{landscape}
@@ -476,7 +476,7 @@ Potential can then be integrated to find the hydrodynamic forces.
         & \multicolumn{8}{c|}{$\mathbf{0}$} & \multicolumn{3}{c|}{$\mathbf{A}_M$} \\ \hline
     \end{tabular}
     \vspace{-10pt}
-    \caption{MEEM $\mathbf{A}$ matrix.}
+    \caption{\acrshort{acr-meem} $\mathbf{A}$ matrix.}
     \label{jfm:tab:MEEM-A-matrix}
 \end{table}
 
@@ -521,7 +521,7 @@ Potential can then be integrated to find the hydrodynamic forces.
         $-(h-d_{m+1}) \mathrm{diag}\left( \frac{\partial}{\partial r} \vec{R}_2^{i_{m+1}}\right)$ 
         \\ \hline
     \end{tabular}
-    \caption{MEEM $\mathbf{A}_m$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). 
+    \caption{\acrshort{acr-meem} $\mathbf{A}_m$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). 
     Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
     \label{jfm:tab:MEEM-A_m-matrix-case-1}
 \end{table}
@@ -586,7 +586,7 @@ Potential can then be integrated to find the hydrodynamic forces.
         $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} \odot \mathbf{1}_{N^{i_{m}}1} \vec{R}_2^{i_{m+1}}$ 
         \\ \hline
     \end{tabular}
-    \caption{MEEM $\mathbf{A}_m$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).
+    \caption{\acrshort{acr-meem} $\mathbf{A}_m$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).
 Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
     \label{jfm:tab:MEEM-A_m-matrix-case-2}
 \end{table}
@@ -607,7 +607,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
       \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m+1}}$
         & $\int_{-h}^{-d_{m+1}}\frac{\partial \phi_\mathrm{p}^{i_{m+1}}}{\partial r} \vec{Z}^{i_{m+1}} \mathrm{d}z-\int_{-h}^{-d_m}\frac{\partial \phi_\mathrm{p}^{{i_{m}}}}{\partial r} \vec{Z}^{i_{m+1}}{} \mathrm{d}z$ \\ \hline
     \end{tabular}
-    \caption{MEEM $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).
+    \caption{\acrshort{acr-meem} $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).
 Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
     \label{jfm:tab:MEEM-b_m-vector-case-1}
 \end{table}
@@ -626,7 +626,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
       \shortstack{$\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ \\ at $r=a_m$} & $N^{i_{m}}$
         &  $\int_{-h}^{-d_m}\frac{\partial \phi_\mathrm{p}^{i_{m}}}{\partial r} \vec{Z}^{i_{m}} \mathrm{d}z-\int_{-h}^{-d_{m+1}}\frac{\partial \phi_\mathrm{p}^{i_{m+1}}}{\partial r} \vec{Z}^{{i_{m}}} \mathrm{d}z$\\ \hline
     \end{tabular}
-    \caption{MEEM $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_{m+1} = \mathrm{s}$ and $i_{m} = \mathrm{t}$). 
+    \caption{\acrshort{acr-meem} $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_{m+1} = \mathrm{s}$ and $i_{m} = \mathrm{t}$). 
     Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
     \label{jfm:tab:MEEM-b_m-vector-case-2}
 \end{table}
@@ -655,7 +655,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
 % %     - \sqrt{2} a_m \eta_m \frac{\sin(\lambda_{n_{m+1}}^{i_{m+1}} (h-d_m))}{2 (h-d_m)\lambda_{n_{m+1}}^{i_{m+1}}} & \text{when} \ n_{m+1} \ge 1 
 % %     \end{matrix}\right.$ \\ \hline
 % %     \end{tabular}
-% %     \caption{Elements in MEEM $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).}
+% %     \caption{Elements in \acrshort{acr-meem} $\vec{b}_m$ vector when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).}
 % %     \label{jfm:tab:MEEM-b_m-vector-case-1-simplified}
 % % \end{table}
 
@@ -676,7 +676,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
 % %     \sqrt{2} a_m \eta_{m+1} \frac{\sin(\lambda_{n_{m}}^{i_{m}} (h-d_{m+1}))}{2 (h-d_{m+1})\lambda_{n_{m}}^{i_{m}}} & \text{when} \ n_{m} \ge 1 
 % %     \end{matrix}\right.$ \\ \hline
 % %     \end{tabular}
-% %     \caption{Elements in MEEM $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).}
+% %     \caption{Elements in \acrshort{acr-meem} $\vec{b}_m$ vector when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).}
 % %     \label{jfm:tab:MEEM-b_m-vector-case-2-simplified}
 % % \end{table}
 
@@ -700,7 +700,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
 %      & \text{when} \ n_{e} \ge 1 
 %     \end{matrix}\right.$ \\ \hline
 %     \end{tabular}
-%     \caption{Elements in MEEM $\vec{b}_m$ vector when $m=M$ ($i_M = \mathrm{s}$ and $e = \mathrm{t}$).}
+%     \caption{Elements in \acrshort{acr-meem} $\vec{b}_m$ vector when $m=M$ ($i_M = \mathrm{s}$ and $e = \mathrm{t}$).}
 %     \label{jfm:tab:MEEM-b_m-vector-case-3-simplified}
 % \end{table}
 
@@ -868,7 +868,7 @@ When their contribution goes to zero, the matrix (and its solution) become real,
 
 \begin{figure}[htbp]
     \centering    \includegraphics[width=\linewidth]{figs/MEEM-Low-Freq.pdf}
-    \caption{Left: Comparison of the low frequency approximation, the infinite frequency limit, and standard MEEM (with $N^{i_m} = N^e = 100$) for the geometry described in Section~\ref{jfm:sec:validation}.
+    \caption{Left: Comparison of the low frequency approximation, the infinite frequency limit, and standard \acrshort{acr-meem} (with $N^{i_m} = N^e = 100$) for the geometry described in Section~\ref{jfm:sec:validation}.
 Right: A comparison of the first four $C^{i_2}_{1n}$ over low frequencies, demonstrating that the \behaviour{} of $C^{i_2}_{10}$ eventually dominates as frequency approaches zero for both the real and imaginary parts.
 This trend is representative of the other $C^{i_m}_{1n}$ and $C^{i_m}_{2n}$.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-Low-Freq.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
@@ -877,7 +877,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 
 % \begin{itemize}
 %     \item Low and infinite frequency approximations. Written by \textcolor{orange}{Bimali}.
-%     \item Figure showing that MEEM and Capytaine approach these values for low and infinite frequencies. Figure made by \textcolor{orange}{Bimali}.
+%     \item Figure showing that \acrshort{acr-meem} and Capytaine approach these values for low and infinite frequencies. Figure made by \textcolor{orange}{Bimali}.
 % \end{itemize}
 
 \subsection{Numerics}\label{jfm:sec:numerics}
@@ -972,7 +972,7 @@ The bi-diagonal structure occurs because the matching equations at a given bound
 Each block features its own sparsity pattern, where some portions are completely populated, 
 and others have multiple individual bands of elements due to the diagonal blocks in Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1} and \ref{jfm:tab:MEEM-A_m-matrix-case-2}. 
 Although a standard linear solver was used in this work (\texttt{scipy}'s LU decomposition), 
-the computational complexity of MEEM may be reduced further by exploiting the sparsity of $\mathbf{A}$. 
+the computational complexity of \acrshort{acr-meem} may be reduced further by exploiting the sparsity of $\mathbf{A}$. 
 This is discussed further in Section~\ref{jfm:sec:compute-time}.
 
 The $\mathbf{B}$ matrix features a sparsity pattern that is dependent on the degrees of freedom prescribed to each cylindrical ring. 
@@ -1006,23 +1006,23 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebook
 
 \subsection{Validation}\label{jfm:sec:validation}
 The added mass $A_{11}(\omega)$, radiation damping $B_{11}(\omega)$, excitation magnitude $|X_1(\omega)|$, and excitation phase $\angle X_1(\omega)$ 
-from MEEM and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \citet{faedo2021energy}. 
+from \acrshort{acr-meem} and Capytaine, an open-source BEM software, are compared over a range of frequencies for a heaving single-body CorPower-like WEC geometry from \citet{faedo2021energy}. 
 This is shown in Fig.~\ref{jfm:fig:hydro coeff validation}. 
-Note that the geometry is simplified in the MEEM and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. 
+Note that the geometry is simplified in the \acrshort{acr-meem} and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. 
 In reality, the CorPower WEC geometry also consists of a slanted section. 
 This will be accounted for later in Sec.~\ref{jfm:sec:slant}. 
 The geometry settings of this comparison were set as follows: 
 $a_1=1.25 \text{~m}$, $a_2=4.2 \text{~m}$, $d_1=14.45 \text{~m}$, $d_2=2.05 \text{~m}$, and $h=50 \text{~m}$. 
-The series in each region was truncated to 150 for MEEM ($N^{i_1}=N^{i_2}=N^{e}=150$) and 1060 panels were used in Capytaine. 
-The hydrodynamic coefficients from MEEM and Capytaine are on average within 1\% of one another. 
+The series in each region was truncated to 150 for \acrshort{acr-meem} ($N^{i_1}=N^{i_2}=N^{e}=150$) and 1060 panels were used in Capytaine. 
+The hydrodynamic coefficients from \acrshort{acr-meem} and Capytaine are on average within 1\% of one another. 
 Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. 
 In Sec.~\ref{jfm:sec:convergence}, the dependence of MEEM's convergence on the geometry will be discussed more in depth, 
-and the trade-offs between accuracy and computation time for MEEM and Capytaine will be compared in Sec.~\ref{jfm:sec:compute-time}.
+and the trade-offs between accuracy and computation time for \acrshort{acr-meem} and Capytaine will be compared in Sec.~\ref{jfm:sec:compute-time}.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf}
-    \caption{Added mass, radiation damping, excitation magnitude, and excitation phase from MEEM and Capytaine for CorPower-like WEC without slanted portions.
+    \caption{Added mass, radiation damping, excitation magnitude, and excitation phase from \acrshort{acr-meem} and Capytaine for CorPower-like WEC without slanted portions.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM_vs_Capytaine_Nonslant_Validation.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:hydro coeff validation}
 \end{figure} 
@@ -1295,17 +1295,17 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 
 \section{Slanted Geometries}\label{jfm:sec:slant}
 So far, we have only considered geometries in the form of a series of surface-piercing compound annular cylinders, as shown in Fig.~\ref{jfm:fig:Diagram}. 
-In this section, we will discuss how MEEM can be used to approximate the first-order hydrodynamic forces on vertically axisymmetric surface-piercing bodies with radially-monotonic profiles. 
+In this section, we will discuss how \acrshort{acr-meem} can be used to approximate the first-order hydrodynamic forces on vertically axisymmetric surface-piercing bodies with radially-monotonic profiles. 
 This generalization is important for \modelling{} body shapes that are seen in engineering applications. 
 The CorPower WEC \citep{de2016techno}, WaveBot WEC \citep{strofer2023control}, AquaHarmonics WEC \citep{weaver2020super}, LUPA WEC float \citep{beringer2025degrees}, and RM3 WEC float \citep{neary2014methodology} are all examples of geometries that can be \modelled{} with this extension. 
 In literature, toroidal \citep{mavrakos1997hydrodynamic} and spherical bodies \citep{zhang_hydrodynamic_2016} have also been \modelled{} using MEEM. 
-However, little discussion has been given on the accuracy of this approximation, how slanted geometries should be discretized, and how the steepness of the slanted geometry influences the convergence of the MEEM solution. 
+However, little discussion has been given on the accuracy of this approximation, how slanted geometries should be discretized, and how the steepness of the slanted geometry influences the convergence of the \acrshort{acr-meem} solution. 
 In this section, we will address these topics.
 
 \subsection{Discretization}
 
-As formulated, MEEM can only exactly represent geometries where the fluid can be divided into regions that have the top boundary parallel to the sea floor.
-The standard way to use MEEM with slanted or curved bodies is to approximate the geometry by subdividing slanted regions into numerous stepped regions approximating the true outline~\citep{kokkinowrachos_behaviour_1986}, as shown in Figure~\ref{jfm:fig:Discretization Diagram}.
+As formulated, \acrshort{acr-meem} can only exactly represent geometries where the fluid can be divided into regions that have the top boundary parallel to the sea floor.
+The standard way to use \acrshort{acr-meem} with slanted or curved bodies is to approximate the geometry by subdividing slanted regions into numerous stepped regions approximating the true outline~\citep{kokkinowrachos_behaviour_1986}, as shown in Figure~\ref{jfm:fig:Discretization Diagram}.
 There are many options for this discretization.
 As shown in Fig.~\ref{jfm:fig:Discretization Schemes Diagram}, the wetted surface of the discretized body \modelled{} can lie a) entirely within, b) partially within, or c) outside of the slanted wetted surface that is being approximated.
 In cases a) and c), the computed potentials in the true fluid region will be smooth.
@@ -1320,7 +1320,7 @@ This is because increasing the number of subdivisions reduces the radial width a
 
 A complicating factor is that regions with shallower slants can be represented more accurately with fewer subdivisions than those with steeper slants.
 Another is that the hydrodynamic forces on the entire body can be thought of as a weighted sum of the forces on each region, where the radial width of each region determines the weights. 
-Since the forces applied to regions with smaller radial widths get weighted less, MEEM is able to accurately determine the hydrodynamic coefficients of bodies with poorly approximated slanted regions when the slanted regions have small radial widths.
+Since the forces applied to regions with smaller radial widths get weighted less, \acrshort{acr-meem} is able to accurately determine the hydrodynamic coefficients of bodies with poorly approximated slanted regions when the slanted regions have small radial widths.
 
 \begin{figure}[htbp]
     \centering
@@ -1345,7 +1345,7 @@ The geometry of the cylindrical rings can be chosen such that their horizontal s
 \subsection{Sources of Inaccuracies}
 When \modelling{} a slanted geometry as a discretized one using MEEM, inaccuracies can accrue when 1) computing the radiated velocity potential and 2) integrating pressure over the discretized wetted surface.
 Since the radial and vertical dependence was separated in Table~\ref{jfm:tab:MEEM-eigenfunctions}, coupling between the radial and vertical directions cannot be captured.
-Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using MEEM on the discretized geometry.
+Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using \acrshort{acr-meem} on the discretized geometry.
 This leads to discrepancies in the velocity potential.
 Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points.
 If one considers integrating the pressure on a slanted surface $S_p$ at constant angle $\zeta$, instead of over the horizontal sections of the discretized geometry, $\hat n_p \cdot \hat e_z = \sin(\zeta)$ and $dS = \frac{r}{\sin(\zeta)}drd\theta$ in Eq.~\ref{jfm:eq:freq domain scalar rad force}.
@@ -1353,10 +1353,10 @@ When these are substituted, the $\sin(\zeta)$ cancels and the result is the same
 However, the implicit dependence of the $Z$ eigenfunction evaluations on $r$ means that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{jfm:eq:freq domain scalar rad force in terms of added mass and damping} and onward.
 Unless the region's outline is flat and $d_m(r)$ is constant, the hydrodynamic coefficient integrals (given $\vec x$) do not admit closed forms. 
 
-Instead of altering the MEEM procedure for slanted geometries, the same procedure can be used for \modelling{} slanted geometries with the assumption that, as the number of subdivisions increases, the discretized geometry approaches the true geometry, and, consequently, inaccuracies in the hydrodynamic coefficients diminish.
+Instead of altering the \acrshort{acr-meem} procedure for slanted geometries, the same procedure can be used for \modelling{} slanted geometries with the assumption that, as the number of subdivisions increases, the discretized geometry approaches the true geometry, and, consequently, inaccuracies in the hydrodynamic coefficients diminish.
 Thus, a proper choice of the number of subdivisions is required to mitigate these inaccuracies.
 
-\subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using MEEM may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally.
+\subsection{Inaccuracies in Velocity Potential} While the hydrodynamic coefficients computed using \acrshort{acr-meem} may approach their true values for a slanted geometry, inaccuracies in the velocity potential are still expected locally.
 Fig~\ref{jfm:fig:contour potential comparison plots} (a) and (b) show the real value and error in the real value of the radiated velocity potential for a discretized body (\modelled{} with MEEM) relative to a slanted body (\modelled{} with Capytaine).
 Note the error in the hatched region in Fig~\ref{jfm:fig:contour potential comparison plots} (b) is removed as the value of the velocity potential is small in this region ($\mathrm{Re}(\phi)<0.2$).
 There is an overall trend of error moving from positive to negative as the depth becomes shallower.
@@ -1375,7 +1375,7 @@ Fig~\ref{jfm:fig:contour potential comparison plots} (e) shows the error in the 
 When comparing the real parts, sampling at the horizontal surfaces leads to errors less than $3\%$, while sampling at the vertical surfaces can result in close to $4\%$ error.
 However, when considering the imaginary parts, sampling along the vertical surface results in less error.
 Still, errors will be present regardless of which of these sampling locations is chosen.
-While accurate hydrodynamic coefficients were obtained using the MEEM formulation discussed in Sec.~\ref{jfm:sec:mathematical-formulation}, Fig~\ref{jfm:fig:contour potential comparison plots} (c-e) show that systematic approaches for sampling the potential may be effective ways to mitigate inaccuracies and reduce the number of discretizations needed.
+While accurate hydrodynamic coefficients were obtained using the \acrshort{acr-meem} formulation discussed in Sec.~\ref{jfm:sec:mathematical-formulation}, Fig~\ref{jfm:fig:contour potential comparison plots} (c-e) show that systematic approaches for sampling the potential may be effective ways to mitigate inaccuracies and reduce the number of discretizations needed.
 
 
 
@@ -1383,7 +1383,7 @@ While accurate hydrodynamic coefficients were obtained using the MEEM formulatio
     \centering
     \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
     \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
-    \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.
+    \caption{Comparison of the radiated velocity potential computed from \acrshort{acr-meem} and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from \acrshort{acr-meem} relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fslant_data_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.} %In (b), points with $\mathrm{Re}(\Phi) < 0.2$ (near zero, creating large relative errors) are masked.
     \label{jfm:fig:contour potential comparison plots}
 \end{figure}
@@ -1392,7 +1392,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebook
 % [TODO: "Import the citation for Hydrodynamic Behaviour of a Submerged Spheroid in Close Proximity to the Sea Surface" and contrast its success with the cones here, and also the different configs of the same height in Fig. 5]
 
 \subsubsection{Dependence on Slant Steepness} \label{jfm:subsection: slant intro hydros}
-To determine the number of subdivisions needed to accurately model a slant with a given steepness, we compare the hydrodynamic coefficients from Capytaine and MEEM for a variety of steepnesses and number of subdivisions when \modelling{} a cone. 
+To determine the number of subdivisions needed to accurately model a slant with a given steepness, we compare the hydrodynamic coefficients from Capytaine and \acrshort{acr-meem} for a variety of steepnesses and number of subdivisions when \modelling{} a cone. 
 As shown in Fig.~\ref{jfm:fig:slope-dependence}, steeper slants (smaller angle $\zeta$) require more subdivisions for the same level of accuracy, 
 and the error in the approximation is roughly inversely proportional to the number of subdivisions. 
 Convergence of the added mass with respect to the number of subdivisions is slower than that of damping, 
@@ -1407,8 +1407,8 @@ potentially limiting MEEM's computational advantage over the more general BEM so
     \includegraphics[width=1\linewidth]{figs/Vary-Slopes.pdf}
     \caption{Convergence of the hydrodynamic coefficients of five cones of varying steepness calculated with MEEM's step approximation (radius $10$, $h=50$, $\omega = 1$, $N^{i_m} = N^e = 400$).
 Subdivisions calculated ranged from $1$ to $30$.
-Error was calculated relative to values given by Capytaine. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. 
-    Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FVary-Slopes.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. 
+Error was calculated relative to values given by Capytaine. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between \acrshort{acr-meem} and Capytaine for cylindrical configurations of similar scale to the cones. 
+    Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FVary-Slopes.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between \acrshort{acr-meem} and Capytaine for cylindrical configurations of similar scale to the cones. 
     }
     \label{jfm:fig:slope-dependence}
 \end{figure}
@@ -1416,19 +1416,19 @@ Error was calculated relative to values given by Capytaine. %The baseline expect
 
 \subsubsection{Validation} \label{jfm:subsection: slant validation}
 The CorePower-like geometry was \modelled{} again using MEEM, where the slant angle was accounted for by subdividing the slanted region.
-As shown in the left subplots of Fig.~\ref{jfm:fig:MEEM slant comparison}, when 30 subdivisions are used in the slanted portion, the hydrodynamic coefficients computed using MEEM are within 5\% of those from Capytaine for wave frequencies between 0.4 and 1.5 rad/s.
-For the wave frequency of 1 rad/s, the right subplots of Fig.~\ref{jfm:fig:MEEM slant comparison} show that both the added mass and radiation damping from MEEM converge to that from Capytaine as the number of subdivisions in the slanted region is increased, where the damping converges at a faster rate.
-These results indicate that MEEM is an alternative method for accurately \modelling{} surface-piercing axisymmetric bodies.
-Furthermore, if the hydrodynamic coefficients converge for a small enough truncation order, MEEM can be a less computationally expensive alternative.
+As shown in the left subplots of Fig.~\ref{jfm:fig:MEEM slant comparison}, when 30 subdivisions are used in the slanted portion, the hydrodynamic coefficients computed using \acrshort{acr-meem} are within 5\% of those from Capytaine for wave frequencies between 0.4 and 1.5 rad/s.
+For the wave frequency of 1 rad/s, the right subplots of Fig.~\ref{jfm:fig:MEEM slant comparison} show that both the added mass and radiation damping from \acrshort{acr-meem} converge to that from Capytaine as the number of subdivisions in the slanted region is increased, where the damping converges at a faster rate.
+These results indicate that \acrshort{acr-meem} is an alternative method for accurately \modelling{} surface-piercing axisymmetric bodies.
+Furthermore, if the hydrodynamic coefficients converge for a small enough truncation order, \acrshort{acr-meem} can be a less computationally expensive alternative.
 In Sec.~\ref{jfm:sec:compute-time} we explore the computation costs of MEEM, and compare them to the BEM solver Capytaine.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/MEEM-CPT-Slant-Freq.pdf}
     \caption{Left: Computed hydrodynamic coefficients for the CorPower-like WEC geometry with a slanted region (the slant intersects the vertical at $d=7.13$).
-MEEM approximates the slanted region using 30 subdivisions.
+\acrshort{acr-meem} approximates the slanted region using 30 subdivisions.
 Right: Geometry from left plots at $\omega = 1$.
-In both cases, MEEM uses $N^{i_m} = N^e = 400$ and Capytaine has $5940$ panels.
+In both cases, \acrshort{acr-meem} uses $N^{i_m} = N^e = 400$ and Capytaine has $5940$ panels.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Slant-Freq.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:MEEM slant comparison}
 \end{figure} 
@@ -1458,7 +1458,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 
 % At flat top boundaries, vertical velocity is constant (independent of radial velocity), which enables separation of variables. The resulting vertical eigenfunctions enforce the homogeneous top BC (fluid velocity parallel to surface), regardless of radial eigenfunction value. But for slanted regions, the radial and vertical velocities relate, so the solution is not separable and an analytical expansion of the solution does not exist.
 
-% We explore a correction to MEEM that better accounts for slanted top boundaries. As in Section.~\ref{jfm:subsection: slant intro}, the slanted region is discretized, and each subregion's solution is represented by the typical particular solution and set of eigenfunctions for its geometry. The formulation of the potential matching condition and its corresponding entries in $\mathbf{A}$ and $\vec b$ remain the same as well. The velocity matching condition is altered. To derive its new expression, we begin with Eq.~\ref{velocity matching integral} and approximate $\frac{\partial \phi^t}{\partial r}(a, z)$ over $-d_s < z < -d_t$ using the relationship given by the slanted boundary condition:
+% We explore a correction to \acrshort{acr-meem} that better accounts for slanted top boundaries. As in Section.~\ref{jfm:subsection: slant intro}, the slanted region is discretized, and each subregion's solution is represented by the typical particular solution and set of eigenfunctions for its geometry. The formulation of the potential matching condition and its corresponding entries in $\mathbf{A}$ and $\vec b$ remain the same as well. The velocity matching condition is altered. To derive its new expression, we begin with Eq.~\ref{velocity matching integral} and approximate $\frac{\partial \phi^t}{\partial r}(a, z)$ over $-d_s < z < -d_t$ using the relationship given by the slanted boundary condition:
 % \begin{equation}\label{jfm:velocity matching slant interval}
 %     \int_{-d_\mathrm{s}}^{-d_\mathrm{t}}\frac{\partial \phi^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{k}(z) \mathrm{d}z=(\tan\beta_\mathrm{t})\int_{-d_\mathrm{s}}^{-d_\mathrm{t}}
 %     \bigg(\frac{\partial \phi^\mathrm{t}_h}{\partial z}(a,z) + \eta_t\Big(\frac{\partial \phi^\mathrm{t}_p}{\partial z}(a,z) - 1\Big) \bigg)Z^\mathrm{t}_{k}(z) \mathrm{d}z.
@@ -1479,15 +1479,15 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 % \subsection{Results Using Proposed Corrections}
 % Using $\vec x$ obtained from the corrected form, integration for the hydrodynamic coefficients must be over the the true, slanted outline of the body, not the approximating stepped outline (unlike when using the uncorrected formulation). Then the integrated $\phi$ is dependent on both $r$ and $z$, and the hydrodynamic coefficient integral has no closed form (see Sec.~\ref{jfm:subsection: slant intro hydros}), and must be numerically integrated. Results in this paper approximate these expensive integrals by replacing the function of the homogeneous potential with its value at the midpoint of the region's outline (i.e. setting $_{}^{q}\phi^{i_m}_h(r,-d_m(r))$ to its value at $r = \frac{a_m + a_{m+1}}{2}$).
 
-% For steeply slanted configurations, the corrected formulation is observed to converge (with respect to the number of subdivisions) to the true value faster than the standard formulation. However, the difference between both standard and corrected MEEM with Capytaine is still considerable, and MEEM's effectiveness in slanted cases remains limited.
+% For steeply slanted configurations, the corrected formulation is observed to converge (with respect to the number of subdivisions) to the true value faster than the standard formulation. However, the difference between both standard and corrected \acrshort{acr-meem} with Capytaine is still considerable, and MEEM's effectiveness in slanted cases remains limited.
 
 
 
 % \begin{figure}[htbp]
 %     \centering
 %     \includegraphics[width=0.95\linewidth]{figs/MEEM-CPT-Slant-Freq.pdf}
-%     \caption{Left: Computed hydrodynamic coefficients for the CorPower-like WEC geometry with a slanted region. MEEM approximates the slanted region using 30 subdivisions. Right: Geometry from left plots at $\omega = 1$. In both cases, MEEM uses $N^{i_m} = N^e = 400$ and Capytaine has $TODO$ panels.
-%     % Apparent convergence to values differing from Capytaine can be for two major reasons: First, MEEM is likely not converged with respect to terms per region (computed with $N_{i_m} = 250$). Second, Capytaine may not being converged, but its error at this resolution ($\approx 6000$ panels) is likely less than $1\%$ (Section~\ref{jfm:sec:meem-cpt-timing}).
+%     \caption{Left: Computed hydrodynamic coefficients for the CorPower-like WEC geometry with a slanted region. \acrshort{acr-meem} approximates the slanted region using 30 subdivisions. Right: Geometry from left plots at $\omega = 1$. In both cases, \acrshort{acr-meem} uses $N^{i_m} = N^e = 400$ and Capytaine has $TODO$ panels.
+%     % Apparent convergence to values differing from Capytaine can be for two major reasons: First, \acrshort{acr-meem} is likely not converged with respect to terms per region (computed with $N_{i_m} = 250$). Second, Capytaine may not being converged, but its error at this resolution ($\approx 6000$ panels) is likely less than $1\%$ (Section~\ref{jfm:sec:meem-cpt-timing}).
 %     }
 %     \label{jfm:fig:MEEM slant comparison}
 % \end{figure} 
@@ -1495,7 +1495,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 % \begin{figure}[htbp]
 %     \centering
 %     \includegraphics[width=0.5\linewidth]{example-image-a}
-%     \caption{[TODO: This plot needs to be replaced. Now want regular MEEM convergence to Capytaine, and convergence speed (resolution needed) wrt slope for a cone.]}
+%     \caption{[TODO: This plot needs to be replaced. Now want regular \acrshort{acr-meem} convergence to Capytaine, and convergence speed (resolution needed) wrt slope for a cone.]}
 %     \label{jfm:fig:MEEM slope resolution plots}
 % \end{figure} 
 
@@ -1526,19 +1526,19 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 % \section{Validation}
 % \subsection{Non-Slanted Geometries}
 % \begin{itemize}
-%     \item Figures showing added mass, radiation damping, real part of excitation force, and imaginary part of excitation force (vertical axis) as a function of frequency (horizontal axis). One line for MEEM that was converged using the previous section's recommendations, and one line for BEM that is also converged. Do this for a multi-region geometry. Figure made by \textcolor{blue}{Collin}.
+%     \item Figures showing added mass, radiation damping, real part of excitation force, and imaginary part of excitation force (vertical axis) as a function of frequency (horizontal axis). One line for \acrshort{acr-meem} that was converged using the previous section's recommendations, and one line for BEM that is also converged. Do this for a multi-region geometry. Figure made by \textcolor{blue}{Collin}.
 %     \item Discuss these figures, and explain any errors. Written by \textcolor{blue}{Collin}.
 % \end{itemize}
 
 % \subsection{Slanted Geometries}
 % \begin{itemize}
-%     \item Figures showing added mass, radiation damping, real part of excitation force, and imaginary part of excitation force (vertical axis) as a function of frequency (horizontal axis). One line for MEEM that was converged using the previous section's recommendations, and one line for BEM that is also converged. Do this for 2-3 slanted geometries (sphere, RM3, etc.). Dummy figure made by \textcolor{blue}{Collin}.
+%     \item Figures showing added mass, radiation damping, real part of excitation force, and imaginary part of excitation force (vertical axis) as a function of frequency (horizontal axis). One line for \acrshort{acr-meem} that was converged using the previous section's recommendations, and one line for BEM that is also converged. Do this for 2-3 slanted geometries (sphere, RM3, etc.). Dummy figure made by \textcolor{blue}{Collin}.
 %     \item Discuss these figures, and explain any errors. Written by \textcolor{orange}{Bimali}.
 % \end{itemize}
 
 \section{Computation Time and Accuracy}\label{jfm:sec:compute-time}
 \subsection{Time Complexity}
-The runtime of the MEEM method is the time required to find the eigencoefficients, then obtain the hydrodynamic coefficients from eigencoefficients.
+The runtime of the \acrshort{acr-meem} method is the time required to find the eigencoefficients, then obtain the hydrodynamic coefficients from eigencoefficients.
 We will consider a single radiation problem, meaning a single DOF is active, and all computation complexities discussed will be in terms of the number of floating-point operations.
 First, a nonlinear root-finding algorithm runs $N^e$ times to generate the $\lambda_n^e$ inputs used in the $\mathbf{A}$ matrix and $\vec{b}^q$ vector.
 Then $\mathcal{O}(N_T)$ Bessel functions must be evaluated for the radial $\mathbf{A}$ matrix terms % if I change scaling of i1 from a2 to a1, it reduces by N-1. if I change scaling of i2 from a2 to (a1+a2)/2, it increases by 2*(M-1). So total would be 2N+10M+2K-12. see notebook p51.
@@ -1550,19 +1550,19 @@ Table~\ref{jfm:tab:reusable-dependence} shows the dependence of each quantity on
 % \begin{itemize}
 %     \item Figure showing what takes the longest to compute. \textcolor{orange}{Bimali}.
 %     \item Discussion about reusing things to save computation time. \textcolor{orange}{Bimali}.
-%     \item For a specific \textbf{non-slanted geometry}, make figures showing accuracy of added mass, radiation damping, real part of excitation force, and imaginary part of excitation force (vertical axis) as a function of runtime (horizontal axis). Two lines per figure: one for MEEM and one for BEM. Each point on the figure corresponds to a different level of accuracy. Written and figures made by \textcolor{orange}{Bimali}.
+%     \item For a specific \textbf{non-slanted geometry}, make figures showing accuracy of added mass, radiation damping, real part of excitation force, and imaginary part of excitation force (vertical axis) as a function of runtime (horizontal axis). Two lines per figure: one for \acrshort{acr-meem} and one for BEM. Each point on the figure corresponds to a different level of accuracy. Written and figures made by \textcolor{orange}{Bimali}.
 %     \begin{itemize}
 %         \item For BEM, vary the number of panels to change the level of accuracy. 
 %         \item For MEEM, vary the \textbf{number of terms per region} to vary the level of accuracy. Also, highlight a point on the graph where the number of terms used is the recommended amount for that geometry.
 %         \item Discuss the computational advantages of MEEM.
 %     \end{itemize}
-    % \item For a specific \textbf{slanted geometry}, make figures showing added mass, radiation damping, real part of excitation force, and imaginary part of excitation force (vertical axis) as a function of runtime (horizontal axis). Two lines per figure: one for MEEM and one for BEM. Each point on the figure corresponds to a different level of accuracy. Written and figures made by \textcolor{orange}{Bimali}.
+    % \item For a specific \textbf{slanted geometry}, make figures showing added mass, radiation damping, real part of excitation force, and imaginary part of excitation force (vertical axis) as a function of runtime (horizontal axis). Two lines per figure: one for \acrshort{acr-meem} and one for BEM. Each point on the figure corresponds to a different level of accuracy. Written and figures made by \textcolor{orange}{Bimali}.
     % \begin{itemize}
     %     \item For BEM, vary the number of panels to change the level of accuracy.
     %     \item For MEEM, vary the \textbf{number of regions} to vary the level of accuracy. Use the number of terms per region that was recommended in the convergence section. Also, highlight a point on the graph where the number of regions used is the recommended amount for that geometry.
     %     \item Discuss the computational advantages of MEEM.
     % \end{itemize} 
-%     \item State that, for a non-slanted geometry, MEEM can be within XX\% of the true hydrodynamic coefficient, with a XX times faster computation time than BEM. Written by \textcolor{orange}{Bimali}.
+%     \item State that, for a non-slanted geometry, \acrshort{acr-meem} can be within XX\% of the true hydrodynamic coefficient, with a XX times faster computation time than BEM. Written by \textcolor{orange}{Bimali}.
 % \end{itemize}
 These time complexities are listed using more explicit per-region term counts in Table~\ref{jfm:tab:time-complexities}, and examples of their distribution/dominance given the same $N^{i_m}$ per region are given in Fig~\ref{jfm:fig:time-dominance}.
 For low region counts, coupling integrals dominate.
@@ -1665,33 +1665,33 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\linewidth]{figs/MEEM-CPT-Time-Matrix-Comparison.pdf}
-    \caption{For the CorPower WEC geometry in Fig.~\ref{jfm:fig:hydro coeff validation} at $\omega = 1$, the accuracy of MEEM vs. Capytaine are compared over different $N^{i_m} = N^e$ and panel counts, through the associated computation time and matrix sizes.
-The ``true values'' used to compute accuracies were determined by MEEM with $N^{i_m} = N^e = 300$.
+    \caption{For the CorPower WEC geometry in Fig.~\ref{jfm:fig:hydro coeff validation} at $\omega = 1$, the accuracy of \acrshort{acr-meem} vs. Capytaine are compared over different $N^{i_m} = N^e$ and panel counts, through the associated computation time and matrix sizes.
+The ``true values'' used to compute accuracies were determined by \acrshort{acr-meem} with $N^{i_m} = N^e = 300$.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Time-Matrix-Comparison.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:time-matrix-comparison}
 \end{figure}
 
-For geometries that MEEM represents exactly, it tends to converge faster than Capytaine.
+For geometries that \acrshort{acr-meem} represents exactly, it tends to converge faster than Capytaine.
 An example of this is shown in Figure~\ref{jfm:fig:time-matrix-comparison}, where a CorPower-like WEC geometry is \modelled{} at a single frequency and the trade-offs between accuracy and computation time (or matrix size) are compared.
-The added mass and radiation damping computed with MEEM can achieve $2\%$ accuracy with a runtime of $0.01$ seconds, while the values computed with Capytaine obtain $2\%$ accuracy after $0.1$ seconds.
-In terms of matrix size, Capytaine requires a matrix with a side length greater than $1000$ to achieve $2\%$ accuracy, while MEEM can achieve the same accuracy with a matrix side length of just $60$.
+The added mass and radiation damping computed with \acrshort{acr-meem} can achieve $2\%$ accuracy with a runtime of $0.01$ seconds, while the values computed with Capytaine obtain $2\%$ accuracy after $0.1$ seconds.
+In terms of matrix size, Capytaine requires a matrix with a side length greater than $1000$ to achieve $2\%$ accuracy, while \acrshort{acr-meem} can achieve the same accuracy with a matrix side length of just $60$.
 This is a consequence of MEEMs fast convergence rate relative to BEM solvers' slow convergence rate with respect to the number of panels required to obtain an accurate solution.
 Such an advancement can enable more rigorous optimization studies for marine structures by avoiding the computational cost of BEM solvers.
 % [TODO: RM3 convergence figure, only float heaving].
-% [Caption: MEEM and BEM matrix size comparison, using the RM3 configuration parameters, an optimal unknown coefficient distribution for MEEM, and even constant panel density throughout the mesh for BEM. MEEM reaches 1\% convergence XX\% faster/slower than BEM for added mass and XX\% faster for radiation damping.]
-% [TODO: MEEM is worse convergence figure, e.g. skinny spar]
-% [Caption: The $\frac{\text{fluid height}}{\text{radial width}}$ in the spar region is very high and requires more terms to resolve its effects, while BEM requires even less panels than the typical RM3 configuration due to the decreased surface area. Here, BEM reaches 1\% convergence XX\% faster than MEEM for added mass, and XX\% faster for radiation damping.]
-% [TODO: MEEM is far better convergence figure (short height? longer spar? unless CPT is glitchy on this, check plots)]
+% [Caption: \acrshort{acr-meem} and BEM matrix size comparison, using the RM3 configuration parameters, an optimal unknown coefficient distribution for MEEM, and even constant panel density throughout the mesh for BEM. \acrshort{acr-meem} reaches 1\% convergence XX\% faster/slower than BEM for added mass and XX\% faster for radiation damping.]
+% [TODO: \acrshort{acr-meem} is worse convergence figure, e.g. skinny spar]
+% [Caption: The $\frac{\text{fluid height}}{\text{radial width}}$ in the spar region is very high and requires more terms to resolve its effects, while BEM requires even less panels than the typical RM3 configuration due to the decreased surface area. Here, BEM reaches 1\% convergence XX\% faster than \acrshort{acr-meem} for added mass, and XX\% faster for radiation damping.]
+% [TODO: \acrshort{acr-meem} is far better convergence figure (short height? longer spar? unless CPT is glitchy on this, check plots)]
 %
 \section{Conclusion}\label{jfm:sec:conclusion}
 This work generalizes the matched eigenfunction expansion method (MEEM) for computing the hydrodynamic forces on an arbitrary number of heaving surface-piercing axisymmetric geometries under linear potential flow theory.
 The method consists of separating the fluid domain into cylindrical regions, defining the velocity potential in each region in terms of eigenfunctions and unknown eigencoefficients, and using boundary conditions and orthogonality to derive a system of linear algebraic equations, which can be organized into a matrix structure.
 This new extension overviews the undocumented accuracy, convergence, and polynomial runtime of the method.
 Furthermore, the ability of this method to be used to approximate the hydrodynamic forces on geometries with slants is discussed.
-This is done by subdividing slanted regions into cylindrical regions that can be \modelled{} through MEEM. We have found that, while the velocity potential computed from MEEM may have inaccuracies locally, the hydrodynamic coefficients can be computed with less than 5\% error.
-Additionally, geometries with steeper slants require more subdivisions for MEEM to achieve accurate results.
-In the convergence study, a set of influential dimensionless parameters was identified, and the fitting models developed can predict the required settings of MEEM to achieve less than $2\%$ error in the hydrodynamic coefficients $95\%$ of the time.
-When compared against the boundary element method (BEM) solver Capytaine, MEEM is able to achieve 2\% convergence in both hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers.
+This is done by subdividing slanted regions into cylindrical regions that can be \modelled{} through MEEM. We have found that, while the velocity potential computed from \acrshort{acr-meem} may have inaccuracies locally, the hydrodynamic coefficients can be computed with less than 5\% error.
+Additionally, geometries with steeper slants require more subdivisions for \acrshort{acr-meem} to achieve accurate results.
+In the convergence study, a set of influential dimensionless parameters was identified, and the fitting models developed can predict the required settings of \acrshort{acr-meem} to achieve less than $2\%$ error in the hydrodynamic coefficients $95\%$ of the time.
+When compared against the boundary element method (BEM) solver Capytaine, \acrshort{acr-meem} is able to achieve 2\% convergence in both hydrodynamic coefficients an order of magnitude faster than Capytaine with a matrix size two orders of magnitude smaller, making it a computationally effective alternative to traditional BEM solvers.
 Such an advantage can have significant implications for the design optimization of marine structures, especially in situations when the hydrodynamic model is the bottleneck of the simulation model. 
 
 
@@ -1700,25 +1700,25 @@ Many geometric extensions have already been mathematically demonstrated for simp
 Examples include degrees-of freedom beyond heave \citep{yeung_added_1981}, axisymmetric geometries for which the body radius varies non-monotonically with depth, as in the case of damping plates \citep{olaya_hydrodynamic_2015}, and axisymmetric bodies with discontinuous profiles creating so-called ``moon-pools'' \citep{seah_symmetric_2006}.
 Equivalent analytical and semi-analytical potential flow solutions for other coordinate systems, such as Cartesian \citep{michele_theory_2016,renzi_hydrodynamics_2013}, elliptical \citep{nguyen_theoretical_2024,nguyen_theoretical_2024-1}, and spherical \citep{chatjigeorgiou_analytical_2018}, 
 should be synthesized and unified with the present cylindrical approach.
-To the authors' knowledge, no prior work has explored the use of MEEM for bodies of non-concentric cylinders, such as the OC4 semisubmersible floating offshore wind turbine, which could likely be accomplished via integration with the multiple scattering method. 
-Each of these extensions would help ease the geometric restrictions that still plague MEEM compared to traditional BEM solvers.
+To the authors' knowledge, no prior work has explored the use of \acrshort{acr-meem} for bodies of non-concentric cylinders, such as the OC4 semisubmersible floating offshore wind turbine, which could likely be accomplished via integration with the multiple scattering method. 
+Each of these extensions would help ease the geometric restrictions that still plague \acrshort{acr-meem} compared to traditional BEM solvers.
 Naturally, continued numerical comparison against BEM is necessary to evaluate the matrix properties, accuracy, and computation time as the framework evolves and expands to include more geometries.
 It is the authors' hope that the OpenFLASH python package developed for this work can serve as a centralized repository for the software to implement such studies.
 
-An additional avenue for further research is the practical application of the MEEM method, and especially of the insights gained from its mathematical structure and convergence \behaviour{} exposed here, for hydrodynamic design.
+An additional avenue for further research is the practical application of the \acrshort{acr-meem} method, and especially of the insights gained from its mathematical structure and convergence \behaviour{} exposed here, for hydrodynamic design.
 \citet{mccabe_development_2026} describes the authors' initial attempt at such an endeavor, primarily leveraging MEEM's faster computational speed to widely explore the design space, and future work should implement the geometry-dependent number of terms heuristic from the convergence study in optimization.
 Furthermore, MEEM's sparse linear solution structure could be leveraged in design by applying the adjoint method or other analytic or automatic differentiation techniques to enable scalable gradient-based optimization and sensitivity analysis of marine structures.
 MEEM's smaller sparse matrices could help address the issues with large dense matrices encountered in the authors' BEM sensitivity work \citep{khanal_fully_2025}.
 
-Finally, future work should investigate techniques similar to MEEM that exist across other fields.
+Finally, future work should investigate techniques similar to \acrshort{acr-meem} that exist across other fields.
 Wave propagation boundary value problems are common in acoustics, electromagnetics, quantum mechanics, and seismology, 
 and the notion of breaking a structured domain into analytically tractable subdomains has been tried in all of them to various degrees.
-Understanding, comparing, and applying the insights from analogous problems in these diverse subjects could hasten the maturity of MEEM for hydrodynamics.
-In particular, MEEM has striking similarity to the ``indirect Trefftz collocation method'' in finite element analysis.
+Understanding, comparing, and applying the insights from analogous problems in these diverse subjects could hasten the maturity of \acrshort{acr-meem} for hydrodynamics.
+In particular, \acrshort{acr-meem} has striking similarity to the ``indirect Trefftz collocation method'' in finite element analysis.
 This is a subset of the larger family of Trefftz methods, which refer to eigenfunctions as ``T-complete functions'' and also include least-square, Galerkin, variational, and direct versions \citep{kita_trefftz_1995}.
 Exploring this connection could be especially relevant due to the large amount of attention that finite element analysis receives in the engineering and numerical computation communities.
 
-All in all, MEEM holds computational promise as a result of its semi-analytical nature, sparse block structure, and rapid convergence properties.
+All in all, \acrshort{acr-meem} holds computational promise as a result of its semi-analytical nature, sparse block structure, and rapid convergence properties.
 %
 % future work
 % - extension to more region types to support damping plates and other geometries
