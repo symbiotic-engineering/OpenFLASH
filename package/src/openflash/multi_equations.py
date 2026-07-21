@@ -214,7 +214,7 @@ def R_1n_vectorized(n, r, i, h, d, a):
     
     # Use direct division with errstate to match exact arithmetic order of old code
     with np.errstate(divide='ignore', invalid='ignore'):
-        bessel_term = (besselie0(safe_lambda * r) / besselie0(safe_lambda * scale(a)[i])) * \
+        bessel_term = (besseli0e(safe_lambda * r) / besseli0e(safe_lambda * scale(a)[i])) * \
                       exp(safe_lambda * (r - scale(a)[i]))
 
     result_if_n_not_zero = np.where(cond_r_at_boundary, 1.0, bessel_term)
@@ -237,8 +237,8 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     
     # Use standard division logic to match old_assembly.py arithmetic
     with np.errstate(divide='ignore', invalid='ignore'):
-        numerator = safe_lambda * besselie1(safe_lambda * r) 
-        denominator = besselie0(safe_lambda * scale(a)[i])
+        numerator = safe_lambda * besseli1e(safe_lambda * r) 
+        denominator = besseli0e(safe_lambda * scale(a)[i])
         # Direct division matches: top / bottom * exp(...)
         value_if_false = (numerator / denominator) * exp(safe_lambda * (r - scale(a)[i]))
     
@@ -274,9 +274,9 @@ def R_2n_vectorized(n, r, i, a, h, d):
     lambda_safe = np.where(cond_n_is_zero, 1.0, lambda_val)
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        denom = besselke0(lambda_safe * outer_r)
+        denom = besselk0e(lambda_safe * outer_r)
         # Direct division order
-        bessel_term = (besselke0(lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
+        bessel_term = (besselk0e(lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
 
     result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
 
@@ -293,8 +293,8 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
     lambda_safe = np.where(n == 0, 1.0, lambda_val)
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        denom = besselke0(lambda_safe * outer_r)
-        numerator = -lambda_safe * besselke1(lambda_safe * r)
+        denom = besselk0e(lambda_safe * outer_r)
+        numerator = -lambda_safe * besselk1e(lambda_safe * r)
         # Match arithmetic: top / bottom * exp(...)
         value_if_false = (numerator / denom) * exp(lambda_safe * (outer_r - r))
 
@@ -344,8 +344,8 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     safe_m_k = np.where(cond_k_is_zero, 1.0, local_m_k_k)
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        denom_k_nonzero = besselke0(safe_m_k * scale(a)[-1])
-        numer_k_nonzero = besselke0(safe_m_k * r)
+        denom_k_nonzero = besselk0e(safe_m_k * scale(a)[-1])
+        numer_k_nonzero = besselk0e(safe_m_k * r)
         outcome_k_nonzero = (numer_k_nonzero / denom_k_nonzero) * exp(safe_m_k * (scale(a)[-1] - r))
 
     result_if_not_boundary = np.where(cond_k_is_zero, outcome_k_zero, outcome_k_nonzero)
@@ -371,8 +371,8 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     safe_m_k = np.where(condition, 1.0, local_m_k_k)
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        numerator_k_nonzero = -(safe_m_k * besselke1(safe_m_k * r))
-        denominator_k_nonzero = besselke0(safe_m_k * scale(a)[-1])
+        numerator_k_nonzero = -(safe_m_k * besselk1e(safe_m_k * r))
+        denominator_k_nonzero = besselk0e(safe_m_k * scale(a)[-1])
         outcome_k_nonzero = (numerator_k_nonzero / denominator_k_nonzero) * exp(safe_m_k * (scale(a)[-1] - r))
 
     return np.where(condition, outcome_k_zero, outcome_k_nonzero)
@@ -430,10 +430,10 @@ def int_R_1n(i, n, a, h, d):
         return a[i]**2/4 - inner**2/4
     else:
         lambda0 = lambda_ni(n, i, h, d)
-        bottom = lambda0 * besselie0(lambda0 * scale(a)[i])
+        bottom = lambda0 * besseli0e(lambda0 * scale(a)[i])
         if i == 0: inner_term = 0
-        else: inner_term = (a[i-1] * besselie1(lambda0 * a[i-1]) / bottom) * exp(lambda0 * (a[i-1] - scale(a)[i]))
-        outer_term = (a[i] * besselie1(lambda0 * a[i]) / bottom) * exp(lambda0 * (a[i] - scale(a)[i]))
+        else: inner_term = (a[i-1] * besseli1e(lambda0 * a[i-1]) / bottom) * exp(lambda0 * (a[i-1] - scale(a)[i]))
+        outer_term = (a[i] * besseli1e(lambda0 * a[i]) / bottom) * exp(lambda0 * (a[i] - scale(a)[i]))
         return outer_term - inner_term
     
 #integrating R_2n * r
@@ -446,9 +446,9 @@ def int_R_2n(i, n, a, h, d):
     if n == 0:
         return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
     else:
-        outer_term = a[i] * besselke1(lambda0 * a[i])
-        inner_term = a[i-1] * besselke1(lambda0 * a[i-1])
-        bottom = - lambda0 * besselke0(lambda0 * scale(a)[i])
+        outer_term = a[i] * besselk1e(lambda0 * a[i])
+        inner_term = a[i-1] * besselk1e(lambda0 * a[i-1])
+        bottom = - lambda0 * besselk0e(lambda0 * scale(a)[i])
         return (outer_term / bottom) * exp(lambda0 * (scale(a)[i] - a[i])) - (inner_term/bottom)* exp(lambda0 * (scale(a)[i] - a[i-1]))
     
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
