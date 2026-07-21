@@ -174,10 +174,10 @@ We conclude in section~\ref{jfm:sec:conclusion} with a summary of findings and o
 
 The objective of this method is to determine the first-order hydrodynamic forces on a series of $M$ fixed or heaving surface-piercing concentric annular cylinders, 
 as shown in Fig.~\ref{jfm:fig:Diagram}. 
-The internal fluid regions underneath each cylindrical ring are denoted by $i_1$, $i_2$, $\dots, i_M$. 
+The interior fluid regions underneath each cylindrical ring are denoted by $i_1$, $i_2$, $\dots, i_M$. 
 Each cylindrical ring can be an independent body or rigidly fixed to any other cylindrical ring. 
-The external fluid region surrounding the body is denoted by $e$. 
-The geometry of the $m$th internal region is defined in terms of the radius $a_m$ measured from the axis of symmetry 
+The exterior fluid region surrounding the body is denoted by $e$. 
+The geometry of the $m$th interior region is defined in terms of the radius $a_m$ measured from the axis of symmetry 
 and the draft $d_m$ measured from the mean free surface. 
 The origin $O$ is located at the intersection of the body axis of symmetry and the mean free surface of the fluid. 
 It is assumed that $a_{m+1}>a_m$ and $d_m<h$ for all $m$, where $h$ is the sea depth. 
@@ -192,7 +192,7 @@ Such geometries include the CorPower \citep{de2016techno}, WaveBot \citep{strofe
 \end{figure} 
 
 \subsection{Linear Hydrodynamics and Eigenfunctions}
-To model the fluid in the internal and external regions, linear potential flow theory is used. 
+To model the fluid in the interior and exterior regions, linear potential flow theory is used. 
 This implies small body motion, an inviscid, irrotational, and incompressible fluid, and a wave amplitude-to-wavelength ratio less than unity \citep{mei2005theory}. 
 With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \Phi_\mathrm{T}(\mathbf{x},t)=0$, where the fluid velocity is $\mathbf{v} = \nabla \Phi_\mathrm{T}(\mathbf{x},t)$. 
 The potential $\Phi_\mathrm{T}$ is a function of both time $t$ and spatial coordinates $\mathbf{x}$. 
@@ -229,7 +229,7 @@ For simplicity, $\phi$ is used throughout the rest of this work
 to denote the complex radiated potential instead of $\phi_\mathrm{R}$. 
 
 To solve the radiation problem, the radiated potential $\phi$ is defined separately 
-for the internal and external regions as $\phi^{i_m}$ and $\phi^{e}$, respectively. 
+for the interior and exterior regions as $\phi^{i_m}$ and $\phi^{e}$, respectively. 
 The velocity potentials must satisfy the Laplace equation and boundary conditions 
 on the sea floor, wetted surface of the bodies, and free surface. 
 The velocity potential in the interior regions can be written as the superposition 
@@ -262,7 +262,7 @@ by $N^{i_m}$ and $N^{e}$ in Table~\ref{jfm:tab:MEEM-eigenfunctions}.
 \begin{landscape}
 \begin{table}
     \centering
-    \begin{tabular}{|>{\centering\arraybackslash}p{0.085\linewidth}|>{\centering\arraybackslash}p{0.24\linewidth}|>{\centering\arraybackslash}p{0.34\linewidth}|>{\centering\arraybackslash}p{0.24\linewidth}|} \hline 
+    \begin{tabular}{|>{\centering\arraybackslash}m{0.07\linewidth}|>{\centering\arraybackslash}m{0.28\linewidth}|>{\centering\arraybackslash}m{0.30\linewidth}|>{\centering\arraybackslash}m{0.24\linewidth}|} \hline 
          Region&  Innermost Interior $(i_1)$&  Interior $(i_m$ for $m>1)$& Exterior $(e)$\\ \hline 
          Homog. potential &  $\phi^{i_1}_\mathrm{h}(r,z) = \displaystyle\sum_{n_1=0}^{N^{i_1}-1} C_{1{n_1}}^{i_1} R_{1{n_1}}^{i_1}(r) Z_{n_1}^{i_1}(z)$&  $\phi^{i_m}_\mathrm{h}(r,z) = \displaystyle\sum_{n_m=0}^{N^{i_m}-1} \left(C_{1{n_m}}^{i_m} R_{1{n_m}}^{i_m}(r) + C_{2{n_m}}^{i_m} R_{2{n_m}}^{i_m}(r) \right) Z_{{n_m}}^{i_m}(z)$& $\phi^{e}_\mathrm{h}(r,z) = \displaystyle\sum_{n_e=0}^{N^{e}-1} C_{1{n_e}}^{e} R_{1{n_e}}^{e}(r) Z_{n_e}^{e}(z)$\\ \hline 
          Partic. potential &  $\phi^{i_1}_\mathrm{p}(r,z) =  \begin{cases} \displaystyle\frac{1}{2(h-d_1)}\left[ (z+h)^2 - \frac{r^2}{2}\right] & \text{Heaving} \\ 0 & \text{Fixed}             
@@ -291,10 +291,10 @@ by $N^{i_m}$ and $N^{e}$ in Table~\ref{jfm:tab:MEEM-eigenfunctions}.
            N_0^{-\frac{1}{2}}\cosh( \lambda_0^{e}(z+h)) &  n_e=0 \\[1em]   %%% <--- here
            N_{n_e}^{-\frac{1}{2}}\cos( \lambda_{n_e}^{e}(z+h)) &  n_e \ge 1
         \end{cases}$\\ \hline
- Eigenvalue& $\displaystyle \lambda_{n_1}^{i_1} = \frac{n_1\pi}{h-d_{1}}, \quad  n_1 \geq 1$& $\displaystyle \lambda_{n_m}^{i_m} = \frac{n_m\pi}{h-d_m},  \quad n_m \geq 1$&
+ Eigen- value& $\displaystyle \lambda_{n_1}^{i_1} = \frac{n_1\pi}{h-d_{1}}, \quad  n_1 \geq 1$& $\displaystyle \lambda_{n_m}^{i_m} = \frac{n_m\pi}{h-d_m},  \quad n_m \geq 1$&
  $\displaystyle \begin{cases} \lambda_{0}^{e} \tanh(\lambda_{0}^{e} h)= \omega^2/g, & n_e=0 \\ \lambda_{n_e}^{e} \tan(\lambda_{n_e}^{e} h) = -\omega^2/g, & n_e \geq 1\\ \end{cases} $\\\hline
     \end{tabular}
-    \caption{Equations for the potential (homogeneous and particular), eigenfunctions (radial and vertical), and eigenvalues for each region. $i$ and $e$ denote internal and external regions, respectively.}
+    \caption{Equations for the potential (homogeneous and particular), eigenfunctions (radial and vertical), and eigenvalues for each region. $i$ and $e$ denote interior and exterior regions, respectively.}
     \label{jfm:tab:MEEM-eigenfunctions}
 
 \end{table}
@@ -313,7 +313,7 @@ are truncated at $N^{i_1}-1$, $N^{i_m}-1$, and $N^e-1$, yielding a total of
 $N_\mathrm{T} =N^{i_1}+\sum_{m=2}^{M}2N^{i_m}+N^e$ unknown eigencoefficients. 
 To solve for these unknowns, radial boundary conditions must be imposed at each interface between regions.
 
-For a geometry with $M$ internal regions (and one external region), there are $M$ vertical boundaries. 
+For a geometry with $M$ interior regions (and one exterior region), there are $M$ vertical boundaries. 
 The general formulation of the matching equations can be illustrated by considering two neighboring fluid regions, 
 as shown in Fig.~\ref{jfm:fig:Matching Diagram}. 
 \begin{figure}[h]
@@ -709,9 +709,9 @@ Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
 
 
 \subsection{Hydrodynamic and Hydrostatic Forces}\label{jfm:sec:Hydrodynamic Forces}
-In this section, we will characterize the radiation, excitation, and hydrostatic forces of a system with $M$ internal regions and $Q$ heave degrees of freedom.
-Also, while there are $M$ internal regions, multiple regions may form a single body if the regions are rigidly fixed to one another.
-Thus, for a system with a total of $M$ internal regions and $Q$ heave degrees of freedom (DOFs), $Q \le M$. 
+In this section, we will characterize the radiation, excitation, and hydrostatic forces of a system with $M$ interior regions and $Q$ heave degrees of freedom.
+Also, while there are $M$ interior regions, multiple regions may form a single body if the regions are rigidly fixed to one another.
+Thus, for a system with a total of $M$ interior regions and $Q$ heave degrees of freedom (DOFs), $Q \le M$. 
 
 Moving forward, $\mathbf{A} \vec{x}_q = \vec{b}^q$ will indicate the system of equations associated with the motion of only the $q$th body (and DOF) of the system, while all other bodies are fixed.
 Thus, $\vec{b}^q=[\vec{b}^q_1,\vec{b}^q_2,...,\vec{b}^q_M]^T$. Note that the matrix $\mathbf{A}$ does not depend on which body is moving.
@@ -743,7 +743,7 @@ Eq.~\ref{jfm:eq:freq domain scalar rad force} can be written in terms of the pot
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of regions}
     \hat{f}_{pq} = \textrm{i} \omega \rho \sum_{m \in \mathcal{M}_p}\int_0^{2 \pi} \int_{a_m}^{a_{m+1}} \ _{}^{q}\phi^{i_m}(r,-d_m) \ r  \ dr\ d\theta
 \end{equation}
-where $_{}^{q}\phi^{i_m}(r,-d_m)$ is the potential in internal region $i_m$ evaluated at $z=-d_m$ when only the $q$th body is moving. $\hat{f}_{pq}$ can be rewritten in terms of frequency-dependent added mass and radiation damping coefficients $A_{pq}(\omega)$ and $B_{pq}(\omega)$, respectively, which is shown in Appendix~\ref{jfm:appC}.
+where $_{}^{q}\phi^{i_m}(r,-d_m)$ is the potential in interior region $i_m$ evaluated at $z=-d_m$ when only the $q$th body is moving. $\hat{f}_{pq}$ can be rewritten in terms of frequency-dependent added mass and radiation damping coefficients $A_{pq}(\omega)$ and $B_{pq}(\omega)$, respectively, which is shown in Appendix~\ref{jfm:appC}.
 The result is
 \begin{equation}\label{jfm:A_pq B_pq scalar form}
     A_{pq}(\omega) + \frac{\mathrm{i}B_{pq}(\omega)}{\omega}=2\pi \rho (c_p\delta_{pq} + \vec{c}_p \ \vec{x}_q) =2\pi \rho (c_p\delta_{pq} + \vec{c}_p \ \mathbf{A}^{-1} \vec{b}^q)
@@ -779,13 +779,13 @@ Finally, the added mass and radiation damping matrices are
 \end{equation}
 
 To find the heave excitation force $X_q$ on the $q$th body due to an incident wave, a form of the Haskind relation can be used \citep{newman2018marine}.
-This was done in~\citet{chau2012inertia} and~\citet{zhang_performance_2024} for geometries with two and three internal regions, respectively.
-The results are the same for this configuration, as the derivation for the force on the $q$th body only involves the solution in the external region when the $q$th body is heaving.
+This was done in~\citet{chau2012inertia} and~\citet{zhang_performance_2024} for geometries with two and three interior regions, respectively.
+The results are the same for this configuration, as the derivation for the force on the $q$th body only involves the solution in the exterior region when the $q$th body is heaving.
 The heave excitation force on the $q$th body is
 \begin{equation}\label{jfm:eq:excitation force}
     X_q = \frac{-4 \text{i} \rho g h \sqrt{N_0} }{\cosh(\lambda_0^eh)\text{H}_0^1(\lambda_0^e a_M)} \ _{}^{q}C_{10}^e
 \end{equation}
-where $g$ is the acceleration due to gravity, $\lambda_0^e$ is the wavenumber, $\textrm{H}_0^1$ is the zeroth-order Hankel function of the first kind, and $_{}^{q}C_{10}^e$ is the eigencoefficient in the external region for $n_e=0$ when only the $q$th body is heaving.
+where $g$ is the acceleration due to gravity, $\lambda_0^e$ is the wavenumber, $\textrm{H}_0^1$ is the zeroth-order Hankel function of the first kind, and $_{}^{q}C_{10}^e$ is the eigencoefficient in the exterior region for $n_e=0$ when only the $q$th body is heaving.
 By applying Eq.~\ref{jfm:eq:excitation force} for $q=1,2,\dots, Q$, we can find the heave excitation force coefficient vector $\vec{X} \in \mathbb{C}^Q$, which is a column vector with the element $X_q$ in the $q$th entry.
 
 % The magnitude and phase are
@@ -793,7 +793,7 @@ By applying Eq.~\ref{jfm:eq:excitation force} for $q=1,2,\dots, Q$, we can find 
 %     |X_q|  = \sqrt{\frac{ 4 \rho g V_g  B_{mq}} {\lambda_0^e}} \quad \text{and} \quad % excitation
 %    \angle X_q = -\frac{\pi}{2} + \angle\frac{ C_{10}^e}{\textrm{H}_0^{1}(\lambda_0^e a_M)}
 % \end{equation}
-% where $g$ is the acceleration due to gravity, $\lambda_0^e$ is the wavenumber, $V_g$ is the finite depth group velocity, $\textrm{H}_0^1$ is the zeroth-order Hankel function of the first kind, and $C_{10}^e$ is the eigenfunction in the external region for $n=0$. Note that while the excitation magnitude $|\gamma|$ depends on the radiation damping $B_h$, which in turn depends on all the inner region eigencoefficients, the excitation phase $\angle\gamma$ depends only on the first exterior eigencoefficient, $C_{10}^e$. Eq.~\ref{jfm:eq:gamma-K} holds for any region heaving, but the solution to $\mathbf{A} \vec{x} = \vec{b}$ will be different, changing the values of $B_h$ and $C_{10}^e$ accordingly. 
+% where $g$ is the acceleration due to gravity, $\lambda_0^e$ is the wavenumber, $V_g$ is the finite depth group velocity, $\textrm{H}_0^1$ is the zeroth-order Hankel function of the first kind, and $C_{10}^e$ is the eigenfunction in the exterior region for $n=0$. Note that while the excitation magnitude $|\gamma|$ depends on the radiation damping $B_h$, which in turn depends on all the inner region eigencoefficients, the excitation phase $\angle\gamma$ depends only on the first exterior eigencoefficient, $C_{10}^e$. Eq.~\ref{jfm:eq:gamma-K} holds for any region heaving, but the solution to $\mathbf{A} \vec{x} = \vec{b}$ will be different, changing the values of $B_h$ and $C_{10}^e$ accordingly. 
 
 The hydrostatic stiffness matrix $\mathbf{K}$ and mass matrix $\mathbf{M}$ are diagonal matrices that can be found from geometry.
 The element in the $q$th row and $q$th column of $\mathbf{K}$ can be found by summing over the waterplane areas $W_m$ contributed by each region
@@ -1381,8 +1381,13 @@ While accurate hydrodynamic coefficients were obtained using the MEEM formulatio
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
-    \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
+    \ifdefined\DISSERTATION
+        \includegraphics[width=0.8\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
+        \includegraphics[width=0.7\linewidth]{figs/Along-Outline.pdf}
+    \else    
+        \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
+        \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
+    \fi
     \caption{Comparison of the radiated velocity potential computed from MEEM and Capytaine. (a) and (c) show the real part of the potential from MEEM, (b) and (d) show the error in the real potential from MEEM relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fslant_data_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.} %In (b), points with $\mathrm{Re}(\Phi) < 0.2$ (near zero, creating large relative errors) are masked.
     \label{jfm:fig:contour potential comparison plots}
@@ -1424,7 +1429,7 @@ In Sec.~\ref{jfm:sec:compute-time} we explore the computation costs of MEEM, and
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figs/MEEM-CPT-Slant-Freq.pdf}
+    \includegraphics[width=\linewidth]{figs/MEEM-CPT-Slant-Freq.pdf}
     \caption{Left: Computed hydrodynamic coefficients for the CorPower-like WEC geometry with a slanted region (the slant intersects the vertical at $d=7.13$).
 MEEM approximates the slanted region using 30 subdivisions.
 Right: Geometry from left plots at $\omega = 1$.
@@ -1653,7 +1658,7 @@ Hydrodynamic Coefficients* & $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m})$\\
 \endgroup
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figs/MEEM-Comp-Distribution.pdf}
+    \includegraphics[width=\linewidth]{figs/MEEM-Comp-Distribution.pdf}
     \caption{Left: Distribution of function computation times for the geometry in Fig.~\ref{jfm:fig:hydro coeff validation}, varying the terms per region.
 Right: The function taking the most computation time for combinations of region count and terms per region, assuming the same number of terms per region.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-Comp-Distribution.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
@@ -1664,7 +1669,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 \label{jfm:sec:meem-cpt-timing}
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\linewidth]{figs/MEEM-CPT-Time-Matrix-Comparison.pdf}
+    \includegraphics[width=\linewidth]{figs/MEEM-CPT-Time-Matrix-Comparison.pdf}
     \caption{For the CorPower WEC geometry in Fig.~\ref{jfm:fig:hydro coeff validation} at $\omega = 1$, the accuracy of MEEM vs. Capytaine are compared over different $N^{i_m} = N^e$ and panel counts, through the associated computation time and matrix sizes.
 The ``true values'' used to compute accuracies were determined by MEEM with $N^{i_m} = N^e = 300$.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Time-Matrix-Comparison.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
