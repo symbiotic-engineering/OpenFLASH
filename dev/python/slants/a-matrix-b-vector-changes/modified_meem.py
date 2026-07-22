@@ -1,14 +1,15 @@
 import sys
-import os
-HERE = os.path.dirname(os.path.abspath(__file__))
-python_folder = os.path.abspath(os.path.join(HERE, '../../'))
-sys.path.append(python_folder)
+from pathlib import Path
+
+HERE = Path.cwd().resolve()
+dir_path_str = str((HERE / ".." / "..").resolve())
+if dir_path_str not in sys.path:
+  sys.path.insert(0, dir_path_str)
+
 from multi_condensed import Problem
 import numpy as np
 from math import sqrt, cos, sin, pi
 import pickle
-
-import matplotlib.pyplot as plt
 
 def bd_vertex_d_match(d_in, d_out, i):
    d1, d2 = d_out[i], d_in[i+1]
