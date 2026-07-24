@@ -10,6 +10,8 @@ import sys, os
 # removes capytaine warnings from clogging outputs
 import logging
 
+g = 9.81
+
 class CapytaineSlantSolver:
     
     # arguments for whether or not to display mesh, panel count, hydro coefficients, computation time, or excitation phase
@@ -19,10 +21,10 @@ class CapytaineSlantSolver:
       self.show_hydros = hydros
       self.show_times = times
       self.show_phase = phase
-      self.solver = cpt.BEMSolver(engine=cpt.HierarchicalToeplitzMatrixEngine())
+      self.solver = cpt.BEMSolver()
       logging.getLogger("capytaine").setLevel(logging.ERROR)
 
-    # use to get rid of prints
+    # use to prevent prints within function
     def __deafen(self, function, *args, **kwargs):
         real_stdout = sys.stdout
         try:
@@ -34,7 +36,7 @@ class CapytaineSlantSolver:
 
     def __timed_solve(self, problem, reps):
         t_lst = []
-        for i in range(reps):
+        for _ in range(reps):
             t0 = time.perf_counter()
             result = self.solver.solve(problem, keep_details = True)
             t1 = time.perf_counter()
@@ -42,7 +44,7 @@ class CapytaineSlantSolver:
         tdiff = sum(t_lst)/reps
         return result, tdiff
 
-    def __get_points(self, a, d_in, d_out): # These points define the outline of the body
+    def get_points(self, a, d_in, d_out): # These points define the outline of the body
         pt_lst = [(0, - d_in[0])]
         for i in range(len(a)):
             pt_lst.append((a[i], - d_out[i]))
@@ -81,7 +83,7 @@ class CapytaineSlantSolver:
         zarr = np.linspace(p1[1], p2[1], f_density + 1)
         rarr = np.linspace(p1[0], p2[0], f_density + 1)
         xyz = np.array([np.array([x/np.sqrt(2),y/np.sqrt(2),z]) for x,y,z in zip(rarr,rarr,zarr)])
-        return cpt.AxialSymmetricMesh.from_profile(xyz, nphi = t_density)
+        return cpt.AxialSymmetricMesh.from_profile(xyz, nphi = t_density) # mesh for 1 flat face
 
     def __faces_and_heaves(self, heave_status, p1, p2, f_density, t_density, meshes, mask, panel_ct):
         mesh = self.__make_face(p1, p2, f_density, t_density)
@@ -91,7 +93,7 @@ class CapytaineSlantSolver:
             direction = [0, 0, 1]
         else:
             direction = [0, 0, 0]
-        for i in range(new_panels):
+        for _ in range(new_panels):
             mask.append(direction)
         return meshes, mask, (panel_ct + new_panels)
 
@@ -119,8 +121,13 @@ class CapytaineSlantSolver:
         # , lid_mesh = meshes.generate_lid() # consider adding lid mesh to above function
         return body, panel_ct, mask
 
-    def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, m0, rho, reps = 1, f_densities = None):
-        pt_lst = self.__get_points(a, d_in, d_out)
+    def omega_from_wavenumber(self, m0, h):
+        return np.sqrt(m0 * g * np.tanh(m0 * h))
+
+    def construct_and_solve(self, a, d_in, d_out, heaving, t_densities, face_units, h, omega, rho, reps = 1, f_densities = None, m0 = None):
+        if omega is None and m0 is not None: omega = self.omega_from_wavenumber(m0, h)
+        
+        pt_lst = self.get_points(a, d_in, d_out)
         if f_densities is None:
             f_densities = self.__get_f_densities(pt_lst, face_units)
         
@@ -128,11 +135,12 @@ class CapytaineSlantSolver:
         body.dofs["Heave"] = mask  
         if self.show_mesh: body.show_matplotlib()
         
-        rad_problem = cpt.RadiationProblem(body = body, wavenumber = m0, water_depth = h, rho = rho)
+        rad_problem = cpt.RadiationProblem(body = body, omega = omega, water_depth = h, rho = rho)
         result, t_diff = self.__timed_solve(rad_problem, reps)
 
-        diff_problem = cpt.DiffractionProblem(body = body, wavenumber = m0, water_depth = h, rho = rho)
+        diff_problem = cpt.DiffractionProblem(body = body, omega = omega, water_depth = h, rho = rho)
         result_d, t_diff_d = self.__timed_solve(diff_problem, reps)
+        # print('resultd_d',(cpt.assemble_dataset([result_d]))["excitation_force"][0][0][0])
 
         if self.show_pc: print("Panel Count: ", panel_count)
         if self.show_hydros:
@@ -171,7 +179,7 @@ class CapytaineSlantSolver:
     # given a body definable by a, d_in, d_out, returns a function that says whether or not a given point is in the body.
     # that function assumes points are at/below the surface.
     def get_body_bounds_from_regions(self, a, d_in, d_out):
-        pt_lst = self.__get_points(a, d_in, d_out)
+        pt_lst = self.get_points(a, d_in, d_out)
 
         def is_inside(r, z):
             region = self. __get_region(a, r)
