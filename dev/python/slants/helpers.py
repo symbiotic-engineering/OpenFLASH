@@ -1,3 +1,6 @@
+# Helpers for slant work
+# primarily altering/streamlining the basic multi_condensed MEEM solving class to be more amenable to slant-relevant variables
+
 import sys
 from pathlib import Path
 
@@ -43,7 +46,7 @@ class SProblem(Problem):
     return region
 
 ######################################
-# staircase with outline on exterior corners
+# staircase with slant outline touching exterior corners of staircase
 def make_slant_region1(d1, d2, a1, a2, res):
   a_prime = []
   d_prime = []
@@ -55,7 +58,7 @@ def make_slant_region1(d1, d2, a1, a2, res):
      d_prime.append(d1 + (offset + i) * delta_d)
   return a_prime, d_prime
 
-# staircase with outlines through centers, starting horizontal, end vertical
+# staircase with slant outlines through centers, starting horizontal, end vertical
 def make_slant_region2(d1, d2, a1, a2, res):
   a_prime = []
   d_prime = []
@@ -69,7 +72,7 @@ def make_slant_region2(d1, d2, a1, a2, res):
   d_prime.append(d2)
   return a_prime, d_prime
 
-# staircase with outlines through centers, starting vertical, end horizontal
+# staircase with slant outlines through centers, starting vertical, end horizontal
 def make_slant_region3(d1, d2, a1, a2, res):
   a_prime = []
   d_prime = []
@@ -81,7 +84,8 @@ def make_slant_region3(d1, d2, a1, a2, res):
      d_prime.append(d1 + (0.5 + i) * delta_d)
   return a_prime, d_prime
 
-# Get d and a to make a staircase
+# Get d and a to make a staircase from slant-defining variables
+# d_in[i] is the depth on the interior edge of region i, d_out[i] for outer
 def slant_approx_vars(a, d_in, d_out, heaving, NMK, res, version):
   if version == 1:
      make_slant_region = make_slant_region1
