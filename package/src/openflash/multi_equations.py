@@ -143,7 +143,7 @@ def I_mk(m, k, i, d, m0, h, m_k_arr, N_k_arr): # coupling integral for i and e-t
             out[mask_m0_k0] = 0
         elif m0 * h < M0_H_THRESH:
             out[mask_m0_k0] = (1 / sqrt(N_k_arr[0])) * sinh(m0 * delta) / m0
-        else:
+        else: # high m0h approximation
             out[mask_m0_k0] = sqrt(2 * h / m0) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
 
     mask_m0_kpos = (m_grid == 0) & (k_grid >= 1)
@@ -160,7 +160,7 @@ def I_mk(m, k, i, d, m0, h, m_k_arr, N_k_arr): # coupling integral for i and e-t
             m_local = m_grid[mask_mpos_k0]
             if m0 * h < M0_H_THRESH:
                 num = ((-1) ** m_local) * sqrt(2) * (1 / sqrt(N_k_arr[0])) * m0 * sinh(m0 * delta)
-            else:
+            else: # high m0h approximation
                 num = ((-1) ** m_local) * 2 * sqrt(h * m0 ** 3) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
             denom = m0**2 + lambda_ni(m_local, i, h, d) ** 2
             out[mask_mpos_k0] = num / denom
