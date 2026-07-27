@@ -33,8 +33,9 @@ jobs:
 
       - name: Compute base version (bump patch/minor/major from PR title)
         id: compute_base
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          PR_TITLE="${{ github.event.pull_request.title || '' }}"
           base=$(bash scripts/compute_base.sh "$PR_TITLE")
           echo "base=$base" >> $GITHUB_OUTPUT
 
