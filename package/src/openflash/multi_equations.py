@@ -92,20 +92,26 @@ def I_nm(n, m, i, d, h): # coupling integral for two i-type regions
     dj = max(d[i], d[i+1]) # integration bounds at -h and -d
     n_grid, m_grid, scalar_input = _prepare_mode_grids(n, m)
     delta = h - dj
-    out = np.zeros(n_grid.shape, dtype=float)
+    out = np.full(n_grid.shape, np.nan, dtype=float)
 
     mask_00 = (n_grid == 0) & (m_grid == 0)
     out[mask_00] = delta
 
     mask_n0_mpos = (n_grid == 0) & (m_grid >= 1)
-    if np.any(mask_n0_mpos) and dj != d[i+1]:
-        lambda2 = lambda_ni(m_grid[mask_n0_mpos], i + 1, h, d)
-        out[mask_n0_mpos] = sqrt(2) * sin(lambda2 * delta) / lambda2
+    if np.any(mask_n0_mpos):
+        if dj != d[i+1]:
+            lambda2 = lambda_ni(m_grid[mask_n0_mpos], i + 1, h, d)
+            out[mask_n0_mpos] = sqrt(2) * sin(lambda2 * delta) / lambda2
+        else:
+            out[mask_n0_mpos] = 0
 
     mask_npos_m0 = (n_grid >= 1) & (m_grid == 0)
-    if np.any(mask_npos_m0) and dj != d[i]:
-        lambda1 = lambda_ni(n_grid[mask_npos_m0], i, h, d)
-        out[mask_npos_m0] = sqrt(2) * sin(lambda1 * delta) / lambda1
+    if np.any(mask_npos_m0):
+        if dj != d[i]:
+            lambda1 = lambda_ni(n_grid[mask_npos_m0], i, h, d)
+            out[mask_npos_m0] = sqrt(2) * sin(lambda1 * delta) / lambda1
+        else:
+            out[mask_npos_m0] = 0
 
     mask_general = ~(mask_00 | mask_n0_mpos | mask_npos_m0)
     if np.any(mask_general):
@@ -129,11 +135,13 @@ def I_mk(m, k, i, d, m0, h, m_k_arr, N_k_arr): # coupling integral for i and e-t
     k_grid = k_grid.astype(int, copy=False)
     dj = d[i]
     delta = h - dj
-    out = np.zeros(m_grid.shape, dtype=float)
+    out = np.full(m_grid.shape, np.nan, dtype=float)
 
     mask_m0_k0 = (m_grid == 0) & (k_grid == 0)
-    if np.any(mask_m0_k0) and m0 != inf:
-        if m0 * h < M0_H_THRESH:
+    if np.any(mask_m0_k0):
+        if m0 == inf:
+            out[mask_m0_k0] = 0
+        elif m0 * h < M0_H_THRESH:
             out[mask_m0_k0] = (1 / sqrt(N_k_arr[0])) * sinh(m0 * delta) / m0
         else:
             out[mask_m0_k0] = sqrt(2 * h / m0) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -145,14 +153,17 @@ def I_mk(m, k, i, d, m0, h, m_k_arr, N_k_arr): # coupling integral for i and e-t
         out[mask_m0_kpos] = (1 / sqrt(N_k_arr[k_local])) * sin(local_mk * delta) / local_mk
 
     mask_mpos_k0 = (m_grid >= 1) & (k_grid == 0)
-    if np.any(mask_mpos_k0) and m0 != inf:
-        m_local = m_grid[mask_mpos_k0]
-        if m0 * h < M0_H_THRESH:
-            num = ((-1) ** m_local) * sqrt(2) * (1 / sqrt(N_k_arr[0])) * m0 * sinh(m0 * delta)
+    if np.any(mask_mpos_k0):
+        if m0 == inf:
+            out[mask_mpos_k0] = 0
         else:
-            num = ((-1) ** m_local) * 2 * sqrt(h * m0 ** 3) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
-        denom = m0**2 + lambda_ni(m_local, i, h, d) ** 2
-        out[mask_mpos_k0] = num / denom
+            m_local = m_grid[mask_mpos_k0]
+            if m0 * h < M0_H_THRESH:
+                num = ((-1) ** m_local) * sqrt(2) * (1 / sqrt(N_k_arr[0])) * m0 * sinh(m0 * delta)
+            else:
+                num = ((-1) ** m_local) * 2 * sqrt(h * m0 ** 3) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+            denom = m0**2 + lambda_ni(m_local, i, h, d) ** 2
+            out[mask_mpos_k0] = num / denom
 
     mask_general = ~(mask_m0_k0 | mask_m0_kpos | mask_mpos_k0)
     if np.any(mask_general):
