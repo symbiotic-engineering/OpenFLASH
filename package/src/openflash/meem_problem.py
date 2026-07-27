@@ -28,9 +28,8 @@ class MEEMProblem:
         frequencies : np.ndarray
             Array of angular frequencies or omega (rad/s).
         """
+        frequencies = np.atleast_1d(np.asarray(frequencies, dtype=float))
         assert np.all(frequencies > 0), "All frequencies must be positive"
-        assert isinstance(frequencies, np.ndarray), "frequencies must be a numpy array"
-
         self.frequencies = frequencies
 
     @property
