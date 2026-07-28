@@ -429,3 +429,38 @@ stages:
       hash: md5
       md5: ab6898db6da82271616f7b82ad05056a
       size: 11873
+  timing-data:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
+      html "analysis/timing_data_generation.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-branch
+      hash: md5
+      md5: 21b3d07e8e876ec54bb384a88ff24114.dir
+      size: 9977
+      nfiles: 1
+    - path: .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
+      hash: md5
+      md5: 54933970ac8d98cad5d5109209ba1386
+      size: 30472
+    - path: analysis/capytaine_generator.py
+      hash: md5
+      md5: 461ce31edab4ba2c8fd343997873dd16
+      size: 12332
+    - path: package/src/
+      hash: md5
+      md5: 31d5498d1787f27085034c2abee95e5e.dir
+      size: 279541
+      nfiles: 29
+    outs:
+    - path: .calkit/notebooks/executed/analysis/timing_data_generation.ipynb
+      hash: md5
+      md5: 4190c71406bf789b53bb65f46e6c861a
+      size: 35928
+    - path: .calkit/notebooks/html/analysis/timing_data_generation.html
+      hash: md5
+      md5: 7c664e7f4a8532404ad83df33443ab0e
+      size: 385846
+    - path: analysis/data/timing.pkl
+      hash: md5
+      md5: 6cf92718b15fcb51c9be321d42186811
+      size: 4034
