@@ -298,8 +298,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: 6fee7550c7f8d298fc987043523e190e.dir
-      size: 9764
+      md5: 21b3d07e8e876ec54bb384a88ff24114.dir
+      size: 9977
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       hash: md5
@@ -307,34 +307,34 @@ stages:
       size: 22432
     - path: analysis/data/timing.pkl
       hash: md5
-      md5: 8f44378ee5eed677e435c38ac905d0af
-      size: 4035
+      md5: d385e0f434ca4993b15b89d73db25b18
+      size: 4034
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: bee8da5063bc568e5251764466d97f5c.dir
-      size: 18456
-      nfiles: 24
+      md5: 304c963f85347176886d206b8c245c48.dir
+      size: 16699
+      nfiles: 22
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: 89bbb0d63735bf1700c397982ad13e89
-      size: 358945
+      md5: 77c9b52961c2d0f03d1b111f93133396
+      size: 432423
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
-      md5: 22d2096caf4c5eaeb9acafb129be53d4
-      size: 698950
+      md5: 643adc73dab45a24ad956fbee1e57003
+      size: 772425
     - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: fcd06dfd5f1d49238e5c370eff294403
-      size: 136511
+      md5: 6c5490dd137a546177cde0d0f08e8b0d
+      size: 46568
     - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: a402914869eabfa573bc588657761028
-      size: 104576
+      md5: fc50085149dd406e33eb8d1db4731fee
+      size: 42422
     - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: 19e8a9d2fe8ce308269e6e04e20d82e9
-      size: 137530
+      md5: d5f72d78c07cf13636ab501df763432e
+      size: 65259
   sparsity-figs:
     cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
       "analysis/sparsity_plots.ipynb"
@@ -440,8 +440,8 @@ stages:
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
       hash: md5
-      md5: 54933970ac8d98cad5d5109209ba1386
-      size: 30472
+      md5: 0cd0b789d25bde32005b3e3a439facf0
+      size: 30408
     - path: analysis/capytaine_generator.py
       hash: md5
       md5: 461ce31edab4ba2c8fd343997873dd16
@@ -454,13 +454,13 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_data_generation.ipynb
       hash: md5
-      md5: 4190c71406bf789b53bb65f46e6c861a
-      size: 35928
+      md5: 6bed7e8975ddc052805d3b8d70bf0923
+      size: 35865
     - path: .calkit/notebooks/html/analysis/timing_data_generation.html
       hash: md5
-      md5: 7c664e7f4a8532404ad83df33443ab0e
-      size: 385846
+      md5: f18d34521793959df3e5dc75ac5ecc1a
+      size: 385445
     - path: analysis/data/timing.pkl
       hash: md5
-      md5: 6cf92718b15fcb51c9be321d42186811
+      md5: d385e0f434ca4993b15b89d73db25b18
       size: 4034
