@@ -72,60 +72,117 @@ def m_k(NMK, m0, h):
 #############################################
 # vertical eigenvector coupling computation
 
+def _prepare_mode_grids(row_mode, col_mode):
+    row_arr = np.asarray(row_mode)
+    col_arr = np.asarray(col_mode)
+    scalar_input = row_arr.ndim == 0 and col_arr.ndim == 0
+
+    if scalar_input:
+        return row_arr.reshape(1, 1), col_arr.reshape(1, 1), True
+
+    if row_arr.ndim <= 1 and col_arr.ndim <= 1:
+        row_grid, col_grid = np.meshgrid(row_arr.reshape(-1), col_arr.reshape(-1), indexing="ij")
+    else:
+        row_grid, col_grid = np.broadcast_arrays(row_arr, col_arr)
+
+    return row_grid, col_grid, False
+
+
 def I_nm(n, m, i, d, h): # coupling integral for two i-type regions
     dj = max(d[i], d[i+1]) # integration bounds at -h and -d
-    if n == 0 and m == 0:
-        return h - dj
-    lambda1 = lambda_ni(n, i, h, d)
-    lambda2 = lambda_ni(m, i + 1, h, d)
-    if n == 0 and m >= 1:
-        if dj == d[i+1]:
-            return 0
+    n_grid, m_grid, scalar_input = _prepare_mode_grids(n, m)
+    delta = h - dj
+    out = np.full(n_grid.shape, np.nan, dtype=float)
+
+    mask_00 = (n_grid == 0) & (m_grid == 0)
+    out[mask_00] = delta
+
+    mask_n0_mpos = (n_grid == 0) & (m_grid >= 1)
+    if np.any(mask_n0_mpos):
+        if dj != d[i+1]:
+            lambda2 = lambda_ni(m_grid[mask_n0_mpos], i + 1, h, d)
+            out[mask_n0_mpos] = sqrt(2) * sin(lambda2 * delta) / lambda2
         else:
-            return sqrt(2) * sin(lambda2 * (h - dj)) / lambda2
-    if n >= 1 and m == 0:
-        if dj == d[i]:
-            return 0
+            out[mask_n0_mpos] = 0
+
+    mask_npos_m0 = (n_grid >= 1) & (m_grid == 0)
+    if np.any(mask_npos_m0):
+        if dj != d[i]:
+            lambda1 = lambda_ni(n_grid[mask_npos_m0], i, h, d)
+            out[mask_npos_m0] = sqrt(2) * sin(lambda1 * delta) / lambda1
         else:
-            return sqrt(2) * sin(lambda1 * (h - dj)) / lambda1
-    else:
-        frac1 = sin((lambda1 + lambda2)*(h-dj))/(lambda1 + lambda2)
-        if lambda1 == lambda2:
-            frac2 = (h - dj)
-        else:
-            frac2 = sin((lambda1 - lambda2)*(h-dj))/(lambda1 - lambda2)
-        return frac1 + frac2
+            out[mask_npos_m0] = 0
+
+    mask_general = ~(mask_00 | mask_n0_mpos | mask_npos_m0)
+    if np.any(mask_general):
+        lambda1 = lambda_ni(n_grid[mask_general], i, h, d)
+        lambda2 = lambda_ni(m_grid[mask_general], i + 1, h, d)
+        frac1 = sin((lambda1 + lambda2) * delta) / (lambda1 + lambda2)
+        frac2 = np.empty_like(frac1, dtype=float)
+        eq_mask = np.isclose(lambda1, lambda2)
+        frac2[eq_mask] = delta
+        neq_mask = ~eq_mask
+        if np.any(neq_mask):
+            frac2[neq_mask] = sin((lambda1[neq_mask] - lambda2[neq_mask]) * delta) / (lambda1[neq_mask] - lambda2[neq_mask])
+        out[mask_general] = frac1 + frac2
+
+    return out.item() if scalar_input else out
 
 # REVISED I_mk to accept m_k_arr and N_k_arr
 def I_mk(m, k, i, d, m0, h, m_k_arr, N_k_arr): # coupling integral for i and e-type regions
-    # Use the pre-computed array
-    local_m_k_k = m_k_arr[k] # Access directly from array
-    
+    m_grid, k_grid, scalar_input = _prepare_mode_grids(m, k)
+    m_grid = m_grid.astype(int, copy=False)
+    k_grid = k_grid.astype(int, copy=False)
     dj = d[i]
-    if m == 0 and k == 0:
-        if m0 == inf: return 0
+    delta = h - dj
+    out = np.full(m_grid.shape, np.nan, dtype=float)
+
+    mask_m0_k0 = (m_grid == 0) & (k_grid == 0)
+    if np.any(mask_m0_k0):
+        if m0 == inf:
+            out[mask_m0_k0] = 0
         elif m0 * h < M0_H_THRESH:
-            return (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - dj)) / m0 # Use N_k_arr[0]
+            out[mask_m0_k0] = (1 / sqrt(N_k_arr[0])) * sinh(m0 * delta) / m0
         else: # high m0h approximation
-            return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
-    if m == 0 and k >= 1:
-        return (1/sqrt(N_k_arr[k])) * sin(local_m_k_k * (h - dj)) / local_m_k_k # Use N_k_arr[k]
-    if m >= 1 and k == 0:
-        if m0 == inf: return 0
-        elif m0 * h < M0_H_THRESH:
-            num = (-1)**m * sqrt(2) * (1/sqrt(N_k_arr[0])) * m0 * sinh(m0 * (h - dj)) # Use N_k_arr[0]
-        else: # high m0h approximation
-            num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
-        denom = (m0**2 + lambda_ni(m, i, h, d) **2)
-        return num/denom
-    else:
-        lambda1 = lambda_ni(m, i, h, d)
-        if abs(local_m_k_k) == lambda1:
-            return sqrt(2/N_k_arr[k]) * (h - dj)/2
+            out[mask_m0_k0] = sqrt(2 * h / m0) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+
+    mask_m0_kpos = (m_grid == 0) & (k_grid >= 1)
+    if np.any(mask_m0_kpos):
+        k_local = k_grid[mask_m0_kpos]
+        local_mk = m_k_arr[k_local]
+        out[mask_m0_kpos] = (1 / sqrt(N_k_arr[k_local])) * sin(local_mk * delta) / local_mk
+
+    mask_mpos_k0 = (m_grid >= 1) & (k_grid == 0)
+    if np.any(mask_mpos_k0):
+        if m0 == inf:
+            out[mask_mpos_k0] = 0
         else:
-            frac1 = sin((local_m_k_k + lambda1)*(h-dj))/(local_m_k_k + lambda1)
-            frac2 = sin((local_m_k_k - lambda1)*(h-dj))/(local_m_k_k - lambda1)
-            return sqrt(2/N_k_arr[k]) * (frac1 + frac2)/2 # Use N_k_arr[k]
+            m_local = m_grid[mask_mpos_k0]
+            if m0 * h < M0_H_THRESH:
+                num = ((-1) ** m_local) * sqrt(2) * (1 / sqrt(N_k_arr[0])) * m0 * sinh(m0 * delta)
+            else: # high m0h approximation
+                num = ((-1) ** m_local) * 2 * sqrt(h * m0 ** 3) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+            denom = m0**2 + lambda_ni(m_local, i, h, d) ** 2
+            out[mask_mpos_k0] = num / denom
+
+    mask_general = ~(mask_m0_k0 | mask_m0_kpos | mask_mpos_k0)
+    if np.any(mask_general):
+        m_local = m_grid[mask_general]
+        k_local = k_grid[mask_general]
+        lambda1 = lambda_ni(m_local, i, h, d)
+        local_mk = m_k_arr[k_local]
+        norm = sqrt(2 / N_k_arr[k_local]) / 2
+        eq_mask = np.isclose(np.abs(local_mk), lambda1)
+        general_vals = np.empty_like(lambda1, dtype=float)
+        general_vals[eq_mask] = norm[eq_mask] * delta
+        neq_mask = ~eq_mask
+        if np.any(neq_mask):
+            frac1 = sin((local_mk[neq_mask] + lambda1[neq_mask]) * delta) / (local_mk[neq_mask] + lambda1[neq_mask])
+            frac2 = sin((local_mk[neq_mask] - lambda1[neq_mask]) * delta) / (local_mk[neq_mask] - lambda1[neq_mask])
+            general_vals[neq_mask] = norm[neq_mask] * (frac1 + frac2)
+        out[mask_general] = general_vals
+
+    return out.item() if scalar_input else out
 
 #############################################
 # b-vector computation
