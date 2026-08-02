@@ -682,7 +682,8 @@ class Problem:
                 r_vec = np.append(r_vec, self.a[i]*(1+a_eps))
             r_vec = np.unique(r_vec)
             for i in range(len(self.d)):
-                z_vec = np.append(z_vec, -self.d[i])
+                z_vec = np.append(z_vec, -self.d[i]*(1-a_eps))
+                z_vec = np.append(z_vec, -self.d[i]*(1+a_eps))
             z_vec = np.unique(z_vec)
         return np.meshgrid(r_vec, z_vec)
     
@@ -695,7 +696,7 @@ class Problem:
         plt.ylabel('Axial Distance (Z)')
         plt.show()
 
-    def generate_potential_plot_array(self, cs):
+    def generate_potential_plot_array(self, cs, res = 50):
         h, d, a, heaving, NMK = self.h, self.d, self.a, self.heaving, self.NMK
         R_1n, R_2n, Lambda_k= self.R_1n, self.R_2n, self.Lambda_k
         Z_n_i, Z_k_e = self.Z_n_i, self.Z_k_e
@@ -714,7 +715,7 @@ class Problem:
         phi_h_m_i_vec = np.vectorize(phi_h_m_i_func, otypes = [complex])
         phi_p_i_vec = np.vectorize(phi_p_i)
 
-        R, Z = self.make_R_Z(True, 50)
+        R, Z = self.make_R_Z(True, res)
 
         regions = []
         regions.append((R <= a[0]) & (Z < -d[0]))
@@ -747,7 +748,7 @@ class Problem:
         phi = phiH + phiP
         return phi, phiH, phiP
 
-    def generate_velocity_plot_array(self, cs):
+    def generate_velocity_plot_array(self, cs, res = 50):
         h, d, a, heaving, NMK = self.h, self.d, self.a, self.heaving, self.NMK
         R_1n, R_2n, Lambda_k= self.R_1n, self.R_2n, self.Lambda_k
         diff_R_1n, diff_R_2n, diff_Lambda_k= self.diff_R_1n, self.diff_R_2n, self.diff_Lambda_k
@@ -780,7 +781,7 @@ class Problem:
         v_z_m_i_vec = np.vectorize(v_z_m_i_func, otypes = [complex])
         v_z_e_k_vec = np.vectorize(v_z_e_k_func, otypes = [complex])
 
-        R, Z = self.make_R_Z(True, 50)
+        R, Z = self.make_R_Z(True, res)
 
         regions = []
         regions.append((R <= a[0]) & (Z < -d[0]))
@@ -837,9 +838,9 @@ class Problem:
 
         return vr, vz
     
-    def plot_potentials(self, cs):
-        R, Z = self.make_R_Z(True, 50)
-        phi, phiH, phiP = self.generate_potential_plot_array(cs)
+    def plot_potentials(self, cs, res = 50):
+        R, Z = self.make_R_Z(True, res)
+        phi, phiH, phiP = self.generate_potential_plot_array(cs, res = res)
         self.plot_pv(np.real(phiH), R, Z, 'Homogeneous Potential')
         self.plot_pv(np.imag(phiH), R, Z, 'Homogeneous Potential Imaginary')
 
@@ -849,9 +850,9 @@ class Problem:
         self.plot_pv(np.real(phi), R, Z, 'Potential (Real Part)')
         self.plot_pv(np.imag(phi), R, Z, 'Total Potential Imaginary')
 
-    def plot_velocities(self, cs):
-        R, Z = self.make_R_Z(True, 50)
-        vr, vz = self.generate_velocity_plot_array(cs)
+    def plot_velocities(self, cs, res = 50):
+        R, Z = self.make_R_Z(True, res)
+        vr, vz = self.generate_velocity_plot_array(cs, res = res)
         
         self.plot_pv(np.real(vr), R, Z, 'Radial Velocity - Real')
         self.plot_pv(np.imag(vr), R, Z, 'Radial Velocity - Imaginary')
@@ -860,7 +861,7 @@ class Problem:
 
     #############################################
     # Format a 50 x 50 array of potentials for testing
-    def config_potential_array(self, cs):
+    def config_potential_array(self, cs, res = 50):
         boundary_count, NMK, heaving = self.boundary_count, self.NMK, self.heaving
         a, d, h, = self.a, self.d, self.h
 
@@ -881,7 +882,7 @@ class Problem:
         phi_h_m_i_vec = np.vectorize(phi_h_m_i_func, otypes = [complex])
         phi_p_i_vec = np.vectorize(phi_p_i)
 
-        R, Z = self.make_R_Z(False, 50)
+        R, Z = self.make_R_Z(False, res)
 
         regions = []
         regions.append((R <= a[0]) & (Z < -d[0]))

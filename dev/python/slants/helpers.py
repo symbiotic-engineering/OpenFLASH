@@ -121,10 +121,10 @@ def slant_approx_vars(a, d_in, d_out, heaving, NMK, res, version):
   return d_prime, a_prime, heaving_prime, NMK_prime, slopes
 
 ######################################
-def solve_problem(prob_style, h, a, d_in, d_out, heaving, m0, rho, res, version, nmk = 150, NMK = None):
+def solve_problem(prob_style, h, a, d_in, d_out, heaving, m0, rho, res, version, nmk = 150, NMK = None, slope_arg = True):
   if NMK is None: NMK = [nmk for _ in range(len(a) + 1)]
   d_prime, a_prime, heaving_prime, NMK_prime, slopes = slant_approx_vars(a, d_in, d_out, heaving, NMK, res, version)
-  if prob_style is Problem: prob = prob_style(h, d_prime, a_prime, heaving_prime, NMK_prime, m0, rho)
+  if (prob_style is Problem) or (not slope_arg): prob = prob_style(h, d_prime, a_prime, heaving_prime, NMK_prime, m0, rho)
   else: prob = prob_style(h, d_prime, a_prime, heaving_prime, NMK_prime, m0, rho, slopes)
   a_matrix = prob.a_matrix()
   b_vector = prob.b_vector()

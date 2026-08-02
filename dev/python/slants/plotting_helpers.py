@@ -12,7 +12,11 @@ import numpy as np
 # Within each set, curves have different colors within the same colormap
 # In the default, within each set, earlier curves are darker and later ones lighter
 def plot_multiple_fade(x, ys, colors = ["Reds", "Greens", "Blues"], labs = None, last_k = None,
-                       title = "plot", xlab = "x", ylab = "y", hline = None, hlab = None):
+                       title = "plot", xlab = "x", ylab = "y", hline = None, hlab = None,
+                       figsize = None, xlims = None, ylims = None):
+    if figsize is not None:
+       plt.figure(figsize=figsize)
+
     if hline is not None:
       plt.axhline(y = hline, color='orange', label = hlab)
 
@@ -30,11 +34,13 @@ def plot_multiple_fade(x, ys, colors = ["Reds", "Greens", "Blues"], labs = None,
       ax.xaxis.set_major_locator(MultipleLocator(np.pi / 8))
       ax.xaxis.set_major_formatter(FuncFormatter(angle_format_func))
 
+    if xlims is not None: plt.xlim(xlims)
+    if ylims is not None: plt.ylim(ylims)
+
     plt.xlabel(xlab)
     plt.ylabel(ylab)
     plt.title(title)
     plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
-    plt.tight_layout()
     plt.grid(True)
     plt.tight_layout()
     plt.show()

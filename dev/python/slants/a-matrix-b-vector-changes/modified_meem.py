@@ -2,14 +2,16 @@ import sys
 from pathlib import Path
 
 HERE = Path.cwd().resolve()
-dir_path_str = str((HERE / ".." / "..").resolve())
-if dir_path_str not in sys.path:
-  sys.path.insert(0, dir_path_str)
+dir_path_str_1 = str((HERE / ".." ).resolve())
+dir_path_str_2 = str((HERE / ".." / "..").resolve())
+for dir_path_str in [dir_path_str_1, dir_path_str_2]:
+  if dir_path_str not in sys.path:
+    sys.path.insert(0, dir_path_str)
 
 from multi_condensed import Problem
 import numpy as np
 from math import sqrt, cos, sin, pi
-import pickle
+from helpers import plot_both, update_data_file, make_slant_region1, make_slant_region2, make_slant_region3
 
 def bd_vertex_d_match(d_in, d_out, i):
    d1, d2 = d_out[i], d_in[i+1]
@@ -322,44 +324,6 @@ class SProblem(Problem):
       return added_mass, damping
     
 ######################################
-# staircase with outline on exterior corners
-def make_slant_region1(d1, d2, a1, a2, res):
-  a_prime = []
-  d_prime = []
-  delta_d = (d2 - d1)/res
-  delta_a = (a2 - a1)/res
-  offset = (delta_d < 0)
-  for i in range(res):
-     a_prime.append(a1 + (1 + i) * delta_a)
-     d_prime.append(d1 + (offset + i) * delta_d)
-  return a_prime, d_prime
-
-# staircase with outlines through centers, starting horizontal, end vertical
-def make_slant_region2(d1, d2, a1, a2, res):
-  a_prime = []
-  d_prime = []
-  delta_d = (d2 - d1)/res
-  delta_a = (a2 - a1)/res
-  # offset = (delta_d < 0)
-  for i in range(res - 1):
-     a_prime.append(a1 + (0.5 + i) * delta_a)
-     d_prime.append(d1 + (i) * delta_d)
-  a_prime.append(a2)
-  d_prime.append(d2)
-  return a_prime, d_prime
-
-# staircase with outlines through centers, starting vertical, end horizontal
-def make_slant_region3(d1, d2, a1, a2, res):
-  a_prime = []
-  d_prime = []
-  delta_d = (d2 - d1)/res
-  delta_a = (a2 - a1)/res
-  # offset = (delta_d < 0)
-  for i in range(res):
-     a_prime.append(a1 + (1 + i) * delta_a)
-     d_prime.append(d1 + (0.5 + i) * delta_d)
-  return a_prime, d_prime
-
 def d_in_out_add(d_in, d_out, res):
    delta_d = (d_out - d_in)/res
    d_in_prime = [d_in + i * delta_d for i in range(res)]
@@ -417,12 +381,3 @@ def solve_modified_problem(h, a, d_in, d_out, heaving, m0, rho, res, version, nm
   x = prob.get_unknown_coeffs(a_matrix, b_vector)
   cs = prob.reformat_coeffs(x)
   return x, cs, prob
-
-def plot_both(prob, cs):
-  prob.plot_potentials(cs)
-  prob.plot_velocities(cs)
-
-######################################
-def update_data_file(data, name):
-  with open(name, "wb") as f:
-    pickle.dump(data, f)
