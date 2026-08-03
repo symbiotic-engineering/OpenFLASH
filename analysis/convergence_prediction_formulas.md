@@ -46,7 +46,6 @@ $$\begin{aligned}
     c_4, &\frac{h-d_{m-1}}{h-d_m} \geq 1
 \end{cases}\right) \cdot
 \ln(\frac{h-d_m}{a_{m+1}-a_m}) + c_5\\
-
 \beta^{i_m}_{A} &= \frac{h-d_m}{a_{m+1}-a_m} \cdot \left(\begin{cases}
     \frac{c_6}{1+e^{c_7(1-\frac{h-d_2}{h-d_1})}} + c_8, &\frac{h-d_{m+1}}{h-d_m} < 1\\
     c_{9}, &\frac{h-d_{m+1}}{h-d_m} \geq 1
@@ -69,7 +68,6 @@ $$\begin{aligned}
     0.204, &\frac{h-d_{m-1}}{h-d_m} \geq 1
 \end{cases}\right) \cdot
 \ln(\frac{h-d_m}{a_m - a_{m-1}}) + 1.21\\
-
 \beta^{i_m}_{A} &= \frac{h-d_m}{a_m-a_{m-1}} \cdot \left(\begin{cases}
     \frac{0.35}{1+e^{7.04(1-\frac{h-d_{m+1}}{h-d_m})}} + 0.113, &\frac{h-d_{m+1}}{h-d_m} < 1\\
     0.335, &\frac{h-d_{m+1}}{h-d_m} \geq 1
@@ -89,7 +87,6 @@ $$\begin{aligned}
 \end{cases}\right) \cdot
 (\ln(\frac{h}{h-d_M} + c_3) + c_4) \cdot 
 (\ln(\frac{h-d_M}{a_M-a_{M-1}} + c_5) + c_6)\\
-
 \beta^{i_M}_{A} &= \frac{h-d_M}{a_M-a_{M-1}} \cdot
 \left(\begin{cases}
     c_7, &\frac{h-d_{M-1}}{h-d_M} < 1\\
@@ -108,7 +105,6 @@ $$\begin{aligned}
 \end{cases}\right) \cdot
 (\ln(\frac{h}{h-d_M} -0.312) + 8.65) \cdot 
 (\ln(\frac{h-d_M}{a_M-a_{M-1}} + 8.85) + 6.53)\\
-
 \beta^{i_M}_{A} &= \frac{h-d_M}{a_M-a_{M-1}} \cdot
 \left(\begin{cases}
     0.000444, &\frac{h-d_{M-1}}{h-d_M} < 1\\
@@ -124,7 +120,6 @@ $$\begin{aligned}
 \alpha^{i_M}_{B} &= c_1 \cdot
 (\ln(\frac{h}{h-d_M} + c_2 ) + c_3) \cdot
 (e^{-c_4 \cdot \lambda_0^e h} + c_5) \\
-
 \beta^{i_M}_{B} &= 
 (c_6 \cdot \frac{h-d_M}{a_M-a_{M-1}} + c_7) \cdot
 \left(\begin{cases}
@@ -140,7 +135,6 @@ $$\begin{aligned}
 \alpha^{i_M}_{B} &= 0.0977 \cdot
 (\ln(\frac{h}{h-d_M} + 0.208 ) + 2.4) \cdot
 (e^{-0.0302 \cdot \lambda_0^e h} + 4.35) \\
-
 \beta^{i_M}_{B} &= 
 (0.0375\frac{h-d_M}{a_M-a_{M-1}} + 0.00911) \cdot
 \left(\begin{cases}
