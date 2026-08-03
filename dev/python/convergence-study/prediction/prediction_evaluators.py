@@ -62,7 +62,7 @@ def variables_guess_variants(model, region_type, *params):
   fit_model, cf_params_to_alpha_beta, err_from_nmk_model, nmk_from_err_model = get_model_variants(vars_cf, variables_used, inner_model)
   return variables_used, guess, fit_model, cf_params_to_alpha_beta, err_from_nmk_model, nmk_from_err_model
 
-def fit_model_weighted(cfs, hydro, model, guess, get_vars, variables_used, underweight = 1):
+def fit_model_weighted(cfs, hydro, model, guess, get_vars, variables_used, underweight = 1, bounds = None):
   xs = [[] for _ in range(len(variables_used) + 1)]
   ys = []
   for cf in cfs:
@@ -84,13 +84,21 @@ def fit_model_weighted(cfs, hydro, model, guess, get_vars, variables_used, under
     w[r < 0] = underweight
     return np.sqrt(w) * r
   
-  res = least_squares(residuals, x0=guess)
+  res = least_squares(residuals, x0=guess, bounds = bounds)
   return res.x, res
 
-fit_inner_model_weighted = lambda cfs, hydro, model, guess, variables_used, underweight = 1 : fit_model_weighted(cfs, hydro, model, guess, innermost_vars_cf, variables_used, underweight = underweight)
-fit_middle_model_weighted = lambda cfs, hydro, model, guess, variables_used, underweight = 1 : fit_model_weighted(cfs, hydro, model, guess, middle_vars_cf, variables_used, underweight = underweight)
-fit_outer_model_weighted = lambda cfs, hydro, model, guess, variables_used, underweight = 1 : fit_model_weighted(cfs, hydro, model, guess, outermost_vars_cf, variables_used, underweight = underweight)
-fit_exterior_model_weighted = lambda cfs, hydro, model, guess, variables_used, underweight = 1 : fit_model_weighted(cfs, hydro, model, guess, exterior_vars_cf, variables_used, underweight = underweight)
+fit_inner_model_weighted = lambda cfs, hydro, model, guess, variables_used, underweight = 1, bounds = None : fit_model_weighted(cfs, hydro, model, guess,
+                                                                                                                                innermost_vars_cf, variables_used,
+                                                                                                                                underweight = underweight, bounds = bounds)
+fit_middle_model_weighted = lambda cfs, hydro, model, guess, variables_used, underweight = 1, bounds = None : fit_model_weighted(cfs, hydro, model, guess,
+                                                                                                                                 middle_vars_cf, variables_used,
+                                                                                                                                 underweight = underweight, bounds = bounds)
+fit_outer_model_weighted = lambda cfs, hydro, model, guess, variables_used, underweight = 1, bounds = None : fit_model_weighted(cfs, hydro, model, guess,
+                                                                                                                                outermost_vars_cf, variables_used,
+                                                                                                                                underweight = underweight, bounds = bounds)
+fit_exterior_model_weighted = lambda cfs, hydro, model, guess, variables_used, underweight = 1, bounds = None : fit_model_weighted(cfs, hydro, model, guess,
+                                                                                                                                   exterior_vars_cf, variables_used,
+                                                                                                                                   underweight = underweight, bounds = bounds)
 
 def get_model_variants(get_vars, variables_used, var_params_to_alpha_beta): # format: list of nondim variables used in order, params
   def fit_model(xs, *params):
