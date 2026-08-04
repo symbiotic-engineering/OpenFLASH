@@ -115,13 +115,13 @@ and
 \begin{multline}\label{jfm:eq:velocity matching vector equations}
     \boldsymbol{\mathcal{Z}}^\mathrm{ts} \odot \mathbf{1}_{N^\mathrm{t}1}\vec{R}_1^\mathrm{s}(a)\vec{C}_1^\mathrm{s}+\boldsymbol{\mathcal{Z}}^\mathrm{ts} \odot \mathbf{1}_{N^\mathrm{t}1}\vec{R}_2^\mathrm{s}(a)\vec{C}_2^\mathrm{s}\\ -(h-d_\mathrm{t})\mathrm{diag}\left( \frac{\partial}{\partial r} \vec{R}_1^\mathrm{t}(a)\right)\vec{C}_1^\mathrm{t} -(h-d_\mathrm{t})\mathrm{diag}\left( \frac{\partial}{\partial r} \vec{R}_2^\mathrm{t}(a)\right)\vec{C}_2^\mathrm{t} \\ = \int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi_\mathrm{p}^\mathrm{t}}{\partial r}(a,z) \vec{Z}^\mathrm{t}{}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi_\mathrm{p}^\mathrm{s}}{\partial r}(a,z) \vec{Z}^\mathrm{t}{}(z) \mathrm{d}z
 \end{multline}
-where 
+where
 \begin{equation}
     \vec{R}_1^\ell(r)=[R_{10}^\ell(r), R_{11}^\ell(r),\dots, R_{1(N^\ell-1)}^\ell(r) ]
 \end{equation}
 and
 \begin{equation}
-     \vec{R}_2^\ell(r)=[R_{20}^\ell(r), R_{21}^\ell(r),\dots, R_{2(N^\ell-1)}^\ell(r) ] 
+     \vec{R}_2^\ell(r)=[R_{20}^\ell(r), R_{21}^\ell(r),\dots, R_{2(N^\ell-1)}^\ell(r) ]
 \end{equation}
  are row vectors of radial eigenfunctions;
 \begin{equation}
@@ -134,10 +134,10 @@ and
  are column vectors of eigencoefficients; and
 \begin{equation}
 \begin{aligned}
-    &\vec{Z}^\ell(z)=[Z_0^\ell(z),Z_1^\ell(z),\dots, Z_{(N^\ell-1)}^\ell(z)]^T 
+    &\vec{Z}^\ell(z)=[Z_0^\ell(z),Z_1^\ell(z),\dots, Z_{(N^\ell-1)}^\ell(z)]^T
 \end{aligned}
 \end{equation}
-are column vectors of vertical eigenfunctions, where $\ell$ is $\mathrm{s}$ or $\mathrm{t}$. Additionally,  
+are column vectors of vertical eigenfunctions, where $\ell$ is $\mathrm{s}$ or $\mathrm{t}$. Additionally,
 \begin{equation}
     \begin{aligned}    &\boldsymbol{\mathcal{Z}}^\mathrm{st}=\boldsymbol{\mathcal{Z}}^\mathrm{ts}{}^T=\int_{-h}^{-d_\mathrm{s}} \vec{Z}^\mathrm{s}{}(z) \otimes \vec{Z}^\mathrm{t}(z) \mathrm{d}z
 \end{aligned}
@@ -192,60 +192,60 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
     \centering
     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
     \hline
-    & & 
+    & &
     $\vec{C}_{1}^{i_m}$
-    & 
+    &
     $\vec{C}_{2}^{i_m}$
-    & 
-    $\vec{C}_{1}^{i_{m+1}}$ 
-    & 
-    $\vec{C}_{2}^{i_{m+1}}$ 
-    \\\hline 
+    &
+    $\vec{C}_{1}^{i_{m+1}}$
+    &
+    $\vec{C}_{2}^{i_{m+1}}$
+    \\\hline
     &
     size
-    &  
+    &
     $N^{i_m}$
-    &  
+    &
     $N^{i_m}$
-    &  
+    &
     $N^{i_{m+1}}$
-    & 
+    &
     $N^{i_{m+1}}$
-    \\ \hline \hline 
-      
+    \\ \hline \hline
+
       % Row 1
       \shortstack{
-        $\phi^{i_m}=\phi^{i_{m+1}}$ 
-        \\ at $r=a_m$} 
-        & 
-        $N^{i_m}$ 
-        & 
-        $\mathbf{1}_{N^{i_m}1} \vec{R}_1^{i_m}$ 
-        & 
-        $\mathbf{1}_{N^{i_m}1}  \vec{R}_2^{i_m}$ 
-        & 
-        $ \mathbf{1}_{N^{i_m}1} \vec{R}_1^{i_{m+1}}$ 
-        & 
-        $ \mathbf{1}_{N^{i_m}1} \vec{R}_2^{i_{m+1}}$ 
+        $\phi^{i_m}=\phi^{i_{m+1}}$
+        \\ at $r=a_m$}
+        &
+        $N^{i_m}$
+        &
+        $\mathbf{1}_{N^{i_m}1} \vec{R}_1^{i_m}$
+        &
+        $\mathbf{1}_{N^{i_m}1}  \vec{R}_2^{i_m}$
+        &
+        $ \mathbf{1}_{N^{i_m}1} \vec{R}_1^{i_{m+1}}$
+        &
+        $ \mathbf{1}_{N^{i_m}1} \vec{R}_2^{i_{m+1}}$
         \\ \hline
-      
+
       % Row 2
       \shortstack{
-        $\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ 
-        \\ at $r=a_m$} 
-        & 
+        $\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$
+        \\ at $r=a_m$}
+        &
         $N^{i_{m+1}}$
-        & 
-        $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m}}$ 
-        & 
-        $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_2^{i_{m}}$ 
-        & 
-        $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial r} \vec{R}_1^{i_{m+1}}$ 
-        & 
-        $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial r} \vec{R}_2^{i_{m+1}}$ 
+        &
+        $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m}}$
+        &
+        $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_2^{i_{m}}$
+        &
+        $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial r} \vec{R}_1^{i_{m+1}}$
+        &
+        $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial r} \vec{R}_2^{i_{m+1}}$
         \\ \hline
     \end{tabular}
-    \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). 
+    \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$).
     Note all radial eigenfunctions and their derivatives are evaluated at $r=a_m$.}
     \label{jfm:tab:MEEM-A_mr-matrix-case-1}
 \end{table}
@@ -256,59 +256,59 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
     \centering
     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
     \hline
-     & & 
+     & &
     $\vec{C}_{1}^{i_m}$
-    & 
+    &
     $\vec{C}_{2}^{i_m}$
-    & 
-    $\vec{C}_{1}^{i_{m+1}}$ 
-    & 
-    $\vec{C}_{2}^{i_{m+1}}$ 
-    \\\hline 
-    &size&  
+    &
+    $\vec{C}_{1}^{i_{m+1}}$
+    &
+    $\vec{C}_{2}^{i_{m+1}}$
+    \\\hline
+    &size&
     $N^{i_m}$
-    &  
+    &
     $N^{i_m}$
-    &  
+    &
     $N^{i_{m+1}}$
-    & 
+    &
     $N^{i_{m+1}}$
-    \\ \hline \hline 
-      
+    \\ \hline \hline
+
     % Row 1
     \shortstack{
-                $\phi^{i_m}=\phi^{i_{m+1}}$ 
-                \\ 
+                $\phi^{i_m}=\phi^{i_{m+1}}$
+                \\
                 at $r=a_m$
-                } 
-    & 
-    $N^{i_{m+1}}$ 
-    & 
-    $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m}}$ 
-    & 
-    $\mathbf{1}_{N^{i_{m+1}}1} \vec{R}_2^{i_{m}}$ 
-    & 
-    $\mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m+1}}$ 
-    & 
-    $ \mathbf{1}_{N^{i_{m+1}}1}  \vec{R}_2^{i_{m+1}}$ 
+                }
+    &
+    $N^{i_{m+1}}$
+    &
+    $ \mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m}}$
+    &
+    $\mathbf{1}_{N^{i_{m+1}}1} \vec{R}_2^{i_{m}}$
+    &
+    $\mathbf{1}_{N^{i_{m+1}}1} \vec{R}_1^{i_{m+1}}$
+    &
+    $ \mathbf{1}_{N^{i_{m+1}}1}  \vec{R}_2^{i_{m+1}}$
     \\ \hline
-      
+
       % Row 2
       \shortstack{
-                    $\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ 
-                    \\ 
+                    $\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$
+                    \\
                     at $r=a_m$
-                } 
-      & 
+                }
+      &
       $N^{i_{m}}$
-      & 
-      $\mathbf{1}_{N^{i_{m}}1} \frac{\partial}{\partial r} \vec{R}_1^{i_{m}}$ 
-      & 
-      $\mathbf{1}_{N^{i_{m}}1} \frac{\partial}{\partial r} \vec{R}_2^{i_{m}}$ 
-      & 
-      $ \mathbf{1}_{N^{i_{m}}1} \vec{R}_1^{i_{m+1}}$ 
-      & 
-      $ \mathbf{1}_{N^{i_{m}}1} \vec{R}_2^{i_{m+1}}$ 
+      &
+      $\mathbf{1}_{N^{i_{m}}1} \frac{\partial}{\partial r} \vec{R}_1^{i_{m}}$
+      &
+      $\mathbf{1}_{N^{i_{m}}1} \frac{\partial}{\partial r} \vec{R}_2^{i_{m}}$
+      &
+      $ \mathbf{1}_{N^{i_{m}}1} \vec{R}_1^{i_{m+1}}$
+      &
+      $ \mathbf{1}_{N^{i_{m}}1} \vec{R}_2^{i_{m+1}}$
       \\ \hline
     \end{tabular}
     \caption{MEEM $\mathbf{A}_{m,r}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$). 
@@ -324,60 +324,60 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
     \hline
         &
-        & 
+        &
         $\vec{C}_{1}^{i_m}$
-        & 
+        &
         $\vec{C}_{2}^{i_m}$
-        & 
-        $\vec{C}_{1}^{i_{m+1}}$ 
-        & 
-        $\vec{C}_{2}^{i_{m+1}}$ 
-    \\\hline 
+        &
+        $\vec{C}_{1}^{i_{m+1}}$
+        &
+        $\vec{C}_{2}^{i_{m+1}}$
+    \\\hline
         &
         size
-        &  
+        &
         $N^{i_m}$
-        &  
+        &
         $N^{i_m}$
-        &  
+        &
         $N^{i_{m+1}}$
-        & 
+        &
         $N^{i_{m+1}}$
-    \\ \hline \hline 
-      
+    \\ \hline \hline
+
       % Row 1
       \shortstack{
-        $\phi^{i_m}=\phi^{i_{m+1}}$ 
-        \\ 
-        at $r=a_m$} 
-        & 
-        $N^{i_m}$ 
-        & 
-        $(h-d_m) \mathbf{I}^{i_m}$ 
-        & 
-        $(h-d_m) \mathbf{I}^{i_m}$ 
-        & 
-        $-\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}}$ 
-        & 
-        $-\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}}$ 
+        $\phi^{i_m}=\phi^{i_{m+1}}$
+        \\
+        at $r=a_m$}
+        &
+        $N^{i_m}$
+        &
+        $(h-d_m) \mathbf{I}^{i_m}$
+        &
+        $(h-d_m) \mathbf{I}^{i_m}$
+        &
+        $-\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}}$
+        &
+        $-\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}}$
         \\ \hline
-      
+
       % Row 2
       \shortstack{
-            $\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ 
-            \\ 
+            $\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$
+            \\
             at $r=a_m$
-        } 
-        & 
+        }
+        &
         $N^{i_{m+1}}$
-        & 
-        $\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$ 
-        & 
-        $\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$ 
-        & 
-        $-(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$ 
-        & 
-        $-(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$ 
+        &
+        $\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$
+        &
+        $\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$
+        &
+        $-(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$
+        &
+        $-(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$
         \\ \hline
     \end{tabular}
     \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m>d_{m+1}$ ($i_m = \mathrm{s}$ and $i_{m+1} = \mathrm{t}$). 
@@ -391,59 +391,59 @@ and $\mathbf{I}^{i_m}$ is a $N^{i_m} \times N^{i_m}$ identity matrix.
     \centering
     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
     \hline
-        & & 
+        & &
         $\vec{C}_{1}^{i_m}$
-        & 
+        &
         $\vec{C}_{2}^{i_m}$
-        & 
-        $\vec{C}_{1}^{i_{m+1}}$ 
-        & 
-        $\vec{C}_{2}^{i_{m+1}}$ 
-    \\\hline 
+        &
+        $\vec{C}_{1}^{i_{m+1}}$
+        &
+        $\vec{C}_{2}^{i_{m+1}}$
+    \\\hline
         &
         size
-        &  
+        &
         $N^{i_m}$
-        &  
+        &
         $N^{i_m}$
-        &  
+        &
         $N^{i_{m+1}}$
-        & 
+        &
         $N^{i_{m+1}}$
-    \\ \hline \hline 
-      
+    \\ \hline \hline
+
       % Row 1
       \shortstack{
-        $\phi^{i_m}=\phi^{i_{m+1}}$ 
-        \\ 
-        at $r=a_m$} 
-        & 
-        $N^{i_{m+1}}$ 
-        & 
-        $-\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m} $ 
-        & 
-        $-\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$ 
-        & 
-        $(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$ 
-        & 
-        $(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$ 
+        $\phi^{i_m}=\phi^{i_{m+1}}$
+        \\
+        at $r=a_m$}
+        &
+        $N^{i_{m+1}}$
+        &
+        $-\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m} $
+        &
+        $-\boldsymbol{\mathcal{Z}}^{i_{m+1}i_m}$
+        &
+        $(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$
+        &
+        $(h-d_{m+1}) \mathbf{I}^{i_{m+1}}$
     \\ \hline
-      
+
       % Row 2
       \shortstack{
-        $\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$ 
-        \\ 
-        at $r=a_m$} 
-        & 
+        $\frac{\partial}{\partial r}\phi^{i_m}=\frac{\partial}{\partial r}\phi^{i_{m+1}}$
+        \\
+        at $r=a_m$}
+        &
         $N^{i_{m}}$
-        & 
-        $-(h-d_{m}) \mathbf{I}^{i_{m}}$ 
-        & 
-        $-(h-d_{m}) \mathbf{I}^{i_{m}}$ 
-        & 
-        $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} $ 
-        & 
-        $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} $ 
+        &
+        $-(h-d_{m}) \mathbf{I}^{i_{m}}$
+        &
+        $-(h-d_{m}) \mathbf{I}^{i_{m}}$
+        &
+        $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} $
+        &
+        $\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}} $
         \\ \hline
     \end{tabular}
     \caption{MEEM $\mathbf{A}_{m,z}$ sub-matrix when $d_m<d_{m+1}$ ($i_m = \mathrm{t}$ and $i_{m+1} = \mathrm{s}$).}
@@ -461,20 +461,20 @@ Thus, if regions consisting of the $q$th body are heaving, $\hat{v}_q=1$.
 Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions} can be simplified and rearranged as
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of added mass and damping}
 \begin{aligned}
-    A_{pq}(\omega) + \frac{\text{i}B_{pq}(\omega)}{\omega} 
+    A_{pq}(\omega) + \frac{\text{i}B_{pq}(\omega)}{\omega}
     &= 2 \pi \rho \sum_{m \in \mathcal{M}_p} \int_{a_m}^{a_{m+1}} \ _{}^{q}\phi^{i_m}(r,-d_m) \ r  \ dr \\
     &= 2 \pi \rho \sum_{m \in \mathcal{M}_p} \Bigg[
     \int_{a_{m}}^{a_{{m+1}}} \ _{}^{q}\phi^{i_m}_p(r,-d_m)\, r\, dr \\
-    & + \sum_{n_m=0}^{N_{i_m}-1} 
+    & + \sum_{n_m=0}^{N_{i_m}-1}
     \ _{}^{q}C_{1n_m}^{i_m} \ Z_{n_m}^{i_m}(-d_m)
     \int_{a_{m}}^{a_{{m+1}}} \ R_{1n_m}^{i_m}(r)\, r\, dr \\
-    & + \sum_{n_m=0}^{N_{i_m}-1} 
+    & + \sum_{n_m=0}^{N_{i_m}-1}
     \ _{}^{q}C_{2n_m}^{i_m} \ Z_{n_m}^{i_m}(-d_m)
     \int_{a_{m}}^{a_{{m+1}}} \ R_{2n_m}^{i_m}(r)\, r\, dr
     \Bigg]
 \end{aligned}
 \end{equation}
-where all symbols written with a left superscript $q$ denote 
+where all symbols written with a left superscript $q$ denote
 symbols specific to solving the radiation problem when only the $q$th body is moving.
 
 Additionally, the $n_m$th element of the vectors 
@@ -486,7 +486,7 @@ in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are
     & = \int_{a_{m}}^{a_{{m+1}}} R_{1n_m}^{i_m}(r)\, r\, dr \\
     & = \left\{\begin{matrix}
     \frac{1}{4} (a_{{m+1}}^2-a_{m}^2) & \text{ for } n_m=0 \\[2ex]
- \frac{a_{{m+1}} \mathrm{I}_1(a_{{m+1}} \lambda_{n_m}^{i_m})-a_{m} \mathrm{I}_1(a_{m} \lambda_{n_m}^{i_m})}{\lambda_{n_m}^{i_m}\mathrm{I}_0(a_{{m}}\lambda_{n_m}^{i_m})} 
+ \frac{a_{{m+1}} \mathrm{I}_1(a_{{m+1}} \lambda_{n_m}^{i_m})-a_{m} \mathrm{I}_1(a_{m} \lambda_{n_m}^{i_m})}{\lambda_{n_m}^{i_m}\mathrm{I}_0(a_{{m}}\lambda_{n_m}^{i_m})}
  & \text{ for } n_m \ge 1
 \end{matrix}\right.
 \end{aligned}
@@ -499,14 +499,14 @@ in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are
     \left[\vec{\mathcal{R}}_{2}^{i_m}\right]_{n_m} 
     & = \int_{a_{m}}^{a_{{m+1}}} R_{2n_m}^{i_m}(r)\, r\, dr \\
     & = \left\{\begin{matrix}
-    \frac{1}{8} \left(2 a_{{m+1}}^2 \ln \left(\frac{a_{{m+1}}}{a_{m}}\right)-a_{{m+1}}^2+a_{m}^2\right) 
-    & 
+    \frac{1}{8} \left(2 a_{{m+1}}^2 \ln \left(\frac{a_{{m+1}}}{a_{m}}\right)-a_{{m+1}}^2+a_{m}^2\right)
+    &
     \text{ for } n_m=0 \\[2ex]
  \frac{
         a_m \mathrm{K}_1(a_m \lambda^{i_m}_{n_m})-a_{{m+1}} \mathrm{K}_1(a_{{m+1}} \lambda^{i_m}_{n_m})
         }{
         \lambda^{i_m}_{n_m} \mathrm{K}_0(a_m \lambda^{i_m}_{n_m})
-        } 
+        }
  &
   \text{ for } n_m \ge 1
 \end{matrix}.\right.
