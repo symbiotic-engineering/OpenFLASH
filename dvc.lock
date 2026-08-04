@@ -93,14 +93,14 @@ stages:
       size: 12332
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 304c963f85347176886d206b8c245c48.dir
-      size: 16699
-      nfiles: 22
+      md5: 3b6a1695933c1cbeadb167812effac26.dir
+      size: 14988
+      nfiles: 20
     - path: package/src/
       hash: md5
-      md5: 31d5498d1787f27085034c2abee95e5e.dir
-      size: 279541
-      nfiles: 29
+      md5: dfbd1487031bd7541529033edd91aa77.dir
+      size: 153759
+      nfiles: 18
     outs:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
@@ -202,18 +202,18 @@ stages:
       size: 11584
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 304c963f85347176886d206b8c245c48.dir
-      size: 16699
-      nfiles: 22
+      md5: 3b6a1695933c1cbeadb167812effac26.dir
+      size: 14988
+      nfiles: 20
     - path: dev/python/limiting-cases/low_m0.py
       hash: md5
       md5: 14c26f7e714c57e0de0a9b507a4a8091
       size: 5745
     - path: package/src/
       hash: md5
-      md5: 31d5498d1787f27085034c2abee95e5e.dir
-      size: 279541
-      nfiles: 29
+      md5: dfbd1487031bd7541529033edd91aa77.dir
+      size: 153759
+      nfiles: 18
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
@@ -266,9 +266,9 @@ stages:
       size: 6664
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 304c963f85347176886d206b8c245c48.dir
-      size: 16699
-      nfiles: 22
+      md5: 3b6a1695933c1cbeadb167812effac26.dir
+      size: 14988
+      nfiles: 20
     outs:
     - path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
       hash: md5
@@ -325,9 +325,9 @@ stages:
       size: 4034
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 304c963f85347176886d206b8c245c48.dir
-      size: 16699
-      nfiles: 22
+      md5: 3b6a1695933c1cbeadb167812effac26.dir
+      size: 14988
+      nfiles: 20
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
@@ -398,9 +398,9 @@ stages:
       size: 45469
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 304c963f85347176886d206b8c245c48.dir
-      size: 16699
-      nfiles: 22
+      md5: 3b6a1695933c1cbeadb167812effac26.dir
+      size: 14988
+      nfiles: 20
     outs:
     - path: .calkit/notebooks/executed/analysis/convergence-results.ipynb
       hash: md5
@@ -462,9 +462,9 @@ stages:
       size: 12332
     - path: package/src/
       hash: md5
-      md5: 31d5498d1787f27085034c2abee95e5e.dir
-      size: 279541
-      nfiles: 29
+      md5: dfbd1487031bd7541529033edd91aa77.dir
+      size: 153759
+      nfiles: 18
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_data_generation.ipynb
       hash: md5
