@@ -98,9 +98,9 @@ stages:
       nfiles: 20
     - path: package/src/
       hash: md5
-      md5: dfbd1487031bd7541529033edd91aa77.dir
-      size: 153759
-      nfiles: 18
+      md5: 36ba105d18f73f87fb529158a9bf3815.dir
+      size: 94134
+      nfiles: 11
     outs:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
@@ -211,9 +211,9 @@ stages:
       size: 5745
     - path: package/src/
       hash: md5
-      md5: dfbd1487031bd7541529033edd91aa77.dir
-      size: 153759
-      nfiles: 18
+      md5: 36ba105d18f73f87fb529158a9bf3815.dir
+      size: 94134
+      nfiles: 11
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
@@ -462,9 +462,9 @@ stages:
       size: 12332
     - path: package/src/
       hash: md5
-      md5: dfbd1487031bd7541529033edd91aa77.dir
-      size: 153759
-      nfiles: 18
+      md5: 36ba105d18f73f87fb529158a9bf3815.dir
+      size: 94134
+      nfiles: 11
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_data_generation.ipynb
       hash: md5
