@@ -5,6 +5,9 @@ stages:
       "analysis/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
+      - package/src/
+      - analysis/capytaine_generator.py
+      - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
@@ -51,6 +54,22 @@ stages:
       - .calkit/notebooks/html/analysis/slant_data_plots.html:
           cache: true
     desc: Automatically generated from the 'slant-figs' stage in 
+      calkit.yaml. Changes made here will be overwritten.
+  timing-data:
+    cmd: calkit nb execute --environment openflash-on-branch 
+      --no-check --to html "analysis/timing_data_generation.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
+      - analysis/capytaine_generator.py
+      - package/src/
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - analysis/data/timing.pkl
+      - .calkit/notebooks/executed/analysis/timing_data_generation.ipynb:
+          cache: false
+      - .calkit/notebooks/html/analysis/timing_data_generation.html:
+          cache: false
+    desc: Automatically generated from the 'timing-data' stage in 
       calkit.yaml. Changes made here will be overwritten.
   timing-figs:
     cmd: calkit nb execute --environment openflash-on-branch 

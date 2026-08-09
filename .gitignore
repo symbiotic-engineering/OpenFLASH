@@ -213,7 +213,7 @@ html/
 # Calkit build artifacts
 .calkit/env-locks/
 .calkit/logs/
-.calkit/notebooks/executed/
+.calkit/notebooks/executed/*
 .calkit/notebooks/cleaned/
 
 # latex appendix files
@@ -223,3 +223,16 @@ pubs/**/*.glo-abr
 pubs/**/*.ist
 pubs/**/*.mw
 pubs/**/*.slo
+
+.calkit/*
+.calkit/notebooks/*
+.calkit/notebooks/executed/analysis/*
+.calkit/notebooks/html/*
+.calkit/notebooks/html/analysis/*
+!.calkit/notebooks/executed/
+!.calkit/notebooks/executed/analysis/
+!.calkit/notebooks/executed/analysis/timing_data_generation.ipynb
+!.calkit/notebooks/
+!.calkit/notebooks/html/
+!.calkit/notebooks/html/analysis/
+!.calkit/notebooks/html/analysis/timing_data_generation.html
