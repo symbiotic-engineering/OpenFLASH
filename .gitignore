@@ -215,6 +215,15 @@ html/
 .calkit/logs/
 .calkit/notebooks/executed/*
 .calkit/notebooks/cleaned/
+
+# latex appendix files
+pubs/**/*.acn
+pubs/**/*.glo
+pubs/**/*.glo-abr
+pubs/**/*.ist
+pubs/**/*.mw
+pubs/**/*.slo
+
 .calkit/*
 .calkit/notebooks/*
 .calkit/notebooks/executed/analysis/*

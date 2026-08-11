@@ -39,6 +39,11 @@
     \usepackage{etoolbox}
     \usepackage{hyperref}
 
+    % glossary - must come after hyperref
+    \usepackage[nopostdot,acronym,abbreviations,symbols,nogroupskip,toc=false,symbols,section=subsection]{glossaries-extra}
+    \usepackage{morewrites}
+    \input{symbol-glossary-jfm.tex}
+    \makeglossaries
 
     \newtheorem{lemma}{Lemma}
     \newtheorem{corollary}{Corollary}
