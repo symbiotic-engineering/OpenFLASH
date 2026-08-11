@@ -860,11 +860,11 @@ As $\lambda_0^e$ increases, the coefficient of the first exterior region eigenfu
 At $\lambda_0^e = \infty$,
 % it is no longer a valid eigenvalue, and its eigenfunction is not valid either (has contribution 0) and 
 the solution is representable without the first exterior region eigenfunction.
-The rest of the exterior region eigenvalues must be finite and satisfy $\lambda_n^e \tan (\lambda_n^e h) = - \infty$, meaning $\lambda_n^e h = (n - \frac{1}{2})\pi$ and
-\begin{equation} \lim_{\lambda_0^e \to \infty }\lambda_n^e = \frac{(n - \frac{1}{2})\pi}{h}.
+The rest of the exterior region eigenvalues must be finite and satisfy $\lambda_{n_e}^e \tan (\lambda_{n_e}^e h) = - \infty$, meaning $\lambda_{n_e}^e h = (n - \frac{1}{2})\pi$ and
+\begin{equation} \lim_{\lambda_0^e \to \infty }\lambda_{n_e}^e = \frac{(n - \frac{1}{2})\pi}{h}.
 \end{equation}
-In general, that is the lower bound for $\lambda_n^e$. 
-% For finite frequency, $(n - \frac{1}{2})\pi \le \lambda_n^e h \le n\pi$ can be passed into a root-finding solver as bounds for $\lambda_n^e$.
+In general, that is the lower bound for $\lambda_{n_e}^e$. 
+% For finite frequency, $(n - \frac{1}{2})\pi \le \lambda_{n_e}^e h \le n\pi$ can be passed into a root-finding solver as bounds for $\lambda_{n_e}^e$.
 %The sentence above is redundant since there is a section that discusses this
 
 Lastly, damping approaches zero as $\lambda_0^e$ approaches infinity.
@@ -906,10 +906,10 @@ Since this permits the use of larger truncation orders, more accurate solutions 
 Exponential Scaling Formula & Replacement Example\\
 \hline
 $I_\nu^e(z) = I_\nu(z) \cdot e^{-z}$ & 
-$\frac{I_{\nu}(\lambda r)}{I_\nu(\lambda a)} = \frac{I_\nu^e (\lambda r)}{I_\nu^ e(\lambda a)}\cdot e^{\lambda(r-a)}$\\
+$\displaystyle\frac{I_{\nu}(\lambda r)}{I_\nu(\lambda a)} = \frac{I_\nu^e (\lambda r)}{I_\nu^ e(\lambda a)}\cdot e^{\lambda(r-a)}$\\
 \hline
 $K_\nu^e(z) = K_\nu(z) \cdot e^{z}$ &
-$\frac{K_{\nu}(\lambda r)}{K_\nu(\lambda a)} = \frac{K_\nu^e (\lambda r)}{K_\nu^ e(\lambda a)}\cdot e^{\lambda(a-r)}$\\
+$\displaystyle\frac{K_{\nu}(\lambda r)}{K_\nu(\lambda a)} = \frac{K_\nu^e (\lambda r)}{K_\nu^ e(\lambda a)}\cdot e^{\lambda(a-r)}$\\
 \hline
 \end{tabular}
 \caption{Typical Bessel functions ($I_\nu(z), K_\nu(z)$) exhibit approximately exponential growth or decay.
@@ -1550,7 +1550,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 \subsection{Time Complexity}
 The runtime of the MEEM method is the time required to find the eigencoefficients, then obtain the hydrodynamic coefficients from eigencoefficients.
 We will consider a single radiation problem, meaning a single DOF is active, and all computation complexities discussed will be in terms of the number of floating-point operations.
-First, a nonlinear root-finding algorithm runs $N^e$ times to generate the $\lambda_n^e$ inputs used in the $\mathbf{A}$ matrix and $\vec{b}^q$ vector.
+First, a nonlinear root-finding algorithm runs $N^e$ times to generate the $\lambda_{n_e}^e$ inputs used in the $\mathbf{A}$ matrix and $\vec{b}^q$ vector.
 Then $\mathcal{O}(N_T)$ Bessel functions must be evaluated for the radial $\mathbf{A}$ matrix terms % if I change scaling of i1 from a2 to a1, it reduces by N-1. if I change scaling of i2 from a2 to (a1+a2)/2, it increases by 2*(M-1). So total would be 2N+10M+2K-12. see notebook p51.
 and $\mathcal{O}(N_T^2)$ elementary functions for the coupling integral $\mathbf{A}$ matrix terms.
 The linear solve roughly scales cubically with matrix size, $\mathcal{O}(N_T^3)$.
@@ -1586,20 +1586,20 @@ For comparison, Capytaine solves a matrix system whose side length scales with p
 
 \subsection{Caching}
 Computations can be cached depending on the variable changing between runs (Table~\ref{jfm:tab:reusable-dependence}).
-First, $\mathbf{A}$'s form is independent of whether each region is heaving or fixed ($\eta_m$), enabling the form in Eq.~\ref{jfm:A_pq B_pq matrix form} where a single $\mathbf{A}$ works with all possible $\vec b^q$ and $\vec c_p$ for the geometry (collected into the matrices $\mathbf{B}$ and $\mathbf{C}$). This implies that many of the operations that are used to solve a particular $\mathbf{A}\vec x^q = \vec b^q$ can be cached and reused as the $\eta_m$ vary.
+First, $\mathbf{A}$'s form is independent of whether each region is heaving or fixed ($\eta_m$), enabling the form in Eq.~\ref{jfm:A_pq B_pq matrix form} where a single $\mathbf{A}$ works with all possible $\vec b^q$ and $\vec c_p$ for the geometry (collected into the matrices $\mathbf{B}$ and $\mathbf{C}$). This implies that many of the operations that are used to solve a particular $\mathbf{A}\vec{x}_q = \vec b^q$ can be cached and reused as the $\eta_m$ vary.
 
 With respect to varying $\omega$, only entries in $\mathbf{A}$ and $\vec b^q$ related to the $i_m$-$e$ region boundary are affected (and specifically, only the vertical eigenfunction components of those entries), so relatively few entries are changed when sweeping frequencies.
 Additionally, a common use case for hydrodynamics solvers is evaluating multiple geometries in the same environment (at the same depth and sweeping the same range of frequencies).
-The $\lambda_n^e$, which depend only on $h$ and $\omega$, can be reused between such runs.
+The $\lambda_{n_e}^e$, which depend only on $h$ and $\omega$, can be reused between such runs.
 
 \begin{table}
 \centering \begin{tabular}{|l|c|c|}
 \hline
 & Depends on $\omega$ & Independent of $\omega$\\
 \hline
-Depends on all $\eta_m$ & $\vec b^q, \vec x^q$ & $\vec c_p$\\
+Depends on all $\eta_m$ & $\vec b^{\,q}, \vec x_q$ & $\vec c_p$\\
 \hline
-Independent of all $\eta_m$ & $\lambda_n^e, \boldsymbol{\mathcal{Z}}^{i_M e},\mathbf{A}$& -- \\
+Independent of all $\eta_m$ & $\lambda_{n_e}^e, \boldsymbol{\mathcal{Z}}^{i_M e},\mathbf{A}$& -- \\
 \hline
 \end{tabular}
 \caption{Dependencies of various objects on $\omega$ and which regions are heaving.
@@ -1619,7 +1619,7 @@ However, it does not reduce the number of Bessel calculations required to obtain
 Future work could examine whether other renormalizations exist that avoid calculations overall. 
 
 % \paragraph{Analytical Matrix Insights}
-As appendix~\ref{jfm:sec:Forms of Matrix A} shows, the $\mathbf{A}$ matrix is highly structured and can be expressed as an element-wise product of a radial and a vertical factor.
+As Appendix~\ref{jfm:sec:Forms of Matrix A} shows, the $\mathbf{A}$ matrix is highly structured and can be expressed as an element-wise product of a radial and a vertical factor.
 Further application of linear algebra concepts could potentially yield alternative matrix expressions that would reduce computation time and enhance theoretical insights.
 For example, the Hadamard-Kronecker mixed product property, Kronecker inverse, and blockwise matrix inversion could be explored to potentially obtain an analytical expression for $\mathbf{A}^{-1}$, while low-rank approximation theory could perhaps augment the experimental results of the convergence study with theoretical guarantees.
 
@@ -1647,20 +1647,20 @@ For the corresponding slant-discretized geometry with $M=16$, 1501 of the 2235 $
 If this trend holds more broadly, then the aforementioned optimization may therefore be of particular utility to decrease the compute time for slanted geometries.
 \begingroup
 \begin{table}
-\centering \begin{tabular}{|l|c|}
-\hline
-Function & Order of Time Complexity\\
-\hline
-Nonlinear solve for $\lambda_n^e$ & $N^e$\\
-\hline
+\centering \begin{tabular}{lc}
+\toprule
+\textbf{Function} & \textbf{Order of Time Complexity}\\
+\toprule
+Nonlinear solve for $\lambda_{n_e}^e$ & $N^e$\\
+\midrule
 Coupling integrals ($\boldsymbol{\mathcal{Z}}^{i_m i_{m+1}}, \boldsymbol{\mathcal{Z}}^{i_M e}$) & $(\sum_{m=1}^{M-1} N^{i_m}N^{i_{m+1}}) + N^{i_M}N^e$\\
-\hline
+\midrule
 Bessel Functions in $\mathbf{A}$ *& $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m}) + N^e$\\
-\hline
-Matrix solve ($\mathbf{A}\vec x^q = \vec b^q$) & $(N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m}) + N^e)^3$\\
-\hline
+\midrule
+Matrix solve ($\mathbf{A} \vec{x}_q = \vec b^q$) & $(N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m}) + N^e)^3$\\
+\midrule
 Hydrodynamic Coefficients* & $N^{i_1}+2\cdot(\sum_{m=2}^{M} N^{i_m})$\\
-\hline
+\bottomrule
 \end{tabular}
 \caption{Time complexities of major components of MEEM. All are represented as proportional to the number of times being called, except the matrix solve, which depends on the matrix size.
 \\ * The Bessel functions evaluations in $\vec c_p$ are the same as those in $\mathbf{A}$, so they are cached and their associated time ignored in measuring the time contributions of the $\vec c_p$ calculation.} \label{jfm:tab:time-complexities} \end{table}
