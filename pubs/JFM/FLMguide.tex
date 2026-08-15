@@ -359,11 +359,11 @@ is a block bi-diagonal matrix composed of sub-matrices
 $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices, 
 as shown in Table~\ref{jfm:tab:MEEM-A-matrix}. 
 The vector of unknowns has the form 
-$\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^T \in \mathbb{C}^{N_\mathrm{T}}$, 
+$\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^{\top} \in \mathbb{C}^{N_\mathrm{T}}$, 
 where $\vec{C}_{\chi}^{j} = [C_{\chi1}^j, C_{\chi2}^j, ..., C_{\chi(N^j-1)}^j]$.
 Index $j\in\{i_1,i_2,...,i_M,e\}$ specifies the region and $\chi\in\{1,2\}$ specifies the eigenfunction type. 
 Column vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ consists of sub-vectors $\vec{b}_m$ such that 
-$\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. 
+$\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^{\top}$. 
 Each sub-matrix $\mathbf{A}_m$ and sub-vector $\vec{b}_m$ contains information about the matching of the potential and velocity at $r=a_m$. 
 
 Depending on which fluid region is taller, there are two cases of $\mathbf{A}_m$: 
@@ -719,7 +719,7 @@ Also, while there are $M$ interior regions, multiple regions may form a single b
 Thus, for a system with a total of $M$ interior regions and $Q$ heave degrees of freedom (DOFs), $Q \le M$. 
 
 Moving forward, $\mathbf{A} \vec{x}_q = \vec{b}^q$ will indicate the system of equations associated with the motion of only the $q$th body (and DOF) of the system, while all other bodies are fixed.
-Thus, $\vec{b}^q=[\vec{b}^q_1,\vec{b}^q_2,...,\vec{b}^q_M]^T$. Note that the matrix $\mathbf{A}$ does not depend on which body is moving.
+Thus, $\vec{b}^q=[\vec{b}^q_1,\vec{b}^q_2,...,\vec{b}^q_M]^{\top}$. Note that the matrix $\mathbf{A}$ does not depend on which body is moving.
 Meanwhile, $\vec{b}^q$, and hence the solution $\vec{x}_q$, does.
 This is because $\vec{b}^q$ contains integrals of particular potentials, which are zero for stationary regions and non-zero for moving regions.
 
@@ -815,7 +815,7 @@ Once all matrices are found, one can construct the equation of motion of the sys
 \begin{equation}\label{jfm:eq: EOM}
     (\mathbf{M} + \mathbf{A}_\mathrm{r}(\omega)) \ddot{\vec{\xi}} + \mathbf{B}_\mathrm{r}(\omega) \dot{\vec{\xi}} + \mathbf{K} \vec{\xi} =\mathrm{Re} \{ A \vec{X} e^{-\mathrm{i} \omega t} \}
 \end{equation}
-where $\vec{\xi}(t) = [\xi_1(t), \xi_2(t), \dots,  \xi_Q(t)]^T$ is a vector containing the heave displacements of the $Q$ bodies of the system, $\omega$ is the wave frequency, and $A$ is the wave amplitude.
+where $\vec{\xi}(t) = [\xi_1(t), \xi_2(t), \dots,  \xi_Q(t)]^{\top}$ is a vector containing the heave displacements of the $Q$ bodies of the system, $\omega$ is the wave frequency, and $A$ is the wave amplitude.
 
 \subsection{Low, High, and Infinite Frequency Approximations}
 The wave frequency $\omega$ and wavenumber $\lambda_0^e$ are related by the dispersion relation in Table \ref{jfm:tab:MEEM-eigenfunctions}, which is monotonic and depends on $h$.
@@ -1000,7 +1000,7 @@ This is a consequence of Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec}
     \hfill
     \begin{subfigure}{0.09\textwidth}
         \includegraphics[width=\textwidth]{figs/C_sparsity_plot.pdf}
-        \caption{$\mathbf{C}^T$}
+        \caption{$\mathbf{C}^{\top}$}
         \label{jfm:fig:sparsityC}
     \end{subfigure}
     \caption{Sparsity pattern in the $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ matrices.

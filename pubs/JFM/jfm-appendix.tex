@@ -139,22 +139,22 @@ and
 \end{equation}
  are row vectors of radial eigenfunctions;
 \begin{equation}
-    \vec{C}_1^\ell=[C_{10}^\ell, C_{11}^\ell,\dots, C_{1(N^\ell-1)}^\ell]^T
+    \vec{C}_1^\ell=[C_{10}^\ell, C_{11}^\ell,\dots, C_{1(N^\ell-1)}^\ell]^{\top}
 \end{equation}
 and
 \begin{equation}
-    \vec{C}_2^\ell=[C_{20}^\ell, C_{21}^\ell,\dots, C_{2(N^\ell-1)}^\ell]^T
+    \vec{C}_2^\ell=[C_{20}^\ell, C_{21}^\ell,\dots, C_{2(N^\ell-1)}^\ell]^{\top}
 \end{equation}
  are column vectors of eigencoefficients; and
 \begin{equation}
 \begin{aligned}
-    &\vec{Z}^\ell(z)=[Z_0^\ell(z),Z_1^\ell(z),\dots, Z_{(N^\ell-1)}^\ell(z)]^T 
+    &\vec{Z}^\ell(z)=[Z_0^\ell(z),Z_1^\ell(z),\dots, Z_{(N^\ell-1)}^\ell(z)]^{\top} 
 \end{aligned}
 \end{equation}
 are column vectors of vertical eigenfunctions, where $\ell$ is $\mathrm{s}$ or $\mathrm{t}$.
 Additionally,  
 \begin{equation}
-    \begin{aligned}    &\boldsymbol{\mathcal{Z}}^\mathrm{st}=\boldsymbol{\mathcal{Z}}^\mathrm{ts}{}^T=\int_{-h}^{-d_\mathrm{s}} \vec{Z}^\mathrm{s}{}(z) \otimes \vec{Z}^\mathrm{t}(z) \mathrm{d}z
+    \begin{aligned}    &\boldsymbol{\mathcal{Z}}^\mathrm{st}=\boldsymbol{\mathcal{Z}}^\mathrm{ts}{}^{\top}=\int_{-h}^{-d_\mathrm{s}} \vec{Z}^\mathrm{s}{}(z) \otimes \vec{Z}^\mathrm{t}(z) \mathrm{d}z
 \end{aligned}
 \end{equation}
 is an $N^\mathrm{s} \times N^\mathrm{t}$ matrix of coupling integrals; $\mathbf{1}_{N^\mathrm{s}1}$ and $\mathbf{1}_{N^\mathrm{t}1}$ are $N^\mathrm{s} \times 1$ and $N^\mathrm{t} \times 1$ matrices of ones, respectively; $\odot$ is the Hadamard (element-wise) product; and $\otimes$ is outer product. 
@@ -171,7 +171,7 @@ Note that all coupling integrals have closed form solutions.
 The element in the $n_\mathrm{s}$th row and $n_\mathrm{t}$th column of the coupling integral matrix associated with matching between region $i_m$ and $i_{m+1}$ is
 
 \begin{equation}\label{jfm:coupling integral i_m and i_m+1}
-    [\boldsymbol{\mathcal{Z}}^{\text{s} \text{t}} ]_{n_\mathrm{s}n_\mathrm{t}}=-\frac{\sin ((d_\text{s}-h) (\lambda_{n_\mathrm{s}}^{\text{s}}-\lambda_{n_\mathrm{t}}^{\text{t}}))}{\lambda_{n_\mathrm{s}}^{\text{s}}-\lambda_{n_\mathrm{t}}^{\text{t}}}-\frac{\sin ((d_\text{s}-h) (\lambda_{n_\mathrm{s}}^{\text{s}}+\lambda_{n_\mathrm{t}}^{\text{t}}))}{\lambda_{n_\mathrm{s}}^{\text{s}}+\lambda_{n_\mathrm{t}}^{\text{t}}},
+    [\boldsymbol{\mathcal{Z}}^{\text{s} \text{t}} ]_{n_\mathrm{s}n_\mathrm{t}}=-\frac{\sin((d_\text{s}-h) (\lambda_{n_\mathrm{s}}^{\text{s}}-\lambda_{n_\mathrm{t}}^{\text{t}}))}{\lambda_{n_\mathrm{s}}^{\text{s}}-\lambda_{n_\mathrm{t}}^{\text{t}}}-\frac{\sin((d_\text{s}-h) (\lambda_{n_\mathrm{s}}^{\text{s}}+\lambda_{n_\mathrm{t}}^{\text{t}}))}{\lambda_{n_\mathrm{s}}^{\text{s}}+\lambda_{n_\mathrm{t}}^{\text{t}}},
 \end{equation}
 
 \noindent where the superscripts and subscripts associated with the shorter and taller fluid are assigned to $i_m$ or $i_{m+1}$ depending on if $d_m>d_{m+1}$ or $d_{m+1}>d_m$.
@@ -181,9 +181,9 @@ The element in the $n_M$th row and $n_e$th column of the coupling integral matri
     [\boldsymbol{\mathcal{Z}}^{i_M e} ]_{n_Mn_e}=
     - \sqrt{\frac{1}{2N_{n_e}}} 
     \left( 
-        \frac{\sin ((d_M-h) (\lambda_{n_e}^{e}-\lambda_{n_M}^{i_M}))}
+        \frac{\sin((d_M-h) (\lambda_{n_e}^{e}-\lambda_{n_M}^{i_M}))}
         {(\lambda_{n_e}^{e}-\lambda_{n_M}^{i_M})} 
-        + \frac{\sin ((d_M-h) (\lambda_{n_e}^{e}+\lambda_{n_M}^{i_M}))}
+        + \frac{\sin((d_M-h) (\lambda_{n_e}^{e}+\lambda_{n_M}^{i_M}))}
         {(\lambda_{n_e}^{e}+\lambda_{n_M}^{i_M})}
     \right).
 \end{equation}
@@ -197,10 +197,10 @@ Note that Eq.~\ref{jfm:coupling integral i_m and i_m+1} and~\ref{jfm:coupling in
 
 
 Rewriting Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for each of the $M$ boundaries, where the symbols representing the smaller $\mathrm{s}$ and taller $\mathrm{t}$ regions are replaced by the region names of the problem (i.e. $i_1, i_2,\dots,  i_M,e$) and $a$ is replaced by $a_m$, yields a set of $N_\mathrm{T}$ equations that are linear with respect to the unknown eigencoefficients.
-The structure of these equations is in the form of $\mathbf{A} \vec{x}=\vec{b}$ where the matrix $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ contains the left-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients), the vector $\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^T \in \mathbb{C}^{N_\mathrm{T}}$ contains all eigencoefficients, and the vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ contains the right-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
+The structure of these equations is in the form of $\mathbf{A} \vec{x}=\vec{b}$ where the matrix $\mathbf{A} \in \mathbb{C}^{N_\mathrm{T}\times N_\mathrm{T}}$ contains the left-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients), the vector $\vec{x}=[\vec{C}_{1}^{i_1}, \vec{C}_{1}^{i_2}, \vec{C}_{2}^{i_2},\dots, \vec{C}_{1}^{i_M}, \vec{C}_{2}^{i_M}, \vec{C}_{1}^{e}]^{\top} \in \mathbb{C}^{N_\mathrm{T}}$ contains all eigencoefficients, and the vector $\vec{b} \in \mathbb{R}^{N_\mathrm{T}}$ contains the right-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
 As shown in Table~\ref{jfm:tab:MEEM-A-matrix}, $\mathbf{A}$ is a block bi-diagonal matrix composed of sub-matrices $\mathbf{A}_1,\mathbf{A}_2,\dots, \mathbf{A}_M$ and zero matrices.
 Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $m$th boundary.
-The corresponding right-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} are contained in $\vec{b}_m$, which form the vector $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^T$. 
+The corresponding right-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} are contained in $\vec{b}_m$, which form the vector $\vec{b}=[\vec{b}_1,\vec{b}_2,\dots, \vec{b}_M]^{\top}$. 
 %
 \section{Forms of Matrix A}\label{jfm:sec:Forms of Matrix A}
 The matrix $\mathbf{A}_m$ can be written as 
