@@ -46,7 +46,7 @@ Substituting this into the Laplace equation and separating each variable yields 
 where $\gls{sym-R-r}(\gls{sym-hat-e-r})$, $\gls{sym-Theta}(\gls{sym-theta})$, and $\gls{sym-Z}(\gls{sym-hat-e-z})$ are eigenfunctions, and $\gls{sym-lambda}$ and $\gls{sym-nu}$ are eigenvalues.
 Since we are considering a vertically axisymmetric geometry and only heave motion, $\gls{sym-Theta}=1$ and $\gls{sym-nu}=0$.
 This leaves the vertical and radial eigenfunctions to be determined.
-As discussed in \citet{chatzigeorgiou2018analytical}, there are two cases of the eigenvalue $\gls{sym-lambda}$ to consider: $\gls{sym-lambda} \in \gls{sym-mathbb-R}^{Q \times Q}$ and $\gls{sym-lambda} \in \gls{sym-mathbb-I}$. In the first case, Eq.~\ref{jfm:eq:R-ODE} is the Bessel differential equation with Bessel and Hankel functions of the first and second kinds being solutions.
+As discussed in \citet{chatzigeorgiou2018analytical}, there are two cases of the eigenvalue $\gls{sym-lambda}$ to consider: $\gls{sym-lambda} \in \gls{sym-mathbb-R}$ and $\gls{sym-lambda} \in \gls{sym-mathbb-I}$. In the first case, Eq.~\ref{jfm:eq:R-ODE} is the Bessel differential equation with Bessel and Hankel functions of the first and second kinds being solutions.
 In the second case, Eq.~\ref{jfm:eq:R-ODE} is the modified Bessel differential equation with modified Bessel functions of the first and second kinds being solutions.
 
 The expression for $\gls{sym-N-n-e}$ is defined as:
@@ -62,7 +62,7 @@ The expression for $\gls{sym-N-n-e}$ is defined as:
 %
 \section{Matching Equations}\label{jfm:appB}
 Since both the value of the potential and fluid velocity must match at the boundary of neighboring regions, there are a total of $2\gls{sym-M}$ matching equations.
-However, these equations alone are not enough to solve for all eigencoefficients since the number of unknowns is greater than the number of equations ($\gls{sym-mathbb-R}^{N_{\mathrm{T}}} >2\gls{sym-M}$).
+However, these equations alone are not enough to solve for all eigencoefficients since the number of unknowns is greater than the number of equations ($\gls{sym-N-T} >2\gls{sym-M}$).
 To generate an equal number of equations as unknowns, the orthogonality of the vertical eigenfunctions can be leveraged to isolate the unknown coefficients in the finite series. 
 
 % Consider a generic function $Y(x)$ expressed as a series with coefficients $\alpha$ and basis functions $e(x)$: $Y(x)=\sum_i \alpha_i e_i(x)$.
@@ -196,8 +196,14 @@ Note that Eq.~\ref{jfm:coupling integral i_m and i_m+1} and~\ref{jfm:coupling in
 
 
 
-Rewriting Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for each of the $\gls{sym-M}$ boundaries, where the symbols representing the smaller $\gls{sym-mathrm-s}$ and taller $\gls{sym-mathrm-t}$ regions are replaced by the region names of the problem (i.e. $\gls{sym-i-1}, \gls{sym-i-2},\dots,  \gls{sym-i-M},e$) and $\gls{sym-a}$ is replaced by $\gls{sym-a-m}$, yields a set of $\gls{sym-mathbb-R}^{N_{\mathrm{T}}}$ equations that are linear with respect to the unknown eigencoefficients.
-The structure of these equations is in the form of $\gls{sym-mathbf-A} \gls{sym-vec-x}=\gls{sym-vec-b}$ where the matrix $\gls{sym-mathbf-A} \in \gls{sym-mathbb-C-Q}^{\gls{sym-mathbb-R}^{N_{\mathrm{T}}}\times \gls{sym-mathbb-R}^{N_{\mathrm{T}}}}$ contains the left-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients), the vector $\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{sym-vec-C-2-i-2},\dots, \gls{sym-vec-C-1-i-M}, \gls{sym-vec-C-2-i-M}, \gls{sym-vec-C-1-e}]^{\top} \in \gls{sym-mathbb-C-Q}^{\gls{sym-mathbb-R}^{N_{\mathrm{T}}}}$ contains all eigencoefficients, and the vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{Q \times Q}^{\gls{sym-mathbb-R}^{N_{\mathrm{T}}}}$ contains the right-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
+Rewriting Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for each of the $\gls{sym-M}$ boundaries, where the symbols representing the smaller $\gls{sym-mathrm-s}$ and taller $\gls{sym-mathrm-t}$ regions are replaced by the region names of the problem (i.e. $\gls{sym-i-1}, \gls{sym-i-2},\dots,  \gls{sym-i-M},e$) and $\gls{sym-a}$ is replaced by $\gls{sym-a-m}$, yields a set of $\gls{sym-N-T}$ equations that are linear with respect to the unknown eigencoefficients.
+The structure of these equations is in the form of
+$\gls{sym-mathbf-A} \gls{sym-vec-x}=\gls{sym-vec-b}$ where the matrix
+$\gls{sym-mathbf-A} \in \gls{sym-mathbb-C}^{ \gls{sym-N-T} \times \gls{sym-N-T}}$
+contains the left-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients),
+the vector $\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{sym-vec-C-2-i-2},\dots, \gls{sym-vec-C-1-i-M}, \gls{sym-vec-C-2-i-M}, \gls{sym-vec-C-1-e}]^{\top} \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$
+contains all eigencoefficients,
+and the vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ contains the right-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
 As shown in Table~\ref{jfm:tab:MEEM-A-matrix}, $\gls{sym-mathbf-A}$ is a block bi-diagonal matrix composed of sub-matrices $\gls{sym-mathbf-A-1},\gls{sym-mathbf-A-2},\dots, \gls{sym-mathbf-A-M}$ and zero matrices.
 Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $\gls{sym-m}$th boundary.
 The corresponding right-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} are contained in $\gls{sym-vec-b-m}$, which form the vector $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
@@ -230,9 +236,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
     &  
     $\gls{sym-N-i-m}$
     &  
-    $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+    $N^{i_{m+1}}$
     & 
-    $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+    $N^{i_{m+1}}$
     \\ \hline \hline 
       
       % Row 1
@@ -256,15 +262,15 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         $\frac{\partial}{\partial \gls{sym-hat-e-r}}\gls{sym-phi-i-m}=\frac{\partial}{\partial \gls{sym-hat-e-r}}\gls{sym-phi-i-m-1}$ 
         \\ at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} 
         & 
-        $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+        $N^{i_{m+1}}$
         & 
-        $ \mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-1-i-m-2}$ 
+        $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m-2}$ 
         & 
-        $ \mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-2-i-m-2}$ 
+        $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-2-i-m-2}$ 
         & 
-        $\mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1}  \frac{\partial}{\partial \gls{sym-hat-e-r}} \gls{sym-vec-R-1-i-m-1}$ 
+        $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial \gls{sym-hat-e-r}} \gls{sym-vec-R-1-i-m-1}$ 
         & 
-        $\mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1}  \frac{\partial}{\partial \gls{sym-hat-e-r}} \gls{sym-vec-R-2-i-m-1}$ 
+        $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial \gls{sym-hat-e-r}} \gls{sym-vec-R-2-i-m-1}$ 
         \\ \hline
     \end{tabular}
     \caption{\gls{acr-meem} $\gls{sym-mathbf-A-m-r}$ sub-matrix when $\gls{sym-d-m}>\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-t}$). 
@@ -292,9 +298,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
     &  
     $\gls{sym-N-i-m}$
     &  
-    $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+    $N^{i_{m+1}}$
     & 
-    $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+    $N^{i_{m+1}}$
     \\ \hline \hline 
       
     % Row 1
@@ -304,15 +310,15 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
                 at $\gls{sym-hat-e-r}=\gls{sym-a-m}$
                 } 
     & 
-    $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$ 
+    $N^{i_{m+1}}$ 
     & 
-    $ \mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-1-i-m-2}$ 
+    $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m-2}$ 
     & 
-    $\mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-2-i-m-2}$ 
+    $\mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-2-i-m-2}$ 
     & 
-    $\mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-1-i-m-1}$ 
+    $\mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m-1}$ 
     & 
-    $ \mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1}  \gls{sym-vec-R-2-i-m-1}$ 
+    $ \mathbf{1}_{N^{i_{m+1}}1}  \gls{sym-vec-R-2-i-m-1}$ 
     \\ \hline
       
       % Row 2
@@ -362,9 +368,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         &  
         $\gls{sym-N-i-m}$
         &  
-        $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+        $N^{i_{m+1}}$
         & 
-        $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+        $N^{i_{m+1}}$
     \\ \hline \hline 
       
       % Row 1
@@ -391,7 +397,7 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
             at $\gls{sym-hat-e-r}=\gls{sym-a-m}$
         } 
         & 
-        $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+        $N^{i_{m+1}}$
         & 
         $\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m}$ 
         & 
@@ -429,9 +435,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         &  
         $\gls{sym-N-i-m}$
         &  
-        $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+        $N^{i_{m+1}}$
         & 
-        $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+        $N^{i_{m+1}}$
     \\ \hline \hline 
       
       % Row 1
@@ -440,7 +446,7 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         \\ 
         at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} 
         & 
-        $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$ 
+        $N^{i_{m+1}}$ 
         & 
         $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} $ 
         & 

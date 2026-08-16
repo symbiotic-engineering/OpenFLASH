@@ -208,7 +208,7 @@ Specifically, the body's radius versus depth profile must be continuous and mono
 which excludes cases where the bottom of a fluid region touches a body.
 Spatial and temporal dependencies can be separated as 
 $\gls{sym-Phi-mathrm-T}(\gls{sym-mathbf-x},\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-phi-mathrm-T}(\gls{sym-mathbf-x})e^{-i \gls{sym-omega} \gls{sym-t}}\}$, 
-where $\gls{sym-phi-mathrm-T} \in \gls{sym-mathbb-C-Q}$ 
+where $\gls{sym-phi-mathrm-T} \in \gls{sym-mathbb-C}$ 
 and $\gls{sym-omega}$ is the angular frequency of the incident wave. 
 
 The total complex potential $\gls{sym-phi-mathrm-T}$ can be written as 
@@ -256,7 +256,7 @@ $\gls{sym-phi-i-m-mathrm-p}$ will only be non-zero in the heaving regions.
 This is indicated by the separate cases of the particular potentials shown in Table~\ref{jfm:tab:MEEM-eigenfunctions}. 
 $\textrm{\gls{sym-I-prime}}_0$, $\textrm{\gls{sym-K}}_0$, and $\textrm{\gls{sym-mathrm-H-0-1}}_0^1$ 
 are the zeroth-order modified Bessel function of the first kind, modified Bessel function of the second kind, and Hankel function of the first kind, respectively. 
-All eigenfunctions in Table~\ref{jfm:tab:MEEM-eigenfunctions} are real, except $R_{10}^{e}(\gls{sym-hat-e-r})\in\gls{sym-mathbb-C-Q}$.
+All eigenfunctions in Table~\ref{jfm:tab:MEEM-eigenfunctions} are real, except $R_{10}^{e}(\gls{sym-r})\in\gls{sym-mathbb-C}$.
 The expression for $\gls{sym-N-n-e}$ is defined in Appendix~\ref{jfm:appA}.
 This expression scales the vertical eigenfunctions of the exterior region, and is not to be confused with $\gls{sym-N-e}$ the number of terms in that region. 
 
@@ -316,7 +316,7 @@ $\gls{sym-C-1n-m-i-m}$, $\gls{sym-C-2n-m-i-m}$, and $\gls{sym-C-1n-e-e}$.
 Note that $\gls{sym-C-2n-1-i-1}=\gls{sym-C-2n-e-e}=0$. 
 In practice, the infinite series for the $\gls{sym-i-1}$, $\gls{sym-i-m}$ for $\gls{sym-m}>1$, and $e$ regions 
 are truncated at $\gls{sym-N-i-1}-1$, $\gls{sym-N-i-m}-1$, and $\gls{sym-N-e}-1$, yielding a total of 
-$\gls{sym-mathbb-R}^{N_{\mathrm{T}}} =\gls{sym-N-i-1}+\sum_{\gls{sym-m}=2}^{\gls{sym-M}}2\gls{sym-N-i-m}+\gls{sym-N-e}$ unknown eigencoefficients. 
+$\gls{sym-N-T} =\gls{sym-N-i-1}+\sum_{\gls{sym-m}=2}^{\gls{sym-M}}2\gls{sym-N-i-m}+\gls{sym-N-e}$ unknown eigencoefficients. 
 To solve for these unknowns, radial boundary conditions must be imposed at each interface between regions.
 
 For a geometry with $\gls{sym-M}$ interior regions (and one exterior region), there are $\gls{sym-M}$ vertical boundaries. 
@@ -355,17 +355,21 @@ The details of this process are discussed in Appendix~\ref{jfm:appB}.
 
 \subsection{Block Matrix Structure}\label{jfm:sec:Block Matrix Structure}
 The system of equations is in the form $\gls{sym-mathbf-A} \gls{sym-vec-x}=\gls{sym-vec-b}$. 
-$\gls{sym-mathbf-A} \in \gls{sym-mathbb-C-Q}^{\gls{sym-mathbb-R}^{N_{\mathrm{T}}}\times \gls{sym-mathbb-R}^{N_{\mathrm{T}}}}$ 
+$\gls{sym-mathbf-A} \in
+\gls{sym-mathbb-C}^{
+                    \gls{sym-N-T}
+                    \times
+                    \gls{sym-N-T}}$
 is a block bi-diagonal matrix composed of sub-matrices 
 $\gls{sym-mathbf-A-1},\gls{sym-mathbf-A-2},\dots, \gls{sym-mathbf-A-M}$ and zero matrices, 
 as shown in Table~\ref{jfm:tab:MEEM-A-matrix}. 
 The vector of unknowns has the form 
-$\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{sym-vec-C-2-i-2},\dots, \gls{sym-vec-C-1-i-M}, \gls{sym-vec-C-2-i-M}, \gls{sym-vec-C-1-e}]^{\top} \in \gls{sym-mathbb-C-Q}^{\gls{sym-mathbb-R}^{N_{\mathrm{T}}}}$, 
+$\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{sym-vec-C-2-i-2},\dots, \gls{sym-vec-C-1-i-M}, \gls{sym-vec-C-2-i-M}, \gls{sym-vec-C-1-e}]^{\top} \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$, 
 where $\vec{C}_{\chi}^{j} = [\gls{sym-C-chi1-j}, \gls{sym-C-chi2-j}, ..., \gls{sym-C-chi-N-j-1-j}]$.
 Index $\gls{sym-vec-e-j}\in\{\gls{sym-i-1},\gls{sym-i-2},...,\gls{sym-i-M},e\}$ specifies the region and $\gls{sym-chi}\in\{1,2\}$ specifies the eigenfunction type. 
-Column vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{Q \times Q}^{\gls{sym-mathbb-R}^{N_{\mathrm{T}}}}$ consists of sub-vectors $\gls{sym-vec-b-m}$ such that 
+Column vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ consists of sub-vectors $\gls{sym-vec-b-m}$ such that 
 $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
-Each sub-matrix $\mathbf{A}_m$ and sub-vector $\gls{sym-vec-b-m}$ contains information about the matching of the potential and velocity at $\gls{sym-hat-e-r}=\gls{sym-a-m}$. 
+Each sub-matrix $\mathbf{A}_m$ and sub-vector $\gls{sym-vec-b-m}$ contains information about the matching of the potential and velocity at $\gls{sym-r}=\gls{sym-a-m}$. 
 
 Depending on which fluid region is taller, there are two cases of $\mathbf{A}_m$: 
 1) when $\gls{sym-d-m}>\gls{sym-d-m-1}$, which is shown in Table~\ref{jfm:tab:MEEM-A_m-matrix-case-1},  and 
@@ -384,11 +388,29 @@ When $\gls{sym-m}=1$, the $\gls{sym-vec-C-2-i-1}$ column should be excluded from
 since the only unknowns associated with $\gls{sym-phi-i1}$ are $\gls{sym-vec-C-1-i-1}$.
 Similarly, when $\gls{sym-m}=\gls{sym-M}$, all $\gls{sym-i-m-1}$ indices should be replaced with $e$, 
 $\gls{sym-d-m-1}$ should be set to zero, and the $\gls{sym-vec-C-2-i-m-1}$ column should be excluded from $\gls{sym-mathbf-A-M}$.
-Consequently, $\mathbf{A}_m \in \gls{sym-mathbb-R}^{Q \times Q}^{(\gls{sym-N-i-m} + \gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }) \times (2\gls{sym-N-i-m} + 2\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) })}$, 
-while $\gls{sym-mathbf-A-1} \in \gls{sym-mathbb-R}^{Q \times Q}^{(\gls{sym-N-i-1} + N^{i_{2}}) \times (\gls{sym-N-i-1} + 2\gls{sym-N-i-2})}$ 
-and $\gls{sym-mathbf-A-M} \in \gls{sym-mathbb-C-Q}^{(\gls{sym-N-i-M} + \gls{sym-N-e}) \times (2\gls{sym-N-i-M} + \gls{sym-N-e})}$.
+Consequently,
+$\mathbf{A}_m \in
+\gls{sym-mathbb-R}^{
+                    (N^{i_m} + N^{i_{m+1}})
+                    \times
+                    (2N^{i_m} + 2N^{i_{m+1}})
+                    }$, 
+while
+$\gls{sym-mathbf-A-1} \in
+\gls{sym-mathbb-R}^{
+                    (N^{i_1} + N^{i_{2}})
+                    \times
+                    (N^{i_1} + 2N^{i_2})
+                    }$ 
+and
+$\gls{sym-mathbf-A-M} \in
+\gls{sym-mathbb-C}^{
+                        (\gls{sym-N-i-M} + \gls{sym-N-e})
+                        \times
+                        (2\gls{sym-N-i-M} + \gls{sym-N-e})}$.
 This is consistent with Table~\ref{jfm:tab:MEEM-A-matrix}. 
-Comparing Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1} and \ref{jfm:tab:MEEM-A_m-matrix-case-2}, each $\mathbf{A}_m$ sub-matrix contains four square diagonal blocks and four rectangular dense blocks but differs in the location of each block type.
+Comparing Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1} and \ref{jfm:tab:MEEM-A_m-matrix-case-2},
+each $\mathbf{A}_m$ sub-matrix contains four square diagonal blocks and four rectangular dense blocks but differs in the location of each block type.
 Diagonal blocks arise from orthogonality of the vertical eigenfunctions within a given region,
 and dense blocks arise from coupling of the vertical eigenfunctions between adjacent regions.
 
@@ -396,7 +418,8 @@ Tables~\ref{jfm:tab:MEEM-b_m-vector-case-1} and \ref{jfm:tab:MEEM-b_m-vector-cas
 show the two cases of $\gls{sym-vec-b-m}$ sub-vectors, which have closed form solutions.
 For $1 \le \gls{sym-m} \le \gls{sym-M}-1$, these can be used without modification to obtain all vectors $\gls{sym-vec-b-m}$.
 For $\gls{sym-m}=\gls{sym-M}$, Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} is modified so that any $\gls{sym-i-m-1}$ indices are replaced with $e$ and $\gls{sym-d-m-1}$ is set to zero. 
-Additionally, Appendix~\ref{jfm:sec:Forms of Matrix A} shows that each sub-matrix $\mathbf{A}_m$ decomposes into an element-wise product of purely radial and purely vertical components: $\mathbf{A}_m = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$.
+Additionally, Appendix~\ref{jfm:sec:Forms of Matrix A} shows that each sub-matrix $\mathbf{A}_m$ decomposes into an element-wise product of purely radial and purely vertical components:
+$\mathbf{A}_m = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$.
 
 After constructing the $\gls{sym-mathbf-A}$ matrix and $\gls{sym-vec-b}$ vector 
 that correspond to the problem's geometry and wave conditions, 
@@ -492,8 +515,26 @@ Potential can then be integrated to find the hydrodynamic forces.
     \centering
     \begin{tabular}{|>{\centering\arraybackslash}p{0.18\linewidth}|c||c|c|c|c|c|}
     \hline
-     & & $\gls{sym-vec-C-1-i-m}$& $\gls{sym-vec-C-2-i-m}$& $\gls{sym-vec-C-1-i-m-1}$ & $\gls{sym-vec-C-2-i-m-1}$ \\\hline 
-      &size&  $\gls{sym-N-i-m}$&  $\gls{sym-N-i-m}$&  $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$& $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$\\ \hline \hline 
+     & 
+     & $\gls{sym-vec-C-1-i-m}$
+     & $\gls{sym-vec-C-2-i-m}$
+     & $\gls{sym-vec-C-1-i-m-1}$ 
+     & $\gls{sym-vec-C-2-i-m-1}$ 
+     \\\hline 
+      &size
+      &  $\gls{sym-N-i-m}$
+      &  $\gls{sym-N-i-m}$
+      &  $\gls{sym-mathbb-R}^{
+                                (N^{i_m} + N^{i_{m+1}} )
+                                \times
+                                ( 2N_{i_m} + 2N_{i_{m+1}} )
+                              }$
+      & $\gls{sym-mathbb-R}^{
+                                (N^{i_m} + N^{i_{m+1}} )
+                                \times
+                                ( 2N_{i_m} + 2N_{i_{m+1}} ) 
+                            }$
+    \\ \hline \hline 
       
       % Row 1
       \shortstack{
@@ -516,11 +557,11 @@ Potential can then be integrated to find the hydrodynamic forces.
       \shortstack{
         $\frac{\partial}{\partial \gls{sym-hat-e-r}}\gls{sym-phi-i-m}=\frac{\partial}{\partial \gls{sym-hat-e-r}}\gls{sym-phi-i-m-1}$ 
         \\ 
-        at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} & $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+        at $\gls{sym-r}=\gls{sym-a-m}$} & $N^{i_{m}}$
         & 
-        $\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-1-i-m-2}$ 
+        $\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{N^{i_{m}}1} \gls{sym-vec-R-1-i-m-2}$ 
         & 
-        $\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-2-i-m-2}$ 
+        $\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{N^{i_{m}}1} \gls{sym-vec-R-2-i-m-2}$ 
         & 
         $-(\gls{sym-h}-\gls{sym-d-m-1}) \mathrm{diag}\left( \frac{\partial}{\partial \gls{sym-hat-e-r}} \gls{sym-vec-R-1-i-m-1}\right)$ 
         & 
@@ -555,9 +596,9 @@ Potential can then be integrated to find the hydrodynamic forces.
     &  
     $\gls{sym-N-i-m}$
     &  
-    $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+    $N^{i_{m+1}}$
     & 
-    $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+    $N^{i_{m+1}}$
     \\ \hline \hline 
       
       % Row 1
@@ -566,11 +607,11 @@ Potential can then be integrated to find the hydrodynamic forces.
         \\ 
         at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} 
         & 
-        $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$ 
+        $N^{i_{m}}$ 
         & 
-        $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-1-i-m-2}$ 
+        $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{N^{i_{m}}1} \gls{sym-vec-R-1-i-m-2}$ 
         & 
-        $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }1} \gls{sym-vec-R-2-i-m-2}$ 
+        $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{N^{i_{m}}1} \gls{sym-vec-R-2-i-m-2}$ 
         & 
         $(\gls{sym-h}-\gls{sym-d-m-1}) \mathrm{diag}\left( \gls{sym-vec-R-1-i-m-1}\right)$ 
         & 
@@ -610,7 +651,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
       \shortstack{$\gls{sym-phi-i-m}=\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} & $\gls{sym-N-i-m}$ & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m}}\left( \gls{sym-phi-mathrm-p-i-m-1} - \gls{sym-phi-mathrm-p-i-m} \right) \gls{sym-vec-Z-i-m} \mathrm{d}\gls{sym-hat-e-z}$\\ \hline
       
       % Row 2
-      \shortstack{$\frac{\partial}{\partial \gls{sym-hat-e-r}}\gls{sym-phi-i-m}=\frac{\partial}{\partial \gls{sym-hat-e-r}}\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} & $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$
+      \shortstack{$\frac{\partial}{\partial \gls{sym-hat-e-r}}\gls{sym-phi-i-m}=\frac{\partial}{\partial \gls{sym-hat-e-r}}\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} & $N^{i_{m}}$
         & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m-1}}
         \frac{
                 \partial \gls{sym-phi-mathrm-p-i-m-1}
@@ -641,7 +682,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
       &size& \\ \hline \hline 
       
       % Row 1
-      \shortstack{$\gls{sym-phi-i-m}=\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} & $\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }$ & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m-1}}\left( \gls{sym-phi-mathrm-p-i-m-2} - \gls{sym-phi-mathrm-p-i-m-1} \right) \gls{sym-vec-Z-i-m-1} \mathrm{d}\gls{sym-hat-e-z}$\\ \hline
+      \shortstack{$\gls{sym-phi-i-m}=\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-hat-e-r}=\gls{sym-a-m}$} & $N^{i_{m}}$ & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m-1}}\left( \gls{sym-phi-mathrm-p-i-m-2} - \gls{sym-phi-mathrm-p-i-m-1} \right) \gls{sym-vec-Z-i-m-1} \mathrm{d}\gls{sym-hat-e-z}$\\ \hline
       
       % Row 2
       \shortstack{
@@ -782,11 +823,12 @@ The result is
 \begin{equation}\label{jfm:A_pq B_pq scalar form}
     \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\mathrm{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}}=2\gls{sym-pi} \gls{sym-rho} (\gls{sym-c-p}\gls{sym-delta-pq} + \gls{sym-vec-c-p} \ \vec{x}_q) =2\gls{sym-pi} \gls{sym-rho} (\gls{sym-c-p}\gls{sym-delta-pq} + \gls{sym-vec-c-p} \ \mathbf{A}^{-1} \gls{sym-vec-b-q})
 \end{equation}
-with output scalar $\gls{sym-c-p} \in \gls{sym-mathbb-R}^{Q \times Q}$
+with output scalar $\gls{sym-c-p} \in \gls{sym-mathbb-R}^{\gls{sym-Q} \times \gls{sym-Q}}$
 \begin{equation}
      \gls{sym-c-p} =  \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p} } \frac{\left({a^2_{{m+1}}}-{\gls{sym-a-m}}\right)\,\left(-{\gls{sym-a-m}}-{a^2_{{m+1}}}+4(\gls{sym-h}-\gls{sym-d-m})^2\right)}{16\,\left(\gls{sym-h} - \gls{sym-d-m}\right)}, 
 \end{equation}
-where $\gls{sym-delta-pq}$ is the Kronecker delta symbol, and output row vector $\gls{sym-vec-c-p} =[\gls{sym-vec-c-p-i-1}, \ \vec{c}_p^{ \ i_2}, \dots,  \gls{sym-vec-c-p-i-M},  \gls{sym-vec-c-p-e}]\in \gls{sym-mathbb-C-Q}^{\gls{sym-mathbb-R}^{N_{\mathrm{T}}}}$, where
+where $\gls{sym-delta-pq}$ is the Kronecker delta symbol, and output row vector $\gls{sym-vec-c-p} =[\gls{sym-vec-c-p-i-1}, \ \vec{c}_p^{ \ i_2}, \dots,  \gls{sym-vec-c-p-i-M},  \gls{sym-vec-c-p-e}]
+\in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$, where
 \begin{equation}\label{jfm:eq:c_q_i1_vec}
     \gls{sym-vec-c-p-i-1} = \left\{\begin{matrix} \gls{sym-vec-Z-i-1}(-\gls{sym-d-1}) \odot\gls{sym-vec-mathcal-R-1-i-1} & \text{when} \ m \in \gls{sym-mathcal-M-p} \\
     \vec{0}_{\gls{sym-N-i-1}} & \text{when} \ m \notin \gls{sym-mathcal-M-p}
@@ -801,7 +843,7 @@ where $\gls{sym-delta-pq}$ is the Kronecker delta symbol, and output row vector 
 for $2\le \gls{sym-m} \le \gls{sym-M}$, and $\gls{sym-vec-c-p-e} = \vec{0}_{\gls{sym-N-e}}$. 
 Note that $\vec{0}_{\gls{sym-k-generic-index}}$ denotes a $\gls{sym-k-generic-index}$-long row vector of zeros and $\vec{\mathcal{R}}_{\chi}^{j}$ is a vector of integrals of radial eigenfunctions for region $\gls{sym-vec-e-j}$ with closed form solutions in Appendix~\ref{jfm:appC}. 
 The vector $\gls{sym-vec-c-p}$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $\gls{sym-m}$th region in the $\gls{sym-vec-x-q}$ vector in Eq.~\ref{jfm:A_pq B_pq scalar form}. 
-By applying Eq.~\ref{jfm:A_pq B_pq scalar form} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$ and $\gls{sym-p}=1,2,\dots, \gls{sym-Q}$, we can express the added mass matrix $\gls{sym-mathbf-A-mathrm-r}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{Q \times Q}^{\gls{sym-Q} \times \gls{sym-Q}}$ and radiation damping matrix $\gls{sym-mathbf-B-mathrm-r}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{Q \times Q}^{\gls{sym-Q} \times \gls{sym-Q}}$ as
+By applying Eq.~\ref{jfm:A_pq B_pq scalar form} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$ and $\gls{sym-p}=1,2,\dots, \gls{sym-Q}$, we can express the added mass matrix $\gls{sym-mathbf-A-mathrm-r}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q} \times \gls{sym-Q}}$ and radiation damping matrix $\gls{sym-mathbf-B-mathrm-r}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q} \times \gls{sym-Q}}$ as
 \begin{equation}\label{jfm:A_pq B_pq matrix form}
     \gls{sym-mathbf-A-mathrm-r}(\gls{sym-omega}) + \frac{\mathrm{i}\gls{sym-mathbf-B-mathrm-r}(\gls{sym-omega})}{\gls{sym-omega}}=2\gls{sym-pi} \gls{sym-rho} (\gls{sym-mathbf-C-0} + \gls{sym-mathbf-C} \ \mathbf{X}) =2\gls{sym-pi} \gls{sym-rho} (\gls{sym-mathbf-C-0} + \gls{sym-mathbf-C} \ \mathbf{A}^{-1} \ \mathbf{B})
 \end{equation}
@@ -820,7 +862,7 @@ The heave excitation force on the $\gls{sym-q}$th body is
     \gls{sym-X-q} = \frac{-4 \text{i} \gls{sym-rho} \gls{sym-g} \gls{sym-h} \sqrt{\gls{sym-N-0}} }{\cosh(\gls{sym-lambda-0-e}h)\text{\gls{sym-mathrm-H-0-1}}_0^1(\gls{sym-lambda-0-e} \gls{sym-a-M})} \ _{}^{\gls{sym-q}}C_{10}^e
 \end{equation}
 where $\gls{sym-g}$ is the acceleration due to gravity, $\gls{sym-lambda-0-e}$ is the wavenumber, $\textrm{\gls{sym-mathrm-H-0-1}}_0^1$ is the zeroth-order Hankel function of the first kind, and $_{}^{\gls{sym-q}}C_{10}^e$ is the eigencoefficient in the exterior region for $\gls{sym-n-e}=0$ when only the $\gls{sym-q}$th body is heaving.
-By applying Eq.~\ref{jfm:eq:excitation force} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$, we can find the heave excitation force coefficient vector $\gls{sym-vec-X} \in \gls{sym-mathbb-C-Q}^{\gls{sym-Q}}$, which is a column vector with the element $\gls{sym-X-q}$ in the $\gls{sym-q}$th entry.
+By applying Eq.~\ref{jfm:eq:excitation force} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$, we can find the heave excitation force coefficient vector $\gls{sym-vec-X} \in \gls{sym-mathbb-C}^{\gls{sym-Q}}$, which is a column vector with the element $\gls{sym-X-q}$ in the $\gls{sym-q}$th entry.
 
 % The magnitude and phase are
 % \begin{equation}\label{jfm:eq:gamma-K}
@@ -1066,8 +1108,8 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 Characterizing the convergence \behaviour{} of numerical solvers is crucial for ensuring accuracy while avoiding unnecessarily long runtimes. 
 For \gls{acr-bem} solvers, a mesh convergence study is typically performed, where the number of panels is increased until a desired level of accuracy of the hydrodynamic coefficients is achieved. 
 As the matrix size of \gls{acr-bem} is equal to the number of panels, improving accuracy through finer meshes comes with added computational cost. 
-In the case of \gls{acr-meem}, the \behaviour{} is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $\gls{sym-mathbb-R}^{N_{\mathrm{T}}} = \gls{sym-N-i-1} + 2\sum_{\gls{sym-m}=2}^{\gls{sym-M}} \gls{sym-N-i-m} + \gls{sym-N-e}$ can be increased. 
-Furthermore, higher values of $\gls{sym-mathbb-R}^{N_{\mathrm{T}}}$ imply larger matrix sizes, leading to longer runtime. 
+In the case of \gls{acr-meem}, the \behaviour{} is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $\gls{sym-N-T} = \gls{sym-N-i-1} + 2\sum_{\gls{sym-m}=2}^{\gls{sym-M}} \gls{sym-N-i-m} + \gls{sym-N-e}$ can be increased. 
+Furthermore, higher values of $\gls{sym-N-T}$ imply larger matrix sizes, leading to longer runtime. 
 The goal of this convergence study is to determine the number of terms $\gls{sym-N-i-m}$ per region needed to achieve a desired maximum error $\gls{sym-epsilon}$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being \modelled{}. 
 
 This study makes two simplifying assumptions about the \behaviour{} of the convergence, which are found to be reasonably accurate for the configurations considered. 
@@ -1682,7 +1724,7 @@ If this trend holds more broadly, then the aforementioned optimization may there
 \toprule
 \gls{acr-nl} solve for $\gls{sym-lambda-n-e-e}$ & $\gls{sym-N-e}$\\
 \midrule
-Coupling integrals ($\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1}, \gls{sym-boldsymbol-mathcal-Z-i-M-e}$) & $(\sum_{\gls{sym-m}=1}^{\gls{sym-M}-1} \gls{sym-N-i-m}\gls{sym-mathbb-R}^{ (N^{i_m} + N^{i_{m+1}} ) \times ( 2N_{i_m} + 2N_{i_{m+1}} ) }) + \gls{sym-N-i-M}\gls{sym-N-e}$\\
+Coupling integrals ($\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1}, \gls{sym-boldsymbol-mathcal-Z-i-M-e}$) & $(\sum_{\gls{sym-m}=1}^{\gls{sym-M}-1} \gls{sym-N-i-m}N^{i_{m}}) + \gls{sym-N-i-M}\gls{sym-N-e}$\\
 \midrule
 Bessel Functions in $\gls{sym-mathbf-A}$ *& $\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m}=2}^{\gls{sym-M}} \gls{sym-N-i-m}) + \gls{sym-N-e}$\\
 \midrule
