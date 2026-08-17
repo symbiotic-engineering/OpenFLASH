@@ -164,7 +164,7 @@ Additionally, previous work does not directly address the convergence \behaviour
 This work presents a unifying \gls{acr-meem} framework that arranges equations into an organized sparse matrix structure. 
 This framework is used to model an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous radially-monotonic profiles. 
 The method’s convergence \behaviour{}, ability to accurately approximate slanted bodies, and computational advantages over the \gls{acr-bem} solver Capytaine are explored. 
-The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for \gls{acr-an} \& Semi-analytical Hydrodynamics, \citep{best_openflash_2026,best_openflash-code_2026}) that is used for numerical studies herein.
+The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \citep{best_openflash_2026,best_openflash-code_2026}) that is used for numerical studies herein.
 % The lack of an accessible computational implementation, including the numerical properties and accuracy thereof, has been a barrier.
 
 Section~\ref{jfm:sec:mathematical-formulation} formulates the mathematics, unifies the aforementioned literature in a consistent notation, 
@@ -254,7 +254,7 @@ These solutions are chosen since they satisfy the boundary conditions (Eq.~\ref{
 Note that, when \modelling{} a set of cylindrical rings heaving while all other rings are fixed, 
 $\gls{sym-phi-i-m-mathrm-p}$ will only be non-zero in the heaving regions. 
 This is indicated by the separate cases of the particular potentials shown in Table~\ref{jfm:tab:MEEM-eigenfunctions}. 
-$\textrm{\gls{sym-I-prime}}_0$, $\textrm{\gls{sym-K}}_0$, and $\textrm{\gls{sym-mathrm-H-0-1}}_0^1$ 
+$\gls{sym-mathrm-I-0}$, $\gls{sym-mathrm-K-0}$, and $\gls{sym-mathrm-H-0-1}$
 are the zeroth-order modified Bessel function of the first kind, modified Bessel function of the second kind, and Hankel function of the first kind, respectively. 
 All eigenfunctions in Table~\ref{jfm:tab:MEEM-eigenfunctions} are real, except $R_{10}^{e}(\gls{sym-r})\in\gls{sym-mathbb-C}$.
 The expression for $\gls{sym-N-n-e}$ is defined in Appendix~\ref{jfm:appA}.
@@ -947,7 +947,7 @@ When their contribution goes to zero, the matrix (and its solution) become real,
     \caption{Left: Comparison of the low frequency approximation, the infinite frequency limit, and standard \gls{acr-meem} (with $\gls{sym-N-i-m} = \gls{sym-N-e} = 100$) for the geometry described in Section~\ref{jfm:sec:validation}.
 Right: A comparison of the first four $C^{i_2}_{1n}$ over low frequencies, demonstrating that the \behaviour{} of $C^{i_2}_{10}$ eventually dominates as frequency approaches zero for both the real and imaginary parts.
 This trend is representative of the other $C^{i_m}_{1n}$ and $C^{i_m}_{2n}$.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-Low-Freq.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.}
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-Low-Freq.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig: extreme-frequencies}
 \end{figure} 
 
@@ -1024,7 +1024,7 @@ and the corresponding limit for the vertical coupling integral
 \end{equation}
 %\hl{check this formula}
 
-\subsubsection{\gls{acr-nl} Solve of $\gls{sym-lambda-n-e-e}$}\label{jfm:sec:nonlin-solve}
+\subsubsection{Nonlinear Solve of $\gls{sym-lambda-n-e-e}$}\label{jfm:sec:nonlin-solve}
 A final numerical subtlety worth discussing is finite precision effects in calculating $\gls{sym-lambda-n-e-e}$.
 Bounds of $180^\textrm{o}\cdot[\gls{sym-n-e}-\frac{1}{2}, \gls{sym-n-e}]$ are placed on $\gls{sym-lambda-n-e-e}h$ in a root-finding algorithm to ensure the $\gls{sym-n-e}$th root is identified.
 Degrees are used instead of radians so asymptotes occur at rational values.
@@ -1075,7 +1075,7 @@ This is a consequence of Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec}
         \label{jfm:fig:sparsityC}
     \end{subfigure}
     \caption{Sparsity pattern in the $\gls{sym-mathbf-A}$, $\gls{sym-mathbf-B}$, and $\gls{sym-mathbf-C}$ matrices.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fsparsity_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.}
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fsparsity_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:sparsity}
 \end{figure}
 
@@ -1099,7 +1099,7 @@ and the trade-offs between accuracy and computation time for \gls{acr-meem} and 
     \centering
     \includegraphics[width=0.95\linewidth]{figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf}
     \caption{Added mass, radiation damping, excitation magnitude, and excitation phase from \gls{acr-meem} and Capytaine for CorPower-like \gls{acr-wec} without slanted portions.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM_vs_Capytaine_Nonslant_Validation.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.}
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM_vs_Capytaine_Nonslant_Validation.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:hydro coeff validation}
 \end{figure} 
 
@@ -1126,7 +1126,7 @@ Convergence is faster for larger $\gls{sym-alpha-i-m}$ and smaller $\gls{sym-bet
     \caption{Left: Added mass and damping calculated for a three body region configuration at $\gls{sym-N-i-1} = \gls{sym-N-i-3} = \gls{sym-N-e} = 200$ with region $\gls{sym-i-2}$ heaving, for varying $\gls{sym-N-i-2}$. 
     Right: The data at left is transformed to the natural log of the associated error, 
     and fitted to obtain error envelope parameters $\gls{sym-alpha}, \gls{sym-beta}$ for each of added mass and damping.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2Falpha-beta-explanation.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.}
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2Falpha-beta-explanation.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:error-model}
 \end{figure}
 
@@ -1188,7 +1188,7 @@ For example, some relationships appear nearly linear with negative slope on the 
     \centering
     \includegraphics[width=0.9\linewidth]{figs/alpha-beta-to-trend.pdf}
     \caption{Process of choosing the fitting function for each dimensionless parameter (here $\frac{\gls{sym-h}-\gls{sym-d-2}}{\gls{sym-a-2} - \gls{sym-a-1}}$), once identified.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2Falpha-beta-to-trend.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.}
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2Falpha-beta-to-trend.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:choosing-fitting-functions}
 \end{figure}
 
@@ -1357,7 +1357,7 @@ By characterizing the convergence \behaviour{} a priori and using the predicted 
     \caption{Randomly generated (described in Sec.~\ref{jfm:sec:convergence-fit-assessment}) configurations with the target region heaving were fit with the product of the dependencies in Table~\ref{jfm:tab:final-fitting-functions}; 
     the accuracy of the resulting fits for predicting $1\%$ error are shown. 
     Note that the whiskers are at the 5th and 95th percentile, $\gls{sym-n}$ here is the size of each set of configurations, and configurations were selected that converged by $\gls{sym-N-i-m} = 150$.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2Fconvergence-fit-assessment.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.} 
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2Fconvergence-fit-assessment.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.} 
     \label{jfm:fig:convergence-fit-assessment}
 \end{figure}
 
@@ -1465,7 +1465,7 @@ While accurate hydrodynamic coefficients were obtained using the \gls{acr-meem} 
         \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
     \fi
     \caption{Comparison of the radiated velocity potential computed from \gls{acr-meem} and Capytaine. (a) and (c) show the real part of the potential from \gls{acr-meem}, (b) and (d) show the error in the real potential from \gls{acr-meem} relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fslant_data_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.} %In (b), points with $\mathrm{Re}(\Phi) < 0.2$ (near zero, creating large relative errors) are masked.
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fslant_data_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.} %In (b), points with $\mathrm{Re}(\Phi) < 0.2$ (near zero, creating large relative errors) are masked.
     \label{jfm:fig:contour potential comparison plots}
 \end{figure}
 
@@ -1489,7 +1489,7 @@ potentially limiting \gls{acr-meem}'s computational advantage over the more gene
     \caption{Convergence of the hydrodynamic coefficients of five cones of varying steepness calculated with \gls{acr-meem}'s step approximation (radius $10$, $\gls{sym-h}=50$, $\gls{sym-omega} = 1$, $\gls{sym-N-i-m} = \gls{sym-N-e} = 400$).
 Subdivisions calculated ranged from $1$ to $30$.
 Error was calculated relative to values given by Capytaine. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. 
-    Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FVary-Slopes.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. 
+    Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FVary-Slopes.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. 
     }
     \label{jfm:fig:slope-dependence}
 \end{figure}
@@ -1510,7 +1510,7 @@ In Sec.~\ref{jfm:sec:compute-time} we explore the computation costs of \gls{acr-
 \gls{acr-meem} approximates the slanted region using 30 subdivisions.
 Right: \gls{acr-geo} from left plots at $\gls{sym-omega} = 1$.
 In both cases, \gls{acr-meem} uses $\gls{sym-N-i-m} = \gls{sym-N-e} = 400$ and Capytaine has $5940$ panels.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Slant-Freq.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.}
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Slant-Freq.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:MEEM slant comparison}
 \end{figure} 
 
@@ -1741,7 +1741,7 @@ Hydrodynamic Coefficients* & $\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m}=2}^{\gls{
     \includegraphics[width=\linewidth]{figs/MEEM-Comp-Distribution.pdf}
     \caption{Left: Distribution of function computation times for the geometry in Fig.~\ref{jfm:fig:hydro coeff validation}, varying the terms per region.
 Right: The function taking the most computation time for combinations of region count and terms per region, assuming the same number of terms per region.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-Comp-Distribution.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.}
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-Comp-Distribution.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:time-dominance}
 \end{figure}
 %
@@ -1752,7 +1752,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
     \includegraphics[width=\linewidth]{figs/MEEM-CPT-Time-Matrix-Comparison.pdf}
     \caption{For the CorPower \gls{acr-wec} geometry in Fig.~\ref{jfm:fig:hydro coeff validation} at $\gls{sym-omega} = 1$, the accuracy of \gls{acr-meem} vs. Capytaine are compared over different $\gls{sym-N-i-m} = \gls{sym-N-e}$ and panel counts, through the associated computation time and matrix sizes.
 The ``true values'' used to compute accuracies were determined by \gls{acr-meem} with $\gls{sym-N-i-m} = \gls{sym-N-e} = 300$.
-Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Time-Matrix-Comparison.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/\gls{acr-meem}/meem}{CoCalc}.}
+Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Time-Matrix-Comparison.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:time-matrix-comparison}
 \end{figure}
 
@@ -1912,7 +1912,7 @@ All in all, \gls{acr-meem} holds computational promise as a result of its semi-a
 
     \section*{Funding Information}
     This work was supported in part by Sandia National Laboratories through the Marine Energy Seedlings Program for National Laboratories from the U.S. Department of Energy and Sandia's Laboratory Directed Research \& Development (LDRD) program through the Sandia University Partnerships Network. 
-    Sandia National Laboratories is a multimission laboratory managed and operated by National Technology \& Engineering Solutions of Sandia, LLC, a wholly owned subsidiary of Honeywell International Inc., for the U.S. Department of Energy's National Nuclear Security Administration under contract \gls{acr-de}-NA0003525.
+    Sandia National Laboratories is a multimission laboratory managed and operated by National Technology \& Engineering Solutions of Sandia, LLC, a wholly owned subsidiary of Honeywell International Inc., for the U.S. Department of Energy's National Nuclear Security Administration under contract DE-NA0003525.
 
     This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-2139899.
 Any opinion, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
@@ -1966,7 +1966,7 @@ Any opinion, findings, and conclusions or recommendations expressed in this mate
 
     \begin{bmhead}[Funding Information.]
     This work was supported in part by Sandia National Laboratories through the Marine Energy Seedlings Program for National Laboratories from the U.S. Department of Energy and Sandia's Laboratory Directed Research \& Development (LDRD) program through the Sandia University Partnerships Network. 
-    Sandia National Laboratories is a multimission laboratory managed and operated by National Technology \& Engineering Solutions of Sandia, LLC, a wholly owned subsidiary of Honeywell International Inc., for the U.S. Department of Energy's National Nuclear Security Administration under contract \gls{acr-de}-NA0003525.
+    Sandia National Laboratories is a multimission laboratory managed and operated by National Technology \& Engineering Solutions of Sandia, LLC, a wholly owned subsidiary of Honeywell International Inc., for the U.S. Department of Energy's National Nuclear Security Administration under contract DE-NA0003525.
 
     This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-2139899.
 Any opinion, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
