@@ -42,9 +42,7 @@
     % glossary - must come after hyperref
     \usepackage[nopostdot,acronym,abbreviations,symbols,nogroupskip,toc=false,symbols,section=subsection]{glossaries-extra}
     \usepackage{morewrites}
-    \input{symbol-glossary-jfm.tex}
-    \input{glossary-acronyms.tex}
-    \makeglossaries
+    \input{glossary-setup.tex}
 
     \newtheorem{lemma}{Lemma}
     \newtheorem{corollary}{Corollary}
@@ -1567,7 +1565,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 % \begin{figure}[htbp]
 %     \centering
 %     \includegraphics[width=0.95\linewidth]{figs/MEEM-CPT-Slant-Freq.pdf}
-%     \caption{Left: Computed hydrodynamic coefficients for the CorPower-like WEC geometry with a slanted region. MEEM approximates the slanted region using 30 subdivisions. Right: Geometry from left plots at $\omega = 1$. In both cases, MEEM uses $N^{i_m} = N^e = 400$ and Capytaine has $TODO$ panels.
+%     \caption{Left: Computed hydrodynamic coefficients for the CorPower-like \gls{acr-wec} geometry with a slanted region. MEEM approximates the slanted region using 30 subdivisions. Right: Geometry from left plots at $\omega = 1$. In both cases, MEEM uses $N^{i_m} = N^e = 400$ and Capytaine has $TODO$ panels.
 %     % Apparent convergence to values differing from Capytaine can be for two major reasons: First, MEEM is likely not converged with respect to terms per region (computed with $N_{i_m} = 250$). Second, Capytaine may not being converged, but its error at this resolution ($\approx 6000$ panels) is likely less than $1\%$ (Section~\ref{jfm:sec:meem-cpt-timing}).
 %     }
 %     \label{jfm:fig:MEEM slant comparison}
