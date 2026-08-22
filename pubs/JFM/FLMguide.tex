@@ -198,14 +198,14 @@ Such geometries include the CorPower \citep{de2016techno}, WaveBot \citep{strofe
 \subsection{Linear Hydrodynamics and Eigenfunctions}
 To model the fluid in the interior and exterior regions, linear potential flow theory is used. 
 This implies small body motion, an inviscid, irrotational, and incompressible fluid, and a wave amplitude-to-wavelength ratio less than unity \citep{mei2005theory}. 
-With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \gls{sym-Phi-mathrm-T}(\gls{sym-mathbf-x},\gls{sym-t})=0$, where the fluid velocity is $\gls{sym-mathbf-v} = \nabla \gls{sym-Phi-mathrm-T}(\gls{sym-mathbf-x},\gls{sym-t})$. 
-The potential $\gls{sym-Phi-mathrm-T}$ is a function of both time $\gls{sym-t}$ and spatial coordinates $\gls{sym-mathbf-x}$. 
+With these assumptions, the Navier-Stokes equations simplify to the Laplace equation $\nabla^2 \gls{sym-Phi-mathrm-T}(\gls{sym-mathbf-x-coords},\gls{sym-t})=0$, where the fluid velocity is $\gls{sym-mathbf-v} = \nabla \gls{sym-Phi-mathrm-T}(\gls{sym-mathbf-x-coords},\gls{sym-t})$. 
+The potential $\gls{sym-Phi-mathrm-T}$ is a function of both time $\gls{sym-t}$ and spatial coordinates $\gls{sym-mathbf-x-coords}$. 
 Since this work models only heaving vertically-axisymmetric bodies, the cylindrical coordinate system 
-$\gls{sym-mathbf-x}=(\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})$ is used, as shown in Fig.~\ref{jfm:fig:Diagram}. 
+$\gls{sym-mathbf-x-coords}=(\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})$ is used, as shown in Fig.~\ref{jfm:fig:Diagram}. 
 Specifically, the body's radius versus depth profile must be continuous and monotonic,
 which excludes cases where the bottom of a fluid region touches a body.
 Spatial and temporal dependencies can be separated as 
-$\gls{sym-Phi-mathrm-T}(\gls{sym-mathbf-x},\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-phi-mathrm-T}(\gls{sym-mathbf-x})e^{-i \gls{sym-omega} \gls{sym-t}}\}$, 
+$\gls{sym-Phi-mathrm-T}(\gls{sym-mathbf-x-coords},\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-phi-mathrm-T}(\gls{sym-mathbf-x-coords})e^{-i \gls{sym-omega} \gls{sym-t}}\}$, 
 where $\gls{sym-phi-mathrm-T} \in \gls{sym-mathbb-C}$ 
 and $\gls{sym-omega}$ is the angular frequency of the incident wave. 
 
@@ -801,7 +801,7 @@ This can be written in the frequency domain as
 \begin{equation}\label{jfm:eq:freq domain vector of rad force}
     \gls{sym-vec-hat-f-pq}(\gls{sym-omega}) = \text{i} \gls{sym-omega}  \gls{sym-rho} \iint_{\gls{sym-S-p}} \ _{}^{\gls{sym-q}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) \ \hat{n}_p dS
 \end{equation}
-where $\gls{sym-rho}$ is the density of the fluid, $\gls{sym-S-p}$ is the wetted surface of body $\gls{sym-p}$, $\gls{sym-hat-n-p}$ is the unit vector normal to the wetted surface of body $\gls{sym-p}$ pointing outward from the fluid, $\gls{sym-vec-f-pq}(\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-vec-hat-f-pq} e^{- \text{i} \gls{sym-omega} \gls{sym-t}} \}$, and $_{}^{\gls{sym-q}}\gls{sym-Phi}(\gls{sym-mathbf-x},\gls{sym-t}) = \mathrm{Re} \{ _{}^{\gls{sym-q}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) e^{- \text{i} \gls{sym-omega} \gls{sym-t}} \}$.
+where $\gls{sym-rho}$ is the density of the fluid, $\gls{sym-S-p}$ is the wetted surface of body $\gls{sym-p}$, $\gls{sym-hat-n-p}$ is the unit vector normal to the wetted surface of body $\gls{sym-p}$ pointing outward from the fluid, $\gls{sym-vec-f-pq}(\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-vec-hat-f-pq} e^{- \text{i} \gls{sym-omega} \gls{sym-t}} \}$, and $_{}^{\gls{sym-q}}\gls{sym-Phi}(\gls{sym-mathbf-x-coords},\gls{sym-t}) = \mathrm{Re} \{ _{}^{\gls{sym-q}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) e^{- \text{i} \gls{sym-omega} \gls{sym-t}} \}$.
 The left superscript of $\gls{sym-q}$ is added to distinguish the velocity potentials for different radiation problems.
 Taking the dot product of Eq.~\ref{jfm:eq:freq domain vector of rad force} with the unit vector $\gls{sym-hat-e-z}$ yields the complex heave force on body $\gls{sym-p}$ due to the motion of body $\gls{sym-q}$ 
 \begin{equation}\label{jfm:eq:freq domain scalar rad force}
