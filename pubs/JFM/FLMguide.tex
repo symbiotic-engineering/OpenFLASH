@@ -217,7 +217,7 @@ The incident wave potential for a regular wave propagating at an angle $\gls{sym
 \begin{equation}
     \gls{sym-phi-mathrm-I} = -i \frac{\gls{sym-g} \gls{sym-wave-amplitude}}{\gls{sym-omega}} 
                          \frac{\cosh \gls{sym-lambda-0-e} (\gls{sym-z}+\gls{sym-h})}{\cosh \gls{sym-lambda-0-e} \gls{sym-h}}  
-                         e^{i\gls{sym-lambda-0-e}r\cos(\gls{sym-theta}- \gls{sym-psi-I})}
+                         e^{i\gls{sym-lambda-0-e}\gls{sym-r}\cos(\gls{sym-theta}- \gls{sym-psi-I})}
 \end{equation}
 where $\gls{sym-g}$ is the acceleration due to gravity, 
 $\gls{sym-wave-amplitude}$ is the wave amplitude,
@@ -254,7 +254,7 @@ $\gls{sym-phi-mathrm-p-i-m}$ will only be non-zero in the heaving regions.
 This is indicated by the separate cases of the particular potentials shown in Table~\ref{jfm:tab:MEEM-eigenfunctions}. 
 $\gls{sym-mathrm-I-0}$, $\gls{sym-mathrm-K-0}$, and $\gls{sym-mathrm-H-0-1}$
 are the zeroth-order modified Bessel function of the first kind, modified Bessel function of the second kind, and Hankel function of the first kind, respectively. 
-All eigenfunctions in Table~\ref{jfm:tab:MEEM-eigenfunctions} are real, except $R_{10}^{e}(\gls{sym-r})\in\gls{sym-mathbb-C}$.
+All eigenfunctions in Table~\ref{jfm:tab:MEEM-eigenfunctions} are real, except $\gls{sym-R-10-e}(\gls{sym-r})\in\gls{sym-mathbb-C}$.
 The expression for $\gls{sym-N-n-e}$ is defined in Appendix~\ref{jfm:appA}.
 This expression scales the vertical eigenfunctions of the exterior region, and is not to be confused with $\gls{sym-N-e}$ the number of terms in that region. 
 
@@ -367,19 +367,19 @@ where $\vec{C}_{\chi}^{j} = [\gls{sym-C-chi1-j}, \gls{sym-C-chi2-j}, ..., \gls{s
 Index $\gls{sym-j}\in\{\gls{sym-i-1},\gls{sym-i-2},...,\gls{sym-i-M},e\}$ specifies the region and $\gls{sym-chi}\in\{1,2\}$ specifies the eigenfunction type. 
 Column vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ consists of sub-vectors $\gls{sym-vec-b-m}$ such that 
 $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
-Each sub-matrix $\mathbf{A}_m$ and sub-vector $\gls{sym-vec-b-m}$ contains information about the matching of the potential and velocity at $\gls{sym-r}=\gls{sym-a-m}$. 
+Each sub-matrix $\gls{sym-mathbf-A-m}$ and sub-vector $\gls{sym-vec-b-m}$ contains information about the matching of the potential and velocity at $\gls{sym-r}=\gls{sym-a-m}$. 
 
-Depending on which fluid region is taller, there are two cases of $\mathbf{A}_m$: 
+Depending on which fluid region is taller, there are two cases of $\gls{sym-mathbf-A-m}$: 
 1) when $\gls{sym-d-m}>\gls{sym-d-m-1}$, which is shown in Table~\ref{jfm:tab:MEEM-A_m-matrix-case-1},  and 
 2) when $\gls{sym-d-m}<\gls{sym-d-m-1}$, which is shown in Table~\ref{jfm:tab:MEEM-A_m-matrix-case-2}.
 The first case is more common, although the second case can occur for non-convex bodies.
 Corresponding right-hand-side vectors $\gls{sym-vec-b-m}$ are shown in 
 Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} and~\ref{jfm:tab:MEEM-b_m-vector-case-2}, respectively. 
-The matrix $\boldsymbol{\mathcal{Z}}^{ij}$ has size $\gls{sym-N-i} \times \gls{sym-N-j}$ 
+The matrix $\gls{sym-boldsymbol-mathcal-Z-ij}$ has size $\gls{sym-N-i} \times \gls{sym-N-j}$ 
 and contains the integrals of the products of vertical eigenfunctions in regions $i$ and $\gls{sym-j}$.
-Closed form expressions for $\boldsymbol{\mathcal{Z}}^{ij}$ are shown in Appendix~\ref{jfm:appB}. 
-The vector $\gls{sym-vec-R-chi-j}(\gls{sym-r}) = [\gls{sym-R-chi0-j}(\gls{sym-r}), \gls{sym-R-chi1-j}(\gls{sym-r}),\dots, \gls{sym-R-chi-N-j-1-j}(\gls{sym-r}) ]$ is evaluated at $\gls{sym-r}=\gls{sym-a-m}$ in each sub-matrix $\mathbf{A}_m$. 
-Furthermore, $\mathbf{1}_{ij}$ is a matrix with $i$ rows and $j$ columns containing only ones, 
+Closed form expressions for $\gls{sym-boldsymbol-mathcal-Z-ij}$ are shown in Appendix~\ref{jfm:appB}. 
+The vector $\gls{sym-vec-R-chi-j}(\gls{sym-r}) = [\gls{sym-R-chi0-j}(\gls{sym-r}), \gls{sym-R-chi1-j}(\gls{sym-r}),\dots, \gls{sym-R-chi-N-j-1-j}(\gls{sym-r}) ]$ is evaluated at $\gls{sym-r}=\gls{sym-a-m}$ in each sub-matrix $\gls{sym-mathbf-A-m}$. 
+Furthermore, $\mathbf{1}_{ij}$ is a matrix with $i$ rows and $\gls{sym-j}$ columns containing only ones, 
 and $\odot$ is the Hadamard (element-wise) product. 
 The equations in Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1}-\ref{jfm:tab:MEEM-A_m-matrix-case-2} are valid as-is when $2 \le \gls{sym-m} \le \gls{sym-M}-1$. 
 When $\gls{sym-m}=1$, the $\gls{sym-vec-C-2-i-1}$ column should be excluded from $\gls{sym-mathbf-A-1}$ 
@@ -408,7 +408,7 @@ $\gls{sym-mathbf-A-M} \in
                         (2\gls{sym-N-i-M} + \gls{sym-N-e})}$.
 This is consistent with Table~\ref{jfm:tab:MEEM-A-matrix}. 
 Comparing Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1} and \ref{jfm:tab:MEEM-A_m-matrix-case-2},
-each $\mathbf{A}_m$ sub-matrix contains four square diagonal blocks and four rectangular dense blocks but differs in the location of each block type.
+each $\gls{sym-mathbf-A-m}$ sub-matrix contains four square diagonal blocks and four rectangular dense blocks but differs in the location of each block type.
 Diagonal blocks arise from orthogonality of the vertical eigenfunctions within a given region,
 and dense blocks arise from coupling of the vertical eigenfunctions between adjacent regions.
 
@@ -416,8 +416,8 @@ Tables~\ref{jfm:tab:MEEM-b_m-vector-case-1} and \ref{jfm:tab:MEEM-b_m-vector-cas
 show the two cases of $\gls{sym-vec-b-m}$ sub-vectors, which have closed form solutions.
 For $1 \le \gls{sym-m} \le \gls{sym-M}-1$, these can be used without modification to obtain all vectors $\gls{sym-vec-b-m}$.
 For $\gls{sym-m}=\gls{sym-M}$, Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} is modified so that any $\gls{sym-i-m-1}$ indices are replaced with $e$ and $\gls{sym-d-m-1}$ is set to zero. 
-Additionally, Appendix~\ref{jfm:sec:Forms of Matrix A} shows that each sub-matrix $\mathbf{A}_m$ decomposes into an element-wise product of purely radial and purely vertical components:
-$\mathbf{A}_m = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$.
+Additionally, Appendix~\ref{jfm:sec:Forms of Matrix A} shows that each sub-matrix $\gls{sym-mathbf-A-m}$ decomposes into an element-wise product of purely radial and purely vertical components:
+$\gls{sym-mathbf-A-m} = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$.
 
 After constructing the $\gls{sym-mathbf-A}$ matrix and $\gls{sym-vec-b}$ vector 
 that correspond to the problem's geometry and wave conditions, 
@@ -566,7 +566,7 @@ Potential can then be integrated to find the hydrodynamic forces.
         $-(\gls{sym-h}-\gls{sym-d-m-1}) \mathrm{diag}\left( \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-2-i-m-1}\right)$ 
         \\ \hline
     \end{tabular}
-    \caption{\gls{acr-meem} $\mathbf{A}_m$ sub-matrix when $\gls{sym-d-m}>\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-t}$). 
+    \caption{\gls{acr-meem} $\gls{sym-mathbf-A-m}$ sub-matrix when $\gls{sym-d-m}>\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-t}$). 
     Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-r}=\gls{sym-a-m}$.}
     \label{jfm:tab:MEEM-A_m-matrix-case-1}
 \end{table}
@@ -594,9 +594,9 @@ Potential can then be integrated to find the hydrodynamic forces.
     &  
     $\gls{sym-N-i-m}$
     &  
-    $N^{i_{m+1}}$
+    $\gls{sym-N-i-m-1}$
     & 
-    $N^{i_{m+1}}$
+    $\gls{sym-N-i-m-1}$
     \\ \hline \hline 
       
       % Row 1
@@ -631,7 +631,7 @@ Potential can then be integrated to find the hydrodynamic forces.
         $\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1} \odot \mathbf{1}_{\gls{sym-N-i-m}1} \gls{sym-vec-R-2-i-m-1}$ 
         \\ \hline
     \end{tabular}
-    \caption{\gls{acr-meem} $\mathbf{A}_m$ sub-matrix when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-t}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-s}$).
+    \caption{\gls{acr-meem} $\gls{sym-mathbf-A-m}$ sub-matrix when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-t}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-s}$).
 Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-r}=\gls{sym-a-m}$.}
     \label{jfm:tab:MEEM-A_m-matrix-case-2}
 \end{table}
@@ -857,10 +857,17 @@ This was done in~\citet{chau2012inertia} and~\citet{zhang_performance_2024} for 
 The results are the same for this configuration, as the derivation for the force on the $\gls{sym-q}$th body only involves the solution in the exterior region when the $\gls{sym-q}$th body is heaving.
 The heave excitation force on the $\gls{sym-q}$th body is
 \begin{equation}\label{jfm:eq:excitation force}
-    \gls{sym-X-q} = \frac{-4 \text{i} \gls{sym-rho-w} \gls{sym-g} \gls{sym-h} \sqrt{\gls{sym-N-0}} }{\cosh(\gls{sym-lambda-0-e}h)\text{\gls{sym-mathrm-H-0-1}}_0^1(\gls{sym-lambda-0-e} \gls{sym-a-M})} \ _{}^{\gls{sym-q}}C_{10}^e
+    \gls{sym-X-q} = \frac{-4 \text{i} \gls{sym-rho-w} \gls{sym-g} \gls{sym-h} \sqrt{\gls{sym-N-0}} }{\cosh(\gls{sym-lambda-0-e}\gls{sym-h})\gls{sym-mathrm-H-0-1}(\gls{sym-lambda-0-e} \gls{sym-a-M})} \ _{}^{\gls{sym-q}}\gls{sym-C-10-e}
 \end{equation}
-where $\gls{sym-g}$ is the acceleration due to gravity, $\gls{sym-lambda-0-e}$ is the wavenumber, $\textrm{\gls{sym-mathrm-H-0-1}}_0^1$ is the zeroth-order Hankel function of the first kind, and $_{}^{\gls{sym-q}}C_{10}^e$ is the eigencoefficient in the exterior region for $\gls{sym-n-e}=0$ when only the $\gls{sym-q}$th body is heaving.
-By applying Eq.~\ref{jfm:eq:excitation force} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$, we can find the heave excitation force coefficient vector $\gls{sym-vec-X} \in \gls{sym-mathbb-C}^{\gls{sym-Q}}$, which is a column vector with the element $\gls{sym-X-q}$ in the $\gls{sym-q}$th entry.
+where \gls{sym-g} is the acceleration due to gravity,
+\gls{sym-lambda-0-e} is the wavenumber,
+\gls{sym-mathrm-H-0-1} is the zeroth-order Hankel function of the first kind,
+and $_{}^{\gls{sym-q}}\gls{sym-C-10-e}$ is the eigencoefficient in the exterior region for $\gls{sym-n-e}=0$ when only the $\gls{sym-q}$th body is heaving.
+By applying Eq.~\ref{jfm:eq:excitation force} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$,
+we can find the heave excitation force coefficient vector
+$\gls{sym-vec-X} \in \gls{sym-mathbb-C}^{\gls{sym-Q}}$,
+which is a column vector with the element
+$\gls{sym-X-q}$ in the $\gls{sym-q}$th entry.
 
 % The magnitude and phase are
 % \begin{equation}\label{jfm:eq:gamma-K}
@@ -987,17 +994,17 @@ Exponentially scaled Bessel functions counteract this and span only a few orders
 Examples of the new form of the radial eigenfunctions are shown here.} \label{jfm:tab:exp-bessels} \end{table}
 
 \subsubsection{Overflow in Vertical Eigenfunctions}
-The vertical eigenfunction $\gls{sym-Z-k-e}$ for $\gls{sym-k-generic-index}=0$ contains the $\cosh$ and $\sinh$ functions, which diverge for large values of $\gls{sym-lambda-0-e}h$ (high frequencies or deep water).
-The largest relevant value of $\gls{sym-lambda-0-e}h$ depends on the environment rather than on the floating body geometry.
-The expression overflows for $\gls{sym-lambda-0-e}h>\cosh^{-1}(\rm \gls{sym-f-max})/2$.
-To prevent overflow, we use the analytical limit derived in section~\ref{jfm:sec:high-freq-limit}, which allows for larger values of $\gls{sym-lambda-0-e}h>\cosh^{-1}(\rm \gls{sym-f-max})\gls{sym-h}/\gls{sym-d-2}$ before overflowing.
+The vertical eigenfunction $\gls{sym-Z-k-e}$ for $\gls{sym-k-generic-index}=0$ contains the $\cosh$ and $\sinh$ functions, which diverge for large values of $\gls{sym-lambda-0-e}\gls{sym-h}$ (high frequencies or deep water).
+The largest relevant value of $\gls{sym-lambda-0-e}\gls{sym-h}$ depends on the environment rather than on the floating body geometry.
+The expression overflows for $\gls{sym-lambda-0-e}\gls{sym-h}>\cosh^{-1}(\rm \gls{sym-f-max})/2$.
+To prevent overflow, we use the analytical limit derived in section~\ref{jfm:sec:high-freq-limit}, which allows for larger values of $\gls{sym-lambda-0-e}\gls{sym-h}>\cosh^{-1}(\rm \gls{sym-f-max})\gls{sym-h}/\gls{sym-d-2}$ before overflowing.
 % %\hl{This formula hasn't been numerically checked yet}
 % \begin{equation}
 %     \lim_{\lambda_0^eh\rightarrow\infty} Z_0^e(z)= \frac{\cosh^2(\lambda_0^eh)}{\sqrt{2\lambda_0^eh}}\exp\left(1+\frac{z}{h}\right)
 % \end{equation}
 Substituting this into the first element of the bottom block of the b-vector results in 
 \begin{equation}
-    \lim_{\gls{sym-lambda-0-e}h\rightarrow\infty}[\gls{sym-vec-b-M}]_0=\frac{-\gls{sym-a-M}}{\gls{sym-h}-\gls{sym-d-M}} \sqrt{\frac{\gls{sym-h}}{2\gls{sym-lambda-0-e}}}\exp(-\gls{sym-d-M}\gls{sym-lambda-0-e})
+    \lim_{\gls{sym-lambda-0-e}\gls{sym-h}\rightarrow\infty}[\gls{sym-vec-b-M}]_0=\frac{-\gls{sym-a-M}}{\gls{sym-h}-\gls{sym-d-M}} \sqrt{\frac{\gls{sym-h}}{2\gls{sym-lambda-0-e}}}\exp(-\gls{sym-d-M}\gls{sym-lambda-0-e})
 \end{equation}
 
 % \begin{figure}
@@ -1012,9 +1019,9 @@ Substituting this into the first element of the bottom block of the b-vector res
 and the corresponding limit for the vertical coupling integral
 \begin{equation}
 \begin{aligned}
-    \lim_{\gls{sym-lambda-0-e}h\rightarrow\infty}[\gls{sym-boldsymbol-mathcal-Z-i-M-e}]_{\gls{sym-n-M} 0} &
+    \lim_{\gls{sym-lambda-0-e}\gls{sym-h}\rightarrow\infty}[\gls{sym-boldsymbol-mathcal-Z-i-M-e}]_{\gls{sym-n-M} 0} &
     %= \int_{-h}^{-d_2} \vec{Z}_m^{i2 ~T}\vec{Z}_0^{e} dz 
-    = \gls{sym-h}~\frac{\cosh^2(\gls{sym-lambda-0-e}h)}{\sqrt{2\gls{sym-lambda-0-e}h}}\cdot \frac{-1+(-1)^{\gls{sym-n-M}}\exp(1-\frac{\gls{sym-d-M}}{\gls{sym-h}})}{\gls{sym-f-n-M}} \\
+    = \gls{sym-h}~\frac{\cosh^2(\gls{sym-lambda-0-e}\gls{sym-h})}{\sqrt{2\gls{sym-lambda-0-e}\gls{sym-h}}}\cdot \frac{-1+(-1)^{\gls{sym-n-M}}\exp(1-\frac{\gls{sym-d-M}}{\gls{sym-h}})}{\gls{sym-f-n-M}} \\
     \text{where}~~\gls{sym-f-n-M}&= \begin{cases}
         1, & \gls{sym-n-M}=0 \\
         \gls{sym-h}^2{(\gls{sym-lambda-n-M-i-M})}^2+1, & \gls{sym-n-M} \geq 1
@@ -1025,14 +1032,14 @@ and the corresponding limit for the vertical coupling integral
 
 \subsubsection{Nonlinear Solve of $\gls{sym-lambda-n-e-e}$}\label{jfm:sec:nonlin-solve}
 A final numerical subtlety worth discussing is finite precision effects in calculating $\gls{sym-lambda-n-e-e}$.
-Bounds of $180^\textrm{o}\cdot[\gls{sym-n-e}-\frac{1}{2}, \gls{sym-n-e}]$ are placed on $\gls{sym-lambda-n-e-e}h$ in a root-finding algorithm to ensure the $\gls{sym-n-e}$th root is identified.
+Bounds of $180^\textrm{o}\cdot[\gls{sym-n-e}-\frac{1}{2}, \gls{sym-n-e}]$ are placed on $\gls{sym-lambda-n-e-e}\gls{sym-h}$ in a root-finding algorithm to ensure the $\gls{sym-n-e}$th root is identified.
 Degrees are used instead of radians so asymptotes occur at rational values.
 
 \subsubsection{Matrix Condition Number}
-The $\mathbf{A}_m$ sub-matrix, and consequently the $\gls{sym-mathbf-A}$ matrix, frequently has a high condition number. 
+The $\gls{sym-mathbf-A-m}$ sub-matrix, and consequently the $\gls{sym-mathbf-A}$ matrix, frequently has a high condition number. 
 This arises because of the large range of the radial eigenfunction across values of $\gls{sym-n-m}$.
 More specifically, using the exponentially scaled modified bessel function of the first kind from Table~\ref{jfm:tab:exp-bessels}, 
-the ratio of the $\gls{sym-n-m}=1$ term to the $\gls{sym-n-m}=\gls{sym-N-i-m}-1$ term of the $\gls{sym-vec-R-1-i-m}$ vector in a given block of the $\mathbf{A}_m$ sub-matrix scales approximately with $\exp(2\gls{sym-pi} (\gls{sym-N-i-m}-2) \gls{sym-a-m}/(\gls{sym-h}-\gls{sym-d-m}))$.
+the ratio of the $\gls{sym-n-m}=1$ term to the $\gls{sym-n-m}=\gls{sym-N-i-m}-1$ term of the $\gls{sym-vec-R-1-i-m}$ vector in a given block of the $\gls{sym-mathbf-A-m}$ sub-matrix scales approximately with $\exp(2\gls{sym-pi} (\gls{sym-N-i-m}-2) \gls{sym-a-m}/(\gls{sym-h}-\gls{sym-d-m}))$.
 This means that the condition number of $\gls{sym-mathbf-A}$ grows roughly exponentially with the maximum truncation order of the series, and more rapidly for geometries in which large radii co-occur with large drafts.
 In principle, a high condition number means that the $\gls{sym-mathbf-A}$ matrix will amplify small deviations or numerical errors in the $\gls{sym-vec-b}$ vector to produce large errors in the $\gls{sym-vec-x}$ vector, or equivalently that the $\gls{sym-vec-x}$ vector is close to non-unique.
 However, the validation in section~\ref{jfm:sec:validation} will show that these high condition numbers do not appear to interfere with the accuracy or convergence of the solution, even when the linear algebra solver produces warnings about ill-conditioned inputs.
@@ -1042,7 +1049,7 @@ They reference some studies which likewise find no issue with the high condition
 \subsubsection{Matrix Sparsity}
 Fig.~\ref{jfm:fig:sparsity} shows the sparsity pattern of the $\gls{sym-mathbf-A}$, $\gls{sym-mathbf-B}$, and $\gls{sym-mathbf-C}$ matrices from Eq.~\ref{jfm:eq: added mass and damping matrices} for an example configuration consisting of two bi-cylinder bodies with $\gls{sym-M}=4$, $\gls{sym-mathcal-M-1} = \{1, 2\}$, $\gls{sym-mathcal-M-2} = \{3, 4\}$, $\gls{sym-N-i-m}=\gls{sym-N-e}=10$, and $\gls{sym-d-m-1}<\gls{sym-d-m}$. 
 The $\gls{sym-mathbf-A}$ matrix features a block bi-diagonal structure.
-This can be observed by partitioning $\gls{sym-mathbf-A}$ into rectangular blocks such that each block encompasses the full height and half the blockwise width of the $\mathbf{A}_m$ sub-matrix.
+This can be observed by partitioning $\gls{sym-mathbf-A}$ into rectangular blocks such that each block encompasses the full height and half the blockwise width of the $\gls{sym-mathbf-A-m}$ sub-matrix.
 The bi-diagonal structure occurs because the matching equations at a given boundary contain only unknowns from the two regions at that boundary, and not from other regions.
 Each block features its own sparsity pattern, where some portions are completely populated, 
 and others have multiple individual bands of elements due to the diagonal blocks in Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1} and \ref{jfm:tab:MEEM-A_m-matrix-case-2}. 
@@ -1286,7 +1293,7 @@ $\gls{sym-beta-B-i-M}$\
     \caption{Dependency trends on individual dimensionless parameter identified/used for fitting error predictions in body regions, based on the procedure in Fig.~\ref{jfm:fig:choosing-fitting-functions}. 
     The constants $\gls{sym-c-i} \geq 0$ in each box are placeholders and not intended have the same value between boxes. 
     Damping nearly always converges faster than added mass in the interior regions ($\gls{sym-m}<\gls{sym-M}$), so the associated fit parameters ($\gls{sym-alpha-B-i-m}$, $\gls{sym-beta-B-i-m}$) were not \analysed{}. 
-    The choice of the piecewise form of $\gls{sym-beta-B-i-M}(\gls{sym-lambda-0-e}h)$ is out of practicality for fitting: 
+    The choice of the piecewise form of $\gls{sym-beta-B-i-M}(\gls{sym-lambda-0-e}\gls{sym-h})$ is out of practicality for fitting: 
     to capture the clear $\gls{sym-beta-B-i-M} \propto \sqrt{\gls{sym-lambda-0-e} \gls{sym-h}}$ relation at high $\gls{sym-lambda-0-e} \gls{sym-h}$ while approximating the different \behaviour{} near zero.
     % Table-like figure with images of dependencies. Differentiate between inapplicable (e.g. \neighbour{} required for formula doesn't exist) and independent (plottable but no relation) for unplotted boxes. Separate for added mass and damping (likely ignore damping in interior regions for time). Only some examples will actually be plotted, most dependencies will just be formulas (or independent/inapplicable).
     }
@@ -1301,8 +1308,8 @@ In the body region $\gls{sym-i-m}$, the most important parameter is its $\frac{\
 The radial eigenfunctions here inherit their eigenvalues $\gls{sym-lambda-n-m-i-m} = \frac{\gls{sym-n}\gls{sym-pi}}{\gls{sym-h}-\gls{sym-d-m}}$ from the corresponding vertical eigenfunction.
 Thus, taller regions need higher harmonics to create the same characteristic length of resolution for radial details, and the ratio of fluid height to radial width is a ratio of resolving scale to detail.
 
-In the exterior region, the analogous relationship between the two major characteristic lengths is captured by $\gls{sym-lambda-0-e}h$.
-Convergence slows as $\gls{sym-lambda-0-e}h$ increases, particularly in the case of damping.
+In the exterior region, the analogous relationship between the two major characteristic lengths is captured by $\gls{sym-lambda-0-e}\gls{sym-h}$.
+Convergence slows as $\gls{sym-lambda-0-e}\gls{sym-h}$ increases, particularly in the case of damping.
 This trend is consistent with Sec.~\ref{jfm:sec:low-freq}, which shows that only one term per region (exterior or otherwise) is needed when $\gls{sym-lambda-0-e}$ is near zero.
 
 In the body regions, another notable local parameter is the ratio of a region's \neighbour{}s' fluid heights to that of its own.
@@ -1329,7 +1336,7 @@ By $\frac{\gls{sym-h}-\gls{sym-d-M}}{\gls{sym-h}} < 0.8$ though, there is a clea
 The final fits chosen are assessed in Fig.~\ref{jfm:fig:convergence-fit-assessment}. 
 The $\gls{sym-alpha-i-m}$ and $\gls{sym-beta-i-m}$ calculated from the dimensionless parameters are used to predict the $\gls{sym-N-i-m}$ of $1\%$ convergence, and that $\gls{sym-N-i-m}$ and associated error compared to reality. 
 The configurations in those sets were generated from uniformly at random choosing: 
-$1<\gls{sym-lambda-0-e}h<80$, three $1<\frac{\gls{sym-h}-\gls{sym-d-m}}{\gls{sym-a-m}-\gls{sym-a-m-1-2}}<30$, and three $0.05 < \frac{\gls{sym-d-m}}{\gls{sym-h}} < 0.95$ for a three body configuration. 
+$1<\gls{sym-lambda-0-e}\gls{sym-h}<80$, three $1<\frac{\gls{sym-h}-\gls{sym-d-m}}{\gls{sym-a-m}-\gls{sym-a-m-1-2}}<30$, and three $0.05 < \frac{\gls{sym-d-m}}{\gls{sym-h}} < 0.95$ for a three body configuration. 
 Also, all fits had the additional condition that if the prediction was less than $\gls{sym-N-i-m} = 20$, it was changed to $20$ to avoid egregiously high errors if the prediction was wrong. 
 In reality, many configurations can achieve $1\%$ convergence before $\gls{sym-N-i-m} = 20$.
 

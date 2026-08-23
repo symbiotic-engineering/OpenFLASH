@@ -52,11 +52,11 @@ In the second case, Eq.~\ref{jfm:eq:R-ODE} is the modified Bessel differential e
 The expression for $\gls{sym-N-n-e}$ is defined as:
 
 \begin{equation}
-    \gls{sym-N-n-e} = \frac{1}{2}\left(1+\frac{\gls{sym-f-n-e}}{2\gls{sym-lambda-n-e-e}h}  \right)~
+    \gls{sym-N-n-e} = \frac{1}{2}\left(1+\frac{\gls{sym-f-n-e}}{2\gls{sym-lambda-n-e-e}\gls{sym-h}}  \right)~
     \textrm{ where }
     \gls{sym-f-n-e} = 
     \begin{cases}
-        \sinh(2 \gls{sym-lambda-0-e} \gls{sym-h}), & \gls{sym-n-e}=0 \\ \sin(2\gls{sym-lambda-n-e-e}h), & \gls{sym-n-e}\geq1
+        \sinh(2 \gls{sym-lambda-0-e} \gls{sym-h}), & \gls{sym-n-e}=0 \\ \sin(2\gls{sym-lambda-n-e-e}\gls{sym-h}), & \gls{sym-n-e}\geq1
     \end{cases}.
 \end{equation}
 %
@@ -131,19 +131,19 @@ and
 \end{multline}
 where 
 \begin{equation}
-    \gls{sym-vec-R-1-ell}(\gls{sym-r})=[R_{10}^\ell(\gls{sym-r}), R_{11}^\ell(\gls{sym-r}),\dots, \gls{sym-R-1-N-ell-1-ell}(\gls{sym-r}) ]
+    \gls{sym-vec-R-1-ell}(\gls{sym-r})=[\gls{sym-R-10-ell}(\gls{sym-r}), \gls{sym-R-11-ell}(\gls{sym-r}),\dots, \gls{sym-R-1-N-ell-1-ell}(\gls{sym-r}) ]
 \end{equation}
 and
 \begin{equation}
-     \gls{sym-vec-R-2-ell}(\gls{sym-r})=[R_{20}^\ell(\gls{sym-r}), R_{21}^\ell(\gls{sym-r}),\dots, \gls{sym-R-2-N-ell-1-ell}(\gls{sym-r}) ] 
+     \gls{sym-vec-R-2-ell}(\gls{sym-r})=[\gls{sym-R-20-ell}(\gls{sym-r}), \gls{sym-R-21-ell}(\gls{sym-r}),\dots, \gls{sym-R-2-N-ell-1-ell}(\gls{sym-r}) ] 
 \end{equation}
  are row vectors of radial eigenfunctions;
 \begin{equation}
-    \gls{sym-vec-C-1-ell}=[C_{10}^\ell, C_{11}^\ell,\dots, \gls{sym-C-1-N-ell-1-ell}]^{\top}
+    \gls{sym-vec-C-1-ell}=[\gls{sym-C-10-ell}, \gls{sym-C-11-ell},\dots, \gls{sym-C-1-N-ell-1-ell}]^{\top}
 \end{equation}
 and
 \begin{equation}
-    \gls{sym-vec-C-2-ell}=[C_{20}^\ell, C_{21}^\ell,\dots, \gls{sym-C-2-N-ell-1-ell}]^{\top}
+    \gls{sym-vec-C-2-ell}=[\gls{sym-C-20-ell}, \gls{sym-C-21-ell},\dots, \gls{sym-C-2-N-ell-1-ell}]^{\top}
 \end{equation}
  are column vectors of eigencoefficients; and
 \begin{equation}
@@ -178,7 +178,7 @@ The element in the $\gls{sym-n-mathrm-s}$th row and $\gls{sym-n-mathrm-t}$th col
 Eq.~\ref{jfm:coupling integral i_m and i_m+1} holds for $1 \le \gls{sym-m} \le \gls{sym-M}-1$. For matching at the interface between the outermost inner region $\gls{sym-i-M}$ and the external region $e$, a different expression is used.
 The element in the $\gls{sym-n-M}$th row and $\gls{sym-n-e}$th column of the coupling integral matrix associated with matching between region $\gls{sym-i-M}$ and $e$ is
 \begin{equation}\label{jfm:coupling integral i_M and e}
-    [\gls{sym-boldsymbol-mathcal-Z-i-M-e} ]_{\gls{sym-n-M}n_e}=
+    [\gls{sym-boldsymbol-mathcal-Z-i-M-e} ]_{\gls{sym-n-M}\gls{sym-n-e}}=
     - \sqrt{\frac{1}{2\gls{sym-N-n-e}}} 
     \left( 
         \frac{\sin((\gls{sym-d-M}-\gls{sym-h}) (\gls{sym-lambda-n-e-e}-\gls{sym-lambda-n-M-i-M}))}
@@ -205,12 +205,12 @@ the vector $\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{
 contains all eigencoefficients,
 and the vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ contains the right-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
 As shown in Table~\ref{jfm:tab:MEEM-A-matrix}, $\gls{sym-mathbf-A}$ is a block bi-diagonal matrix composed of sub-matrices $\gls{sym-mathbf-A-1},\gls{sym-mathbf-A-2},\dots, \gls{sym-mathbf-A-M}$ and zero matrices.
-Each sub-matrix $\mathbf{A}_m$ contains the left-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $\gls{sym-m}$th boundary.
+Each sub-matrix $\gls{sym-mathbf-A-m}$ contains the left-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $\gls{sym-m}$th boundary.
 The corresponding right-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} are contained in $\gls{sym-vec-b-m}$, which form the vector $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
 %
 \section{Forms of Matrix A}\label{jfm:sec:Forms of Matrix A}
-The matrix $\mathbf{A}_m$ can be written as 
-$\mathbf{A}_m = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$, 
+The matrix $\gls{sym-mathbf-A-m}$ can be written as 
+$\gls{sym-mathbf-A-m} = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$, 
 where $\gls{sym-mathbf-A-m-r}$ and $\gls{sym-mathbf-A-m-z}$ are shown in 
 Tables~\ref{jfm:tab:MEEM-A_mr-matrix-case-1}-\ref{jfm:tab:MEEM-A_mz-matrix-case-2} 
 and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ identity matrix.
@@ -236,9 +236,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
     &  
     $\gls{sym-N-i-m}$
     &  
-    $N^{i_{m+1}}$
+    $\gls{sym-N-i-m-1}$
     & 
-    $N^{i_{m+1}}$
+    $\gls{sym-N-i-m-1}$
     \\ \hline \hline 
       
       % Row 1
@@ -262,15 +262,15 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         $\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m}=\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m-1}$ 
         \\ at $\gls{sym-r}=\gls{sym-a-m}$} 
         & 
-        $N^{i_{m+1}}$
+        $\gls{sym-N-i-m-1}$
         & 
-        $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m}$ 
+        $ \mathbf{1}_{\gls{sym-N-i-m-1}1} \gls{sym-vec-R-1-i-m}$ 
         & 
-        $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-2-i-m}$ 
+        $ \mathbf{1}_{\gls{sym-N-i-m-1}1} \gls{sym-vec-R-2-i-m}$ 
         & 
-        $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-1-i-m-1}$ 
+        $\mathbf{1}_{\gls{sym-N-i-m-1}1}  \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-1-i-m-1}$ 
         & 
-        $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-2-i-m-1}$ 
+        $\mathbf{1}_{\gls{sym-N-i-m-1}1}  \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-2-i-m-1}$ 
         \\ \hline
     \end{tabular}
     \caption{\gls{acr-meem} $\gls{sym-mathbf-A-m-r}$ sub-matrix when $\gls{sym-d-m}>\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-t}$). 
@@ -298,9 +298,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
     &  
     $\gls{sym-N-i-m}$
     &  
-    $N^{i_{m+1}}$
+    $\gls{sym-N-i-m-1}$
     & 
-    $N^{i_{m+1}}$
+    $\gls{sym-N-i-m-1}$
     \\ \hline \hline 
       
     % Row 1
@@ -310,15 +310,15 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
                 at $\gls{sym-r}=\gls{sym-a-m}$
                 } 
     & 
-    $N^{i_{m+1}}$ 
+    $\gls{sym-N-i-m-1}$ 
     & 
-    $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m}$ 
+    $ \mathbf{1}_{\gls{sym-N-i-m-1}1} \gls{sym-vec-R-1-i-m}$ 
     & 
-    $\mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-2-i-m}$ 
+    $\mathbf{1}_{\gls{sym-N-i-m-1}1} \gls{sym-vec-R-2-i-m}$ 
     & 
-    $\mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m-1}$ 
+    $\mathbf{1}_{\gls{sym-N-i-m-1}1} \gls{sym-vec-R-1-i-m-1}$ 
     & 
-    $ \mathbf{1}_{N^{i_{m+1}}1}  \gls{sym-vec-R-2-i-m-1}$ 
+    $ \mathbf{1}_{\gls{sym-N-i-m-1}1}  \gls{sym-vec-R-2-i-m-1}$ 
     \\ \hline
       
       % Row 2
@@ -368,9 +368,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         &  
         $\gls{sym-N-i-m}$
         &  
-        $N^{i_{m+1}}$
+        $\gls{sym-N-i-m-1}$
         & 
-        $N^{i_{m+1}}$
+        $\gls{sym-N-i-m-1}$
     \\ \hline \hline 
       
       % Row 1
@@ -397,7 +397,7 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
             at $\gls{sym-r}=\gls{sym-a-m}$
         } 
         & 
-        $N^{i_{m+1}}$
+        $\gls{sym-N-i-m-1}$
         & 
         $\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m}$ 
         & 
@@ -435,9 +435,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         &  
         $\gls{sym-N-i-m}$
         &  
-        $N^{i_{m+1}}$
+        $\gls{sym-N-i-m-1}$
         & 
-        $N^{i_{m+1}}$
+        $\gls{sym-N-i-m-1}$
     \\ \hline \hline 
       
       % Row 1
@@ -446,7 +446,7 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         \\ 
         at $\gls{sym-r}=\gls{sym-a-m}$} 
         & 
-        $N^{i_{m+1}}$ 
+        $\gls{sym-N-i-m-1}$ 
         & 
         $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} $ 
         & 
