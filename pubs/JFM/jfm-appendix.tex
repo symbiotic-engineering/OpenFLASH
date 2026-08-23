@@ -29,7 +29,7 @@ and
     \left.
 \frac{\partial\gls{sym-phi-e}}{\partial \gls{sym-z}} \right|_{\gls{sym-z}=-\gls{sym-h}}=0.   
 \end{equation}
-The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m}$ is fixed, and a particular part $\gls{sym-phi-i-m-mathrm-p}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m}$ is heaving with unit amplitude velocity.
+The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m}$ is fixed, and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m}$ is heaving with unit amplitude velocity.
 
 The Laplace equations in Eq.~\ref{jfm:eq:Laplace equation internal region} and~\ref{jfm:eq:Laplace equation external region} can be solved using separation of variables in cylindrical coordinates.
 The velocity potentials can be written as a product of eigenfunctions $\gls{sym-phi} (\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})= \gls{sym-R-r}\gls{sym-Theta}(\gls{sym-theta})\gls{sym-Z}(\gls{sym-z})$, where $\gls{sym-phi}$ is $\gls{sym-phi-i-m}$ and $\gls{sym-phi-e}$ for the internal and external regions, respectively.
@@ -96,7 +96,7 @@ Specifically, incorporating the condition can be accomplished because Eq.~\ref{j
 \begin{equation}\label{jfm:eq:modified velocity matching integral}
     \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-t}}\frac{\partial \gls{sym-phi-mathrm-t}}{\partial \gls{sym-r}}(\gls{sym-a-generic-radius},\gls{sym-z})\gls{sym-Z-mathrm-t-n-mathrm-t}(\gls{sym-z}) \mathrm{d}\gls{sym-z}=\int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}\frac{\partial \gls{sym-phi-mathrm-s}}{\partial \gls{sym-r}}(\gls{sym-a-generic-radius},\gls{sym-z}) \gls{sym-Z-mathrm-t-n-mathrm-t}(\gls{sym-z}) \mathrm{d}\gls{sym-z}.
 \end{equation}
-It is not desired to change the bounds of the right-hand-side because $\gls{sym-phi-s}$ is not meaningfully defined on $\gls{sym-z}\in(-\gls{sym-d-mathrm-s},-\gls{sym-d-mathrm-t})$.
+It is not desired to change the bounds of the right-hand-side because $\gls{sym-phi-mathrm-s}$ is not meaningfully defined on $\gls{sym-z}\in(-\gls{sym-d-mathrm-s},-\gls{sym-d-mathrm-t})$.
 Thus, Eqs.~\ref{jfm:eq:no radial velocity} and~\ref{jfm:eq:velocity matching} are simultaneously enforced by Eq.~\ref{jfm:eq:modified velocity matching integral}, while Eq.~\ref{jfm:eq:potential matching} is enforced by Eq.~\ref{jfm:eq:potential matching integral}. 
 
 Next, the velocity potentials of each region can be rewritten in terms of their homogeneous and particular solutions as $\gls{sym-phi-mathrm-t}=\gls{sym-phi-mathrm-t-mathrm-h} + \gls{sym-phi-mathrm-t-mathrm-p}$ and $\gls{sym-phi-mathrm-s}=\gls{sym-phi-mathrm-s-mathrm-h} + \gls{sym-phi-mathrm-s-mathrm-p}$.
@@ -264,9 +264,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         & 
         $N^{i_{m+1}}$
         & 
-        $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m-2}$ 
+        $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m}$ 
         & 
-        $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-2-i-m-2}$ 
+        $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-2-i-m}$ 
         & 
         $\mathbf{1}_{N^{i_{m+1}}1}  \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-1-i-m-1}$ 
         & 
@@ -312,9 +312,9 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
     & 
     $N^{i_{m+1}}$ 
     & 
-    $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m-2}$ 
+    $ \mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m}$ 
     & 
-    $\mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-2-i-m-2}$ 
+    $\mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-2-i-m}$ 
     & 
     $\mathbf{1}_{N^{i_{m+1}}1} \gls{sym-vec-R-1-i-m-1}$ 
     & 
@@ -328,15 +328,15 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
                     at $\gls{sym-r}=\gls{sym-a-m}$
                 } 
       & 
-      $\gls{sym-N-i-m-2}$
+      $\gls{sym-N-i-m}$
       & 
-      $\mathbf{1}_{\gls{sym-N-i-m-2}1} \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-1-i-m-2}$ 
+      $\mathbf{1}_{\gls{sym-N-i-m}1} \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-1-i-m}$ 
       & 
-      $\mathbf{1}_{\gls{sym-N-i-m-2}1} \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-2-i-m-2}$ 
+      $\mathbf{1}_{\gls{sym-N-i-m}1} \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-2-i-m}$ 
       & 
-      $ \mathbf{1}_{\gls{sym-N-i-m-2}1} \gls{sym-vec-R-1-i-m-1}$ 
+      $ \mathbf{1}_{\gls{sym-N-i-m}1} \gls{sym-vec-R-1-i-m-1}$ 
       & 
-      $ \mathbf{1}_{\gls{sym-N-i-m-2}1} \gls{sym-vec-R-2-i-m-1}$ 
+      $ \mathbf{1}_{\gls{sym-N-i-m}1} \gls{sym-vec-R-2-i-m-1}$ 
       \\ \hline
     \end{tabular}
     \caption{\gls{acr-meem} $\gls{sym-mathbf-A-m-r}$ sub-matrix when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-t}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-s}$). 
@@ -463,11 +463,11 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
         \\ 
         at $\gls{sym-r}=\gls{sym-a-m}$} 
         & 
-        $\gls{sym-N-i-m-2}$
+        $\gls{sym-N-i-m}$
         & 
-        $-(\gls{sym-h}-\gls{sym-d-m}) \gls{sym-mathbf-I-i-m-2}$ 
+        $-(\gls{sym-h}-\gls{sym-d-m}) \gls{sym-mathbf-I-i-m}$ 
         & 
-        $-(\gls{sym-h}-\gls{sym-d-m}) \gls{sym-mathbf-I-i-m-2}$ 
+        $-(\gls{sym-h}-\gls{sym-d-m}) \gls{sym-mathbf-I-i-m}$ 
         & 
         $\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1} $ 
         & 
@@ -490,14 +490,14 @@ Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions} can be simplif
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of added mass and damping}
 \begin{aligned}
     \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\text{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}} 
-    &= 2 \gls{sym-pi} \gls{sym-rho} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ r  \ dr \\
-    &= 2 \gls{sym-pi} \gls{sym-rho} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p}} \Bigg[
-    \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ _{}^{\gls{sym-q}}\gls{sym-phi-i-m-p}(\gls{sym-r},-\gls{sym-d-m})\, \gls{sym-r}\, dr \\
-    & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m-3}-1} 
-    \ _{}^{\gls{sym-q}}\gls{sym-C-1n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
+    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ r  \ dr \\
+    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p}} \Bigg[
+    \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ _{}^{\gls{sym-q}}\gls{sym-phi-mathrm-p-i-m}(\gls{sym-r},-\gls{sym-d-m})\, \gls{sym-r}\, dr \\
+    & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
+    \ _{}^{\gls{sym-q}}\gls{sym-C-1-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
     \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ R_{1n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
-    & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m-3}-1} 
-    \ _{}^{\gls{sym-q}}\gls{sym-C-2n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
+    & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
+    \ _{}^{\gls{sym-q}}\gls{sym-C-2-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
     \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ R_{2n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, dr
     \Bigg]
 \end{aligned}
@@ -511,7 +511,7 @@ in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are
 \begin{equation}\label{jfm:radial integral 1}
 \begin{aligned}\relax
     \left[\gls{sym-vec-mathcal-R-1-i-m}\right]_{\gls{sym-n-m}} 
-    & = \int_{\gls{sym-a-m}}^{a_{{m+1}}} \gls{sym-R-1n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
+    & = \int_{\gls{sym-a-m}}^{a_{{m+1}}} \gls{sym-R-1-n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
     & = \left\{\begin{matrix}
     \frac{1}{4} (a_{{m+1}}^2-\gls{sym-a-m}^2) & \text{ for } \gls{sym-n-m}=0 \\[2ex]
   \displaystyle\frac{a_{{m+1}} \gls{sym-mathrm-I-1}(a_{{m+1}} \gls{sym-lambda-n-m-i-m})-\gls{sym-a-m} \gls{sym-mathrm-I-1}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})}{\gls{sym-lambda-n-m-i-m}\gls{sym-mathrm-I-0}(\gls{sym-a-m}\gls{sym-lambda-n-m-i-m})} 
@@ -525,15 +525,15 @@ in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are
 \begin{equation}\label{jfm:radial integral 2}
 \begin{aligned}\relax
     \left[\gls{sym-vec-mathcal-R-2-i-m}\right]_{\gls{sym-n-m}} 
-    & = \int_{\gls{sym-a-m}}^{a_{{m+1}}} \gls{sym-R-2n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
+    & = \int_{\gls{sym-a-m}}^{a_{{m+1}}} \gls{sym-R-2-n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
     & = \left\{\begin{matrix}
     \frac{1}{8} \left(2 a_{{m+1}}^2 \ln \left(\frac{a_{{m+1}}}{\gls{sym-a-m}}\right)-a_{{m+1}}^2+\gls{sym-a-m}^2\right) 
     & 
     \text{ for } \gls{sym-n-m}=0 \\[2ex]
  \displaystyle\frac{
-        \gls{sym-a-m} \gls{sym-mathrm-K-1}(\gls{sym-a-m} \gls{sym-lambda-i-m-n-m})-a_{{m+1}} \gls{sym-mathrm-K-1}(a_{{m+1}} \gls{sym-lambda-i-m-n-m})
+        \gls{sym-a-m} \gls{sym-mathrm-K-1}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})-a_{{m+1}} \gls{sym-mathrm-K-1}(a_{{m+1}} \gls{sym-lambda-n-m-i-m})
         }{
-        \gls{sym-lambda-i-m-n-m} \gls{sym-mathrm-K-0}(\gls{sym-a-m} \gls{sym-lambda-i-m-n-m})
+        \gls{sym-lambda-n-m-i-m} \gls{sym-mathrm-K-0}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})
         } 
  &
   \text{ for } \gls{sym-n-m} \ge 1
