@@ -213,17 +213,17 @@ The total complex potential $\gls{sym-phi-mathrm-T}$ can be written as
 the superposition of the incident $\gls{sym-phi-mathrm-I}$, 
 diffracted (or scattered) $\gls{sym-phi-mathrm-D}$, 
 and radiated $\gls{sym-phi-mathrm-R}$ potentials. 
-The incident wave potential for a regular wave propagating at an angle $\gls{sym-psi}$ from the x-axis is
+The incident wave potential for a regular wave propagating at an angle $\gls{sym-psi-I}$ from the x-axis is
 \begin{equation}
     \gls{sym-phi-mathrm-I} = -i \frac{\gls{sym-g} \gls{sym-wave-amplitude}}{\gls{sym-omega}} 
                          \frac{\cosh \gls{sym-lambda-0-e} (\gls{sym-z}+\gls{sym-h})}{\cosh \gls{sym-lambda-0-e} \gls{sym-h}}  
-                         e^{i\gls{sym-lambda-0-e}r\cos(\gls{sym-theta}- \gls{sym-psi})}
+                         e^{i\gls{sym-lambda-0-e}r\cos(\gls{sym-theta}- \gls{sym-psi-I})}
 \end{equation}
 where $\gls{sym-g}$ is the acceleration due to gravity, 
 $\gls{sym-wave-amplitude}$ is the wave amplitude,
 $\gls{sym-omega}$ is the angular wave frequency, 
 $\gls{sym-lambda-0-e}$ is the wavenumber, and $\gls{sym-h}$ is the water depth~\citep{chatzigeorgiou2018analytical}. 
-The angle $\gls{sym-psi}$ is set to zero without loss of generality, 
+The angle $\gls{sym-psi-I}$ is set to zero without loss of generality, 
 as the hydrodynamic forces in heave are invariant with the incident wave direction for vertically axisymmetric bodies. 
 
 The diffracted and radiated wave potentials can be solved by finding velocity potentials that satisfy the boundary conditions on the wetted surface of the body. 
@@ -364,7 +364,7 @@ as shown in Table~\ref{jfm:tab:MEEM-A-matrix}.
 The vector of unknowns has the form 
 $\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{sym-vec-C-2-i-2},\dots, \gls{sym-vec-C-1-i-M}, \gls{sym-vec-C-2-i-M}, \gls{sym-vec-C-1-e}]^{\top} \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$, 
 where $\vec{C}_{\chi}^{j} = [\gls{sym-C-chi1-j}, \gls{sym-C-chi2-j}, ..., \gls{sym-C-chi-N-j-1-j}]$.
-Index $\gls{sym-vec-e-j}\in\{\gls{sym-i-1},\gls{sym-i-2},...,\gls{sym-i-M},e\}$ specifies the region and $\gls{sym-chi}\in\{1,2\}$ specifies the eigenfunction type. 
+Index $\gls{sym-j}\in\{\gls{sym-i-1},\gls{sym-i-2},...,\gls{sym-i-M},e\}$ specifies the region and $\gls{sym-chi}\in\{1,2\}$ specifies the eigenfunction type. 
 Column vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ consists of sub-vectors $\gls{sym-vec-b-m}$ such that 
 $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
 Each sub-matrix $\mathbf{A}_m$ and sub-vector $\gls{sym-vec-b-m}$ contains information about the matching of the potential and velocity at $\gls{sym-r}=\gls{sym-a-m}$. 
@@ -376,7 +376,7 @@ The first case is more common, although the second case can occur for non-convex
 Corresponding right-hand-side vectors $\gls{sym-vec-b-m}$ are shown in 
 Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} and~\ref{jfm:tab:MEEM-b_m-vector-case-2}, respectively. 
 The matrix $\boldsymbol{\mathcal{Z}}^{ij}$ has size $\gls{sym-N-i} \times \gls{sym-N-j}$ 
-and contains the integrals of the products of vertical eigenfunctions in regions $i$ and $\gls{sym-vec-e-j}$. 
+and contains the integrals of the products of vertical eigenfunctions in regions $i$ and $\gls{sym-j}$.
 Closed form expressions for $\boldsymbol{\mathcal{Z}}^{ij}$ are shown in Appendix~\ref{jfm:appB}. 
 The vector $\gls{sym-vec-R-chi-j}(\gls{sym-r}) = [\gls{sym-R-chi0-j}(\gls{sym-r}), \gls{sym-R-chi1-j}(\gls{sym-r}),\dots, \gls{sym-R-chi-N-j-1-j}(\gls{sym-r}) ]$ is evaluated at $\gls{sym-r}=\gls{sym-a-m}$ in each sub-matrix $\mathbf{A}_m$. 
 Furthermore, $\mathbf{1}_{ij}$ is a matrix with $i$ rows and $j$ columns containing only ones, 
@@ -839,7 +839,7 @@ where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vecto
     \end{matrix}\right. ,
 \end{equation}
 for $2\le \gls{sym-m} \le \gls{sym-M}$, and $\gls{sym-vec-c-p-e} = \vec{0}_{\gls{sym-N-e}}$. 
-Note that $\vec{0}_{\gls{sym-k-generic-index}}$ denotes a $\gls{sym-k-generic-index}$-long row vector of zeros and $\vec{\mathcal{R}}_{\chi}^{j}$ is a vector of integrals of radial eigenfunctions for region $\gls{sym-vec-e-j}$ with closed form solutions in Appendix~\ref{jfm:appC}. 
+Note that $\vec{0}_{\gls{sym-k-generic-index}}$ denotes a $\gls{sym-k-generic-index}$-long row vector of zeros and $\vec{\mathcal{R}}_{\chi}^{j}$ is a vector of integrals of radial eigenfunctions for region $\gls{sym-j}$ with closed form solutions in Appendix~\ref{jfm:appC}. 
 The vector $\gls{sym-vec-c-p}$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $\gls{sym-m}$th region in the $\gls{sym-vec-x-q}$ vector in Eq.~\ref{jfm:A_pq B_pq scalar form}. 
 By applying Eq.~\ref{jfm:A_pq B_pq scalar form} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$ and $\gls{sym-p}=1,2,\dots, \gls{sym-Q}$, we can express the added mass matrix $\gls{sym-mathbf-A-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q} \times \gls{sym-Q}}$ and radiation damping matrix $\gls{sym-mathbf-B-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q} \times \gls{sym-Q}}$ as
 \begin{equation}\label{jfm:A_pq B_pq matrix form}
@@ -1012,12 +1012,12 @@ Substituting this into the first element of the bottom block of the b-vector res
 and the corresponding limit for the vertical coupling integral
 \begin{equation}
 \begin{aligned}
-    \lim_{\gls{sym-lambda-0-e}h\rightarrow\infty}[\gls{sym-boldsymbol-mathcal-Z-i-m-e}]_{\gls{sym-n-m} 0} &
+    \lim_{\gls{sym-lambda-0-e}h\rightarrow\infty}[\gls{sym-boldsymbol-mathcal-Z-i-M-e}]_{\gls{sym-n-M} 0} &
     %= \int_{-h}^{-d_2} \vec{Z}_m^{i2 ~T}\vec{Z}_0^{e} dz 
-    = \gls{sym-h}~\frac{\cosh^2(\gls{sym-lambda-0-e}h)}{\sqrt{2\gls{sym-lambda-0-e}h}}\cdot \frac{-1+(-1)^{\gls{sym-n-m}}\exp(1-\frac{\gls{sym-d-M}}{\gls{sym-h}})}{\gls{sym-f-n-m}} \\
-    \text{where}~~\gls{sym-f-n-m}&= \begin{cases}
-        1, & \gls{sym-n-m}=0 \\
-        \gls{sym-h}^2{(\gls{sym-lambda-n-m-i-m})}^2+1, & \gls{sym-n-m} \geq 1
+    = \gls{sym-h}~\frac{\cosh^2(\gls{sym-lambda-0-e}h)}{\sqrt{2\gls{sym-lambda-0-e}h}}\cdot \frac{-1+(-1)^{\gls{sym-n-M}}\exp(1-\frac{\gls{sym-d-M}}{\gls{sym-h}})}{\gls{sym-f-n-M}} \\
+    \text{where}~~\gls{sym-f-n-M}&= \begin{cases}
+        1, & \gls{sym-n-M}=0 \\
+        \gls{sym-h}^2{(\gls{sym-lambda-n-M-i-M})}^2+1, & \gls{sym-n-M} \geq 1
     \end{cases}
     \end{aligned}.
 \end{equation}
@@ -1158,8 +1158,8 @@ In this study, the single cylinder case with an inner boundary of $\gls{sym-r}=0
 
 
 To obtain numerical values for the convergence of a configuration's hydrodynamic coefficients with respect to $\gls{sym-N-i-m}$, 
-they are first computed with all $\gls{sym-N-j}$ ($\gls{sym-vec-e-j}\in\{\gls{sym-i-1},...,\gls{sym-i-M}, e\}$) at a high number $\gls{sym-N-max} = 200$ for their ``true values.'' 
-Then they are recomputed with all $\gls{sym-N-j}, \gls{sym-vec-e-j}\neq \gls{sym-i-m}$ fixed to $\gls{sym-N-max}$, while, for the $\gls{sym-m}$th region, which we will refer to as the target region, 
+they are first computed with all $\gls{sym-N-j}$ ($\gls{sym-j}\in\{\gls{sym-i-1},...,\gls{sym-i-M}, e\}$) at a high number $\gls{sym-N-max} = 200$ for their ``true values.'' 
+Then they are recomputed with all $\gls{sym-N-j}, \gls{sym-j}\neq \gls{sym-i-m}$ fixed to $\gls{sym-N-max}$, while, for the $\gls{sym-m}$th region, which we will refer to as the target region, 
 $\gls{sym-N-i-m}$ is varied over $[1, 2, \dots, \gls{sym-N-big}]$, where $\gls{sym-N-big} = 150$ is less than $\gls{sym-N-max}$ by a reasonably large margin. 
 From this, the errors $\gls{sym-epsilon} = \frac{\text{value}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $\gls{sym-N-i-m}$ are calculated.
 
