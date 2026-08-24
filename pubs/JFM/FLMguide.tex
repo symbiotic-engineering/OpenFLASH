@@ -366,7 +366,7 @@ as shown in Table~\ref{jfm:tab:MEEM-A-matrix}.
 The vector of unknowns has the form 
 $\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{sym-vec-C-2-i-2},\dots, \gls{sym-vec-C-1-i-M}, \gls{sym-vec-C-2-i-M}, \gls{sym-vec-C-1-e}]^{\top} \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$, 
 where $\vec{C}_{\chi}^{j} = [\gls{sym-C-chi1-j}, \gls{sym-C-chi2-j}, ..., \gls{sym-C-chi-N-j-1-j}]$.
-Index $\gls{sym-j}\in\{\gls{sym-i-1},\gls{sym-i-2},...,\gls{sym-i-M},e\}$ specifies the region and $\gls{sym-chi}\in\{1,2\}$ specifies the eigenfunction type. 
+Index $\gls{sym-j}\in\{\gls{sym-i-1},\gls{sym-i-2},...,\gls{sym-i-M},e\}$ specifies the region and $\gls{sym-chi-1-2}\in\{1,2\}$ specifies the eigenfunction type. 
 Column vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ consists of sub-vectors $\gls{sym-vec-b-m}$ such that 
 $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
 Each sub-matrix $\gls{sym-mathbf-A-m}$ and sub-vector $\gls{sym-vec-b-m}$ contains information about the matching of the potential and velocity at $\gls{sym-r}=\gls{sym-a-m}$. 
@@ -380,7 +380,7 @@ Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} and~\ref{jfm:tab:MEEM-b_m-vector-case
 The matrix $\gls{sym-boldsymbol-mathcal-Z-ij}$ has size $\gls{sym-N-i} \times \gls{sym-N-j}$ 
 and contains the integrals of the products of vertical eigenfunctions in regions $i$ and $\gls{sym-j}$.
 Closed form expressions for $\gls{sym-boldsymbol-mathcal-Z-ij}$ are shown in Appendix~\ref{jfm:appB}. 
-The vector $\gls{sym-vec-R-chi-j}(\gls{sym-r}) = [\gls{sym-R-chi0-j}(\gls{sym-r}), \gls{sym-R-chi1-j}(\gls{sym-r}),\dots, \gls{sym-R-chi-N-j-1-j}(\gls{sym-r}) ]$ is evaluated at $\gls{sym-r}=\gls{sym-a-m}$ in each sub-matrix $\gls{sym-mathbf-A-m}$. 
+The vector $\gls{sym-vec-R-chi-j}(\gls{sym-r}) = [\gls{sym-R-chi0-j}(\gls{sym-r}), \gls{sym-R-chi1-j}(\gls{sym-r}),\dots, \gls{sym-R-chi-N-j-1-j}(\gls{sym-r}) ]$ is evaluated at $\gls{sym-r}=\gls{sym-a-m}$ in each sub-matrix $\gls{sym-mathbf-A-m}$.
 Furthermore, $\mathbf{1}_{ij}$ is a matrix with $i$ rows and $\gls{sym-j}$ columns containing only ones, 
 and $\odot$ is the Hadamard (element-wise) product. 
 The equations in Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1}-\ref{jfm:tab:MEEM-A_m-matrix-case-2} are valid as-is when $2 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$. 
@@ -823,7 +823,7 @@ The result is
 \begin{equation}\label{jfm:A_pq B_pq scalar form}
     \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\mathrm{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}}=2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-c-p}\gls{sym-delta}_{pq} + \gls{sym-vec-c-p} \ \vec{x}_q) =2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-c-p}\gls{sym-delta}_{pq} + \gls{sym-vec-c-p} \ \mathbf{A}^{-1} \gls{sym-vec-b-q})
 \end{equation}
-with output scalar $\gls{sym-c-p} \in \gls{sym-mathbb-R}^{\gls{sym-Q-dof} \times \gls{sym-Q-dof}}$
+with output scalar $\gls{sym-c-p} \in \gls{sym-mathbb-R}$
 \begin{equation}
      \gls{sym-c-p} =  \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p} } \frac{\left({a^2_{{m+1}}}-{\gls{sym-a-m}}\right)\,\left(-{\gls{sym-a-m}}-{a^2_{{m+1}}}+4(\gls{sym-h}-\gls{sym-d-m})^2\right)}{16\,\left(\gls{sym-h} - \gls{sym-d-m}\right)}, 
 \end{equation}
@@ -1042,7 +1042,7 @@ and the corresponding limit for the vertical coupling integral
 
 \subsubsection{Nonlinear Solve of $\gls{sym-lambda-n-e-e}$}\label{jfm:sec:nonlin-solve}
 A final numerical subtlety worth discussing is finite precision effects in calculating $\gls{sym-lambda-n-e-e}$.
-Bounds of $180^\textrm{o}\cdot[\gls{sym-n-e}-\frac{1}{2}, \gls{sym-n-e}]$ are placed on $\gls{sym-lambda-n-e-e}\gls{sym-h}$ in a root-finding algorithm to ensure the $\gls{sym-n-e}$th root is identified.
+Bounds of $180^\circ \cdot[\gls{sym-n-e}-\frac{1}{2}, \gls{sym-n-e}]$ are placed on $\gls{sym-lambda-n-e-e}\gls{sym-h}$ in a root-finding algorithm to ensure the $\gls{sym-n-e}$th root is identified.
 Degrees are used instead of radians so asymptotes occur at rational values.
 
 \subsubsection{Matrix Condition Number}
