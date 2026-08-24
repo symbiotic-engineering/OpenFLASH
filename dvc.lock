@@ -20,7 +20,8 @@ stages:
       md5: da2778aa10b978a61b883bae86c4a4d3
       size: 3330
   compile-overleaf:
-    cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check --aux-dir aux 
+      pubs/JFM/FLMguide.tex
     deps:
     - path: .calkit/env-locks/tex
       hash: md5
@@ -29,12 +30,12 @@ stages:
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: fb023a7d3ade066992f9290a3384a1f2
-      size: 159839
+      md5: 89803d91f789b845a1eb4874b9208f28
+      size: 177424
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: fb023a7d3ade066992f9290a3384a1f2
-      size: 159839
+      md5: 89803d91f789b845a1eb4874b9208f28
+      size: 177424
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -45,13 +46,29 @@ stages:
       size: 3942
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 7f77e18e236e4f8361ecd56838d1a304.dir
-      size: 1391088
+      md5: 12b3e9b8202d5d55bd5767fc45b11a3a.dir
+      size: 1398875
       nfiles: 30
+    - path: pubs/JFM/glossary/glossary-acronyms.tex
+      hash: md5
+      md5: 376e90f897bebde0f2a92f8c24e939f2
+      size: 10085
+    - path: pubs/JFM/glossary/glossary-setup.tex
+      hash: md5
+      md5: 4cfc0dda71b7ed5455c5b68c0c776506
+      size: 11572
+    - path: pubs/JFM/glossary/glossary-symbols-jfm.tex
+      hash: md5
+      md5: 1f9c73f186e1a02e838b5860502c693c
+      size: 29320
+    - path: pubs/JFM/glossary/glossary-symbols-shared.tex
+      hash: md5
+      md5: 5b255c8e817df727335a74f9efbfcddc
+      size: 2763
     - path: pubs/JFM/jfm-appendix.tex
       hash: md5
-      md5: 16776552d6227be39dfe4853c6b16d56
-      size: 29074
+      md5: a75c5b90bcfad6ed5e83ef446dbf023e
+      size: 34090
     - path: pubs/JFM/jfm.bib
       hash: md5
       md5: 94debb13be1e536dfceb909122f78e97
@@ -71,8 +88,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: fc810f7f1b985851a84f96243110e846
-      size: 1075541
+      md5: 6e18a523f47d4cbec6422ec41bdf83ba
+      size: 1159255
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"

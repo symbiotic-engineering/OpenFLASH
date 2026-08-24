@@ -42,7 +42,9 @@
     % glossary - must come after hyperref
     \usepackage[nopostdot,acronym,abbreviations,symbols,nogroupskip,toc=false,symbols,section=subsection]{glossaries-extra}
     \usepackage{morewrites}
-    \input{glossary-setup.tex}
+    \input{glossary/glossary-setup.tex}
+    \input{glossary/glossary-symbols-jfm.tex}
+    \makeglossaries
 
     \newtheorem{lemma}{Lemma}
     \newtheorem{corollary}{Corollary}
@@ -176,15 +178,15 @@ We conclude in section~\ref{jfm:sec:conclusion} with a summary of findings and o
 
 \section{Mathematical Formulation and Validation}\label{jfm:sec:mathematical-formulation}
 
-The objective of this method is to determine the first-order hydrodynamic forces on a series of $\gls{sym-M}$ fixed or heaving surface-piercing concentric annular cylinders, 
+The objective of this method is to determine the first-order hydrodynamic forces on a series of $\gls{sym-M-regions}$ fixed or heaving surface-piercing concentric annular cylinders, 
 as shown in Fig.~\ref{jfm:fig:Diagram}. 
 The interior fluid regions underneath each cylindrical ring are denoted by $\gls{sym-i-1}$, $\gls{sym-i-2}$, $\dots, \gls{sym-i-M}$. 
 Each cylindrical ring can be an independent body or rigidly fixed to any other cylindrical ring. 
 The exterior fluid region surrounding the body is denoted by $e$. 
-The geometry of the $\gls{sym-m}$th interior region is defined in terms of the radius $\gls{sym-a-m}$ measured from the axis of symmetry 
+The geometry of the $\gls{sym-m-region}$th interior region is defined in terms of the radius $\gls{sym-a-m}$ measured from the axis of symmetry 
 and the draft $\gls{sym-d-m}$ measured from the mean free surface. 
 The origin $\gls{sym-O}$ is located at the intersection of the body axis of symmetry and the mean free surface of the fluid. 
-It is assumed that $\gls{sym-a-m-1}>\gls{sym-a-m}$ and $\gls{sym-d-m}<\gls{sym-h}$ for all $\gls{sym-m}$, where $\gls{sym-h}$ is the sea depth. 
+It is assumed that $\gls{sym-a-m-1}>\gls{sym-a-m}$ and $\gls{sym-d-m}<\gls{sym-h}$ for all $\gls{sym-m-region}$, where $\gls{sym-h}$ is the sea depth. 
 This geometry can be used to model more general bodies by discretizing slanted sections into a finite number of annular regions, as we will show in Sec.~\ref{jfm:sec:slant}.
 Such geometries include the CorPower \citep{de2016techno}, WaveBot \citep{strofer2023control}, AquaHarmonics \citep{weaver2020super}, LUPA float \citep{beringer2025degrees}, and \gls{acr-rm3} float \citep{neary2014methodology} \glspl{acr-wec}.
  
@@ -237,9 +239,9 @@ for the interior and exterior regions as $\gls{sym-phi-i-m}$ and $\gls{sym-phi-e
 The velocity potentials must satisfy the Laplace equation and boundary conditions 
 on the sea floor, wetted surface of the bodies, and free surface. 
 The velocity potential in the interior regions can be written as the superposition 
-of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the body in region $\gls{sym-m}$ being fixed, 
-and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the body in region $\gls{sym-m}$ heaving with unit amplitude velocity. 
-The total velocity potential in the $\gls{sym-m}$th region is 
+of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the body in region $\gls{sym-m-region}$ being fixed, 
+and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the body in region $\gls{sym-m-region}$ heaving with unit amplitude velocity. 
+The total velocity potential in the $\gls{sym-m-region}$th region is 
 $\gls{sym-phi-i-m}= \gls{sym-phi-i-m-mathrm-h} + \gls{sym-phi-mathrm-p-i-m}$. 
 The velocity potentials can be written as a product of eigenfunctions 
 $\gls{sym-phi} (\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})= \gls{sym-R-r}\gls{sym-Theta}(\gls{sym-theta})\gls{sym-Z}(\gls{sym-z})$, 
@@ -267,7 +269,7 @@ by $\gls{sym-N-i-m}$ and $\gls{sym-N-e}$ in Table~\ref{jfm:tab:MEEM-eigenfunctio
 \begin{table}
     \centering
     \begin{tabular}{|>{\centering\arraybackslash}m{0.07\linewidth}|>{\centering\arraybackslash}m{0.28\linewidth}|>{\centering\arraybackslash}m{0.30\linewidth}|>{\centering\arraybackslash}m{0.24\linewidth}|} \hline 
-         Region&  Innermost Interior $(\gls{sym-i-1})$&  Interior $(\gls{sym-i-m}$ for $\gls{sym-m}>1)$& Exterior $(e)$\\ \hline 
+         Region&  Innermost Interior $(\gls{sym-i-1})$&  Interior $(\gls{sym-i-m}$ for $\gls{sym-m-region}>1)$& Exterior $(e)$\\ \hline 
          Homog. potential &  $\gls{sym-phi-i-1-mathrm-h}(\gls{sym-r},\gls{sym-z}) = \displaystyle\sum_{\gls{sym-n-1}=0}^{\gls{sym-N-i-1}-1} \gls{sym-C-1-n-1-i-1} \gls{sym-R-1-n-1-i-1}(\gls{sym-r}) \gls{sym-Z-n-1-i-1}(\gls{sym-z})$&  $\gls{sym-phi-i-m-mathrm-h}(\gls{sym-r},\gls{sym-z}) = \displaystyle\sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} \left(\gls{sym-C-1-n-m-i-m} \gls{sym-R-1-n-m-i-m}(\gls{sym-r}) + \gls{sym-C-2-n-m-i-m} \gls{sym-R-2-n-m-i-m}(\gls{sym-r}) \right) \gls{sym-Z-n-m-i-m}(\gls{sym-z})$& $\gls{sym-phi-e-mathrm-h}(\gls{sym-r},\gls{sym-z}) = \displaystyle\sum_{\gls{sym-n-e}=0}^{\gls{sym-N-e}-1} \gls{sym-C-1-n-e-e} \gls{sym-R-1-n-e-e}(\gls{sym-r}) \gls{sym-Z-n-e-e}(\gls{sym-z})$\\ \hline 
          Partic. potential &  $\phi^{i_1}_\mathrm{p}(r,z) =  \begin{cases} \displaystyle\frac{1}{2(h-d_1)}\left[ (z+h)^2 - \frac{r^2}{2}\right] & \text{Heaving} \\ 0 & \text{Fixed}             
          \end{cases}$&  $\phi^{i_m}_\mathrm{p}(r,z) = \begin{cases} \displaystyle\frac{1}{2(h-d_m)}\left[ (z+h)^2 - \frac{r^2}{2}\right] & \text{Heaving} \\ 0 & \text{Fixed}       
@@ -312,12 +314,12 @@ As shown by the homogeneous and particular potential functions in Table.~\ref{jf
 the radiated potential is a sum of products of eigenfunctions with unknown eigencoefficients 
 $\gls{sym-C-1-n-m-i-m}$, $\gls{sym-C-2-n-m-i-m}$, and $\gls{sym-C-1-n-e-e}$. 
 Note that $\gls{sym-C-2n-1-i-1}=\gls{sym-C-2n-e-e}=0$. 
-In practice, the infinite series for the $\gls{sym-i-1}$, $\gls{sym-i-m}$ for $\gls{sym-m}>1$, and $e$ regions 
+In practice, the infinite series for the $\gls{sym-i-1}$, $\gls{sym-i-m}$ for $\gls{sym-m-region}>1$, and $e$ regions 
 are truncated at $\gls{sym-N-i-1}-1$, $\gls{sym-N-i-m}-1$, and $\gls{sym-N-e}-1$, yielding a total of 
-$\gls{sym-N-T} =\gls{sym-N-i-1}+\sum_{\gls{sym-m}=2}^{\gls{sym-M}}2\gls{sym-N-i-m}+\gls{sym-N-e}$ unknown eigencoefficients. 
+$\gls{sym-N-T} =\gls{sym-N-i-1}+\sum_{\gls{sym-m-region}=2}^{\gls{sym-M-regions}}2\gls{sym-N-i-m}+\gls{sym-N-e}$ unknown eigencoefficients. 
 To solve for these unknowns, radial boundary conditions must be imposed at each interface between regions.
 
-For a geometry with $\gls{sym-M}$ interior regions (and one exterior region), there are $\gls{sym-M}$ vertical boundaries. 
+For a geometry with $\gls{sym-M-regions}$ interior regions (and one exterior region), there are $\gls{sym-M-regions}$ vertical boundaries. 
 The general formulation of the matching equations can be illustrated by considering two neighboring fluid regions, 
 as shown in Fig.~\ref{jfm:fig:Matching Diagram}. 
 \begin{figure}[h]
@@ -381,10 +383,10 @@ Closed form expressions for $\gls{sym-boldsymbol-mathcal-Z-ij}$ are shown in App
 The vector $\gls{sym-vec-R-chi-j}(\gls{sym-r}) = [\gls{sym-R-chi0-j}(\gls{sym-r}), \gls{sym-R-chi1-j}(\gls{sym-r}),\dots, \gls{sym-R-chi-N-j-1-j}(\gls{sym-r}) ]$ is evaluated at $\gls{sym-r}=\gls{sym-a-m}$ in each sub-matrix $\gls{sym-mathbf-A-m}$. 
 Furthermore, $\mathbf{1}_{ij}$ is a matrix with $i$ rows and $\gls{sym-j}$ columns containing only ones, 
 and $\odot$ is the Hadamard (element-wise) product. 
-The equations in Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1}-\ref{jfm:tab:MEEM-A_m-matrix-case-2} are valid as-is when $2 \le \gls{sym-m} \le \gls{sym-M}-1$. 
-When $\gls{sym-m}=1$, the $\gls{sym-vec-C-2-i-1}$ column should be excluded from $\gls{sym-mathbf-A-1}$ 
+The equations in Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1}-\ref{jfm:tab:MEEM-A_m-matrix-case-2} are valid as-is when $2 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$. 
+When $\gls{sym-m-region}=1$, the $\gls{sym-vec-C-2-i-1}$ column should be excluded from $\gls{sym-mathbf-A-1}$ 
 since the only unknowns associated with $\gls{sym-phi-i1}$ are $\gls{sym-vec-C-1-i-1}$.
-Similarly, when $\gls{sym-m}=\gls{sym-M}$, all $\gls{sym-i-m-1}$ indices should be replaced with $e$, 
+Similarly, when $\gls{sym-m-region}=\gls{sym-M-regions}$, all $\gls{sym-i-m-1}$ indices should be replaced with $e$, 
 $\gls{sym-d-m-1}$ should be set to zero, and the $\gls{sym-vec-C-2-i-m-1}$ column should be excluded from $\gls{sym-mathbf-A-M}$.
 Consequently,
 $\mathbf{A}_m \in
@@ -414,8 +416,8 @@ and dense blocks arise from coupling of the vertical eigenfunctions between adja
 
 Tables~\ref{jfm:tab:MEEM-b_m-vector-case-1} and \ref{jfm:tab:MEEM-b_m-vector-case-2} 
 show the two cases of $\gls{sym-vec-b-m}$ sub-vectors, which have closed form solutions.
-For $1 \le \gls{sym-m} \le \gls{sym-M}-1$, these can be used without modification to obtain all vectors $\gls{sym-vec-b-m}$.
-For $\gls{sym-m}=\gls{sym-M}$, Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} is modified so that any $\gls{sym-i-m-1}$ indices are replaced with $e$ and $\gls{sym-d-m-1}$ is set to zero. 
+For $1 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$, these can be used without modification to obtain all vectors $\gls{sym-vec-b-m}$.
+For $\gls{sym-m-region}=\gls{sym-M-regions}$, Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} is modified so that any $\gls{sym-i-m-1}$ indices are replaced with $e$ and $\gls{sym-d-m-1}$ is set to zero. 
 Additionally, Appendix~\ref{jfm:sec:Forms of Matrix A} shows that each sub-matrix $\gls{sym-mathbf-A-m}$ decomposes into an element-wise product of purely radial and purely vertical components:
 $\gls{sym-mathbf-A-m} = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$.
 
@@ -495,11 +497,11 @@ Potential can then be integrated to find the hydrodynamic forces.
         & \multicolumn{11}{c|}{$\ddots$} \\ \hline
 
       % Row 4
-      Boundary $\gls{sym-M}-1$& $\gls{sym-N-i-M-1}+\gls{sym-N-i-M}$
+      Boundary $\gls{sym-M-regions}-1$& $\gls{sym-N-i-M-1}+\gls{sym-N-i-M}$
         & \multicolumn{6}{c|}{$\mathbf{0}$} & \multicolumn{4}{c|}{$\gls{sym-mathbf-A-M-1}$} & $\mathbf{0}$ \\ \hline
 
       % Row 5
-      Boundary $\gls{sym-M}$ & $\gls{sym-N-i-M}+\gls{sym-N-e}$
+      Boundary $\gls{sym-M-regions}$ & $\gls{sym-N-i-M}+\gls{sym-N-e}$
         & \multicolumn{8}{c|}{$\mathbf{0}$} & \multicolumn{3}{c|}{$\gls{sym-mathbf-A-M}$} \\ \hline
     \end{tabular}
     \vspace{-10pt}
@@ -782,16 +784,16 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
 
 
 \subsection{Hydrodynamic and Hydrostatic Forces}\label{jfm:sec:Hydrodynamic Forces}
-In this section, we will characterize the radiation, excitation, and hydrostatic forces of a system with $\gls{sym-M}$ interior regions and $\gls{sym-Q}$ heave degrees of freedom.
-Also, while there are $\gls{sym-M}$ interior regions, multiple regions may form a single body if the regions are rigidly fixed to one another.
-Thus, for a system with a total of $\gls{sym-M}$ interior regions and $\gls{sym-Q}$ heave degrees of freedom (\glspl{acr-dof}), $\gls{sym-Q} \le \gls{sym-M}$. 
+In this section, we will characterize the radiation, excitation, and hydrostatic forces of a system with $\gls{sym-M-regions}$ interior regions and $\gls{sym-Q-dof}$ heave degrees of freedom.
+Also, while there are $\gls{sym-M-regions}$ interior regions, multiple regions may form a single body if the regions are rigidly fixed to one another.
+Thus, for a system with a total of $\gls{sym-M-regions}$ interior regions and $\gls{sym-Q-dof}$ heave degrees of freedom (\glspl{acr-dof}), $\gls{sym-Q-dof} \le \gls{sym-M-regions}$. 
 
-Moving forward, $\gls{sym-mathbf-A} \gls{sym-vec-x-q} = \gls{sym-vec-b-q}$ will indicate the system of equations associated with the motion of only the $\gls{sym-q}$th body (and \gls{acr-dof}) of the system, while all other bodies are fixed.
+Moving forward, $\gls{sym-mathbf-A} \gls{sym-vec-x-q} = \gls{sym-vec-b-q}$ will indicate the system of equations associated with the motion of only the $\gls{sym-q-dof}$th body (and \gls{acr-dof}) of the system, while all other bodies are fixed.
 Thus, $\gls{sym-vec-b-q}=[\gls{sym-vec-b-q-1},\gls{sym-vec-b-q-2},...,\gls{sym-vec-b-q-M}]^{\top}$. Note that the matrix $\gls{sym-mathbf-A}$ does not depend on which body is moving.
 Meanwhile, $\gls{sym-vec-b-q}$, and hence the solution $\gls{sym-vec-x-q}$, does.
 This is because $\gls{sym-vec-b-q}$ contains integrals of particular potentials, which are zero for stationary regions and non-zero for moving regions.
 
-First, we will find the total radiation force $\gls{sym-vec-f-pq}(\gls{sym-t})$ on the $\gls{sym-p}$th body due to the $\gls{sym-q}$th \gls{acr-dof}. 
+First, we will find the total radiation force $\gls{sym-vec-f-pq}(\gls{sym-t})$ on the $\gls{sym-p-dof}$th body due to the $\gls{sym-q-dof}$th \gls{acr-dof}. 
 % In the time domain, this is 
 % \begin{equation}
 %     \vec{f}_{pq}(t) = \iint_{S_p}P_q(t) \hat{n}_p dS = - \rho \iint_{S_p}\frac{\partial  \ _{}^{q}\Phi(\mathbf{x},t)}{\partial t} \hat{n}_p dS
@@ -799,31 +801,31 @@ First, we will find the total radiation force $\gls{sym-vec-f-pq}(\gls{sym-t})$ 
 % where $S_p$ is the wetted surface of body $p$, $P_q(t)$ is the pressure in the fluid due to motion of the $q$th DOF, $\hat{n}_p$ is the unit vector normal to the wetted surface of body $p$ pointing outward from the fluid, $\rho$ is the density of the fluid, and $_{}^{q}\Phi(\mathbf{x},t)$ is the potential due to motion of the $q$th DOF.
 This can be written in the frequency domain as 
 \begin{equation}\label{jfm:eq:freq domain vector of rad force}
-    \gls{sym-vec-hat-f-pq}(\gls{sym-omega}) = \text{i} \gls{sym-omega}  \gls{sym-rho-w} \iint_{\gls{sym-S-p}} \ _{}^{\gls{sym-q}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) \ \hat{n}_p dS
+    \gls{sym-vec-hat-f-pq}(\gls{sym-omega}) = \text{i} \gls{sym-omega}  \gls{sym-rho-w} \iint_{\gls{sym-S-p}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) \ \hat{n}_p dS
 \end{equation}
-where $\gls{sym-rho-w}$ is the density of the fluid, $\gls{sym-S-p}$ is the wetted surface of body $\gls{sym-p}$, $\gls{sym-hat-n-p}$ is the unit vector normal to the wetted surface of body $\gls{sym-p}$ pointing outward from the fluid, $\gls{sym-vec-f-pq}(\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-vec-hat-f-pq} e^{- \text{i} \gls{sym-omega} \gls{sym-t}} \}$, and $_{}^{\gls{sym-q}}\gls{sym-Phi}(\gls{sym-mathbf-x-coords},\gls{sym-t}) = \mathrm{Re} \{ _{}^{\gls{sym-q}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) e^{- \text{i} \gls{sym-omega} \gls{sym-t}} \}$.
-The left superscript of $\gls{sym-q}$ is added to distinguish the velocity potentials for different radiation problems.
-Taking the dot product of Eq.~\ref{jfm:eq:freq domain vector of rad force} with the unit vector $\gls{sym-hat-e-z}$ yields the complex heave force on body $\gls{sym-p}$ due to the motion of body $\gls{sym-q}$ 
+where $\gls{sym-rho-w}$ is the density of the fluid, $\gls{sym-S-p}$ is the wetted surface of body $\gls{sym-p-dof}$, $\gls{sym-hat-n-p}$ is the unit vector normal to the wetted surface of body $\gls{sym-p-dof}$ pointing outward from the fluid, $\gls{sym-vec-f-pq}(\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-vec-hat-f-pq} e^{- \text{i} \gls{sym-omega} \gls{sym-t}} \}$, and $_{}^{\gls{sym-q-dof}}\gls{sym-Phi}(\gls{sym-mathbf-x-coords},\gls{sym-t}) = \mathrm{Re} \{ _{}^{\gls{sym-q-dof}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) e^{- \text{i} \gls{sym-omega} \gls{sym-t}} \}$.
+The left superscript of $\gls{sym-q-dof}$ is added to distinguish the velocity potentials for different radiation problems.
+Taking the dot product of Eq.~\ref{jfm:eq:freq domain vector of rad force} with the unit vector $\gls{sym-hat-e-z}$ yields the complex heave force on body $\gls{sym-p-dof}$ due to the motion of body $\gls{sym-q-dof}$ 
 \begin{equation}\label{jfm:eq:freq domain scalar rad force}
-    \gls{sym-hat-f-pq} = \gls{sym-vec-hat-f-pq} \cdot \gls{sym-hat-e-z} = \text{i} \gls{sym-omega} \gls{sym-rho-w} \iint_{\gls{sym-S-p}} \ _{}^{\gls{sym-q}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) \ (\gls{sym-hat-n-p} \cdot \gls{sym-hat-e-z} ) \  dS.
+    \gls{sym-hat-f-pq} = \gls{sym-vec-hat-f-pq} \cdot \gls{sym-hat-e-z} = \text{i} \gls{sym-omega} \gls{sym-rho-w} \iint_{\gls{sym-S-p}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) \ (\gls{sym-hat-n-p} \cdot \gls{sym-hat-e-z} ) \  dS.
 \end{equation}
 Since $\gls{sym-hat-n-p}=\gls{sym-hat-e-z}$ at the horizontal portions of $\gls{sym-S-p}$ and $\gls{sym-hat-n-p}=\gls{sym-hat-e-r}$ at any vertical portions of $\gls{sym-S-p}$, integration on only the bottom surface of each region contributes to forces in heave. 
 % Note that this will not be the case in Sec.~\ref{jfm:sec:slant} when we use a finite number of cylindrical regions to approximate an axisymmetric body with a slanted surface that is not purely vertical or horizontal. 
-Proceeding with integration along the bottom body boundaries, the total heave force on body $\gls{sym-p}$ will be due to integrating the potential on the bottom boundaries of all cylindrical rings belonging to body $\gls{sym-p}$.
-We will define $\gls{sym-mathcal-M-p}$ as the set of all indices that correspond to regions which form the $\gls{sym-p}$th body.
+Proceeding with integration along the bottom body boundaries, the total heave force on body $\gls{sym-p-dof}$ will be due to integrating the potential on the bottom boundaries of all cylindrical rings belonging to body $\gls{sym-p-dof}$.
+We will define $\gls{sym-mathcal-M-p}$ as the set of all indices that correspond to regions which form the $\gls{sym-p-dof}$th body.
 For example, if body 1 consists of regions $\gls{sym-i-1}$, $\gls{sym-i-3}$ and $\gls{sym-i-4}$, $\gls{sym-mathcal-M-1} = \{1, 3, 4\}$.
 Eq.~\ref{jfm:eq:freq domain scalar rad force} can be written in terms of the potential at each region by
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of regions}
-    \gls{sym-hat-f-pq} = \textrm{i} \gls{sym-omega} \gls{sym-rho-w} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p}}\int_0^{2 \gls{sym-pi}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ r  \ dr\ d\gls{sym-theta}
+    \gls{sym-hat-f-pq} = \textrm{i} \gls{sym-omega} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}}\int_0^{2 \gls{sym-pi}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ r  \ dr\ d\gls{sym-theta}
 \end{equation}
-where $_{}^{\gls{sym-q}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m})$ is the potential in interior region $\gls{sym-i-m}$ evaluated at $\gls{sym-z}=-\gls{sym-d-m}$ when only the $\gls{sym-q}$th body is moving. $\gls{sym-hat-f-pq}$ can be rewritten in terms of frequency-dependent added mass and radiation damping coefficients $\gls{sym-A-pq}(\gls{sym-omega})$ and $\gls{sym-B-pq}(\gls{sym-omega})$, respectively, which is shown in Appendix~\ref{jfm:appC}.
+where $_{}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m})$ is the potential in interior region $\gls{sym-i-m}$ evaluated at $\gls{sym-z}=-\gls{sym-d-m}$ when only the $\gls{sym-q-dof}$th body is moving. $\gls{sym-hat-f-pq}$ can be rewritten in terms of frequency-dependent added mass and radiation damping coefficients $\gls{sym-A-pq}(\gls{sym-omega})$ and $\gls{sym-B-pq}(\gls{sym-omega})$, respectively, which is shown in Appendix~\ref{jfm:appC}.
 The result is
 \begin{equation}\label{jfm:A_pq B_pq scalar form}
     \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\mathrm{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}}=2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-c-p}\gls{sym-delta}_{pq} + \gls{sym-vec-c-p} \ \vec{x}_q) =2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-c-p}\gls{sym-delta}_{pq} + \gls{sym-vec-c-p} \ \mathbf{A}^{-1} \gls{sym-vec-b-q})
 \end{equation}
-with output scalar $\gls{sym-c-p} \in \gls{sym-mathbb-R}^{\gls{sym-Q} \times \gls{sym-Q}}$
+with output scalar $\gls{sym-c-p} \in \gls{sym-mathbb-R}^{\gls{sym-Q-dof} \times \gls{sym-Q-dof}}$
 \begin{equation}
-     \gls{sym-c-p} =  \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p} } \frac{\left({a^2_{{m+1}}}-{\gls{sym-a-m}}\right)\,\left(-{\gls{sym-a-m}}-{a^2_{{m+1}}}+4(\gls{sym-h}-\gls{sym-d-m})^2\right)}{16\,\left(\gls{sym-h} - \gls{sym-d-m}\right)}, 
+     \gls{sym-c-p} =  \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p} } \frac{\left({a^2_{{m+1}}}-{\gls{sym-a-m}}\right)\,\left(-{\gls{sym-a-m}}-{a^2_{{m+1}}}+4(\gls{sym-h}-\gls{sym-d-m})^2\right)}{16\,\left(\gls{sym-h} - \gls{sym-d-m}\right)}, 
 \end{equation}
 where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vector $\gls{sym-vec-c-p} =[\gls{sym-vec-c-p-i-1}, \ \vec{c}_p^{ \ i_2}, \dots,  \gls{sym-vec-c-p-i-M},  \gls{sym-vec-c-p-e}]
 \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$, where
@@ -838,36 +840,36 @@ where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vecto
     \vec{0}_{2\gls{sym-N-i-m}} & \text{when} \ m \notin \gls{sym-mathcal-M-p}
     \end{matrix}\right. ,
 \end{equation}
-for $2\le \gls{sym-m} \le \gls{sym-M}$, and $\gls{sym-vec-c-p-e} = \vec{0}_{\gls{sym-N-e}}$. 
+for $2\le \gls{sym-m-region} \le \gls{sym-M-regions}$, and $\gls{sym-vec-c-p-e} = \vec{0}_{\gls{sym-N-e}}$. 
 Note that $\vec{0}_{\gls{sym-k-generic-index}}$ denotes a $\gls{sym-k-generic-index}$-long row vector of zeros and $\vec{\mathcal{R}}_{\chi}^{j}$ is a vector of integrals of radial eigenfunctions for region $\gls{sym-j}$ with closed form solutions in Appendix~\ref{jfm:appC}. 
-The vector $\gls{sym-vec-c-p}$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $\gls{sym-m}$th region in the $\gls{sym-vec-x-q}$ vector in Eq.~\ref{jfm:A_pq B_pq scalar form}. 
-By applying Eq.~\ref{jfm:A_pq B_pq scalar form} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$ and $\gls{sym-p}=1,2,\dots, \gls{sym-Q}$, we can express the added mass matrix $\gls{sym-mathbf-A-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q} \times \gls{sym-Q}}$ and radiation damping matrix $\gls{sym-mathbf-B-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q} \times \gls{sym-Q}}$ as
+The vector $\gls{sym-vec-c-p}$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $\gls{sym-m-region}$th region in the $\gls{sym-vec-x-q}$ vector in Eq.~\ref{jfm:A_pq B_pq scalar form}. 
+By applying Eq.~\ref{jfm:A_pq B_pq scalar form} for $\gls{sym-q-dof}=1,2,\dots, \gls{sym-Q-dof}$ and $\gls{sym-p-dof}=1,2,\dots, \gls{sym-Q-dof}$, we can express the added mass matrix $\gls{sym-mathbf-A-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q-dof} \times \gls{sym-Q-dof}}$ and radiation damping matrix $\gls{sym-mathbf-B-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q-dof} \times \gls{sym-Q-dof}}$ as
 \begin{equation}\label{jfm:A_pq B_pq matrix form}
     \gls{sym-mathbf-A-h}(\gls{sym-omega}) + \frac{\mathrm{i}\gls{sym-mathbf-B-h}(\gls{sym-omega})}{\gls{sym-omega}}=2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-mathbf-C-0} + \gls{sym-mathbf-C} \ \mathbf{X}) =2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-mathbf-C-0} + \gls{sym-mathbf-C} \ \mathbf{A}^{-1} \ \mathbf{B})
 \end{equation}
-where the element in the $\gls{sym-p}$th row and column of the diagonal matrix $\gls{sym-mathbf-C-0}$ is $\gls{sym-c-p}$, the $\gls{sym-p}$th row of $\gls{sym-mathbf-C}$ is $\gls{sym-vec-c-p}$, the $\gls{sym-q}$th column of $\gls{sym-mathbf-X}$ is $\gls{sym-vec-x-q}$, and the $\gls{sym-q}$th column of $\gls{sym-mathbf-B}$ is $\gls{sym-vec-b-q}$.
+where the element in the $\gls{sym-p-dof}$th row and column of the diagonal matrix $\gls{sym-mathbf-C-0}$ is $\gls{sym-c-p}$, the $\gls{sym-p-dof}$th row of $\gls{sym-mathbf-C}$ is $\gls{sym-vec-c-p}$, the $\gls{sym-q-dof}$th column of $\gls{sym-mathbf-X}$ is $\gls{sym-vec-x-q}$, and the $\gls{sym-q-dof}$th column of $\gls{sym-mathbf-B}$ is $\gls{sym-vec-b-q}$.
 Finally, the added mass and radiation damping matrices are 
 \begin{equation}\label{jfm:eq: added mass and damping matrices}
     \gls{sym-mathbf-A-h}(\gls{sym-omega}) = 2\gls{sym-pi} \gls{sym-rho-w} \ \mathrm{Re} \{ \gls{sym-mathbf-C-0} + \gls{sym-mathbf-C} \ \mathbf{A}^{-1} \ \mathbf{B} \} \quad \text{and} \quad
     \gls{sym-mathbf-B-h}(\gls{sym-omega}) = 2\gls{sym-pi} \gls{sym-rho-w} \gls{sym-omega} \ \mathrm{Im} \{ \gls{sym-mathbf-C-0} + \gls{sym-mathbf-C} \ \mathbf{A}^{-1} \ \mathbf{B} \}.
 \end{equation}
 
-To find the heave excitation force $\gls{sym-X-q}$ on the $\gls{sym-q}$th body due to an incident wave, a form of the Haskind relation can be used \citep{newman2018marine}.
+To find the heave excitation force $\gls{sym-X-q}$ on the $\gls{sym-q-dof}$th body due to an incident wave, a form of the Haskind relation can be used \citep{newman2018marine}.
 This was done in~\citet{chau2012inertia} and~\citet{zhang_performance_2024} for geometries with two and three interior regions, respectively.
-The results are the same for this configuration, as the derivation for the force on the $\gls{sym-q}$th body only involves the solution in the exterior region when the $\gls{sym-q}$th body is heaving.
-The heave excitation force on the $\gls{sym-q}$th body is
+The results are the same for this configuration, as the derivation for the force on the $\gls{sym-q-dof}$th body only involves the solution in the exterior region when the $\gls{sym-q-dof}$th body is heaving.
+The heave excitation force on the $\gls{sym-q-dof}$th body is
 \begin{equation}\label{jfm:eq:excitation force}
-    \gls{sym-X-q} = \frac{-4 \text{i} \gls{sym-rho-w} \gls{sym-g} \gls{sym-h} \sqrt{\gls{sym-N-0}} }{\cosh(\gls{sym-lambda-0-e}\gls{sym-h})\gls{sym-mathrm-H-0-1}(\gls{sym-lambda-0-e} \gls{sym-a-M})} \ _{}^{\gls{sym-q}}\gls{sym-C-10-e}
+    \gls{sym-X-q} = \frac{-4 \text{i} \gls{sym-rho-w} \gls{sym-g} \gls{sym-h} \sqrt{\gls{sym-N-0}} }{\cosh(\gls{sym-lambda-0-e}\gls{sym-h})\gls{sym-mathrm-H-0-1}(\gls{sym-lambda-0-e} \gls{sym-a-M})} \ _{}^{\gls{sym-q-dof}}\gls{sym-C-10-e}
 \end{equation}
 where \gls{sym-g} is the acceleration due to gravity,
 \gls{sym-lambda-0-e} is the wavenumber,
 \gls{sym-mathrm-H-0-1} is the zeroth-order Hankel function of the first kind,
-and $_{}^{\gls{sym-q}}\gls{sym-C-10-e}$ is the eigencoefficient in the exterior region for $\gls{sym-n-e}=0$ when only the $\gls{sym-q}$th body is heaving.
-By applying Eq.~\ref{jfm:eq:excitation force} for $\gls{sym-q}=1,2,\dots, \gls{sym-Q}$,
+and $_{}^{\gls{sym-q-dof}}\gls{sym-C-10-e}$ is the eigencoefficient in the exterior region for $\gls{sym-n-e}=0$ when only the $\gls{sym-q-dof}$th body is heaving.
+By applying Eq.~\ref{jfm:eq:excitation force} for $\gls{sym-q-dof}=1,2,\dots, \gls{sym-Q-dof}$,
 we can find the heave excitation force coefficient vector
-$\gls{sym-vec-X} \in \gls{sym-mathbb-C}^{\gls{sym-Q}}$,
+$\gls{sym-vec-X-heave} \in \gls{sym-mathbb-C}^{\gls{sym-Q-dof}}$,
 which is a column vector with the element
-$\gls{sym-X-q}$ in the $\gls{sym-q}$th entry.
+$\gls{sym-X-q}$ in the $\gls{sym-q-dof}$th entry.
 
 % The magnitude and phase are
 % \begin{equation}\label{jfm:eq:gamma-K}
@@ -877,21 +879,21 @@ $\gls{sym-X-q}$ in the $\gls{sym-q}$th entry.
 % where $g$ is the acceleration due to gravity, $\lambda_0^e$ is the wavenumber, $V_g$ is the finite depth group velocity, $\textrm{H}_0^1$ is the zeroth-order Hankel function of the first kind, and $C_{10}^e$ is the eigenfunction in the exterior region for $n=0$. Note that while the excitation magnitude $|\gamma|$ depends on the radiation damping $B_h$, which in turn depends on all the inner region eigencoefficients, the excitation phase $\angle\gamma$ depends only on the first exterior eigencoefficient, $C_{10}^e$. Eq.~\ref{jfm:eq:gamma-K} holds for any region heaving, but the solution to $\mathbf{A} \vec{x} = \vec{b}$ will be different, changing the values of $B_h$ and $C_{10}^e$ accordingly. 
 
 The hydrostatic stiffness matrix $\gls{sym-mathbf-K-h}$ and mass matrix $\gls{sym-mathbf-M}$ are diagonal matrices that can be found from geometry.
-The element in the $\gls{sym-q}$th row and $\gls{sym-q}$th column of $\gls{sym-mathbf-K-h}$ can be found by summing over the waterplane areas $\gls{sym-W-m}$ contributed by each region
+The element in the $\gls{sym-q-dof}$th row and $\gls{sym-q-dof}$th column of $\gls{sym-mathbf-K-h}$ can be found by summing over the waterplane areas $\gls{sym-W-m}$ contributed by each region
 \begin{equation}\label{jfm:eq:hydrostatic stiffness}
-    [\gls{sym-mathbf-K-h}]_{qq}= \gls{sym-rho-w} \gls{sym-g} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}
+    [\gls{sym-mathbf-K-h}]_{qq}= \gls{sym-rho-w} \gls{sym-g} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}
 \end{equation}
-where $\gls{sym-W-m}= \gls{sym-pi} \gls{sym-a-m}^2$ for $\gls{sym-m}=1$ and $\gls{sym-W-m}= \gls{sym-pi}(\gls{sym-a-m}^2-\gls{sym-a-m-1-2}^2)$ otherwise.
-If we assume the configuration in Fig.~\ref{jfm:fig:Diagram} is in static equilibrium such that the gravitational force balances the buoyancy force, the element in the $\gls{sym-q}$th row and $\gls{sym-q}$th column of $\gls{sym-mathbf-M}$, is
+where $\gls{sym-W-m}= \gls{sym-pi} \gls{sym-a-m}^2$ for $\gls{sym-m-region}=1$ and $\gls{sym-W-m}= \gls{sym-pi}(\gls{sym-a-m}^2-\gls{sym-a-m-1-2}^2)$ otherwise.
+If we assume the configuration in Fig.~\ref{jfm:fig:Diagram} is in static equilibrium such that the gravitational force balances the buoyancy force, the element in the $\gls{sym-q-dof}$th row and $\gls{sym-q-dof}$th column of $\gls{sym-mathbf-M}$, is
 \begin{equation}\label{jfm:eq:mass matrix}
-    [\gls{sym-mathbf-M}]_{qq}= \gls{sym-rho-w} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}d_{\gls{sym-m}}.
+    [\gls{sym-mathbf-M}]_{qq}= \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}d_{\gls{sym-m-region}}.
 \end{equation}
-This is the mass of the $\gls{sym-q}$th body.
+This is the mass of the $\gls{sym-q-dof}$th body.
 Once all matrices are found, one can construct the equation of motion of the system for regular waves
 \begin{equation}\label{jfm:eq: EOM}
-    (\gls{sym-mathbf-M} + \gls{sym-mathbf-A-h}(\gls{sym-omega})) \gls{sym-ddot-vec-xi} + \gls{sym-mathbf-B-h}(\gls{sym-omega}) \gls{sym-dot-vec-xi} + \gls{sym-mathbf-K-h} \gls{sym-vec-xi} =\mathrm{Re} \{ \gls{sym-wave-amplitude} \gls{sym-vec-X} e^{-\mathrm{i} \gls{sym-omega} \gls{sym-t}} \}
+    (\gls{sym-mathbf-M} + \gls{sym-mathbf-A-h}(\gls{sym-omega})) \gls{sym-ddot-vec-xi} + \gls{sym-mathbf-B-h}(\gls{sym-omega}) \gls{sym-dot-vec-xi} + \gls{sym-mathbf-K-h} \gls{sym-vec-xi} =\mathrm{Re} \{ \gls{sym-wave-amplitude} \gls{sym-vec-X-heave} e^{-\mathrm{i} \gls{sym-omega} \gls{sym-t}} \}
 \end{equation}
-where $\gls{sym-vec-xi}(\gls{sym-t}) = [\gls{sym-xi-1}(\gls{sym-t}), \gls{sym-xi-2}(\gls{sym-t}), \dots,  \gls{sym-xi-Q}(\gls{sym-t})]^{\top}$ is a vector containing the heave displacements of the $\gls{sym-Q}$ bodies of the system, $\gls{sym-omega}$ is the wave frequency, and $\gls{sym-wave-amplitude}$ is the wave amplitude.
+where $\gls{sym-vec-xi}(\gls{sym-t}) = [\gls{sym-xi-1}(\gls{sym-t}), \gls{sym-xi-2}(\gls{sym-t}), \dots,  \gls{sym-xi-Q}(\gls{sym-t})]^{\top}$ is a vector containing the heave displacements of the $\gls{sym-Q-dof}$ bodies of the system, $\gls{sym-omega}$ is the wave frequency, and $\gls{sym-wave-amplitude}$ is the wave amplitude.
 
 \subsection{Low, High, and Infinite Frequency Approximations}
 The wave frequency $\gls{sym-omega}$ and wavenumber $\gls{sym-lambda-0-e}$ are related by the dispersion relation in Table \ref{jfm:tab:MEEM-eigenfunctions}, which is monotonic and depends on $\gls{sym-h}$.
@@ -937,8 +939,16 @@ As $\gls{sym-lambda-0-e}$ increases, the coefficient of the first exterior regio
 At $\gls{sym-lambda-0-e} = \infty$,
 % it is no longer a valid eigenvalue, and its eigenfunction is not valid either (has contribution 0) and 
 the solution is representable without the first exterior region eigenfunction.
-The rest of the exterior region eigenvalues must be finite and satisfy $\gls{sym-lambda-n-e-e} \tan (\gls{sym-lambda-n-e-e} \gls{sym-h}) = - \infty$, meaning $\gls{sym-lambda-n-e-e} \gls{sym-h} = (\gls{sym-n} - \frac{1}{2})\gls{sym-pi}$ and
-\begin{equation} \lim_{\lambda_0^e \to \infty }\lambda_{n_e}^e = \frac{(n - \frac{1}{2})\pi}{h}.
+The rest of the exterior region eigenvalues must be finite and satisfy $\gls{sym-lambda-n-e-e} \tan (\gls{sym-lambda-n-e-e} \gls{sym-h}) = - \infty$, meaning $\gls{sym-lambda-n-e-e} \gls{sym-h} = (\gls{sym-n-e} - \frac{1}{2})\gls{sym-pi}$ and
+\begin{equation}
+    \lim_{\gls{sym-lambda-0-e} \to \infty }
+    \gls{sym-lambda-n-e-e} 
+    = \frac{
+                (\gls{sym-n-e} - \frac{1}{2}) \gls{sym-pi}
+            }
+            {
+                \gls{sym-h}
+            }.
 \end{equation}
 In general, that is the lower bound for $\gls{sym-lambda-n-e-e}$. 
 % For finite frequency, $(n - \frac{1}{2})\pi \le \lambda_{n_e}^e h \le n\pi$ can be passed into a root-finding solver as bounds for $\lambda_{n_e}^e$.
@@ -994,7 +1004,7 @@ Exponentially scaled Bessel functions counteract this and span only a few orders
 Examples of the new form of the radial eigenfunctions are shown here.} \label{jfm:tab:exp-bessels} \end{table}
 
 \subsubsection{Overflow in Vertical Eigenfunctions}
-The vertical eigenfunction $\gls{sym-Z-k-e}$ for $\gls{sym-k-generic-index}=0$ contains the $\cosh$ and $\sinh$ functions, which diverge for large values of $\gls{sym-lambda-0-e}\gls{sym-h}$ (high frequencies or deep water).
+The vertical eigenfunction $\gls{sym-Z-n-e-e}$ for $\gls{sym-n-e}=0$ contains the $\cosh$ and $\sinh$ functions, which diverge for large values of $\gls{sym-lambda-0-e}\gls{sym-h}$ (high frequencies or deep water).
 The largest relevant value of $\gls{sym-lambda-0-e}\gls{sym-h}$ depends on the environment rather than on the floating body geometry.
 The expression overflows for $\gls{sym-lambda-0-e}\gls{sym-h}>\cosh^{-1}(\rm \gls{sym-f-max})/2$.
 To prevent overflow, we use the analytical limit derived in section~\ref{jfm:sec:high-freq-limit}, which allows for larger values of $\gls{sym-lambda-0-e}\gls{sym-h}>\cosh^{-1}(\rm \gls{sym-f-max})\gls{sym-h}/\gls{sym-d-2}$ before overflowing.
@@ -1047,7 +1057,7 @@ In their review of a related method, \cite[Section 4.3]{hiptmair_survey_2016} ex
 They reference some studies which likewise find no issue with the high condition number and others which choose the number of terms per region to balance truncation error and conditioning.
 
 \subsubsection{Matrix Sparsity}
-Fig.~\ref{jfm:fig:sparsity} shows the sparsity pattern of the $\gls{sym-mathbf-A}$, $\gls{sym-mathbf-B}$, and $\gls{sym-mathbf-C}$ matrices from Eq.~\ref{jfm:eq: added mass and damping matrices} for an example configuration consisting of two bi-cylinder bodies with $\gls{sym-M}=4$, $\gls{sym-mathcal-M-1} = \{1, 2\}$, $\gls{sym-mathcal-M-2} = \{3, 4\}$, $\gls{sym-N-i-m}=\gls{sym-N-e}=10$, and $\gls{sym-d-m-1}<\gls{sym-d-m}$. 
+Fig.~\ref{jfm:fig:sparsity} shows the sparsity pattern of the $\gls{sym-mathbf-A}$, $\gls{sym-mathbf-B}$, and $\gls{sym-mathbf-C}$ matrices from Eq.~\ref{jfm:eq: added mass and damping matrices} for an example configuration consisting of two bi-cylinder bodies with $\gls{sym-M-regions}=4$, $\gls{sym-mathcal-M-1} = \{1, 2\}$, $\gls{sym-mathcal-M-2} = \{3, 4\}$, $\gls{sym-N-i-m}=\gls{sym-N-e}=10$, and $\gls{sym-d-m-1}<\gls{sym-d-m}$. 
 The $\gls{sym-mathbf-A}$ matrix features a block bi-diagonal structure.
 This can be observed by partitioning $\gls{sym-mathbf-A}$ into rectangular blocks such that each block encompasses the full height and half the blockwise width of the $\gls{sym-mathbf-A-m}$ sub-matrix.
 The bi-diagonal structure occurs because the matching equations at a given boundary contain only unknowns from the two regions at that boundary, and not from other regions.
@@ -1094,7 +1104,7 @@ Note that the geometry is simplified in the \gls{acr-meem} and Capytaine models 
 In reality, the CorPower \gls{acr-wec} geometry also consists of a slanted section. 
 This will be accounted for later in Sec.~\ref{jfm:sec:slant}. 
 The geometry settings of this comparison were set as follows: 
-$\gls{sym-a-1}=1.25 \text{~\gls{sym-m}}$, $\gls{sym-a-2}=4.2 \text{~\gls{sym-m}}$, $\gls{sym-d-1}=14.45 \text{~\gls{sym-m}}$, $\gls{sym-d-2}=2.05 \text{~\gls{sym-m}}$, and $\gls{sym-h}=50 \text{~\gls{sym-m}}$. 
+$\gls{sym-a-1}=1.25 \text{~\gls{sym-m-region}}$, $\gls{sym-a-2}=4.2 \text{~\gls{sym-m-region}}$, $\gls{sym-d-1}=14.45 \text{~\gls{sym-m-region}}$, $\gls{sym-d-2}=2.05 \text{~\gls{sym-m-region}}$, and $\gls{sym-h}=50 \text{~\gls{sym-m-region}}$. 
 The series in each region was truncated to 150 for \gls{acr-meem} ($\gls{sym-N-i-1}=\gls{sym-N-i-2}=\gls{sym-N-e}=150$) and 1060 panels were used in Capytaine. 
 The hydrodynamic coefficients from \gls{acr-meem} and Capytaine are on average within 1\% of one another. 
 Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. 
@@ -1114,14 +1124,14 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 Characterizing the convergence \behaviour{} of numerical solvers is crucial for ensuring accuracy while avoiding unnecessarily long runtimes. 
 For \gls{acr-bem} solvers, a mesh convergence study is typically performed, where the number of panels is increased until a desired level of accuracy of the hydrodynamic coefficients is achieved. 
 As the matrix size of \gls{acr-bem} is equal to the number of panels, improving accuracy through finer meshes comes with added computational cost. 
-In the case of \gls{acr-meem}, the \behaviour{} is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $\gls{sym-N-T} = \gls{sym-N-i-1} + 2\sum_{\gls{sym-m}=2}^{\gls{sym-M}} \gls{sym-N-i-m} + \gls{sym-N-e}$ can be increased. 
+In the case of \gls{acr-meem}, the \behaviour{} is very similar, except instead of increasing the number of panels, the number of eigenfunction terms $\gls{sym-N-T} = \gls{sym-N-i-1} + 2\sum_{\gls{sym-m-region}=2}^{\gls{sym-M-regions}} \gls{sym-N-i-m} + \gls{sym-N-e}$ can be increased. 
 Furthermore, higher values of $\gls{sym-N-T}$ imply larger matrix sizes, leading to longer runtime. 
-The goal of this convergence study is to determine the number of terms $\gls{sym-N-i-m}$ per region needed to achieve a desired maximum error $\gls{sym-epsilon}$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being \modelled{}. 
+The goal of this convergence study is to determine the number of terms $\gls{sym-N-i-m}$ per region needed to achieve a desired maximum error $\gls{sym-epsilon-meem-error}$ in the hydrodynamic coefficients solely based on the geometry and wave conditions being \modelled{}. 
 
 This study makes two simplifying assumptions about the \behaviour{} of the convergence, which are found to be reasonably accurate for the configurations considered. 
 First, the number of terms needed in each region depends directly on dimensionless parameters (Sec.~\ref{jfm:sec:finding-dimensionless-parameters}) derived from the geometry and not on the number of terms needed in any other region (up to correlations from sharing the same overall geometry variables). 
 This is as opposed to needing to raise a region's base term count, dependent on its own geometry, to support neighboring regions with higher requirements. 
-Second, we model the error $\gls{sym-epsilon}$ for $\gls{sym-N-i-m}$ terms in region $\gls{sym-m}$, assuming all other regions are sufficiently converged, as a power-law envelope of $\gls{sym-epsilon} \approx (\frac{\gls{sym-N-i-m}}{\gls{sym-beta-i-m}})^{-\gls{sym-alpha-i-m}}$ (Fig.~\ref{jfm:fig:error-model}), with the dimensionless parameters informing $\gls{sym-alpha-i-m}, \gls{sym-beta-i-m} > 0$. 
+Second, we model the error $\gls{sym-epsilon-meem-error}$ for $\gls{sym-N-i-m}$ terms in region $\gls{sym-m-region}$, assuming all other regions are sufficiently converged, as a power-law envelope of $\gls{sym-epsilon-meem-error} \approx (\frac{\gls{sym-N-i-m}}{\gls{sym-beta-i-m}})^{-\gls{sym-alpha-i-m}}$ (Fig.~\ref{jfm:fig:error-model}), with the dimensionless parameters informing $\gls{sym-alpha-i-m}, \gls{sym-beta-i-m} > 0$. 
 Dependencies differ between the two hydrodynamic coefficients, so each is \modelled{} separately with its own final $\gls{sym-alpha-i-m-A}, \gls{sym-beta-i-m-A}$ (added mass) or $\gls{sym-alpha-B-i-m}, \gls{sym-beta-B-i-m}$ (damping). 
 As the excitation force is a result of the radiation problem, due to the Haskind relation, convergence of the added mass and radiation damping is assumed to imply the convergence of the excitation force. 
 Convergence is faster for larger $\gls{sym-alpha-i-m}$ and smaller $\gls{sym-beta-i-m}$. 
@@ -1131,12 +1141,12 @@ Convergence is faster for larger $\gls{sym-alpha-i-m}$ and smaller $\gls{sym-bet
     \includegraphics[width=0.9\linewidth]{figs/alpha-beta-explanation.pdf}
     \caption{Left: Added mass and damping calculated for a three body region configuration at $\gls{sym-N-i-1} = \gls{sym-N-i-3} = \gls{sym-N-e} = 200$ with region $\gls{sym-i-2}$ heaving, for varying $\gls{sym-N-i-2}$. 
     Right: The data at left is transformed to the natural log of the associated error, 
-    and fitted to obtain error envelope parameters $\gls{sym-alpha}, \gls{sym-beta}$ for each of added mass and damping.
+    and fitted to obtain error envelope parameters $\gls{sym-alpha-convergence}, \gls{sym-beta-convergence}$ for each of added mass and damping.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2Falpha-beta-explanation.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:error-model}
 \end{figure}
 
-After confirming these assumptions, the main objective of the convergence study is to find key dimensionless parameters for a given problem, and find $\gls{sym-alpha}$ and $\gls{sym-beta}$ as a function of these dimensionless parameters. 
+After confirming these assumptions, the main objective of the convergence study is to find key dimensionless parameters for a given problem, and find $\gls{sym-alpha-convergence}$ and $\gls{sym-beta-convergence}$ as a function of these dimensionless parameters. 
 Once this analysis is complete, the number of terms needed in each region can be predicted by taking the maximum of the number required to converge added mass and radiation damping.
 This process is shown in Fig.~\ref{jfm:fig:nmk-predict-flowchart}.
 
@@ -1160,15 +1170,15 @@ Sets of dimensionless parameters are not unique, but good sets will have more di
 
 We categorize regions into four types by their local geometry: innermost ($\gls{sym-i-1}$), middle ($\gls{sym-i-2-leq-m-M}$), outermost ($\gls{sym-i-M}$), and exterior ($e$). 
 The local geometry of the $i$-type regions differ by region type ($\gls{sym-r}=0$, body region, or exterior region) of their inner and outer neighbors. 
-To capture these region types, the majority of configurations we generate convergence data for have three body regions and one exterior region (i.e. $\gls{sym-M} = 3$).
+To capture these region types, the majority of configurations we generate convergence data for have three body regions and one exterior region (i.e. $\gls{sym-M-regions} = 3$).
 In this study, the single cylinder case with an inner boundary of $\gls{sym-r}=0$ and outer \neighbour{} of the exterior region is not considered. 
 
 
 To obtain numerical values for the convergence of a configuration's hydrodynamic coefficients with respect to $\gls{sym-N-i-m}$, 
 they are first computed with all $\gls{sym-N-j}$ ($\gls{sym-j}\in\{\gls{sym-i-1},...,\gls{sym-i-M}, e\}$) at a high number $\gls{sym-N-max} = 200$ for their ``true values.'' 
-Then they are recomputed with all $\gls{sym-N-j}, \gls{sym-j}\neq \gls{sym-i-m}$ fixed to $\gls{sym-N-max}$, while, for the $\gls{sym-m}$th region, which we will refer to as the target region, 
+Then they are recomputed with all $\gls{sym-N-j}, \gls{sym-j}\neq \gls{sym-i-m}$ fixed to $\gls{sym-N-max}$, while, for the $\gls{sym-m-region}$th region, which we will refer to as the target region, 
 $\gls{sym-N-i-m}$ is varied over $[1, 2, \dots, \gls{sym-N-big}]$, where $\gls{sym-N-big} = 150$ is less than $\gls{sym-N-max}$ by a reasonably large margin. 
-From this, the errors $\gls{sym-epsilon} = \frac{\text{value}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $\gls{sym-N-i-m}$ are calculated.
+From this, the errors $\gls{sym-epsilon-meem-error} = \frac{\text{value}-\text{true}}{\text{true}}$ of each hydrodynamic coefficient at each $\gls{sym-N-i-m}$ are calculated.
 
 We observe that for a fixed geometry, convergence is slower 
 (1) for added mass than damping in innermost and middle regions, 
@@ -1186,7 +1196,7 @@ Next, we sweep each identified parameter over a range of reasonable values while
 These isolated effects are quantified by plotting the $\gls{sym-alpha-i-m}$ and $\gls{sym-beta-i-m}$ fitted to each geometry against the dimensionless parameter. 
 These plots suggest functional forms for the relationship between the dimensionless parameters and fit parameters (Fig.~\ref{jfm:fig:choosing-fitting-functions}).
 
-Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) are theorized and assessed by fitting them to sets of randomized geometry and their associated $(\gls{sym-N-i-m}, \gls{sym-epsilon})$ pairs. 
+Finally, functions incorporating all relevant dimensionless parameters in a region (typically a product of the functional forms of individual parameters) are theorized and assessed by fitting them to sets of randomized geometry and their associated $(\gls{sym-N-i-m}, \gls{sym-epsilon-meem-error})$ pairs. 
 Functions explored have to remain positive on the domain of the dimensionless parameter, restricting their form. 
 For example, some relationships appear nearly linear with negative slope on the range of the dimensionless parameter they are observed at, but are expressed as decaying exponentials to avoid straying below zero.
 
@@ -1203,19 +1213,19 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 \begin{table}
 \centering \begin{tabular}{|c|c|c|c|}
 \hline
-&$\gls{sym-p} = \frac{\gls{sym-h}-\gls{sym-d-m}}{\gls{sym-a-m} - \gls{sym-a-m-1-2}}$
-&$\gls{sym-p} = \frac{\gls{sym-h}-\gls{sym-d-m-1}}{\gls{sym-h}-\gls{sym-d-m}}$
-&$\gls{sym-p} = \frac{\gls{sym-h}-\gls{sym-d-m-1-2}}{\gls{sym-h}-\gls{sym-d-m}}$\\
+&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-m}}{\gls{sym-a-m} - \gls{sym-a-m-1-2}}$
+&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-m-1}}{\gls{sym-h}-\gls{sym-d-m}}$
+&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-m-1-2}}{\gls{sym-h}-\gls{sym-d-m}}$\\
 \hline
 $\gls{sym-alpha-A-i-m-1}$
-& $\gls{sym-c-1}\ln(\gls{sym-p} + \gls{sym-c-2}) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\begin{cases}
     c_1, & p < 1\\
     c_2, & p \geq 1
 \end{cases}$ & N/A\\
 \hline
 $\gls{sym-beta-A-i-m-1}$
-& $\gls{sym-c-1}\cdot \gls{sym-p}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
 & $\begin{cases}
     \frac{c_1}{1 + e^{-c_2(p-1)}} + c_3, & p < 1\\
     c_4, & p \geq 1
@@ -1223,7 +1233,7 @@ $\gls{sym-beta-A-i-m-1}$
 & N/A\\
 \hline
 $\gls{sym-alpha-A-i-2-leq-m-M}$
-& $\gls{sym-c-1}\ln(\gls{sym-p} + \gls{sym-c-2}) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\begin{cases}
     c_1, &p < 1\\
     c_2, &p \geq 1
@@ -1234,7 +1244,7 @@ $\gls{sym-alpha-A-i-2-leq-m-M}$
 \end{cases}$ \\
 \hline
 $\gls{sym-beta-A-i-2-leq-m-M}$\
-& $\gls{sym-c-1}\cdot \gls{sym-p}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
 & $\begin{cases}
     \frac{c_1}{1 + e^{-c_2(p-1)}} + c_3, & p < 1\\
     c_4, & p \geq 1
@@ -1246,15 +1256,15 @@ $\gls{sym-beta-A-i-2-leq-m-M}$\
 \hline
 \end{tabular}
 \begin{tabular}{|c|c|c|c|c|c|}\hline
-&$\gls{sym-p} = \frac{\gls{sym-h}-\gls{sym-d-M}}{\gls{sym-a-M} - \gls{sym-a-M-1}}$
-&$\gls{sym-p} = \frac{\gls{sym-h}}{\gls{sym-h}-\gls{sym-d-M}}$
-&$\gls{sym-p} = \frac{\gls{sym-h}-\gls{sym-d-M-1}}{\gls{sym-h}-\gls{sym-d-M}}$
-&$\gls{sym-p} = \frac{\gls{sym-a-M} - \gls{sym-a-M-1}}{\gls{sym-a-M-1}}$
-&$\gls{sym-p} = \gls{sym-lambda-0-e} \gls{sym-h}$\\
+&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-M}}{\gls{sym-a-M} - \gls{sym-a-M-1}}$
+&$\gls{sym-p-dof} = \frac{\gls{sym-h}}{\gls{sym-h}-\gls{sym-d-M}}$
+&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-M-1}}{\gls{sym-h}-\gls{sym-d-M}}$
+&$\gls{sym-p-dof} = \frac{\gls{sym-a-M} - \gls{sym-a-M-1}}{\gls{sym-a-M-1}}$
+&$\gls{sym-p-dof} = \gls{sym-lambda-0-e} \gls{sym-h}$\\
 \hline
 $\gls{sym-alpha-A-i-M}$
-& $\gls{sym-c-1}\ln(\gls{sym-p} + \gls{sym-c-2}) + \gls{sym-c-3}$
-& $\gls{sym-c-1}\ln(\gls{sym-p} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & $\begin{cases}
     c_1, & p < 1\\
     c_2, & p \geq 1
@@ -1263,25 +1273,25 @@ $\gls{sym-alpha-A-i-M}$
 & Independent\\
 \hline
 $\gls{sym-beta-A-i-M}$
-& $\gls{sym-c-1}\cdot \gls{sym-p}$
-& $\gls{sym-c-1}\ln(\gls{sym-p} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & $\begin{cases}
     c_1, & p < 1\\
     c_2, & p \geq 1
 \end{cases}$
-& $\gls{sym-c-1}\cdot \gls{sym-p} + \gls{sym-c-2}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-dof} + \gls{sym-c-2}$
 & Independent\\
 \hline
 $\gls{sym-alpha-B-i-M}$
 & Independent
-& $\gls{sym-c-1}\ln(\gls{sym-p} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & Independent
 & Independent
-& $\gls{sym-c-1}e^{-\gls{sym-c-2}\gls{sym-p}} + \gls{sym-c-3}$\\
+& $\gls{sym-c-1}e^{-\gls{sym-c-2}\gls{sym-p-dof}} + \gls{sym-c-3}$\\
 \hline
 $\gls{sym-beta-B-i-M}$\
-& $\gls{sym-c-1}\cdot \gls{sym-p} + \gls{sym-c-2}$
-& $\gls{sym-c-1}e^{-\gls{sym-c-2}\gls{sym-p}}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-dof} + \gls{sym-c-2}$
+& $\gls{sym-c-1}e^{-\gls{sym-c-2}\gls{sym-p-dof}}$
 & Independent
 & Independent
 & $\begin{cases}
@@ -1292,7 +1302,7 @@ $\gls{sym-beta-B-i-M}$\
 \end{tabular}
     \caption{Dependency trends on individual dimensionless parameter identified/used for fitting error predictions in body regions, based on the procedure in Fig.~\ref{jfm:fig:choosing-fitting-functions}. 
     The constants $\gls{sym-c-i} \geq 0$ in each box are placeholders and not intended have the same value between boxes. 
-    Damping nearly always converges faster than added mass in the interior regions ($\gls{sym-m}<\gls{sym-M}$), so the associated fit parameters ($\gls{sym-alpha-B-i-m}$, $\gls{sym-beta-B-i-m}$) were not \analysed{}. 
+    Damping nearly always converges faster than added mass in the interior regions ($\gls{sym-m-region}<\gls{sym-M-regions}$), so the associated fit parameters ($\gls{sym-alpha-B-i-m}$, $\gls{sym-beta-B-i-m}$) were not \analysed{}. 
     The choice of the piecewise form of $\gls{sym-beta-B-i-M}(\gls{sym-lambda-0-e}\gls{sym-h})$ is out of practicality for fitting: 
     to capture the clear $\gls{sym-beta-B-i-M} \propto \sqrt{\gls{sym-lambda-0-e} \gls{sym-h}}$ relation at high $\gls{sym-lambda-0-e} \gls{sym-h}$ while approximating the different \behaviour{} near zero.
     % Table-like figure with images of dependencies. Differentiate between inapplicable (e.g. \neighbour{} required for formula doesn't exist) and independent (plottable but no relation) for unplotted boxes. Separate for added mass and damping (likely ignore damping in interior regions for time). Only some examples will actually be plotted, most dependencies will just be formulas (or independent/inapplicable).
@@ -1305,7 +1315,7 @@ The number of terms in a region's eigenfunction expansion necessary to sufficien
 In other words, influential dimensionless parameters relate the spatial frequency of the detail (variation in the true value of the potential) to the characteristic length of a region's eigenfunctions.
 
 In the body region $\gls{sym-i-m}$, the most important parameter is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{\gls{sym-h} - \gls{sym-d-m}}{\gls{sym-a-m} - a_{{m-1}}}$.
-The radial eigenfunctions here inherit their eigenvalues $\gls{sym-lambda-n-m-i-m} = \frac{\gls{sym-n}\gls{sym-pi}}{\gls{sym-h}-\gls{sym-d-m}}$ from the corresponding vertical eigenfunction.
+The radial eigenfunctions here inherit their eigenvalues $\gls{sym-lambda-n-m-i-m} = \frac{\gls{sym-n-m}\gls{sym-pi}}{\gls{sym-h}-\gls{sym-d-m}}$ from the corresponding vertical eigenfunction.
 Thus, taller regions need higher harmonics to create the same characteristic length of resolution for radial details, and the ratio of fluid height to radial width is a ratio of resolving scale to detail.
 
 In the exterior region, the analogous relationship between the two major characteristic lengths is captured by $\gls{sym-lambda-0-e}\gls{sym-h}$.
@@ -1318,7 +1328,7 @@ The convergence speed changes quickly (almost step-like) near $1$.
 The trend is the same for $\frac{\gls{sym-h}-\gls{sym-d-m-1}}{\gls{sym-h}-\gls{sym-d-m}}$.
 
 This is theorized to result from the boundary condition represented by the ratio.
-If $\frac{\gls{sym-h}-\gls{sym-d-m-1-2}}{\gls{sym-h}-\gls{sym-d-m}} < 1$, then region $\gls{sym-m}$'s entire inner boundary condition is the continuity conditions between regions $\gls{sym-m}$ and $\gls{sym-m}-1$, but if $\frac{\gls{sym-h}-\gls{sym-d-m-1-2}}{\gls{sym-h}-\gls{sym-d-m}} > 1$, the boundary includes a section of $\frac{\partial \gls{sym-phi}}{\partial \gls{sym-r}} = 0$ near $\gls{sym-z} = \gls{sym-d-m}$, where the hydrodynamic coefficients are being integrated.
+If $\frac{\gls{sym-h}-\gls{sym-d-m-1-2}}{\gls{sym-h}-\gls{sym-d-m}} < 1$, then region $\gls{sym-m-region}$'s entire inner boundary condition is the continuity conditions between regions $\gls{sym-m-region}$ and $\gls{sym-m-region}-1$, but if $\frac{\gls{sym-h}-\gls{sym-d-m-1-2}}{\gls{sym-h}-\gls{sym-d-m}} > 1$, the boundary includes a section of $\frac{\partial \gls{sym-phi}}{\partial \gls{sym-r}} = 0$ near $\gls{sym-z} = \gls{sym-d-m}$, where the hydrodynamic coefficients are being integrated.
 This constant rather than matching boundary condition may create simpler spatial details, leading to faster convergence.
 
 A cumulative parameter observed for the innermost region ($\gls{sym-i-1})$ was some dependence on the depth of the outermost region ($\gls{sym-i-3}$), where convergence for $\gls{sym-N-i-1}$ was faster if $\gls{sym-d-3} > \gls{sym-d-2}$, which we termed a shielding effect. 
@@ -1362,7 +1372,7 @@ By characterizing the convergence \behaviour{} a priori and using the predicted 
     \includegraphics[width=0.9\linewidth]{figs/convergence-fit-assessment.pdf}
     \caption{Randomly generated (described in Sec.~\ref{jfm:sec:convergence-fit-assessment}) configurations with the target region heaving were fit with the product of the dependencies in Table~\ref{jfm:tab:final-fitting-functions}; 
     the accuracy of the resulting fits for predicting $1\%$ error are shown. 
-    Note that the whiskers are at the 5th and 95th percentile, $\gls{sym-n}$ here is the size of each set of configurations, and configurations were selected that converged by $\gls{sym-N-i-m} = 150$.
+    Note that the whiskers are at the 5th and 95th percentile, $\gls{sym-n-set-size}$ here is the size of each set of configurations, and configurations were selected that converged by $\gls{sym-N-i-m} = 150$.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2Fconvergence-fit-assessment.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.} 
     \label{jfm:fig:convergence-fit-assessment}
 \end{figure}
@@ -1409,7 +1419,7 @@ Since the forces applied to regions with smaller radial widths get weighted less
     \includegraphics[width=0.95\linewidth]{figs/slant_figures.pdf}
     \caption{Cross-sectional view of a slanted geometry and its equivalent discretized geometry.
 The close-up shown on the right-hand side shows how a slanted region can be approximated by a finite number of cylindrical rings.
-The unit vector normal to the horizontal part of all cylindrical rings is $\gls{sym-hat-n}$, while the unit vector normal to the true slanted body in the $\gls{sym-m}$th region is $\gls{sym-hat-n-zeta-m}$.}
+The unit vector normal to the horizontal part of all cylindrical rings is $\gls{sym-hat-n}$, while the unit vector normal to the true slanted body in the $\gls{sym-m-region}$th region is $\gls{sym-hat-n-zeta-m}$.}
     \label{jfm:fig:Discretization Diagram}
 \end{figure} 
 
@@ -1430,8 +1440,8 @@ Since the radial and vertical dependence was separated in Table~\ref{jfm:tab:MEE
 Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using \gls{acr-meem} on the discretized geometry.
 This leads to discrepancies in the velocity potential.
 Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points.
-If one considers integrating the pressure on a slanted surface $\gls{sym-S-p}$ at constant angle $\gls{sym-zeta}$, instead of over the horizontal sections of the discretized geometry, $\gls{sym-hat-n-p} \cdot \gls{sym-hat-e-z} = \sin(\gls{sym-zeta})$ and $dS = \frac{\gls{sym-r}}{\sin(\gls{sym-zeta})}drd\gls{sym-theta}$ in Eq.~\ref{jfm:eq:freq domain scalar rad force}.
-When these are substituted, the $\sin(\gls{sym-zeta})$ cancels and the result is the same as Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions}, except $\gls{sym-d-m}$ now has $\gls{sym-r}$ dependence.
+If one considers integrating the pressure on a slanted surface $\gls{sym-S-p}$ at constant angle $\gls{sym-zeta-slant}$, instead of over the horizontal sections of the discretized geometry, $\gls{sym-hat-n-p} \cdot \gls{sym-hat-e-z} = \sin(\gls{sym-zeta-slant})$ and $dS = \frac{\gls{sym-r}}{\sin(\gls{sym-zeta-slant})}drd\gls{sym-theta}$ in Eq.~\ref{jfm:eq:freq domain scalar rad force}.
+When these are substituted, the $\sin(\gls{sym-zeta-slant})$ cancels and the result is the same as Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions}, except $\gls{sym-d-m}$ now has $\gls{sym-r}$ dependence.
 However, the implicit dependence of the $\gls{sym-Z}$ eigenfunction evaluations on $\gls{sym-r}$ means that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{jfm:eq:freq domain scalar rad force in terms of added mass and damping} and onward.
 Unless the region's outline is flat and $\gls{sym-d-m}(\gls{sym-r})$ is constant, the hydrodynamic coefficient integrals (given $\gls{sym-vec-x}$) do not admit closed forms. 
 
@@ -1480,7 +1490,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebook
 
 \subsubsection{Dependence on Slant Steepness} \label{jfm:subsection: slant intro hydros}
 To determine the number of subdivisions needed to accurately model a slant with a given steepness, we compare the hydrodynamic coefficients from Capytaine and \gls{acr-meem} for a variety of steepnesses and number of subdivisions when \modelling{} a cone. 
-As shown in Fig.~\ref{jfm:fig:slope-dependence}, steeper slants (smaller angle $\gls{sym-zeta}$) require more subdivisions for the same level of accuracy, 
+As shown in Fig.~\ref{jfm:fig:slope-dependence}, steeper slants (smaller angle $\gls{sym-zeta-slant}$) require more subdivisions for the same level of accuracy, 
 and the error in the approximation is roughly inversely proportional to the number of subdivisions. 
 Convergence of the added mass with respect to the number of subdivisions is slower than that of damping, 
 as shown by the added mass for an angle of $\gls{sym-pi}/12$ (15\textsuperscript{o}) from vertical being unable to achieve less than $10 \%$ error with the number of subdivisions considered. 
@@ -1632,7 +1642,7 @@ Then $\gls{sym-mathcal-O}(\gls{sym-N-T})$ Bessel functions must be evaluated for
 and $\gls{sym-mathcal-O}(\gls{sym-N-T}^2)$ elementary functions for the coupling integral $\gls{sym-mathbf-A}$ matrix terms.
 The linear solve roughly scales cubically with matrix size, $\gls{sym-mathcal-O}(\gls{sym-N-T}^3)$.
 The radial integrals for the $\gls{sym-vec-c-p}$ vector do not require evaluating Bessel functions with any arguments that were not already evaluated for the $\gls{sym-mathbf-A}$ matrix, so these evaluations are reused.
-Table~\ref{jfm:tab:reusable-dependence} shows the dependence of each quantity on the frequency $\gls{sym-omega}$ and $\gls{sym-eta-m}$, where $\gls{sym-eta-m}=1$ if the $\gls{sym-m}$th cylindrical ring is heaving and $\gls{sym-eta-m}=0$ if it is fixed. 
+Table~\ref{jfm:tab:reusable-dependence} shows the dependence of each quantity on the frequency $\gls{sym-omega}$ and $\gls{sym-eta-m}$, where $\gls{sym-eta-m}=1$ if the $\gls{sym-m-region}$th cylindrical ring is heaving and $\gls{sym-eta-m}=0$ if it is fixed. 
 
 % \begin{itemize}
 %     \item Figure showing what takes the longest to compute. \textcolor{orange}{Bimali}.
@@ -1706,21 +1716,21 @@ This occurs when
 \begin{equation}\label{jfm:eq:equal-args}
 \gls{sym-lambda-n-m-i-m}\gls{sym-a-m} = \gls{sym-lambda-n-e-e}\gls{sym-a-M}
 \end{equation}
-for any $(\gls{sym-n-m},\gls{sym-n-e},\gls{sym-m})$ positive integer triplet with $\gls{sym-m}>1$.
+for any $(\gls{sym-n-m},\gls{sym-n-e},\gls{sym-m-region})$ positive integer triplet with $\gls{sym-m-region}>1$.
 %%%
-Substituting the eigenvalue definitions into Eq.~\ref{jfm:eq:equal-args}, we see that the $\gls{sym-n-m}$th Bessel term in the $\gls{sym-m}$th region can be 
+Substituting the eigenvalue definitions into Eq.~\ref{jfm:eq:equal-args}, we see that the $\gls{sym-n-m}$th Bessel term in the $\gls{sym-m-region}$th region can be 
 reused for the $\gls{sym-n-e}$th Bessel term in the exterior region if the frequency $\gls{sym-omega}$ and index $\gls{sym-n-e}$ are set as follows:
 \begin{equation}\label{jfm:eq:reuse-bessel-criterion}
-    \gls{sym-omega}=\sqrt{\frac{-\gls{sym-g}}{\gls{sym-h}}\gls{sym-pi}\gls{sym-gamma} \tan(\gls{sym-pi}\gls{sym-gamma})},
-    \qquad \gls{sym-n-e} = \lceil \gls{sym-gamma} \rceil,
-    \qquad  \gls{sym-gamma} = \gls{sym-n-m} \frac{\gls{sym-h}}{\gls{sym-h}-\gls{sym-d-m}} \frac{\gls{sym-a-m}}{\gls{sym-a-M}}
+    \gls{sym-omega}=\sqrt{\frac{-\gls{sym-g}}{\gls{sym-h}}\gls{sym-pi}\gls{sym-gamma-reuse} \tan(\gls{sym-pi}\gls{sym-gamma-reuse})},
+    \qquad \gls{sym-n-e} = \lceil \gls{sym-gamma-reuse} \rceil,
+    \qquad  \gls{sym-gamma-reuse} = \gls{sym-n-m} \frac{\gls{sym-h}}{\gls{sym-h}-\gls{sym-d-m}} \frac{\gls{sym-a-m}}{\gls{sym-a-M}}
 \end{equation}
-where we have introduced $\gls{sym-gamma}$, a value that must be evaluated for each $(\gls{sym-n-m},\gls{sym-m})$ pair.
-Note that Eq.~\ref{jfm:eq:reuse-bessel-criterion} requires the tangent term to be negative, equivalently $0.5<\gls{sym-gamma}-\lfloor \gls{sym-gamma} \rfloor<1$, and any  $(\gls{sym-n-m},\gls{sym-m})$ pairs that do not meet this criteria cannot be reused. $\lceil \cdot\rceil$ and $\lfloor \cdot\rfloor$ denote the ceiling and floor functions respectively.
+where we have introduced $\gls{sym-gamma-reuse}$, a value that must be evaluated for each $(\gls{sym-n-m},\gls{sym-m-region})$ pair.
+Note that Eq.~\ref{jfm:eq:reuse-bessel-criterion} requires the tangent term to be negative, equivalently $0.5<\gls{sym-gamma-reuse}-\lfloor \gls{sym-gamma-reuse} \rfloor<1$, and any  $(\gls{sym-n-m},\gls{sym-m-region})$ pairs that do not meet this criteria cannot be reused. $\lceil \cdot\rceil$ and $\lfloor \cdot\rfloor$ denote the ceiling and floor functions respectively.
 
-For the simple $\gls{sym-M}=2$ geometry described in section~\ref{jfm:sec:validation}, 70 of the 149 $\gls{sym-gamma}$ values (47\%) are valid for reuse. 
+For the simple $\gls{sym-M-regions}=2$ geometry described in section~\ref{jfm:sec:validation}, 70 of the 149 $\gls{sym-gamma-reuse}$ values (47\%) are valid for reuse. 
 However, only two of these (3\%) correspond to the 5-12 second wave periods typically of interest for ocean environments, so the computational savings are marginal. 
-For the corresponding slant-discretized geometry with $\gls{sym-M}=16$, 1501 of the 2235 $\gls{sym-gamma}$ values (51\%) are valid for reuse, including 64 (6\%) in the frequency range of interest. 
+For the corresponding slant-discretized geometry with $\gls{sym-M-regions}=16$, 1501 of the 2235 $\gls{sym-gamma-reuse}$ values (51\%) are valid for reuse, including 64 (6\%) in the frequency range of interest. 
 If this trend holds more broadly, then the aforementioned optimization may therefore be of particular utility to decrease the compute time for slanted geometries.
 \begingroup
 \begin{table}
@@ -1730,13 +1740,13 @@ If this trend holds more broadly, then the aforementioned optimization may there
 \toprule
 Nonlinear solve for $\gls{sym-lambda-n-e-e}$ & $\gls{sym-N-e}$\\
 \midrule
-Coupling integrals ($\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1}, \gls{sym-boldsymbol-mathcal-Z-i-M-e}$) & $(\sum_{\gls{sym-m}=1}^{\gls{sym-M}-1} \gls{sym-N-i-m}N^{i_{m}}) + \gls{sym-N-i-M}\gls{sym-N-e}$\\
+Coupling integrals ($\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1}, \gls{sym-boldsymbol-mathcal-Z-i-M-e}$) & $(\sum_{\gls{sym-m-region}=1}^{\gls{sym-M-regions}-1} \gls{sym-N-i-m}N^{i_{m}}) + \gls{sym-N-i-M}\gls{sym-N-e}$\\
 \midrule
-Bessel Functions in $\gls{sym-mathbf-A}$ *& $\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m}=2}^{\gls{sym-M}} \gls{sym-N-i-m}) + \gls{sym-N-e}$\\
+Bessel Functions in $\gls{sym-mathbf-A}$ *& $\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m-region}=2}^{\gls{sym-M-regions}} \gls{sym-N-i-m}) + \gls{sym-N-e}$\\
 \midrule
-Matrix solve ($\gls{sym-mathbf-A} \gls{sym-vec-x-q} = \gls{sym-vec-b-q}$) & $(\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m}=2}^{\gls{sym-M}} \gls{sym-N-i-m}) + \gls{sym-N-e})^3$\\
+Matrix solve ($\gls{sym-mathbf-A} \gls{sym-vec-x-q} = \gls{sym-vec-b-q}$) & $(\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m-region}=2}^{\gls{sym-M-regions}} \gls{sym-N-i-m}) + \gls{sym-N-e})^3$\\
 \midrule
-Hydrodynamic Coefficients* & $\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m}=2}^{\gls{sym-M}} \gls{sym-N-i-m})$\\
+Hydrodynamic Coefficients* & $\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m-region}=2}^{\gls{sym-M-regions}} \gls{sym-N-i-m})$\\
 \bottomrule
 \end{tabular}
 \caption{Time complexities of major components of \gls{acr-meem}. All are represented as proportional to the number of times being called, except the matrix solve, which depends on the matrix size.

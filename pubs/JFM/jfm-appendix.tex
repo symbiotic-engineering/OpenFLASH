@@ -7,8 +7,8 @@ The velocity potentials for the internal regions must satisfy
     \left.
 \frac{\partial\gls{sym-phi-i-m}}{\partial \gls{sym-z}} \right|_{\gls{sym-z}=-\gls{sym-d-m}}=
     \begin{cases}
-        0 & \text{ when region } \gls{sym-m} \text{ is fixed} \\
-        1 & \text{ when region } \gls{sym-m} \text{ is heaving}
+        0 & \text{ when region } \gls{sym-m-region} \text{ is fixed} \\
+        1 & \text{ when region } \gls{sym-m-region} \text{ is heaving}
     \end{cases}
 \end{equation}
 and
@@ -29,7 +29,7 @@ and
     \left.
 \frac{\partial\gls{sym-phi-e}}{\partial \gls{sym-z}} \right|_{\gls{sym-z}=-\gls{sym-h}}=0.   
 \end{equation}
-The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m}$ is fixed, and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m}$ is heaving with unit amplitude velocity.
+The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is fixed, and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is heaving with unit amplitude velocity.
 
 The Laplace equations in Eq.~\ref{jfm:eq:Laplace equation internal region} and~\ref{jfm:eq:Laplace equation external region} can be solved using separation of variables in cylindrical coordinates.
 The velocity potentials can be written as a product of eigenfunctions $\gls{sym-phi} (\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})= \gls{sym-R-r}\gls{sym-Theta}(\gls{sym-theta})\gls{sym-Z}(\gls{sym-z})$, where $\gls{sym-phi}$ is $\gls{sym-phi-i-m}$ and $\gls{sym-phi-e}$ for the internal and external regions, respectively.
@@ -38,13 +38,13 @@ Substituting this into the Laplace equation and separating each variable yields 
     \frac{\mathrm{d}^2 \gls{sym-Z}}{\mathrm{d}\gls{sym-z}^2}-\gls{sym-lambda}^2\gls{sym-Z}=0
 \end{equation}
 \begin{equation}\label{jfm:eq:Theta-ODE}
-    \frac{\mathrm{d}^2 \gls{sym-Theta}}{\mathrm{d}\gls{sym-theta}^2}+\gls{sym-nu}^2\gls{sym-Theta}=0
+    \frac{\mathrm{d}^2 \gls{sym-Theta}}{\mathrm{d}\gls{sym-theta}^2}+\gls{sym-nu-circumferential}^2\gls{sym-Theta}=0
 \end{equation}
 \begin{equation}\label{jfm:eq:R-ODE}
-    \gls{sym-r}^2\frac{\mathrm{d}^2 \gls{sym-R-r}}{\mathrm{d}\gls{sym-r}^2}+\gls{sym-r}\frac{\mathrm{d} \gls{sym-R-r}}{\mathrm{d}\gls{sym-r}} + (\gls{sym-lambda}^2\gls{sym-r}^2-\gls{sym-nu}^2)\gls{sym-R-r}=0
+    \gls{sym-r}^2\frac{\mathrm{d}^2 \gls{sym-R-r}}{\mathrm{d}\gls{sym-r}^2}+\gls{sym-r}\frac{\mathrm{d} \gls{sym-R-r}}{\mathrm{d}\gls{sym-r}} + (\gls{sym-lambda}^2\gls{sym-r}^2-\gls{sym-nu-circumferential}^2)\gls{sym-R-r}=0
 \end{equation}
-where $\gls{sym-R-r}(\gls{sym-r})$, $\gls{sym-Theta}(\gls{sym-theta})$, and $\gls{sym-Z}(\gls{sym-z})$ are eigenfunctions, and $\gls{sym-lambda}$ and $\gls{sym-nu}$ are eigenvalues.
-Since we are considering a vertically axisymmetric geometry and only heave motion, $\gls{sym-Theta}=1$ and $\gls{sym-nu}=0$.
+where $\gls{sym-R-r}(\gls{sym-r})$, $\gls{sym-Theta}(\gls{sym-theta})$, and $\gls{sym-Z}(\gls{sym-z})$ are eigenfunctions, and $\gls{sym-lambda}$ and $\gls{sym-nu-circumferential}$ are eigenvalues.
+Since we are considering a vertically axisymmetric geometry and only heave motion, $\gls{sym-Theta}=1$ and $\gls{sym-nu-circumferential}=0$.
 This leaves the vertical and radial eigenfunctions to be determined.
 As discussed in \citet{chatzigeorgiou2018analytical}, there are two cases of the eigenvalue $\gls{sym-lambda}$ to consider: $\gls{sym-lambda} \in \gls{sym-mathbb-R}$ and $\gls{sym-lambda} \in \gls{sym-mathbb-I}$. In the first case, Eq.~\ref{jfm:eq:R-ODE} is the Bessel differential equation with Bessel and Hankel functions of the first and second kinds being solutions.
 In the second case, Eq.~\ref{jfm:eq:R-ODE} is the modified Bessel differential equation with modified Bessel functions of the first and second kinds being solutions.
@@ -61,8 +61,8 @@ The expression for $\gls{sym-N-n-e}$ is defined as:
 \end{equation}
 %
 \section{Matching Equations}\label{jfm:appB}
-Since both the value of the potential and fluid velocity must match at the boundary of neighboring regions, there are a total of $2\gls{sym-M}$ matching equations.
-However, these equations alone are not enough to solve for all eigencoefficients since the number of unknowns is greater than the number of equations ($\gls{sym-N-T} >2\gls{sym-M}$).
+Since both the value of the potential and fluid velocity must match at the boundary of neighboring regions, there are a total of $2\gls{sym-M-regions}$ matching equations.
+However, these equations alone are not enough to solve for all eigencoefficients since the number of unknowns is greater than the number of equations ($\gls{sym-N-T} >2\gls{sym-M-regions}$).
 To generate an equal number of equations as unknowns, the orthogonality of the vertical eigenfunctions can be leveraged to isolate the unknown coefficients in the finite series. 
 
 % Consider a generic function $Y(x)$ expressed as a series with coefficients $\alpha$ and basis functions $e(x)$: $Y(x)=\sum_i \alpha_i e_i(x)$.
@@ -164,7 +164,7 @@ is an $\gls{sym-N-mathrm-s} \times \gls{sym-N-mathrm-t}$ matrix of coupling inte
   Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} contain $\gls{sym-N-mathrm-s}$ and $\gls{sym-N-mathrm-t}$ equations, respectively.
 However, they have $2\gls{sym-N-mathrm-s} + 2\gls{sym-N-mathrm-t}$ unknown eigencoefficients.
 Recall that these equations correspond to enforcing conditions at a single boundary between fluid regions, as shown in Fig.~\ref{jfm:fig:Matching Diagram}.
-Section~\ref{jfm:sec:Block Matrix Structure} shows how to organize Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for the $\gls{sym-M}$ boundaries so that all eigencoefficients can be solved for simultaneously.
+Section~\ref{jfm:sec:Block Matrix Structure} shows how to organize Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for the $\gls{sym-M-regions}$ boundaries so that all eigencoefficients can be solved for simultaneously.
   Because the innermost and outermost regions have just one eigenfunction instead of two and therefore half as many eigencoefficients, the full system has exactly as many equations as unknowns.
 
 Note that all coupling integrals have closed form solutions.
@@ -175,7 +175,7 @@ The element in the $\gls{sym-n-mathrm-s}$th row and $\gls{sym-n-mathrm-t}$th col
 \end{equation}
 
 \noindent where the superscripts and subscripts associated with the shorter and taller fluid are assigned to $\gls{sym-i-m}$ or $\gls{sym-i-m-1}$ depending on if $\gls{sym-d-m}>\gls{sym-d-m-1}$ or $\gls{sym-d-m-1}>\gls{sym-d-m}$.
-Eq.~\ref{jfm:coupling integral i_m and i_m+1} holds for $1 \le \gls{sym-m} \le \gls{sym-M}-1$. For matching at the interface between the outermost inner region $\gls{sym-i-M}$ and the external region $e$, a different expression is used.
+Eq.~\ref{jfm:coupling integral i_m and i_m+1} holds for $1 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$. For matching at the interface between the outermost inner region $\gls{sym-i-M}$ and the external region $e$, a different expression is used.
 The element in the $\gls{sym-n-M}$th row and $\gls{sym-n-e}$th column of the coupling integral matrix associated with matching between region $\gls{sym-i-M}$ and $e$ is
 \begin{equation}\label{jfm:coupling integral i_M and e}
     [\gls{sym-boldsymbol-mathcal-Z-i-M-e} ]_{\gls{sym-n-M}\gls{sym-n-e}}=
@@ -196,7 +196,7 @@ Note that Eq.~\ref{jfm:coupling integral i_m and i_m+1} and~\ref{jfm:coupling in
 
 
 
-Rewriting Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for each of the $\gls{sym-M}$ boundaries, where the symbols representing the smaller $\gls{sym-mathrm-s}$ and taller $\gls{sym-mathrm-t}$ regions are replaced by the region names of the problem (i.e. $\gls{sym-i-1}, \gls{sym-i-2},\dots,  \gls{sym-i-M},e$) and $\gls{sym-a-generic-radius}$ is replaced by $\gls{sym-a-m}$, yields a set of $\gls{sym-N-T}$ equations that are linear with respect to the unknown eigencoefficients.
+Rewriting Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for each of the $\gls{sym-M-regions}$ boundaries, where the symbols representing the smaller $\gls{sym-mathrm-s}$ and taller $\gls{sym-mathrm-t}$ regions are replaced by the region names of the problem (i.e. $\gls{sym-i-1}, \gls{sym-i-2},\dots,  \gls{sym-i-M},e$) and $\gls{sym-a-generic-radius}$ is replaced by $\gls{sym-a-m}$, yields a set of $\gls{sym-N-T}$ equations that are linear with respect to the unknown eigencoefficients.
 The structure of these equations is in the form of
 $\gls{sym-mathbf-A} \gls{sym-vec-x}=\gls{sym-vec-b}$ where the matrix
 $\gls{sym-mathbf-A} \in \gls{sym-mathbb-C}^{ \gls{sym-N-T} \times \gls{sym-N-T}}$
@@ -205,7 +205,7 @@ the vector $\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{
 contains all eigencoefficients,
 and the vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ contains the right-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
 As shown in Table~\ref{jfm:tab:MEEM-A-matrix}, $\gls{sym-mathbf-A}$ is a block bi-diagonal matrix composed of sub-matrices $\gls{sym-mathbf-A-1},\gls{sym-mathbf-A-2},\dots, \gls{sym-mathbf-A-M}$ and zero matrices.
-Each sub-matrix $\gls{sym-mathbf-A-m}$ contains the left-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $\gls{sym-m}$th boundary.
+Each sub-matrix $\gls{sym-mathbf-A-m}$ contains the left-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $\gls{sym-m-region}$th boundary.
 The corresponding right-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} are contained in $\gls{sym-vec-b-m}$, which form the vector $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
 %
 \section{Forms of Matrix A}\label{jfm:sec:Forms of Matrix A}
@@ -480,30 +480,30 @@ and $\gls{sym-mathbf-I-i-m}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ ident
 \end{landscape}
 %
 \section{Added Mass and Damping}\label{jfm:appC}
-We will define the velocity of the $\gls{sym-q}$th body as 
+We will define the velocity of the $\gls{sym-q-dof}$th body as 
 $\gls{sym-v-q}(\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-hat-v-q} e^{- \text{i} \gls{sym-omega} \gls{sym-t}}\}$ 
 so that $\gls{sym-hat-f-pq} = (\text{i} \gls{sym-omega} \gls{sym-A-pq}(\gls{sym-omega}) - \gls{sym-B-pq}(\gls{sym-omega})) \gls{sym-hat-v-q}$. 
 Recall from Eq.~\ref{jfm:eq:No flux BC at wetted surface} that, if a region is heaving, 
 the particular potentials in Table \ref{jfm:tab:MEEM-eigenfunctions} were defined so that it does so with unit amplitude velocity. 
-Thus, if regions consisting of the $\gls{sym-q}$th body are heaving, $\gls{sym-hat-v-q}=1$. 
+Thus, if regions consisting of the $\gls{sym-q-dof}$th body are heaving, $\gls{sym-hat-v-q}=1$. 
 Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions} can be simplified and rearranged as
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of added mass and damping}
 \begin{aligned}
     \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\text{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}} 
-    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ r  \ dr \\
-    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m} \in \gls{sym-mathcal-M-p}} \Bigg[
-    \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ _{}^{\gls{sym-q}}\gls{sym-phi-mathrm-p-i-m}(\gls{sym-r},-\gls{sym-d-m})\, \gls{sym-r}\, dr \\
+    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ r  \ dr \\
+    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}} \Bigg[
+    \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-mathrm-p-i-m}(\gls{sym-r},-\gls{sym-d-m})\, \gls{sym-r}\, dr \\
     & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
-    \ _{}^{\gls{sym-q}}\gls{sym-C-1-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
+    \ _{}^{\gls{sym-q-dof}}\gls{sym-C-1-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
     \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ R_{1n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
     & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
-    \ _{}^{\gls{sym-q}}\gls{sym-C-2-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
+    \ _{}^{\gls{sym-q-dof}}\gls{sym-C-2-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
     \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ R_{2n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, dr
     \Bigg]
 \end{aligned}
 \end{equation}
-where all symbols written with a left superscript $\gls{sym-q}$ denote 
-symbols specific to solving the radiation problem when only the $\gls{sym-q}$th body is moving.
+where all symbols written with a left superscript $\gls{sym-q-dof}$ denote 
+symbols specific to solving the radiation problem when only the $\gls{sym-q-dof}$th body is moving.
 
 Additionally, the $\gls{sym-n-m}$th element of the vectors 
 $\gls{sym-vec-mathcal-R-1-i-m}$ and $\gls{sym-vec-mathcal-R-2-i-m}$ 

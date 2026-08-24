@@ -238,22 +238,8 @@ pubs/**/*.slo
 !.calkit/notebooks/html/analysis/timing_data_generation.html
 
 pubs/JFM/glossary/glossary-acronyms.tex
-
 pubs/JFM/glossary/glossary-setup.tex
-
-pubs/JFM/glossary/glossary-symbols-optim.tex
-
 pubs/JFM/glossary/glossary-symbols-shared.tex
-
-pubs/JFM/glossary/glossary-symbols-aor-meem.tex
-
-pubs/JFM/glossary/glossary-symbols-aor-static.tex
-
-pubs/JFM/glossary/glossary-symbols-jfm.tex
-
-pubs/JFM/glossary/glossary-symbols-aor-dynamics.tex
-
-pubs/JFM/glossary/glossary-symbols-misc.tex
 
 # symbols glossary
 *.sls

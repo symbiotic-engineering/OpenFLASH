@@ -134,7 +134,8 @@ stages:
     desc: Automatically generated from the 'graphical-abstract' stage 
       in calkit.yaml. Changes made here will be overwritten.
   compile-overleaf:
-    cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check --aux-dir aux 
+      pubs/JFM/FLMguide.tex
     deps:
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/FLMguide.tex
@@ -146,6 +147,10 @@ stages:
       - pubs/JFM/zotero-meem-refs.bib
       - pubs/JFM/becca-zotero-refs.bib
       - pubs/JFM/jfm-appendix.tex
+      - pubs/JFM/glossary/glossary-symbols-jfm.tex
+      - pubs/JFM/glossary/glossary-symbols-shared.tex
+      - pubs/JFM/glossary/glossary-acronyms.tex
+      - pubs/JFM/glossary/glossary-setup.tex
       - .calkit/env-locks/tex
     outs:
       - pubs/JFM/FLMguide.pdf
