@@ -213,14 +213,13 @@
 % phi: all regions, total particular + homogeneous
 \newsym{Phi}{\Phi}{Real-valued radiation potential as a function of space and time}
 \newsym{Phi-mathrm-T}{\Phi_\mathrm{T}}{Real-valued total (incident + diffracted + radiated) potential as a function of space and time}
-\newsym{phi}{\phi}{Shorthand for \gls{sym-phi-mathrm-R}}
 \newsym{phi-mathrm-D}{\phi_\mathrm{D}}{Complex-valued diffracted wave potential phasor as a function of space}
 \newsym{phi-mathrm-I}{\phi_\mathrm{I}}{Complex-valued incident wave potential phasor as a function of space}
 \newsym{phi-mathrm-R}{\phi_\mathrm{R}}{Complex-valued radiation potential phasor as a function of space}
 \newsym{phi-mathrm-T}{\phi_\mathrm{T}}{Complex-valued total (incident + diffracted + radiated) potential phasor as a function of space}
 
 % phi: specific regions, total particular + homogeneous
-\newsym{phi-e}       {\phi^e}{Total (particular + homogeneous) radiation potential in the exterior region $e$ in \gls{acr-meem}}
+% plus phi-e in shared
 \newsym{phi-i-1}     {\phi^{i_1}}{Total (particular + homogeneous) radiation potential in the innermost interior region $i_1$ in \gls{acr-meem}}
 \newsym{phi-i-m}     {\phi^{i_m}}{Total (particular + homogeneous) radiation potential in the $\gls{sym-m-region}$-th interior region $i_m$ in \gls{acr-meem}}
 \newsym{phi-i-m-1}   {\phi^{i_{m+1}}}{Total (particular + homogeneous) radiation potential in the $(\gls{sym-m-region}+1)$-th interior region $i_{m+1}$ in \gls{acr-meem}}
@@ -289,7 +288,6 @@
 \newsym{Z-mathrm-s-n-mathrm-s}{Z^\mathrm{s}_{n_\mathrm{s}}}{Vertical eigenfunction for the region with shorter fluid height $\mathrm{s}$ at mode $n_\mathrm{s}$ in \gls{acr-meem}}
 \newsym{Z-mathrm-t-n-mathrm-t}{Z^\mathrm{t}_{n_\mathrm{t}}}{Vertical eigenfunction for the region with taller fluid height $\mathrm{t}$ at mode $n_\mathrm{t}$ in \gls{acr-meem}}
 
-\newsym{N-0}{N_0}{Exterior-region vertical eigenfunction normalization term \gls{sym-N-n-e} evaluated at mode $n_e$ = 0}
 \newsym{N-n-e}{N_{n_e}}{Exterior-region vertical eigenfunction normalization term for mode $n_e$}
 
 % vectors of vertical eigenfunctions
@@ -340,13 +338,10 @@
 % math notation
 \newsym{mathbb-I}{\mathbb{I}}{Set of imaginary numbers}
 \newsym{mathcal-O}{\mathcal{O}}{Order of computational complexity}
-\newsym{mathbf-I-i-m}{\mathbf{I}^{i_m}}{Identity matrix of size $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$}
-\newsym{mathbf-I-i-m-1}{\mathbf{I}^{i_{m+1}}}{Identity matrix of size $\gls{sym-N-i-m-1} \times \gls{sym-N-i-m-1}$}
 
 % Bessel functions
 \newsym{K-nu}{\mathrm{K}_{\gls{sym-nu-order}}}{Modified Bessel function of the second kind of order $\gls{sym-nu-order}$}
 \newsym{K-nu-e}{\mathrm{K}_{\gls{sym-nu-order}}^e}{Exponentially-scaled modified Bessel function of the second kind of order $\gls{sym-nu-order}$}
-\newsym{mathrm-I-1}{\mathrm{I}_1}{Modified Bessel function of the first kind of order 1}
 \newsym{I-nu}{\mathrm{I}_{\gls{sym-nu-order}}}{Modified Bessel function of the first kind of order $\gls{sym-nu-order}$}
 \newsym{I-nu-e}{\mathrm{I}_{\gls{sym-nu-order}}^e}{Exponentially-scaled modified Bessel function of the first kind of order $\gls{sym-nu-order}$}
 \newsym{nu-order}{\underline{\nu}}{Order of a generic Bessel function}
@@ -355,7 +350,6 @@
 \newsym{f-max}{\mathrm{f_{max}}}{Maximum floating-point number numerically representable before overflow occurs, used in \gls{acr-meem}}
 \newsym{c-mathrm-overflow}{c_\mathrm{overflow}}{Maximum permissible Bessel function argument before numeric overflow occurs}
 \newsym{gamma-reuse}{\gamma}{Intermediate value for each (\gls{sym-n-m},\gls{sym-m-region}) pair in \gls{acr-meem}, used to evaluate whether and how Bessel functions can be reused across regions}
-\newsym{chi-bessel}{\chi}{Generic Bessel function argument for \gls{acr-meem} numeric overflow discussion}
 
 % other
 \newsym{eta-m}{\eta_m}{Boolean-integer indicator for whether the body above the $\gls{sym-m-region}$-th interior fluid region is heaving in a given \gls{acr-meem} radiation problem}
