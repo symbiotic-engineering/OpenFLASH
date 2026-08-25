@@ -30,12 +30,12 @@ stages:
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 402b504fb86e26160815418f4e295630
-      size: 177309
+      md5: 91d5f372292f87c5178526993821b9ae
+      size: 175274
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 402b504fb86e26160815418f4e295630
-      size: 177309
+      md5: 91d5f372292f87c5178526993821b9ae
+      size: 175274
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -88,7 +88,7 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: e73f9a01d4a21c6b63adbe1f1f5b3223
+      md5: d9e3daf113e5085c8bbec0412dafb446
       size: 1159097
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
