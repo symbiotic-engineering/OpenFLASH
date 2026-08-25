@@ -30,12 +30,12 @@ stages:
       nfiles: 1
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 89803d91f789b845a1eb4874b9208f28
-      size: 177424
+      md5: 402b504fb86e26160815418f4e295630
+      size: 177309
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 89803d91f789b845a1eb4874b9208f28
-      size: 177424
+      md5: 402b504fb86e26160815418f4e295630
+      size: 177309
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -51,24 +51,24 @@ stages:
       nfiles: 30
     - path: pubs/JFM/glossary/glossary-acronyms.tex
       hash: md5
-      md5: 376e90f897bebde0f2a92f8c24e939f2
-      size: 10085
+      md5: 3b5ca1496a769fb51f0082cc05b46a02
+      size: 10610
     - path: pubs/JFM/glossary/glossary-setup.tex
       hash: md5
-      md5: 4cfc0dda71b7ed5455c5b68c0c776506
-      size: 11572
+      md5: 935e45c2bf22bedfe1525ce9e8fd8cdb
+      size: 11988
     - path: pubs/JFM/glossary/glossary-symbols-jfm.tex
       hash: md5
-      md5: 1f9c73f186e1a02e838b5860502c693c
-      size: 29320
+      md5: 5bc23491580f58eaad258883b9dcb9fa
+      size: 39124
     - path: pubs/JFM/glossary/glossary-symbols-shared.tex
       hash: md5
-      md5: 5b255c8e817df727335a74f9efbfcddc
-      size: 2763
+      md5: 0ea9cb1c6c924f65bced23c7c0b27937
+      size: 6820
     - path: pubs/JFM/jfm-appendix.tex
       hash: md5
-      md5: a75c5b90bcfad6ed5e83ef446dbf023e
-      size: 34090
+      md5: 39851222e293effdc1adc39a44822569
+      size: 34418
     - path: pubs/JFM/jfm.bib
       hash: md5
       md5: 94debb13be1e536dfceb909122f78e97
@@ -88,8 +88,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 6e18a523f47d4cbec6422ec41bdf83ba
-      size: 1159255
+      md5: 4bdd883774a1ff31a0aabd95733d9200
+      size: 1159192
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
