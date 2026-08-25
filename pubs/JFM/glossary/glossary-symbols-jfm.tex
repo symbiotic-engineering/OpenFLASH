@@ -52,7 +52,7 @@
 \newsym{vec-c-p-i-2}{\vec{c}_p^{\ i_2}}{Output vector in \gls{acr-meem} to obtain the portion of the hydrodynamic coefficients of the $p$-th body resulting from force on the part of the body above the $i_2$-nd fluid region that scale linearly with the eigencoefficients}
 \newsym{vec-c-p-i-M}{\vec{c}_p^{\ i_M}}{Output vector in \gls{acr-meem} to obtain the portion of the hydrodynamic coefficients of the $p$-th body resulting from force on the part of the body above the $i_M$-th fluid region that scale linearly with the eigencoefficients}
 \newsym{vec-c-p-i-m}{\vec{c}_p^{\ i_m}}{Output vector in \gls{acr-meem} to obtain the portion of the hydrodynamic coefficients of the $p$-th body resulting from force on the part of the body above the $i_m$-th fluid region that scale linearly with the eigencoefficients}
-\newsym{vec-c-p}{\vec{c}^p}{Output vector in \gls{acr-meem} to obtain the portion of the hydrodynamic coefficients of the $p$-th body that scale linearly with the eigencoefficients}
+\newsym{vec-c-p}{\vec{c}^{\ p}}{Output vector in \gls{acr-meem} to obtain the portion of the hydrodynamic coefficients of the $p$-th body that scale linearly with the eigencoefficients}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OUTPUTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % added mass and radiation damping
@@ -77,23 +77,23 @@
 %%%%%%%%%%%%%%%%%%%%%% CONVERGENCE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % alpha convergence coefficients
 \newsym{alpha-convergence}{\alpha}{Exponent in power-law envelope error convergence parameters}
-\newsym{alpha-A-i-2-leq-m-M}{\alpha_A^{i_{2 \leq m < M}}}{}
-\newsym{alpha-A-i-M}{\alpha_A^{i_M}}{Coefficient to approximate convergence of added mass in the $M$-th interior fluid region in \gls{acr-meem}}
-\newsym{alpha-A-i-m-1}{\alpha_A^{i_{m=1}}}{Coefficient to approximate convergence of added mass in the innermost interior fluid region in \gls{acr-meem}}
-\newsym{alpha-B-i-M}{\alpha_B^{i_M}}{Coefficient to approximate convergence of radiation damping in the $M$-th interior fluid region in \gls{acr-meem}}
-\newsym{alpha-i-m}{\alpha^{i_m}}{}
-\newsym{alpha-i-m-A}{\alpha^{i_m}_A}{}
-\newsym{alpha-B-i-m}{\alpha_B^{i_m}}{Coefficient to approximate convergence of radiation damping in the $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
+\newsym{alpha-A-i-2-leq-m-M}{\alpha_A^{i_{2 \leq m < M}}}{Power-law exponent describing the convergence rate of \gls{sym-epsilon-meem-error} for added mass in a middle $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
+\newsym{alpha-A-i-M}{\alpha_A^{i_M}}{Power-law exponent describing the convergence rate of \gls{sym-epsilon-meem-error} for added mass in the $\gls{sym-M-regions}$-th final interior fluid region in \gls{acr-meem}}
+\newsym{alpha-A-i-m-1}{\alpha_A^{i_{m=1}}}{Power-law exponent describing the convergence rate of \gls{sym-epsilon-meem-error} for added mass in the $\gls{sym-m-region}$=1 innermost interior fluid region in \gls{acr-meem}}
+\newsym{alpha-B-i-M}{\alpha_B^{i_M}}{Power-law exponent describing the convergence rate of \gls{sym-epsilon-meem-error} for radiation damping in the $\gls{sym-M-regions}$-th final interior fluid region in \gls{acr-meem}}
+\newsym{alpha-i-m}{\alpha^{i_m}}{Power-law exponent describing the convergence rate of \gls{sym-epsilon-meem-error} in the $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
+\newsym{alpha-i-m-A}{\alpha^{i_m}_A}{Power-law exponent describing the convergence rate of \gls{sym-epsilon-meem-error} for added mass in the $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
+\newsym{alpha-B-i-m}{\alpha_B^{i_m}}{Power-law exponent describing the convergence rate of \gls{sym-epsilon-meem-error} for radiation damping in the $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
 
 % beta convergence coefficients
 \newsym{beta-convergence}{\beta}{Multiplier in power-law envelope error convergence parameters}
-\newsym{beta-A-i-2-leq-m-M}{\beta_A^{i_{2 \leq m < M}}}{}
-\newsym{beta-A-i-M}{\beta_A^{i_M}}{}
-\newsym{beta-A-i-m-1}{\beta_A^{i_{m=1}}}{}
-\newsym{beta-B-i-M}{\beta_B^{i_M}}{}
-\newsym{beta-i-m}{\beta^{i_m}}{}
-\newsym{beta-i-m-A}{\beta^{i_m}_A}{}
-\newsym{beta-B-i-m}{\beta_B^{i_m}}{}
+\newsym{beta-A-i-2-leq-m-M}{\beta_A^{i_{2 \leq m < M}}}{Multiplier describing the convergence rate of \gls{sym-epsilon-meem-error} for added mass in a middle $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
+\newsym{beta-A-i-M}{\beta_A^{i_M}}{Multiplier describing the convergence rate of \gls{sym-epsilon-meem-error} for added mass in the $\gls{sym-M-regions}$-th final interior fluid region in \gls{acr-meem}}
+\newsym{beta-A-i-m-1}{\beta_A^{i_{m=1}}}{Multiplier describing the convergence rate of \gls{sym-epsilon-meem-error} for added mass in the $\gls{sym-m-region}$=1 innermost interior fluid region in \gls{acr-meem}}
+\newsym{beta-B-i-M}{\beta_B^{i_M}}{Multiplier describing the convergence rate of \gls{sym-epsilon-meem-error} for radiation damping in the $\gls{sym-M-regions}$-th final interior fluid region in \gls{acr-meem}}
+\newsym{beta-i-m}{\beta^{i_m}}{Multiplier describing the convergence rate of \gls{sym-epsilon-meem-error} in the $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
+\newsym{beta-i-m-A}{\beta^{i_m}_A}{Multiplier describing the convergence rate of \gls{sym-epsilon-meem-error} for added mass in the $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
+\newsym{beta-B-i-m}{\beta_B^{i_m}}{Multiplier describing the convergence rate of \gls{sym-epsilon-meem-error} for radiation damping in the $\gls{sym-m-region}$-th interior fluid region in \gls{acr-meem}}
 
 \newsym{c-i}{c_i}{Constant coefficients obtained from curve-fitting in the \gls{acr-meem} convergence study}
 \newsym{c-1}{c_1}{First constant coefficient \gls{sym-c-i}}
@@ -186,7 +186,7 @@
 \newsym{m-region}{m}{Index counting the interior fluid regions in \gls{acr-meem}}
 
 % total number of terms
-\newsym{N-big}{N^{big}}{Largest number of terms used for the target region in \gls{acr-meem} convergence testing sweeps}
+\newsym{N-big}{N^{\mathrm{big}}}{Largest number of terms used for the target region in \gls{acr-meem} convergence testing sweeps}
 \newsym{N-e}{N^e}{Number of terms retained in the \gls{acr-meem} infinite series for the exterior region $e$}
 \newsym{N-i-1}{N^{i_1}}{Number of terms retained in the \gls{acr-meem} infinite series for the first interior region $i_1$}
 \newsym{N-i-2}{N^{i_2}}{Number of terms retained in the \gls{acr-meem} infinite series for the second interior region $i_2$}

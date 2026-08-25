@@ -217,12 +217,12 @@ diffracted (or scattered) $\gls{sym-phi-mathrm-D}$,
 and radiated $\gls{sym-phi-mathrm-R}$ potentials. 
 The incident wave potential for a regular wave propagating at an angle $\gls{sym-psi-I}$ from the x-axis is
 \begin{equation}
-    \gls{sym-phi-mathrm-I} = -i \frac{\gls{sym-g} \gls{sym-wave-amplitude}}{\gls{sym-omega}} 
+    \gls{sym-phi-mathrm-I} = -i \frac{\gls{sym-g} \gls{sym-H-wave-amplitude}}{\gls{sym-omega}} 
                          \frac{\cosh \gls{sym-lambda-0-e} (\gls{sym-z}+\gls{sym-h})}{\cosh \gls{sym-lambda-0-e} \gls{sym-h}}  
                          e^{i\gls{sym-lambda-0-e}\gls{sym-r}\cos(\gls{sym-theta}- \gls{sym-psi-I})}
 \end{equation}
 where $\gls{sym-g}$ is the acceleration due to gravity, 
-$\gls{sym-wave-amplitude}$ is the wave amplitude,
+$\gls{sym-H-wave-amplitude}$ is the wave amplitude,
 $\gls{sym-omega}$ is the angular wave frequency, 
 $\gls{sym-lambda-0-e}$ is the wavenumber, and $\gls{sym-h}$ is the water depth~\citep{chatzigeorgiou2018analytical}. 
 The angle $\gls{sym-psi-I}$ is set to zero without loss of generality, 
@@ -891,9 +891,9 @@ If we assume the configuration in Fig.~\ref{jfm:fig:Diagram} is in static equili
 This is the mass of the $\gls{sym-q-dof}$th body.
 Once all matrices are found, one can construct the equation of motion of the system for regular waves
 \begin{equation}\label{jfm:eq: EOM}
-    (\gls{sym-mathbf-M} + \gls{sym-mathbf-A-h}(\gls{sym-omega})) \gls{sym-ddot-vec-xi} + \gls{sym-mathbf-B-h}(\gls{sym-omega}) \gls{sym-dot-vec-xi} + \gls{sym-mathbf-K-h} \gls{sym-vec-xi} =\mathrm{Re} \{ \gls{sym-wave-amplitude} \gls{sym-vec-X-heave} e^{-\mathrm{i} \gls{sym-omega} \gls{sym-t}} \}
+    (\gls{sym-mathbf-M} + \gls{sym-mathbf-A-h}(\gls{sym-omega})) \gls{sym-ddot-vec-xi} + \gls{sym-mathbf-B-h}(\gls{sym-omega}) \gls{sym-dot-vec-xi} + \gls{sym-mathbf-K-h} \gls{sym-vec-xi} =\mathrm{Re} \{ \gls{sym-H-wave-amplitude} \gls{sym-vec-X-heave} e^{-\mathrm{i} \gls{sym-omega} \gls{sym-t}} \}
 \end{equation}
-where $\gls{sym-vec-xi}(\gls{sym-t}) = [\gls{sym-xi-1}(\gls{sym-t}), \gls{sym-xi-2}(\gls{sym-t}), \dots,  \gls{sym-xi-Q}(\gls{sym-t})]^{\top}$ is a vector containing the heave displacements of the $\gls{sym-Q-dof}$ bodies of the system, $\gls{sym-omega}$ is the wave frequency, and $\gls{sym-wave-amplitude}$ is the wave amplitude.
+where $\gls{sym-vec-xi}(\gls{sym-t}) = [\gls{sym-xi-1}(\gls{sym-t}), \gls{sym-xi-2}(\gls{sym-t}), \dots,  \gls{sym-xi-Q}(\gls{sym-t})]^{\top}$ is a vector containing the heave displacements of the $\gls{sym-Q-dof}$ bodies of the system, $\gls{sym-omega}$ is the wave frequency, and $\gls{sym-H-wave-amplitude}$ is the wave amplitude.
 
 \subsection{Low, High, and Infinite Frequency Approximations}
 The wave frequency $\gls{sym-omega}$ and wavenumber $\gls{sym-lambda-0-e}$ are related by the dispersion relation in Table \ref{jfm:tab:MEEM-eigenfunctions}, which is monotonic and depends on $\gls{sym-h}$.
@@ -1104,7 +1104,7 @@ Note that the geometry is simplified in the \gls{acr-meem} and Capytaine models 
 In reality, the CorPower \gls{acr-wec} geometry also consists of a slanted section. 
 This will be accounted for later in Sec.~\ref{jfm:sec:slant}. 
 The geometry settings of this comparison were set as follows: 
-$\gls{sym-a-1}=1.25 \text{~\gls{sym-m-region}}$, $\gls{sym-a-2}=4.2 \text{~\gls{sym-m-region}}$, $\gls{sym-d-1}=14.45 \text{~\gls{sym-m-region}}$, $\gls{sym-d-2}=2.05 \text{~\gls{sym-m-region}}$, and $\gls{sym-h}=50 \text{~\gls{sym-m-region}}$. 
+$\gls{sym-a-1}=1.25 \text{~m}$, $\gls{sym-a-2}=4.2 \text{~m}$, $\gls{sym-d-1}=14.45 \text{~m}$, $\gls{sym-d-2}=2.05 \text{~m}$, and $\gls{sym-h}=50 \text{~m}$. 
 The series in each region was truncated to 150 for \gls{acr-meem} ($\gls{sym-N-i-1}=\gls{sym-N-i-2}=\gls{sym-N-e}=150$) and 1060 panels were used in Capytaine. 
 The hydrodynamic coefficients from \gls{acr-meem} and Capytaine are on average within 1\% of one another. 
 Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. 

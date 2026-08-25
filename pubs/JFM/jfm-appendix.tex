@@ -1,5 +1,5 @@
 \section{Governing Equations and Boundary Conditions}\label{jfm:appA}
-The velocity potentials for the internal regions must satisfy
+The velocity potentials for the interior regions must satisfy
 \begin{equation}\label{jfm:eq:Laplace equation internal region}
     \nabla^2\gls{sym-phi-i-m}=0,   
 \end{equation}
@@ -16,7 +16,7 @@ and
     \left.
 \frac{\partial\gls{sym-phi-i-m}}{\partial \gls{sym-z}} \right|_{\gls{sym-z}=-\gls{sym-h}}=0,   
 \end{equation}
-while the velocity potential for the external region must satisfy
+while the velocity potential for the exterior region must satisfy
 \begin{equation}\label{jfm:eq:Laplace equation external region}
     \nabla^2\gls{sym-phi-e}=0,   
 \end{equation}
@@ -32,7 +32,7 @@ and
 The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is fixed, and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is heaving with unit amplitude velocity.
 
 The Laplace equations in Eq.~\ref{jfm:eq:Laplace equation internal region} and~\ref{jfm:eq:Laplace equation external region} can be solved using separation of variables in cylindrical coordinates.
-The velocity potentials can be written as a product of eigenfunctions $\gls{sym-phi} (\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})= \gls{sym-R-r}\gls{sym-Theta}(\gls{sym-theta})\gls{sym-Z}(\gls{sym-z})$, where $\gls{sym-phi}$ is $\gls{sym-phi-i-m}$ and $\gls{sym-phi-e}$ for the internal and external regions, respectively.
+The velocity potentials can be written as a product of eigenfunctions $\gls{sym-phi} (\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})= \gls{sym-R-r}\gls{sym-Theta}(\gls{sym-theta})\gls{sym-Z}(\gls{sym-z})$, where $\gls{sym-phi}$ is $\gls{sym-phi-i-m}$ and $\gls{sym-phi-e}$ for the interior and exterior regions, respectively.
 Substituting this into the Laplace equation and separating each variable yields the following system of ordinary differential equations
 \begin{equation}\label{jfm:eq:Z-ODE}
     \frac{\mathrm{d}^2 \gls{sym-Z}}{\mathrm{d}\gls{sym-z}^2}-\gls{sym-lambda}^2\gls{sym-Z}=0
@@ -175,7 +175,7 @@ The element in the $\gls{sym-n-mathrm-s}$th row and $\gls{sym-n-mathrm-t}$th col
 \end{equation}
 
 \noindent where the superscripts and subscripts associated with the shorter and taller fluid are assigned to $\gls{sym-i-m}$ or $\gls{sym-i-m-1}$ depending on if $\gls{sym-d-m}>\gls{sym-d-m-1}$ or $\gls{sym-d-m-1}>\gls{sym-d-m}$.
-Eq.~\ref{jfm:coupling integral i_m and i_m+1} holds for $1 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$. For matching at the interface between the outermost inner region $\gls{sym-i-M}$ and the external region $e$, a different expression is used.
+Eq.~\ref{jfm:coupling integral i_m and i_m+1} holds for $1 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$. For matching at the interface between the outermost inner region $\gls{sym-i-M}$ and the exterior region $e$, a different expression is used.
 The element in the $\gls{sym-n-M}$th row and $\gls{sym-n-e}$th column of the coupling integral matrix associated with matching between region $\gls{sym-i-M}$ and $e$ is
 \begin{equation}\label{jfm:coupling integral i_M and e}
     [\gls{sym-boldsymbol-mathcal-Z-i-M-e} ]_{\gls{sym-n-M}\gls{sym-n-e}}=
