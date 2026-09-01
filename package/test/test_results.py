@@ -278,41 +278,52 @@ def test_export_to_wecsim_hdf5(results_instance, tmp_path):
     export_wecsim_hdf5(results_instance, str(file_path))
     assert file_path.exists()
 
+    # The first heaving mode maps to global DOF (body_index * 6 + 2) and is
+    # written into that body's 6-DOF block at local heave index 2.
+    first_mode = int(results_instance.modes[0])
+    body_num = first_mode + 1
+    global_dof = first_mode * 6 + 2
+    heave_local = global_dof - 6 * first_mode  # == 2
+    body_path = f"/body{body_num}"
+
     with h5py.File(file_path, "r") as h5:
+        # WEC-Sim/BEMIO group and dataset layout.
         for key in [
-            "Nb", "Nf", "Nh", "w", "A", "B", "A0", "Ainf",
-            "excitation_re", "excitation_im", "ra_t", "ra_w", "ra_K", "CoB", "disp_vol",
-        ]:
-            assert key in h5
-
-        nb = int(h5["Nb"][()])
-        nf = int(h5["Nf"][()])
-        ndof = 6 * nb
-        assert h5["A"].shape == (ndof, ndof, nf)
-        assert h5["B"].shape == (ndof, ndof, nf)
-        assert h5["ra_K"].shape[0] == ndof
-        assert h5["CoB"].shape == (nb, 3)
-        assert h5["disp_vol"].shape == (nb,)
-
-        # WEC-Sim/BEMIO compatibility paths.
-        for key in [
+            "/bem_data/code",
             "/simulation_parameters/scaled",
+            "/simulation_parameters/g",
+            "/simulation_parameters/rho",
+            "/simulation_parameters/w",
             "/simulation_parameters/wave_dir",
             "/simulation_parameters/water_depth",
-            "/body1/properties/name",
-            "/body1/properties/dof",
-            "/body1/hydro_coeffs/excitation/re",
-            "/body1/hydro_coeffs/added_mass/all",
-            "/body1/hydro_coeffs/radiation_damping/all",
-            "/body1/hydro_coeffs/radiation_damping/impulse_response_fun/K",
+            f"{body_path}/properties/name",
+            f"{body_path}/properties/dof",
+            f"{body_path}/properties/cb",
+            f"{body_path}/properties/disp_vol",
+            f"{body_path}/hydro_coeffs/linear_restoring_stiffness",
+            f"{body_path}/hydro_coeffs/excitation/re",
+            f"{body_path}/hydro_coeffs/excitation/im",
+            f"{body_path}/hydro_coeffs/excitation/mag",
+            f"{body_path}/hydro_coeffs/excitation/phase",
+            f"{body_path}/hydro_coeffs/added_mass/all",
+            f"{body_path}/hydro_coeffs/added_mass/inf_freq",
+            f"{body_path}/hydro_coeffs/radiation_damping/all",
+            f"{body_path}/hydro_coeffs/radiation_damping/impulse_response_fun/K",
+            f"{body_path}/hydro_coeffs/radiation_damping/impulse_response_fun/t",
+            f"{body_path}/hydro_coeffs/radiation_damping/impulse_response_fun/w",
         ]:
             assert key in h5
 
-        mode_to_dof = h5["mode_to_dof"][:]
-        dof0 = int(mode_to_dof[0])
+        added_mass_all = h5[f"{body_path}/hydro_coeffs/added_mass/all"][:]
+        damping_all = h5[f"{body_path}/hydro_coeffs/radiation_damping/all"][:]
+        # Per-body block: [local_dof, radiating_global_dof, frequency].
+        assert added_mass_all.shape[0] == 6
+        assert added_mass_all.shape[2] == num_freqs
+        assert damping_all.shape == added_mass_all.shape
 
-        rho = float(h5["rho"][()])
-        g = float(h5["g"][()])
+        # Exporter normalizes with its configured rho/g, not the fabricated refs.
+        rho = float(h5["/simulation_parameters/rho"][()])
+        g = float(h5["/simulation_parameters/g"][()])
 
         expected_a = added_mass[:, 0, 0] / rho
         expected_b = damping[:, 0, 0] / (rho * w)
@@ -320,11 +331,21 @@ def test_export_to_wecsim_hdf5(results_instance, tmp_path):
         expected_re = expected_mag * np.cos(phase[:, 0])
         expected_im = -expected_mag * np.sin(phase[:, 0])
 
-        np.testing.assert_allclose(h5["A"][dof0, dof0, :], expected_a, rtol=1e-12, atol=1e-12)
-        np.testing.assert_allclose(h5["B"][dof0, dof0, :], expected_b, rtol=1e-12, atol=1e-12)
-        np.testing.assert_allclose(h5["excitation_phase"][dof0, 0, :], -phase[:, 0], rtol=1e-12, atol=1e-12)
-        np.testing.assert_allclose(h5["excitation_re"][dof0, 0, :], expected_re, rtol=1e-12, atol=1e-12)
-        np.testing.assert_allclose(h5["excitation_im"][dof0, 0, :], expected_im, rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(
+            added_mass_all[heave_local, global_dof, :], expected_a, rtol=1e-12, atol=1e-12
+        )
+        np.testing.assert_allclose(
+            damping_all[heave_local, global_dof, :], expected_b, rtol=1e-12, atol=1e-12
+        )
+
+        ex_re = h5[f"{body_path}/hydro_coeffs/excitation/re"][:]
+        ex_im = h5[f"{body_path}/hydro_coeffs/excitation/im"][:]
+        ex_phase = h5[f"{body_path}/hydro_coeffs/excitation/phase"][:]
+        # Per-body block: [local_dof, heading, frequency]; excitation phase is
+        # conjugated by default for WEC-Sim.
+        np.testing.assert_allclose(ex_phase[heave_local, 0, :], -phase[:, 0], rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(ex_re[heave_local, 0, :], expected_re, rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(ex_im[heave_local, 0, :], expected_im, rtol=1e-12, atol=1e-12)
 
 
 def test_export_to_stl_defaults(tmp_path):
