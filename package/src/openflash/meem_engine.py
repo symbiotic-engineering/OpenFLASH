@@ -121,9 +121,9 @@ class MEEMEngine:
         # 1. Pre-compute I_nm
         I_nm_vals_precomputed = [np.zeros((NMK[bd], NMK[bd+1]), dtype=complex) for bd in range(boundary_count - 1)]
         for bd in range(boundary_count - 1):
-            for n in range(NMK[bd]):
-                for m in range(NMK[bd + 1]):
-                    I_nm_vals_precomputed[bd][n, m] = I_nm(n, m, bd, d, h)
+            n_modes = np.arange(NMK[bd])[:, None]
+            m_modes = np.arange(NMK[bd + 1])[None, :]
+            I_nm_vals_precomputed[bd] = I_nm(n_modes, m_modes, bd, d, h)
         cache._set_I_nm_vals(I_nm_vals_precomputed)
 
         # 2. Pre-defined Partials
@@ -134,11 +134,9 @@ class MEEMEngine:
 
         # 3. Dynamic I_mk closure
         def _calculate_I_mk_vals(m0, m_k_arr, N_k_arr):
-            vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
-            for m in range(NMK[boundary_count - 1]):
-                for k in range(NMK[boundary_count]):
-                    vals[m, k] = I_mk(m, k, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
-            return vals
+            m_modes = np.arange(NMK[boundary_count - 1])[:, None]
+            k_modes = np.arange(NMK[boundary_count])[None, :]
+            return I_mk(m_modes, k_modes, boundary_count - 1, d, m0, h, m_k_arr, N_k_arr)
 
         # 4. Integration constants
         int_R1_store, int_R2_store = {}, {}
