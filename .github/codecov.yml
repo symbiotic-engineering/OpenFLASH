@@ -7,12 +7,17 @@ coverage:
       default:
         target: auto
         threshold: 10%
-      # Indented correctly under project
       unit_tests_coverage:
         target: auto
         threshold: 10%
         flags:
           - unit
+    # NEW: Configure patch status check behavior
+    patch:
+      default:
+        target: 75%       # Requires 75% coverage on new lines (PR passed with 82.5%)
+        # Alternatively, uncomment 'informational: true' to never block PRs on patch coverage:
+        # informational: true
 
 codecov:
   strict_yaml_branch: default
@@ -24,7 +29,6 @@ flags:
       - package/src/
     carryforward: true
 
-# NEW: Component Management Configuration
 component_management:
   default_rules:
     statuses:
