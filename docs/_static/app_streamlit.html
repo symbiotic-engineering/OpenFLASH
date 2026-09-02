@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Stlite app</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.89.1/build/stlite.css" />
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="module">
+        import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.89.1/build/stlite.js"
+        mount(
+            {
+                requirements: ["matplotlib", "https://files.pythonhosted.org/packages/97/a9/8bcc116db7a5002789549bdca0786d402490aa6ac31d1f6c5d8c7ebb4889/open_flash-1.0.12-py3-none-any.whl", "xarray"],
+                entrypoint: "streamlit_app.py",
+                files: {
+                    "streamlit_app.py": `
+                    # app.py
+
+import streamlit as st
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# --- Import core MEEM modules ---
+try:
+    from openflash import *
+    from openflash.multi_equations import wavenumber # Needed to convert omega to m0
+    from openflash.basic_region_geometry import BasicRegionGeometry
+except ImportError as e:
+    st.error(f"Error importing core modules from openflash. Error: {e}")
+    st.stop()
+
+# Set print options for better visibility in console
+np.set_printoptions(threshold=np.inf, linewidth=np.inf, precision=8, suppress=True)
+
+def main():
+    st.title("OpenFLASH: MEEM Multi-Cylinder Simulation")
+    st.sidebar.header("Configuration Parameters")
+
+    # --- User Inputs for Parameters ---
+    h = st.sidebar.slider("Water Depth (h)", 0.5, 5.0, 1.001, step=0.001)
+    
+    d_input = st.sidebar.text_input("Body Step Depths (d) - comma-separated", "0.5,0.25")
+    a_input = st.sidebar.text_input("Body Radii (a) - comma-separated", "0.5,1.0")
+    heaving_input = st.sidebar.text_input("Heaving Bodies (1=True/0=False) - one per body", "1,1")
+    NMK_input = st.sidebar.text_input("Harmonics (NMK) - one per domain", "30,30,30")
+    
+    # --- UI for Single Point Test ---
+    st.sidebar.subheader("Single Frequency Test")
+    omega_single = st.sidebar.number_input("Angular Frequency (omega)", value=2.0, format="%.3f")
+    spatial_res = st.sidebar.slider("Plot Spatial Resolution", min_value=20, max_value=150, value=75, step=5)
+
+    # --- UI for Frequency Sweep ---
+    st.sidebar.subheader("Frequency Sweep for Coefficients")
+    omega_start = st.sidebar.number_input("Start Omega", value=0.1, format="%.3f")
+    omega_end = st.sidebar.number_input("End Omega", value=4.0, format="%.3f")
+    omega_steps = st.sidebar.slider("Number of Steps", min_value=10, max_value=200, value=50)
+
+
+    # --- Parse and Validate Inputs ---
+    try:
+        d_list = np.array(list(map(float, d_input.split(','))))
+        a_list = np.array(list(map(float, a_input.split(','))))
+        heaving_list = np.array(list(map(bool, heaving_input.split(','))))
+        NMK = list(map(int, NMK_input.split(',')))
+        
+        # Validation
+        if not (len(d_list) == len(a_list) == len(heaving_list)):
+            st.error("The number of depths, radii, and heaving flags must be the same (one for each body/step).")
+            st.stop()
+        if len(NMK) != len(a_list) + 1:
+            st.error("The number of NMK values must be one greater than the number of steps (one for each domain).")
+            st.stop()
+    except ValueError:
+        st.error("Invalid input format. Please use comma-separated numbers.")
+        st.stop()
+
+    # --- Modern, Object-Oriented Geometry and Problem Setup ---
+    try:
+        # --- FIX: Group adjacent segments into bodies ---
+        # This logic mimics openflash_utils.py. It groups consecutive segments 
+        # with the same heaving status into a SINGLE body.
+        # e.g., heaving=[1, 1] becomes ONE body with TWO steps.
+        
+        body_map = []
+        unique_heaving_map = []
+        
+        if len(heaving_list) > 0:
+            current_body_idx = 0
+            body_map.append(current_body_idx)
+            unique_heaving_map.append(bool(heaving_list[0]))
+
+            for i in range(1, len(heaving_list)):
+                if heaving_list[i] == heaving_list[i - 1]:
+                    # Same heaving state -> same body
+                    body_map.append(current_body_idx)
+                else:
+                    # Different heaving state -> new body
+                    current_body_idx += 1
+                    body_map.append(current_body_idx)
+                    unique_heaving_map.append(bool(heaving_list[i]))
+        
+        # Use from_vectors for robust setup
+        geometry = BasicRegionGeometry.from_vectors(
+            a=a_list,
+            d=d_list,
+            h=h,
+            NMK=NMK,
+            slant_angle=np.zeros_like(a_list),
+            body_map=body_map,
+            heaving_map=unique_heaving_map
+        )
+        
+        # 3. Create the Problem
+        problem = MEEMProblem(geometry)
+        
+    except Exception as e:
+        st.error(f"Error during geometry setup: {e}")
+        st.stop()
+    
+    # --- Main Action Buttons ---
+    st.header("Run Analysis")
+    col1, col2 = st.columns(2)
+
+    if col1.button("Run Single Test & Plot Potentials"):
+        st.info(f"Running simulation for single omega = {omega_single:.2f}")
+        # --- Convert single omega to m0 ---
+        m0_single = wavenumber(omega_single, h)
+        
+        problem.set_frequencies(np.array([omega_single]))
+        
+        # --- MEEM Engine Operations ---
+        engine = MEEMEngine(problem_list=[problem])
+        X = engine.solve_linear_system_multi(problem, m0_single)
+        
+        # Display Hydrodynamic Coefficients for the single run
+        st.subheader("Hydrodynamic Coefficients (Single Run)")
+        hydro_coefficients = engine.compute_hydrodynamic_coefficients(problem, X, m0_single)
+        if hydro_coefficients:
+            df_coeffs = pd.DataFrame(hydro_coefficients)
+            st.dataframe(df_coeffs[['mode', 'real', 'imag', 'excitation_phase', 'excitation_force']])
+        else:
+            st.warning("Could not calculate hydrodynamic coefficients.")
+
+        # --- Visualize Potentials ---
+        st.subheader("Potential Field Plots")
+        potentials = engine.calculate_potentials(problem, X, m0_single, spatial_res, sharp=True)
+        R, Z, phi = potentials["R"], potentials["Z"], potentials["phi"]
+        
+        fig1, _ = engine.visualize_potential(np.real(phi), R, Z, "Total Potential (Real)")
+        st.pyplot(fig1)
+
+        fig2, _ = engine.visualize_potential(np.imag(phi), R, Z, "Total Potential (Imag)")
+        st.pyplot(fig2)
+        
+        st.success("Single frequency test complete.")
+        
+    if col2.button("Run Frequency Sweep & Plot Coefficients"):
+        st.info(f"Running frequency sweep for {omega_steps} steps...")
+        
+        omegas_to_run = np.linspace(omega_start, omega_end, omega_steps)
+        
+        # Set the frequencies on the main problem object
+        problem.set_frequencies(omegas_to_run)
+        
+        # Create the engine ONCE with the main problem
+        engine = MEEMEngine(problem_list=[problem])
+        
+        with st.spinner("Running simulation..."):
+            results_obj = engine.run_and_store_results(problem_index=0)
+        st.success("Frequency sweep complete.")
+        
+        # Extract the dataset and convert to a DataFrame for plotting
+        dataset = results_obj.get_results()
+        df_results = dataset[['added_mass', 'damping']].to_dataframe().reset_index()
+
+        # Handle Xarray/Pandas dimension naming variations
+        data_cols = ['added_mass', 'damping', 'frequency']
+        dim_cols = [col for col in df_results.columns if col not in data_cols]
+        
+        if len(dim_cols) == 2:
+            rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
+            df_results = df_results.rename(columns=rename_map)
+        elif len(dim_cols) != 0:
+            st.warning(f"Unexpected dimensions ({len(dim_cols)}). Renaming first two to mode_i, mode_j.")
+            if len(dim_cols) >= 2:
+                rename_map = {dim_cols[0]: 'mode_i', dim_cols[1]: 'mode_j'}
+                df_results = df_results.rename(columns=rename_map)
+
+        # --- Plotting Hydrodynamic Coefficients vs. Frequency ---
+        st.subheader("Hydrodynamic Coefficients vs. Frequency")
+        
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True)
+        
+        # Use safe iteration in case groupby keys are empty
+        if 'mode_i' in df_results.columns and 'mode_j' in df_results.columns:
+            for (mode_i, mode_j), group in df_results.groupby(['mode_i', 'mode_j']):
+                ax1.plot(group['frequency'], group['added_mass'], label=f'A({mode_i},{mode_j})')
+                ax2.plot(group['frequency'], group['damping'], label=f'B({mode_i},{mode_j})')
+        else:
+            st.warning("Could not group results by modes. Displaying raw plotting if possible.")
+
+        ax1.set_title('Added Mass vs. Frequency')
+        ax1.set_ylabel('Added Mass (kg)')
+        ax1.legend()
+        ax1.grid(True, linestyle='--')
+
+        ax2.set_title('Damping vs. Frequency')
+        ax2.set_ylabel('Damping (kg/s)')
+        ax2.set_xlabel('Angular Frequency (rad/s)')
+        ax2.legend()
+        ax2.grid(True, linestyle='--')
+        
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+        with st.expander("View Raw Data"):
+            st.dataframe(df_results)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        st.error(f"An unexpected error occurred: {e}")
+`,
+
+                },
+            },
+            document.getElementById("root")
+        )
+
+        function Uu(n) { const a = window.atob(n), i = a.length, l = new Uint8Array(i); for (let u = 0; u < i; u++)l[u] = a.charCodeAt(u); return l }
+    </script>
+</body>
+<!-- Generated from Stlite Sharing (https://edit.share.stlite.net/), and the source version is 8413a8fdd17b840f2870bdb8f43e8781722266bf -->
+
+</html>

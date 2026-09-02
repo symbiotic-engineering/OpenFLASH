@@ -1,0 +1,5 @@
+outs:
+- md5: 0511b65cbf7c11b639e5c1e111cf548e
+  size: 251571
+  hash: md5
+  path: ps6.pkl

@@ -1,0 +1,5 @@
+outs:
+- md5: 066749666b8c40a896dbd2f2e376768f
+  size: 20570
+  hash: md5
+  path: ps2.pkl

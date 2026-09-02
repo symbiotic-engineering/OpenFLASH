@@ -1,0 +1,5 @@
+outs:
+- md5: 634f28bf0e17639c2b7677089ee8b959
+  size: 10483
+  hash: md5
+  path: slant_figures.pdf

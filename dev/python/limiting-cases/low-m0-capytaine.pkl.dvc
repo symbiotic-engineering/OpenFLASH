@@ -1,0 +1,5 @@
+outs:
+- md5: fa9d75613698f07056ebf0d4015dec4a
+  size: 3516
+  hash: md5
+  path: low-m0-capytaine.pkl

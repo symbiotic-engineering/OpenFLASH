@@ -1,0 +1,5 @@
+outs:
+- md5: 064df3bcfb1acbf4fd9b6dc8fc4adc25
+  size: 1240
+  hash: md5
+  path: h52_convergence_data.pkl

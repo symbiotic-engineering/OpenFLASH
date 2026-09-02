@@ -1,0 +1,95 @@
+@startuml classes_openflash
+set namespaceSeparator none
+class "Domain" as openflash.domain.Domain {
+  a : NoneType
+  bottom_BC
+  category : str
+  di : NoneType
+  eigenfunction : NoneType
+  geometry : Geometry
+  h
+  heaving
+  height : float
+  index : int
+  m_k_vals : list
+  number_harmonics : int
+  params : dict
+  r_coords : int, list
+  radial_width : float
+  scale
+  slant
+  top_BC
+  z_coords : list
+  build_domain_params(a: List[float], d: List[float], heaving: List[Union[int, bool]], h: float, slant: Optional[List[Union[int, bool]]]) -> List[Dict]
+  build_r_coordinates_dict() -> dict[str, float]
+  build_z_coordinates_dict() -> dict[str, float]
+}
+class "Geometry" as openflash.geometry.Geometry {
+  adjacency_matrix
+  domain_list : dict
+  domain_params : List[Dict]
+  r_coordinates : Dict[str, float]
+  z_coordinates : Dict[str, float]
+  make_domain_list() -> Dict[int, Domain]
+}
+class "MEEMEngine" as openflash.meem_engine.MEEMEngine {
+  cache_list : dict
+  problem_list : List[MEEMProblem]
+  assemble_A_multi(problem: 'MEEMProblem', m0) -> np.ndarray
+  assemble_b_multi(problem: 'MEEMProblem', m0) -> np.ndarray
+  build_problem_cache(problem: 'MEEMProblem') -> ProblemCache
+  calculate_potentials(problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]
+  calculate_velocities(problem, solution_vector: np.ndarray, m0, spatial_res, sharp) -> Dict[str, Any]
+  compute_hydrodynamic_coefficients(problem, X, m0)
+  reformat_coeffs(x: np.ndarray, NMK, boundary_count) -> list[np.ndarray]
+  run_and_store_results(problem_index: int) -> Results
+  solve_linear_system_multi(problem: MEEMProblem, m0) -> np.ndarray
+  visualize_potential(field, R, Z, title)
+}
+class "MEEMProblem" as openflash.meem_problem.MEEMProblem {
+  domain_list
+  frequencies : ndarray
+  geometry
+  modes : ndarray
+  set_frequencies_modes(frequencies: np.ndarray, modes: np.ndarray)
+}
+class "ProblemCache" as openflash.problem_cache.ProblemCache {
+  A_template : ndarray
+  I_nm_vals : ndarray
+  N_k_arr : ndarray
+  N_k_func : Optional[Callable]
+  b_template : ndarray
+  m0_dependent_A_indices : list[tuple[int, int, Callable]]
+  m0_dependent_b_indices : list[tuple[int, Callable]]
+  m_k_arr : ndarray
+  m_k_entry_func : Optional[Callable]
+  named_closures : Dict[str, Any]
+  problem
+  _add_m0_dependent_A_entry(row: int, col: int, calc_func: Callable)
+  _add_m0_dependent_b_entry(row: int, calc_func: Callable)
+  _get_A_template() -> np.ndarray
+  _get_b_template() -> np.ndarray
+  _get_closure(key: str)
+  _set_A_template(A_template: np.ndarray)
+  _set_I_nm_vals(I_nm_vals: np.ndarray)
+  _set_b_template(b_template: np.ndarray)
+  _set_closure(key: str, closure)
+  _set_m_k_and_N_k_funcs(m_k_entry_func: Callable, N_k_func: Callable)
+  _set_precomputed_m_k_N_k(m_k_arr: np.ndarray, N_k_arr: np.ndarray)
+}
+class "Results" as openflash.results.Results {
+  dataset : Dataset
+  frequencies : ndarray
+  geometry
+  modes : ndarray
+  display_results()
+  export_to_netcdf(file_path: str)
+  get_results()
+  store_all_potentials(all_potentials_batch: list[dict])
+  store_hydrodynamic_coefficients(frequencies: np.ndarray, modes: np.ndarray, added_mass_matrix: np.ndarray, damping_matrix: np.ndarray)
+  store_results(domain_index: int, radial_data: np.ndarray, vertical_data: np.ndarray)
+  store_single_potential_field(potential_data: dict, frequency_idx: int, mode_idx: int)
+}
+openflash.geometry.Geometry --o openflash.meem_problem.MEEMProblem : geometry
+openflash.geometry.Geometry --o openflash.results.Results : geometry
+@enduml

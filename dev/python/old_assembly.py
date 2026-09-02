@@ -1,0 +1,478 @@
+from functools import partial
+import numpy as np
+from scipy.special import hankel1 as besselh
+from scipy.special import iv as besseli
+from scipy.special import kv as besselk
+from scipy.special import ive as besselie
+from scipy.special import kve as besselke
+import scipy.integrate as integrate
+import scipy.linalg as linalg
+import matplotlib.pyplot as plt
+from numpy import sqrt, cosh, cos, sinh, sin, pi, exp, inf
+from scipy.optimize import newton, minimize_scalar, root_scalar
+import scipy as sp
+
+LARGE_M0H = 14
+def diff_z_phi_p_i_old(d, z, h): 
+    return ((z+h) / (h - d))
+def diff_r_phi_p_i_old(d, r, h): 
+    return (- r / (2* (h - d)))
+def diff_Z_n_i_old(n, z, i, h, d):
+    if n == 0:
+        return 0
+    else:
+        lambda0 = lambda_ni_old(n, i, h, d)
+        return - lambda0 * np.sqrt(2) * np.sin(lambda0 * (z + h))
+def diff_Z_k_e_old(k, z, NMK, m0, h):
+    m_k = m_k_old(NMK, m0, h)
+    N_k = N_k_old(k, m0, h, m_k)
+    if k == 0:
+        if m0 == inf: return 0
+        elif m0 * h < LARGE_M0H:
+            return 1 / sqrt(N_k(k)) * m0 * sinh(m0 * (z + h))
+        else: # high m0h approximation
+            return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
+    else:
+        return -1 / sqrt(N_k(k)) * m_k[k] * sin(m_k[k] * (z + h))
+def phi_p_i_old(d, r, z, h): 
+    return (1 / (2* (h - d))) * ((z + h) ** 2 - (r**2) / 2)
+def make_R_Z_old(a, h, d, sharp, spatial_res): # create coordinate array for graphing
+    rmin = (2 * a[-1] / spatial_res) if sharp else 0.0
+    r_vec = np.linspace(rmin, 2*a[-1], spatial_res)
+    z_vec = np.linspace(0, -h, spatial_res)
+    if sharp: # more precise near boundaries
+        a_eps = 1.0e-4
+        for i in range(len(a)):
+            r_vec = np.append(r_vec, a[i]*(1-a_eps))
+            r_vec = np.append(r_vec, a[i]*(1+a_eps))
+        r_vec = np.unique(r_vec)
+        for i in range(len(d)):
+            z_vec = np.append(z_vec, -d[i])
+        z_vec = np.unique(z_vec)
+    return np.meshgrid(r_vec, z_vec)
+def Z_k_e_old(k, z, m0, h, NMK):
+    m_k = m_k_old(NMK, m0, h)
+    if k == 0:
+        if m0 == inf: return 0
+        elif m0 * h < LARGE_M0H:
+            return 1 / sqrt(N_k_old(k, m0, h, m_k)) * cosh(m0 * (z + h))
+        else: # high m0h approximation
+            return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
+    else:
+        return 1 / sqrt(N_k_old(k, m0, h, m_k)) * cos(m_k[k] * (z + h))
+def R_2n_old(n, r, i, a, h, d):
+    if i == 0:
+        raise ValueError("i cannot be 0")  # this shouldn't be called for i=0, innermost region.
+    elif n == 0:
+        return 0.5 * np.log(r / a[i])
+    else:
+        if r == scale_old(a)[i]:  # Saves bessel function eval
+            return 1
+        else:
+            return besselke(0, lambda_ni_old(n, i, h, d) * r) / besselke(0, lambda_ni_old(n, i, h, d) * scale_old(a)[i]) * exp(lambda_ni_old(n, i, h, d) * (scale_old(a)[i] - r))
+def Z_n_i_old(n, z, i, h, d):
+    if n == 0:
+        return 1
+    else:
+        return np.sqrt(2) * np.cos(lambda_ni_old(n, i, h, d) * (z + h))
+    
+def R_1n_old(n, r, i, a, h, d):
+    if n == 0:
+        return 0.5
+    elif n >= 1:
+        if r == scale_old(a)[i]: # Saves bessel function eval
+            return 1
+        else:
+            return besselie(0, lambda_ni_old(n, i, h, d) * r) / besselie(0, lambda_ni_old(n, i, h, d) * scale_old(a)[i]) * exp(lambda_ni_old(n, i, h, d) * (r - scale_old(a)[i]))
+    else: 
+        raise ValueError("Invalid value for n")
+
+def Lambda_k_old_wrapped(m0, a, NMK, h):
+    def func(k, r):
+        return Lambda_k_old(k, r, m0, a, NMK, h)
+    return np.vectorize(func, otypes=[complex])
+    
+def Lambda_k_old(k, r, m0, a, NMK, h):
+    m_k = m_k_old(NMK, m0, h)
+    if k == 0:
+        if m0 == inf:
+        # the true limit is not well-defined, but whatever value this returns will be multiplied by zero
+            return 1
+        else:
+            if r == scale_old(a)[-1]:  # Saves bessel function eval
+                return 1
+            else:
+                return besselh(0, m0 * r) / besselh(0, m0 * scale_old(a)[-1])
+    else:
+        if r == scale_old(a)[-1]:  # Saves bessel function eval
+            return 1
+        else:
+            return besselke(0, m_k[k] * r) / besselke(0, m_k[k] * scale_old(a)[-1]) * exp(m_k[k] * (scale_old(a)[-1] - r))
+        
+def diff_Lambda_k_old(k, r, m0, a, NMK, h):
+    m_k = m_k_old(NMK, m0, h)
+    if k == 0:
+        if m0 == inf:
+        # the true limit is not well-defined, but this makes the assigned coefficient zero
+            return 1
+        else:
+            numerator = -(m0 * besselh(1, m0 * r))
+            denominator = besselh(0, m0 * scale_old(a)[-1])
+            return numerator / denominator
+    else:
+        numerator = -(m_k[k] * besselke(1, m_k[k] * r))
+        denominator = besselke(0, m_k[k] * scale_old(a)[-1])
+        return numerator / denominator * exp(m_k[k] * (scale_old(a)[-1] - r))
+def b_potential_entry_old(n,i, d, heaving, h, a):
+    j = i + (d[i] <= d[i+1]) # index of shorter fluid
+    constant = (heaving[i+1] / (h - d[i+1]) - heaving[i] / (h - d[i]))
+    if n == 0:
+        return constant * 1/2 * ((h - d[j])**3/3 - (h-d[j]) * a[i]**2/2)
+    else:
+        return sqrt(2) * (h - d[j]) * constant * ((-1) ** n)/(lambda_ni_old(n, j, h, d) ** 2)
+def b_potential_end_entry_old(n,i, h, d, heaving, a):
+    constant = - heaving[i] / (h - d[i])
+    if n == 0:
+        return constant * 1/2 * ((h - d[i])**3/3 - (h-d[i]) * a[i]**2/2)
+    else:
+        return sqrt(2) * (h - d[i]) * constant * ((-1) ** n)/(lambda_ni_old(n, i, h, d) ** 2)
+def b_velocity_entry_old(n, i, heaving, a, d, h): # for two i-type regions
+    if n == 0:
+        return (heaving[i+1] - heaving[i]) * (a[i]/2)
+    if d[i] > d[i + 1]: #using i+1's vertical eigenvectors
+        if heaving[i]:
+            num = - sqrt(2) * a[i] * sin(lambda_ni_old(n, i+1, h, d) * (h-d[i]))
+            denom = (2 * (h - d[i]) * lambda_ni_old(n, i+1, h, d))
+            return num/denom
+        else: return 0
+    else: #using i's vertical eigenvectors
+        if heaving[i+1]:
+            num = sqrt(2) * a[i] * sin(lambda_ni_old(n, i, h, d) * (h-d[i+1]))
+            denom = (2 * (h - d[i+1]) * lambda_ni_old(n, i, h, d))
+            return num/denom
+        else: return 0
+def b_velocity_end_entry_old(k, i, heaving, a, h, d, m0, NMK): # between i and e-type regions
+    constant = - heaving[i] * a[i]/(2 * (h - d[i]))
+    m_k = m_k_old(NMK, m0, h)
+    if k == 0:
+        if m0 == inf: return 0
+        elif m0 * h < LARGE_M0H:
+            return constant * (1/sqrt(N_k_old(0, m0, h, m_k))) * sinh(m0 * (h - d[i])) / m0
+        else: # high m0h approximation
+            return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
+    else:
+        return constant * (1/sqrt(N_k_old(k, m0, h, m_k))) * sin(m_k[k] * (h - d[i])) / m_k[k]
+def diff_R_2n_old(n, r, i, h, d, a):
+    if n == 0:
+        return 1 / (2 * r)
+    else:
+        top = - lambda_ni_old(n, i, h, d) * besselke(1, lambda_ni_old(n, i, h, d) * r)
+        bottom = besselke(0, lambda_ni_old(n, i, h, d) * scale_old(a)[i])
+        return top / bottom * exp(lambda_ni_old(n, i, h, d) * (scale_old(a)[i] - r))
+def diff_R_1n_old(n, r, i, h, d, a):
+    if n == 0:
+        return 0
+    else:
+        top = lambda_ni_old(n, i, h, d) * besselie(1, lambda_ni_old(n, i, h, d) * r)
+        bottom = besselie(0, lambda_ni_old(n, i, h, d) * scale_old(a)[i])
+        return top / bottom * exp(lambda_ni_old(n, i, h, d) * (r - scale_old(a)[i]))
+def scale_old(a):
+    return a
+def R_1n_old(n, r, i, h, d, a):
+    if n == 0:
+        return 0.5
+    elif n >= 1:
+        if r == scale_old(a)[i]: # Saves bessel function eval
+            return 1
+        else:
+            return besselie(0, lambda_ni_old(n, i, h, d) * r) / besselie(0, lambda_ni_old(n, i, h, d) * scale_old(a)[i]) * exp(lambda_ni_old(n, i, h, d) * (r - scale_old(a)[i]))
+    else: 
+        raise ValueError("Invalid value for n")
+def R_2n_old(n, r, i, a, h, d):
+    if i == 0:
+        raise ValueError("i cannot be 0")  # this shouldn't be called for i=0, innermost region.
+    elif n == 0:
+        return 0.5 * np.log(r / a[i])
+    else:
+        if r == scale_old(a)[i]:  # Saves bessel function eval
+            return 1
+        else:
+            return besselke(0, lambda_ni_old(n, i, h, d) * r) / besselke(0, lambda_ni_old(n, i, h, d) * scale_old(a)[i]) * exp(lambda_ni_old(n, i, h, d) * (scale_old(a)[i] - r))
+def I_nm_old(n, m, i, h, d):
+    dj = max(d[i], d[i+1]) # integration bounds at -h and -d
+    if n == 0 and m == 0:
+        return h - dj
+    lambda1 = lambda_ni_old(n, i, h, d)
+    lambda2 = lambda_ni_old(m, i + 1, h, d)
+    if n == 0 and m >= 1:
+        if dj == d[i+1]:
+            return 0
+        else:
+            return sqrt(2) * sin(lambda2 * (h - dj)) / lambda2
+    if n >= 1 and m == 0:
+        if dj == d[i]:
+            return 0
+        else:
+            return sqrt(2) * sin(lambda1 * (h - dj)) / lambda1
+    else:
+        frac1 = sin((lambda1 + lambda2)*(h-dj))/(lambda1 + lambda2)
+        if lambda1 == lambda2:
+            frac2 = (h - dj)
+        else:
+            frac2 = sin((lambda1 - lambda2)*(h-dj))/(lambda1 - lambda2)
+        return frac1 + frac2
+    
+def N_k_old(k, m0, h, m_k):
+    if m0 == inf: return 1/2
+    elif k == 0:
+        return 1 / 2 * (1 + sinh(2 * m0 * h) / (2 * m0 * h))
+    else:
+        return 1 / 2 * (1 + sin(2 * m_k[k] * h) / (2 * m_k[k] * h))
+
+def m_k_entry_old(k, m0, h):
+    if k == 0: return m0
+    elif m0 == inf:
+        return ((k - 1/2) * pi)/h
+
+    m_k_h_err = (
+        lambda m_k_h: (m_k_h * np.tan(m_k_h) + m0 * h * np.tanh(m0 * h))
+    )
+    k_idx = k
+
+    # # original version of bounds in python
+    m_k_h_lower = pi * (k_idx - 1/2) + np.finfo(float).eps
+    m_k_h_upper = pi * k_idx - np.finfo(float).eps
+    # x_0 =  (m_k_upper - m_k_lower) / 2
+    
+    # becca's version of bounds from MDOcean Matlab code
+    m_k_h_lower = pi * (k_idx - 1/2) + (pi/180)* np.finfo(float).eps * (2**(np.floor(np.log(180*(k_idx- 1/2)) / np.log(2))) + 1)
+    m_k_h_upper = pi * k_idx
+
+    m_k_initial_guess = pi * (k_idx - 1/2) + np.finfo(float).eps
+    result = root_scalar(m_k_h_err, x0=m_k_initial_guess, method="newton", bracket=[m_k_h_lower, m_k_h_upper])
+    # result = minimize_scalar(
+        # m_k_h_err, bounds=(m_k_h_lower, m_k_h_upper), method="bounded"
+    # )
+
+    m_k_val = result.root / h
+
+    shouldnt_be_int = np.round(m0 * m_k_val / np.pi - 0.5, 4)
+    # not_repeated = np.unique(m_k_val) == m_k_val
+    assert np.all(shouldnt_be_int != np.floor(shouldnt_be_int))
+
+        # m_k_mat[freq_idx, :] = m_k_vec
+    return m_k_val
+
+# create an array of m_k values for each k to avoid recomputation
+def m_k_old(NMK, m0, h):
+    func = np.vectorize(lambda k: m_k_entry_old(k, m0, h), otypes=[float])
+    return func(range(NMK[-1]))
+
+def lambda_ni_old(n, i, h, d):
+    return n * pi / (h - d[i])
+
+def I_mk_old(m,k,i, d, h, m0, NMK):
+    m_k = m_k_old(NMK, m0, h)
+    dj = d[i]
+    if m == 0 and k == 0:
+        if m0 == inf: return 0
+        elif m0 * h < LARGE_M0H:
+            return (1/sqrt(N_k_old(0, m0, h, m_k))) * sinh(m0 * (h - dj)) / m0
+        else: # high m0h approximation
+            return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+    if m == 0 and k >= 1:
+        return (1/sqrt(N_k_old(k, m0, h, m_k))) * sin(m_k[k] * (h - dj)) / m_k[k]
+    if m >= 1 and k == 0:
+        if m0 == inf: return 0
+        elif m0 * h < LARGE_M0H:
+            num = (-1)**m * sqrt(2) * (1/sqrt(N_k_old(0, m0, h, m_k))) * m0 * sinh(m0 * (h - dj))
+        else: # high m0h approximation
+            num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+        denom = (m0**2 + lambda_ni_old(m, i, h, d) **2)
+        return num/denom
+    else:
+        lambda1 = lambda_ni_old(m, i, h, d)
+        if abs(m_k[k]) == lambda1:
+            return sqrt(2/N_k_old(k, m0, h, m_k)) * (h - dj)/2
+        else:
+            frac1 = sin((m_k[k] + lambda1)*(h-dj))/(m_k[k] + lambda1)
+            frac2 = sin((m_k[k] - lambda1)*(h-dj))/(m_k[k] - lambda1)
+            return sqrt(2/N_k_old(k, m0, h, m_k)) * (frac1 + frac2)/2
+def debug_block(block, name, bd):
+    max_val = np.max(np.abs(block))
+    if max_val > 1e6:  # suspiciously large
+        print(f"WARNING: Large values detected in {name} at boundary {bd}, max abs={max_val}")
+        print(block)
+    else:
+        print(f"{name} at boundary {bd} max abs={max_val}")
+        
+def assemble_old_A_and_b(h, d, a, NMK, heaving, m0):
+    # 1. Initial validation and sizing
+    size = NMK[0] + NMK[-1] + 2 * sum(NMK[1:len(NMK) - 1])
+    boundary_count = len(NMK) - 1
+    
+    # 2. Synchronize Constants & Eigenvalues
+    # Pre-calculate m_k once to ensure consistency across all integrals
+    m_k_vec = m_k_old(NMK, m0, h)
+    # Ensure scale is identical to multi_equations.py
+    scale = a 
+
+    # 3. Pre-compute Coupling Integrals
+    # This prevents redundant calls to I_nm_old and I_mk_old
+    I_nm_vals = np.zeros((max(NMK), max(NMK), boundary_count - 1), dtype=complex)
+    for bd in range(boundary_count - 1):
+        for n in range(NMK[bd]):
+            for m in range(NMK[bd + 1]):
+                I_nm_vals[n][m][bd] = I_nm_old(n, m, bd, h, d)
+                
+    I_mk_vals = np.zeros((NMK[boundary_count - 1], NMK[boundary_count]), dtype=complex)
+    for m in range(NMK[boundary_count - 1]):
+        for k in range(NMK[boundary_count]):
+            I_mk_vals[m][k] = I_mk_old(m, k, boundary_count - 1, d, h, m0, NMK)
+
+    # 4. Vectorize functions with fixed context
+    # We use fixed local variables to prevent scope-creep or global constant drift
+    R1_vec = np.vectorize(lambda n, r, i: R_1n_old(n, r, i, h, d, scale))
+    R2_vec = np.vectorize(lambda n, r, i: R_2n_old(n, r, i, scale, h, d))
+    dR1_vec = np.vectorize(lambda n, r, i: diff_R_1n_old(n, r, i, h, d, scale), otypes=[complex])
+    dR2_vec = np.vectorize(lambda n, r, i: diff_R_2n_old(n, r, i, h, d, scale), otypes=[complex])
+    
+    # Explicitly use the pre-calculated m_k_vec in Lambda functions
+    Lambda_vec = np.vectorize(lambda k, r: Lambda_k_old(k, r, m0, scale, NMK, h), otypes=[complex])
+    dLambda_vec = np.vectorize(lambda k, r: diff_Lambda_k_old(k, r, m0, scale, NMK, h), otypes=[complex])
+
+    # 5. Block Creation Helpers (Using local vectors)
+    def p_diagonal_block(left, radfunction, bd):
+        region = bd if left else (bd + 1)
+        sign = 1 if left else -1
+        return sign * (h - d[region]) * np.diag(radfunction(list(range(NMK[region])), a[bd], region))
+        
+    def p_dense_block(left, radfunction, bd):
+        I_nm_array = I_nm_vals[0:NMK[bd], 0:NMK[bd+1], bd]
+        if left: 
+            region, adj, sign = bd, bd + 1, 1
+            I_nm_array = np.transpose(I_nm_array)
+        else:
+            region, adj, sign = bd + 1, bd, -1
+        radial_vector = radfunction(list(range(NMK[region])), a[bd], region)
+        radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
+        return sign * radial_array * I_nm_array
+
+    def p_dense_block_e(bd):
+        radial_vector = Lambda_vec(list(range(NMK[bd+1])), a[bd])
+        radial_array = np.outer(np.ones(NMK[bd]), radial_vector)
+        return -1 * radial_array * I_mk_vals
+
+    def v_diagonal_block(left, radfunction, bd):
+        region = bd if left else (bd + 1)
+        sign = -1 if left else 1
+        return sign * (h - d[region]) * np.diag(radfunction(list(range(NMK[region])), a[bd], region))
+
+    def v_dense_block(left, radfunction, bd):
+        I_nm_array = I_nm_vals[0:NMK[bd], 0:NMK[bd+1], bd]
+        if left: 
+            region, adj, sign = bd, bd + 1, -1
+            I_nm_array = np.transpose(I_nm_array)
+        else:
+            region, adj, sign = bd + 1, bd, 1
+        radial_vector = radfunction(list(range(NMK[region])), a[bd], region)
+        radial_array = np.outer(np.ones(NMK[adj]), radial_vector)
+        return sign * radial_array * I_nm_array
+
+    def v_diagonal_block_e(bd):
+        return h * np.diag(dLambda_vec(list(range(NMK[bd+1])), a[bd]))
+
+    def v_dense_block_e(radfunction, bd):
+        I_km_array = np.transpose(I_mk_vals)
+        radial_vector = radfunction(list(range(NMK[bd])), a[bd], bd)
+        radial_array = np.outer(np.ones(NMK[bd + 1]), radial_vector)
+        return -1 * radial_array * I_km_array
+
+    # 6. Matrix Assembly
+    rows = []
+    
+    # Potential Matching (Rows 0 to N_match)
+    col = 0
+    for bd in range(boundary_count):
+        N, M = NMK[bd], NMK[bd + 1]
+        if bd == (boundary_count - 1): # i-e boundary
+            row_height = N
+            left_block1 = p_diagonal_block(True, R1_vec, bd)
+            right_block = p_dense_block_e(bd)
+            if bd == 0:
+                rows.append(np.concatenate((left_block1, right_block), axis=1))
+            else:
+                left_block2 = p_diagonal_block(True, R2_vec, bd)
+                rows.append(np.concatenate((np.zeros((row_height, col), dtype=complex), left_block1, left_block2, right_block), axis=1))
+        elif bd == 0:
+            left_diag = d[bd] > d[bd + 1]
+            row_height = N if left_diag else M
+            lb = p_diagonal_block(True, R1_vec, 0) if left_diag else p_dense_block(True, R1_vec, 0)
+            rb1 = p_dense_block(False, R1_vec, 0) if left_diag else p_diagonal_block(False, R1_vec, 0)
+            rb2 = p_dense_block(False, R2_vec, 0) if left_diag else p_diagonal_block(False, R2_vec, 0)
+            rows.append(np.concatenate([lb, rb1, rb2, np.zeros((row_height, size - (col + N + 2 * M)), dtype=complex)], axis=1))
+            col += N
+        else: # i-i boundary
+            left_diag = d[bd] > d[bd + 1]
+            row_height = N if left_diag else M
+            lb1 = p_diagonal_block(True, R1_vec, bd) if left_diag else p_dense_block(True, R1_vec, bd)
+            lb2 = p_diagonal_block(True, R2_vec, bd) if left_diag else p_dense_block(True, R2_vec, bd)
+            rb1 = p_dense_block(False, R1_vec, bd) if left_diag else p_diagonal_block(False, R1_vec, bd)
+            rb2 = p_dense_block(False, R2_vec, bd) if left_diag else p_diagonal_block(False, R2_vec, bd)
+            rows.append(np.concatenate([np.zeros((row_height, col), dtype=complex), lb1, lb2, rb1, rb2, np.zeros((row_height, size - (col + 2 * N + 2 * M)), dtype=complex)], axis=1))
+            col += 2 * N
+
+    # Velocity Matching (Remaining Rows)
+    col = 0
+    for bd in range(boundary_count):
+        N, M = NMK[bd], NMK[bd + 1]
+        if bd == (boundary_count - 1): # i-e boundary
+            row_height = M
+            left_block1 = v_dense_block_e(dR1_vec, bd)
+            right_block = v_diagonal_block_e(bd)
+            if bd == 0:
+                rows.append(np.concatenate((left_block1, right_block), axis=1))
+            else:
+                left_block2 = v_dense_block_e(dR2_vec, bd)
+                rows.append(np.concatenate((np.zeros((row_height, col), dtype=complex), left_block1, left_block2, right_block), axis=1))
+        elif bd == 0:
+            left_diag = d[bd] <= d[bd + 1]
+            row_height = N if left_diag else M
+            lb = v_diagonal_block(True, dR1_vec, 0) if left_diag else v_dense_block(True, dR1_vec, 0)
+            rb1 = v_dense_block(False, dR1_vec, 0) if left_diag else v_diagonal_block(False, dR1_vec, 0)
+            rb2 = v_dense_block(False, dR2_vec, 0) if left_diag else v_diagonal_block(False, dR2_vec, 0)
+            rows.append(np.concatenate([lb, rb1, rb2, np.zeros((row_height, size - (col + N + 2 * M)), dtype=complex)], axis=1))
+            col += N
+        else: # i-i boundary
+            left_diag = d[bd] <= d[bd + 1]
+            row_height = N if left_diag else M
+            lb1 = v_diagonal_block(True, dR1_vec, bd) if left_diag else v_dense_block(True, dR1_vec, bd)
+            lb2 = v_diagonal_block(True, dR2_vec, bd) if left_diag else v_dense_block(True, dR2_vec, bd)
+            rb1 = v_dense_block(False, dR1_vec, bd) if left_diag else v_diagonal_block(False, dR1_vec, bd)
+            rb2 = v_dense_block(False, dR2_vec, bd) if left_diag else v_diagonal_block(False, dR2_vec, bd)
+            rows.append(np.concatenate([np.zeros((row_height, col), dtype=complex), lb1, lb2, rb1, rb2, np.zeros((row_height, size - (col + 2 * N + 2 * M)), dtype=complex)], axis=1))
+            col += 2 * N
+
+    A = np.concatenate(rows, axis=0)
+    
+    # 7. b-vector assembly
+    b = np.zeros(size, dtype=complex)
+    idx = 0
+    # Potential match b-entries
+    for bd in range(boundary_count):
+        if bd == (boundary_count - 1):
+            for n in range(NMK[-2]):
+                b[idx] = b_potential_end_entry_old(n, bd, h, d, heaving, a); idx += 1
+        else:
+            for n in range(NMK[bd + (d[bd] <= d[bd + 1])]):
+                b[idx] = b_potential_entry_old(n, bd, d, heaving, h, a); idx += 1
+    # Velocity match b-entries
+    for bd in range(boundary_count):
+        if bd == (boundary_count - 1):
+            for n in range(NMK[-1]):
+                b[idx] = b_velocity_end_entry_old(n, bd, heaving, a, h, d, m0, NMK); idx += 1
+        else:
+            for n in range(NMK[bd + (d[bd] > d[bd + 1])]):
+                b[idx] = b_velocity_entry_old(n, bd, heaving, a, d, h); idx += 1
+
+    return A, b
