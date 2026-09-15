@@ -91,10 +91,10 @@
     Calculating the added mass, radiation damping, and excitation coefficients to quantify wave loads with the traditional boundary element method (\gls{acr-bem}) presents a computational bottleneck. 
     The matched eigenfunction expansion method (\gls{acr-meem}), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. 
     However, previous work fails to directly compare its accuracy and computational performance with \gls{acr-bem}, leaving the extent of its utility unknown. 
-    Furthermore, the geometry-dependent convergence for cylindrical and slanted geometries has not yet been documented, making the method’s practicality for general geometries unclear. 
+    Furthermore, the geometry-dependent convergence for cylindrical and slanted geometries has not yet been documented, making the method's practicality for general geometries unclear. 
     This paper presents a unifying \gls{acr-meem} framework for \modelling{} an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous and radially-monotonic body profiles,
     %split here
-    and explores the method’s block matrix structure, convergence \behaviour{}, ability to accurately approximate slanted geometries, and computational advantages over the \gls{acr-bem} solver Capytaine. 
+    and explores the method's block matrix structure, convergence \behaviour{}, ability to accurately approximate slanted geometries, and computational advantages over the \gls{acr-bem} solver Capytaine. 
     The numerical experiments show that %with sufficient discretization, 
     \gls{acr-meem} can compute hydrodynamic coefficients of slanted geometries within 5\% of Capytaine, even for angles as steep as $15^\circ$ from vertical.
     %but requires finer discretizations for steeper slant angles. 
@@ -163,7 +163,7 @@ Additionally, previous work does not directly address the convergence \behaviour
 
 This work presents a unifying \gls{acr-meem} framework that arranges equations into an organized sparse matrix structure. 
 This framework is used to model an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous radially-monotonic profiles. 
-The method’s convergence \behaviour{}, ability to accurately approximate slanted bodies, and computational advantages over the \gls{acr-bem} solver Capytaine are explored. 
+The method's convergence \behaviour{}, ability to accurately approximate slanted bodies, and computational advantages over the \gls{acr-bem} solver Capytaine are explored. 
 The authors build on their preliminary work \citep{mccabe_open-source_2024} and have developed an open-source Python package called \href{https://github.com/symbiotic-engineering/OpenFLASH}{\texttt{OpenFLASH}} (Flexible Library for Analytical \& Semi-analytical Hydrodynamics, \citep{best_openflash_2026,best_openflash-code_2026}) that is used for numerical studies herein.
 % The lack of an accessible computational implementation, including the numerical properties and accuracy thereof, has been a barrier.
 
