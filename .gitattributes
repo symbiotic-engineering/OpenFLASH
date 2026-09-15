@@ -1,1 +1,5 @@
 * text=auto eol=lf
+
+# >>> calkit generated files (managed by calkit) >>>
+/.calkit/** text eol=lf
+# <<< calkit generated files <<<
