@@ -3,30 +3,22 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to MEEM's Documentation!
-================================
+Welcome to OpenFLASH's Documentation!
+======================================
 
-This documentation provides an overview of the **Multiple Expansion Eigenfunction Method (MEEM)** package, which is designed to solve mathematical problems related to eigenfunctions and domain matching. The package is structured to allow for efficient geometry management, boundary condition matching, and problem-solving functionalities.
+This documentation provides an overview of the **OpenFLASH** package, which is designed to solve mathematical problems related to eigenfunctions and domain matching. The package is structured to allow for efficient geometry management, boundary condition matching, and problem-solving functionalities.
 
 Modules Overview
 ================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    introduction
-   geometry
-   domain
-   meem_problem
-   meem_engine
-   results
+   installation
+   modules/index
    tutorial_walk
-   constants
-   multi_constants
-   coupling
-   equations
-   multi_equations
    app_walk
    citations
 

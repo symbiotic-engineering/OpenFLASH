@@ -1,0 +1,5 @@
+outs:
+- md5: e23ed37008379fb533fd132ba5c7daf8
+  size: 4690
+  hash: md5
+  path: discretization_scheme_diagrams.pdf

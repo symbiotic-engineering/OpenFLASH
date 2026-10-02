@@ -1,0 +1,8 @@
+name: openflash-openflash-dev
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - open-flash[dev]

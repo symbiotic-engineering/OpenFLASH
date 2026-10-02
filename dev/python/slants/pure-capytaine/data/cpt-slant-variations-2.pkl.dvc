@@ -1,0 +1,5 @@
+outs:
+- md5: 459a8c424782dc62be1d3e03418e2543
+  size: 889
+  hash: md5
+  path: cpt-slant-variations-2.pkl

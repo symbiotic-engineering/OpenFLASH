@@ -1,0 +1,5 @@
+outs:
+- md5: 2b03d1b36fab50ee0564fb0f8569f3a5
+  size: 11268573
+  hash: md5
+  path: capytaine-point-values.pkl

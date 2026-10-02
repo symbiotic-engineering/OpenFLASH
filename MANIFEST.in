@@ -1,0 +1,8 @@
+graft package/src/openflash
+
+prune dev
+
+global-exclude *.png
+global-exclude *.ipynb
+global-exclude __pycache__
+global-exclude *.pyc
