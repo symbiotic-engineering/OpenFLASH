@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import h5py
 import numpy as np
+from scipy.linalg import expm
 
 from openflash.body import SteppedBody
 from openflash.multi_constants import rho as openflash_default_rho
@@ -34,6 +35,9 @@ def _get_body_count(results_obj, modes: np.ndarray) -> int:
 
 
 def _compute_irf(B: np.ndarray, w_source: np.ndarray, n_w: int, n_t: int, t_max: float):
+    """
+    Impulse response function computation. Assumes that the radiation damping, B, is scaled by both density and frequency.
+    """
     if n_w < 2:
         n_w = 2
     if n_t < 2:
@@ -55,9 +59,234 @@ def _compute_irf(B: np.ndarray, w_source: np.ndarray, n_w: int, n_t: int, t_max:
         for j in range(n_dof):
             b_ij = B[i, j, :]
             b_interp = ra_w * np.interp(ra_w, w_source, b_ij, left=0.0, right=0.0)
-            ra_K[i, j, :] = (2.0 / np.pi) * np.trapz(cos_wt * b_interp[np.newaxis, :], ra_w, axis=1)
+            ra_K[i, j, :] = (2.0 / np.pi) * np.trapz(
+                cos_wt * b_interp[np.newaxis, :], ra_w, axis=1
+            )
 
     return ra_t, ra_w, ra_K
+
+
+def _compute_state_space(
+    K_r: np.ndarray,
+    t_r: np.ndarray,
+    max_order: int = 10,
+    R2t: float = 0.95,
+    orders: Optional[np.ndarray] = None,
+    verbose: bool = True,
+) -> Tuple[
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+]:
+    """
+    Compute a radiation state-space realization from an impulse response function.
+
+    Parameters
+    ----------
+    K_r:
+        Radiation impulse response function array. Expected shape is
+        (n_influenced_dof, n_radiating_dof, n_time). A 1D input is accepted and
+        reshaped to (1, 1, n_time).
+
+        This should generally be the ra_K output from _compute_irf(...).
+
+    t_r:
+        IRF time vector. This should generally be the ra_t output from
+        _compute_irf(...). Any NumPy-compatible shape is accepted and flattened.
+
+    max_order:
+        Maximum state-space order tested for each DOF pair.
+
+    R2t:
+        Target R^2 threshold used when selecting the model order.
+
+    orders:
+        Optional fixed integer order array with shape
+        (n_influenced_dof, n_radiating_dof). If supplied, no R^2-based order
+        search is performed; each DOF pair uses its specified order.
+
+    verbose:
+        If True, print selected order for each DOF pair.
+
+    Returns
+    -------
+    ss_A:
+        Global continuous-time state matrix with shape
+        (total_order, total_order).
+
+    ss_B:
+        Global continuous-time input matrix with shape
+        (total_order, n_radiating_dof).
+
+    ss_C:
+        Global continuous-time output matrix with shape
+        (n_influenced_dof, total_order).
+
+    ss_D:
+        Direct-feedthrough matrix with shape
+        (n_influenced_dof, n_radiating_dof).
+
+    ss_K:
+        Reconstructed IRF from the selected state-space models. Same shape as
+        K_r.
+
+    ss_R2:
+        R^2 fit values for each DOF pair.
+
+    ss_order:
+        Selected or fixed order for each DOF pair.
+
+    ss_conv:
+        End status of the convolution comparison.
+        0 if state space coefficients not calculated (zero radiation damping data);
+        1 if R2 threshold was met;
+        2 if R2 threshold not met and maximum order reached.
+    """
+    K_r = np.asarray(K_r, dtype=float)
+    t_r = np.asarray(t_r, dtype=float).reshape(-1)
+
+    if K_r.ndim == 1:
+        K_r = K_r.reshape(1, 1, K_r.size)
+    elif K_r.ndim != 3:
+        raise ValueError("_compute_state_space expects a vector or a 3D IRF array")
+
+    if max_order < 1:
+        raise ValueError("max_order must be at least 1")
+
+    n_influenced, n_radiating, n_time = K_r.shape
+
+    if t_r.size != n_time:
+        raise ValueError("t_r length must match the IRF time dimension")
+
+    if n_time < max_order + 2:
+        raise ValueError(
+            "_compute_state_space requires at least "
+            f"{max_order + 2} IRF time samples"
+        )
+
+    dt = float(t_r[1] - t_r[0])
+
+    ss_A = np.zeros((n_influenced, n_radiating, max_order, max_order), dtype=float)
+    ss_B = np.zeros((n_influenced, n_radiating, max_order, 1), dtype=float)
+    ss_C = np.zeros((n_influenced, n_radiating, 1, max_order), dtype=float)
+    ss_D = np.zeros((n_influenced, n_radiating), dtype=float)
+    ss_K = np.zeros((n_influenced, n_radiating, n_time), dtype=float)
+    ss_R2 = np.zeros((n_influenced, n_radiating), dtype=float)
+    ss_O = np.zeros((n_influenced, n_radiating), dtype=np.int32)
+    ss_conv = np.zeros((n_influenced, n_radiating), dtype=np.int32)
+
+    if orders is None:
+        fixed_orders = None
+    elif np.isscalar(orders):
+        fixed_orders = np.full(
+            (n_influenced, n_radiating),
+            int(orders),
+            dtype=np.int32,
+        )
+    else:
+        fixed_orders = np.asarray(orders, dtype=np.int32)
+        if fixed_orders.shape != (n_influenced, n_radiating):
+            raise ValueError("orders must match the first two dimensions of K_r")
+
+    if fixed_orders is not None:
+        if np.any(fixed_orders < 1) or np.any(fixed_orders > max_order):
+            raise ValueError("orders must be between 1 and max_order")
+
+    if verbose:
+        print("State space calculation:")
+
+    for i in range(n_influenced):
+        for j in range(n_radiating):
+            irf_K = K_r[i, j, :]
+
+            R2i = np.linalg.norm(irf_K - np.mean(irf_K))
+            y = dt * irf_K
+            n = y.size
+
+            hankel_seed = np.concatenate((y[1:], np.zeros(n - 1, dtype=float)))
+            hankel_indices = np.add.outer(np.arange(n - 1), np.arange(n - 1))
+            h = hankel_seed[hankel_indices]
+            u, svh, vh = np.linalg.svd(h, full_matrices=True)
+            v = vh.T
+
+            if fixed_orders is None:
+                order = 2
+            else:
+                order = int(fixed_orders[i, j])
+
+            R2 = 0.0
+            status = 0
+
+            while R2i != 0.0:
+                u1 = u[0 : n - 2, 0:order]
+                v1 = v[0 : n - 2, 0:order]
+                u2 = u[1 : n - 1, 0:order]
+
+                sqs = np.sqrt(svh[0:order])
+
+                if np.any(sqs == 0.0):
+                    raise np.linalg.LinAlgError(
+                        f"Zero singular value encountered for DOF pair "
+                        f"({i}, {j}) at order {order}"
+                    )
+
+                ubar = u1.T @ u2
+                a = ubar * (sqs[np.newaxis, :] / sqs[:, np.newaxis])
+                b = v1[0, :] * sqs
+                c = u1[0, :] * sqs
+                d = float(y[0])
+
+                eye = np.eye(order)
+                iidd = np.linalg.inv((dt / 2.0) * (eye + a))
+                ac = (a - eye) @ iidd
+                bc = dt * (iidd @ b)
+                cc = c @ iidd
+                dc = d - (dt / 2.0) * float((c @ iidd) @ b)
+
+                ss_K_each_dof = np.zeros(n_time, dtype=float)
+                for k in range(n_time):
+                    ss_K_each_dof[k] = float(cc @ expm(ac * dt * k) @ bc)
+
+                R2 = 1.0 - (np.linalg.norm(irf_K - ss_K_each_dof) / R2i) ** 2
+
+                if fixed_orders is not None:
+                    status = 1 if R2 >= R2t else 2
+                    break
+
+                if R2 >= R2t:
+                    status = 1
+                    break
+
+                if order == max_order:
+                    status = 2
+                    break
+
+                order += 1
+
+            if R2i != 0.0:
+                ss_A[i, j, 0:order, 0:order] = ac
+                ss_B[i, j, 0:order, 0] = bc
+                ss_C[i, j, 0, 0:order] = cc
+                ss_D[i, j] = dc
+                ss_K[i, j, :] = ss_K_each_dof
+                ss_R2[i, j] = R2
+                ss_O[i, j] = order
+                ss_conv[i, j] = status
+
+            if status == 0:
+                # Only updated for more accurate printed message below
+                order = 0
+
+            if verbose:
+                # Use one-based DOF numbers to match the Julia printout.
+                print(f"dof: {i + 1} {j + 1}; order: {order}")
+
+    return ss_A, ss_B, ss_C, ss_D, ss_K, ss_R2, ss_O, ss_conv
 
 
 def _compute_body_hydrostatics(results_obj, nb: int):
@@ -86,7 +315,9 @@ def _compute_body_hydrostatics(results_obj, nb: int):
 
         body_volume = 0.0
         z_moment = 0.0
-        for outer_radius, draft in zip(np.asarray(body.a, dtype=float), np.asarray(body.d, dtype=float)):
+        for outer_radius, draft in zip(
+            np.asarray(body.a, dtype=float), np.asarray(body.d, dtype=float)
+        ):
             r_in = float(prev_outer_radius)
             r_out = float(outer_radius)
             d = float(draft)
@@ -94,7 +325,7 @@ def _compute_body_hydrostatics(results_obj, nb: int):
                 prev_outer_radius = r_out
                 continue
 
-            seg_volume = np.pi * (r_out ** 2 - r_in ** 2) * d
+            seg_volume = np.pi * (r_out**2 - r_in**2) * d
             seg_z = -0.5 * d
             body_volume += seg_volume
             z_moment += seg_volume * seg_z
@@ -140,13 +371,15 @@ def _compute_body_linear_restoring_stiffness(results_obj, nb: int):
         if outer_radius <= inner_radius:
             continue
 
-        waterplane_area = np.pi * (outer_radius ** 2 - inner_radius ** 2)
+        waterplane_area = np.pi * (outer_radius**2 - inner_radius**2)
         khs_body[body_idx, 2, 2] = waterplane_area
 
     return khs_body
 
 
-def _build_wecsim_canonical(results_obj, config: Optional[WecSimExportConfig] = None) -> Dict[str, np.ndarray]:
+def _build_wecsim_canonical(
+    results_obj, config: Optional[WecSimExportConfig] = None
+) -> Dict[str, np.ndarray]:
     if config is None:
         config = WecSimExportConfig()
 
@@ -167,7 +400,9 @@ def _build_wecsim_canonical(results_obj, config: Optional[WecSimExportConfig] = 
     mode_i = np.asarray(ds.coords["mode_i"].values, dtype=int)
     mode_j = np.asarray(ds.coords["mode_j"].values, dtype=int)
     if mode_i.shape != mode_j.shape or not np.array_equal(mode_i, mode_j):
-        raise ValueError("mode_i and mode_j coordinates must match for square coefficient matrices.")
+        raise ValueError(
+            "mode_i and mode_j coordinates must match for square coefficient matrices."
+        )
 
     Nb = _get_body_count(results_obj, mode_i)
     n_dof = 6 * Nb
@@ -176,11 +411,17 @@ def _build_wecsim_canonical(results_obj, config: Optional[WecSimExportConfig] = 
 
     A_src = np.asarray(ds["added_mass"].values, dtype=float)
     B_src = np.asarray(ds["damping"].values, dtype=float)
-    if A_src.shape != (Nf, mode_i.size, mode_i.size) or B_src.shape != (Nf, mode_i.size, mode_i.size):
+    if A_src.shape != (Nf, mode_i.size, mode_i.size) or B_src.shape != (
+        Nf,
+        mode_i.size,
+        mode_i.size,
+    ):
         raise ValueError("added_mass and damping must have shape (Nf, Nm, Nm).")
 
     if float(config.rho) <= 0.0:
-        raise ValueError("WecSimExportConfig.rho must be positive for normalized export.")
+        raise ValueError(
+            "WecSimExportConfig.rho must be positive for normalized export."
+        )
     if float(config.g) <= 0.0:
         raise ValueError("WecSimExportConfig.g must be positive for normalized export.")
 
@@ -191,7 +432,9 @@ def _build_wecsim_canonical(results_obj, config: Optional[WecSimExportConfig] = 
 
     # Export normalized coefficients for BEMIO/WEC-Sim conventions.
     A_src_norm = A_src / added_mass_scale
-    B_src_norm = np.divide(B_src, damping_scale_3d, out=np.zeros_like(B_src), where=damping_scale_3d != 0.0)
+    B_src_norm = np.divide(
+        B_src, damping_scale_3d, out=np.zeros_like(B_src), where=damping_scale_3d != 0.0
+    )
 
     A = np.zeros((n_dof, n_dof, Nf), dtype=float)
     B = np.zeros((n_dof, n_dof, Nf), dtype=float)
@@ -244,6 +487,10 @@ def _build_wecsim_canonical(results_obj, config: Optional[WecSimExportConfig] = 
         t_max=config.irf_t_max,
     )
 
+    ss_A, ss_B, ss_C, ss_D, ss_K, ss_R2, ss_O, ss_conv = _compute_state_space(
+        ra_K, ra_t, max_order=8, R2t=0.95
+    )
+
     cob, displaced_volume = _compute_body_hydrostatics(results_obj, Nb)
     khs_body = _compute_body_linear_restoring_stiffness(results_obj, Nb)
 
@@ -271,6 +518,14 @@ def _build_wecsim_canonical(results_obj, config: Optional[WecSimExportConfig] = 
         "ra_t": ra_t,
         "ra_w": ra_w,
         "ra_K": ra_K,
+        "ss_A": ss_A,
+        "ss_B": ss_B,
+        "ss_C": ss_C,
+        "ss_D": ss_D,
+        "ss_K": ss_K,
+        "ss_R2": ss_R2,
+        "ss_O": ss_O,
+        "ss_conv": ss_conv,
         "rho": np.float64(config.rho),
         "g": np.float64(config.g),
         "h": np.float64(water_depth),
@@ -283,7 +538,9 @@ def _build_wecsim_canonical(results_obj, config: Optional[WecSimExportConfig] = 
     }
 
 
-def export_wecsim_hdf5(results_obj, file_path: str, config: Optional[WecSimExportConfig] = None):
+def export_wecsim_hdf5(
+    results_obj, file_path: str, config: Optional[WecSimExportConfig] = None
+):
     data = _build_wecsim_canonical(results_obj, config=config)
     if config is None:
         config = WecSimExportConfig()
@@ -292,13 +549,17 @@ def export_wecsim_hdf5(results_obj, file_path: str, config: Optional[WecSimExpor
         "ainf_policy": "endpoint_max_omega",
         "irf_method": "cosine_transform_of_damping",
         "heading_deg": float(data["theta"][0]),
-        "excitation_conjugated_for_wecsim": bool(config.conjugate_excitation_for_wecsim),
+        "excitation_conjugated_for_wecsim": bool(
+            config.conjugate_excitation_for_wecsim
+        ),
     }
 
     def _write_text_dataset(h5: h5py.File, path: str, value: str):
         parent_path, dataset_name = path.rsplit("/", 1)
         parent = h5.require_group(parent_path)
-        parent.create_dataset(dataset_name, data=np.array(value, dtype=h5py.string_dtype("utf-8")))
+        parent.create_dataset(
+            dataset_name, data=np.array(value, dtype=h5py.string_dtype("utf-8"))
+        )
 
     def _write_bemio_compatible_groups(h5: h5py.File):
         def _as_col(x: np.ndarray) -> np.ndarray:
@@ -342,15 +603,21 @@ def export_wecsim_hdf5(results_obj, file_path: str, config: Optional[WecSimExpor
             # WEC-Sim's readBEMIOH5 applies reverseDimensionOrder after h5read.
             # Write with [dof, heading, freq] and [dof, radiating_dof, freq]
             # so loaded hydroData keeps frequency on the interpolation axis.
-            hydro.create_dataset("linear_restoring_stiffness", data=data["linear_restoring_stiffness_body"][body_idx])
+            hydro.create_dataset(
+                "linear_restoring_stiffness",
+                data=data["linear_restoring_stiffness_body"][body_idx],
+            )
 
             ex_group = h5.require_group(f"{body_path}/hydro_coeffs/excitation")
-            ex_group.create_dataset("mag", data=data["excitation_mag"][start:stop, :, :])
-            ex_group.create_dataset("phase", data=data["excitation_phase"][start:stop, :, :])
+            ex_group.create_dataset(
+                "mag", data=data["excitation_mag"][start:stop, :, :]
+            )
+            ex_group.create_dataset(
+                "phase", data=data["excitation_phase"][start:stop, :, :]
+            )
             ex_group.create_dataset("re", data=data["excitation_re"][start:stop, :, :])
             ex_group.create_dataset("im", data=data["excitation_im"][start:stop, :, :])
-
-            '''
+            """
             sc_group = h5.require_group(f"{body_path}/hydro_coeffs/excitation/scattering")
             sc_group.create_dataset("mag", data=ex_sc_zeros[start:stop, :, :])
             sc_group.create_dataset("phase", data=ex_sc_zeros[start:stop, :, :])
@@ -367,19 +634,58 @@ def export_wecsim_hdf5(results_obj, file_path: str, config: Optional[WecSimExpor
             ex_irf.create_dataset("f", data=np.zeros((6, nh, data["ra_t"].size), dtype=float))
             ex_irf.create_dataset("t", data=_as_col(data["ra_t"]))
             ex_irf.create_dataset("w", data=_as_col(data["ra_w"]))
-            '''
+            """
 
             am_group = h5.require_group(f"{body_path}/hydro_coeffs/added_mass")
             am_group.create_dataset("all", data=data["A"][start:stop, :, :])
-            am_group.create_dataset("inf_freq", data=data["Ainf"][start:stop, :])
+            am_group.create_dataset(
+                "inf_freq",
+                data=data["Ainf"][start:stop, :],
+            )
 
             rd_group = h5.require_group(f"{body_path}/hydro_coeffs/radiation_damping")
             rd_group.create_dataset("all", data=data["B"][start:stop, :, :])
 
-            rd_irf = h5.require_group(f"{body_path}/hydro_coeffs/radiation_damping/impulse_response_fun")
+            rd_irf = h5.require_group(
+                f"{body_path}/hydro_coeffs/radiation_damping/impulse_response_fun"
+            )
             rd_irf.create_dataset("K", data=data["ra_K"][start:stop, :, :])
             rd_irf.create_dataset("t", data=_as_col(data["ra_t"]))
             rd_irf.create_dataset("w", data=_as_col(data["ra_w"]))
+
+            rd_ss = h5.require_group(
+                f"{body_path}/hydro_coeffs/radiation_damping/state_space"
+            )
+            rd_ss_a = h5.require_group(
+                f"{body_path}/hydro_coeffs/radiation_damping/state_space/A"
+            )
+            rd_ss_a.create_dataset("all", data=data["ss_A"][start:stop, :, :, :])
+
+            rd_ss_b = h5.require_group(
+                f"{body_path}/hydro_coeffs/radiation_damping/state_space/B"
+            )
+            rd_ss_b.create_dataset("all", data=data["ss_B"][start:stop, :, :, :])
+
+            rd_ss_c = h5.require_group(
+                f"{body_path}/hydro_coeffs/radiation_damping/state_space/C"
+            )
+            rd_ss_c.create_dataset("all", data=data["ss_C"][start:stop, :, :, :])
+
+            rd_ss_d = h5.require_group(
+                f"{body_path}/hydro_coeffs/radiation_damping/state_space/D"
+            )
+            rd_ss_d.create_dataset("all", data=data["ss_D"][start:stop, :])
+
+            rd_ss_k = h5.require_group(
+                f"{body_path}/hydro_coeffs/radiation_damping/state_space/K"
+            )
+            rd_ss_k.create_dataset(
+                "all", data=data["ss_K"][start:stop, :, :, np.newaxis]
+            )
+
+            rd_ss.create_dataset("it", data=data["ss_O"][start:stop, :])
+            rd_ss.create_dataset("r2t", data=data["ss_R2"][start:stop, :])
+            rd_ss.create_dataset("conv", data=data["ss_conv"][start:stop, :])
 
     with h5py.File(file_path, "w") as h5:
         _write_bemio_compatible_groups(h5)
@@ -529,7 +835,9 @@ def export_to_stl(
 
     geometry = getattr(results_obj, "geometry", None)
     if geometry is None or not hasattr(geometry, "body_arrangement"):
-        raise ValueError("Results object does not provide a compatible geometry/body arrangement.")
+        raise ValueError(
+            "Results object does not provide a compatible geometry/body arrangement."
+        )
 
     bodies = getattr(geometry.body_arrangement, "bodies", None)
     if bodies is None:
