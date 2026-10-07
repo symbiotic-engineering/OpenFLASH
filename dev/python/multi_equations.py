@@ -1,15 +1,11 @@
 import numpy as np
 from scipy.special import hankel1 as besselh
-from scipy.special import iv as besseli
+from scipy.special import iv as besseli # unneeded once replaced by exponential versions iv -> ive, kv -> kve
 from scipy.special import kv as besselk
 from scipy.special import ive as besselie
 from scipy.special import kve as besselke
-import scipy.integrate as integrate
-import scipy.linalg as linalg
-import matplotlib.pyplot as plt
 from numpy import sqrt, cosh, cos, sinh, sin, pi, exp, inf
-from scipy.optimize import newton, minimize_scalar, root_scalar
-import scipy as sp
+from scipy.optimize import root_scalar
 from multi_constants import *
 
 def m0_to_omega(m0):

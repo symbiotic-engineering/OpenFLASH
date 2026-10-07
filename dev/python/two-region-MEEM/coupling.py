@@ -1,13 +1,4 @@
-import numpy as np
-from scipy.special import hankel1 as besselh
-from scipy.special import iv as besseli
-from scipy.special import kv as besselk
-import scipy.integrate as integrate
-import scipy.linalg as linalg
-import matplotlib.pyplot as plt
 from math import sqrt, cosh, cos, sinh, sin, pi
-from scipy.optimize import newton, minimize_scalar
-import scipy as sp
 from constants import *
 from equations import *
 

@@ -1,3 +1,5 @@
+# Helper functions to display data
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FuncFormatter
 import numpy as np
@@ -5,7 +7,16 @@ import numpy as np
 
 ###########################
 # Used in ps4, ps5 notebooks
-def plot_multiple_fade(x, ys, colors = ["Reds", "Greens", "Blues"], labs = None, last_k = None, title = "plot", xlab = "x", ylab = "y", hline = None, hlab = None):
+
+# Plot multiple sets of curves.
+# Within each set, curves have different colors within the same colormap
+# In the default, within each set, earlier curves are darker and later ones lighter
+def plot_multiple_fade(x, ys, colors = ["Reds", "Greens", "Blues"], labs = None, last_k = None,
+                       title = "plot", xlab = "x", ylab = "y", hline = None, hlab = None,
+                       figsize = None, xlims = None, ylims = None):
+    if figsize is not None:
+       plt.figure(figsize=figsize)
+
     if hline is not None:
       plt.axhline(y = hline, color='orange', label = hlab)
 
@@ -23,16 +34,18 @@ def plot_multiple_fade(x, ys, colors = ["Reds", "Greens", "Blues"], labs = None,
       ax.xaxis.set_major_locator(MultipleLocator(np.pi / 8))
       ax.xaxis.set_major_formatter(FuncFormatter(angle_format_func))
 
+    if xlims is not None: plt.xlim(xlims)
+    if ylims is not None: plt.ylim(ylims)
+
     plt.xlabel(xlab)
     plt.ylabel(ylab)
     plt.title(title)
     plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
-    plt.tight_layout()
     plt.grid(True)
     plt.tight_layout()
     plt.show()
 
-def angle_format_func(value, tick_number):
+def angle_format_func(value, tick_number): # Used to label radian values for angles
     frac = 1 / 16
     multiple = round(value / (np.pi * frac))
     num = multiple
@@ -54,6 +67,7 @@ def angle_format_func(value, tick_number):
         num_string = "" if abs(num) == 1 else abs(num)
         return rf"${coeff}\frac{{{num_string}\pi}}{{{denom}}}$"
 
+# Helper for plot_multiple_fade (plots one set of curves)
 def plot_fade(x, ys, labs = None, last_k = None, cname = "Blue"):
   if labs is None:
       labs = [None] * len(ys)
@@ -71,10 +85,10 @@ def plot_fade(x, ys, labs = None, last_k = None, cname = "Blue"):
 def make_label(num_lst, key):
   return [key + " = " + str(num) for num in num_lst]
 
-def ratio_conversion(arr):
+def ratio_conversion(arr): # express values as ratio to final value
   return [[value / row[-1] for value in row] for row in arr]
 
-def percent_off(arr):
+def percent_off(arr): # express as fractional difference to the previous value in list
     return [
         [((row[j] / row[j - 1]) - 1) for j in range(1, len(row))]
         for row in arr

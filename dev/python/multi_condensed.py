@@ -1,22 +1,20 @@
 # For notebooks that don't deal with all the inner MEEM workings, and don't want to duplicate A-matrix, b-vector code, etc.
 # Useful for just generating hydro coefficients, test cases.
 # This file may not reflect recent edits to multi_equations, multi-MEEM.
+# For usage example, check the bottom part of the multi_MEEM.ipynb notebook
+# that uses functions in this file to reproduce results of blocks written out more explicitly in the notebook
 
 import numpy as np
 from scipy.special import hankel1 as besselh
-from scipy.special import iv as besseli
-from scipy.special import kv as besselk
 from scipy.special import ive as besselie
 from scipy.special import kve as besselke
-import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
 from numpy import sqrt, cosh, cos, sinh, sin, pi, exp, inf
-from scipy.optimize import newton, minimize_scalar, root_scalar
-import scipy as sp
-import pandas as pd
+from scipy.optimize import root_scalar
 
 g = 9.81
+LARGE_M0H = 14
 
 # generic helper function
 def insert_submatrix(mat, submat, row, col):
@@ -119,7 +117,7 @@ class Problem:
         dj = self.d[i]
         if m == 0 and k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 return (1/sqrt(N_k[0])) * sinh(m0 * (h - dj)) / m0
             else: # high m0h approximation
                 return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -127,7 +125,7 @@ class Problem:
             return (1/sqrt(N_k[k])) * sin(m_k[k] * (h - dj)) / m_k[k]
         if m >= 1 and k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 num = (-1)**m * sqrt(2) * (1/sqrt(N_k[0])) * m0 * sinh(m0 * (h - dj))
             else: # high m0h approximation
                 num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
@@ -228,7 +226,7 @@ class Problem:
         constant = - heaving[i] * a[i]/(2 * (h - d[i]))
         if k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 return constant * (1/sqrt(self.N_k[0])) * sinh(m0 * (h - d[i])) / m0
             else: # high m0h approximation
                 return constant * sqrt(2 * h / m0) * (exp(- m0 * d[i]) - exp(m0 * d[i] - 2 * m0 * h))
@@ -339,7 +337,7 @@ class Problem:
         h, m0, m_k, N_k = self.h, self.m0, self.m_k, self.N_k
         if k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 return 1 / sqrt(N_k[k]) * cosh(m0 * (z + h))
             else: # high m0h approximation
                 return sqrt(2 * m0 * h) * (exp(m0 * z) + exp(-m0 * (z + 2*h)))
@@ -351,7 +349,7 @@ class Problem:
         h, m0, m_k, N_k = self.h, self.m0, self.m_k, self.N_k
         if k == 0:
             if m0 == inf: return 0
-            elif m0 * h < 14:
+            elif m0 * h < LARGE_M0H:
                 return 1 / sqrt(N_k[k]) * m0 * sinh(m0 * (z + h))
             else: # high m0h approximation
                 return m0 * sqrt(2 * h * m0) * (exp(m0 * z) - exp(-m0 * (z + 2*h)))
@@ -684,7 +682,8 @@ class Problem:
                 r_vec = np.append(r_vec, self.a[i]*(1+a_eps))
             r_vec = np.unique(r_vec)
             for i in range(len(self.d)):
-                z_vec = np.append(z_vec, -self.d[i])
+                z_vec = np.append(z_vec, -self.d[i]*(1-a_eps))
+                z_vec = np.append(z_vec, -self.d[i]*(1+a_eps))
             z_vec = np.unique(z_vec)
         return np.meshgrid(r_vec, z_vec)
     
@@ -697,7 +696,7 @@ class Problem:
         plt.ylabel('Axial Distance (Z)')
         plt.show()
 
-    def generate_potential_plot_array(self, cs):
+    def generate_potential_plot_array(self, cs, res = 50):
         h, d, a, heaving, NMK = self.h, self.d, self.a, self.heaving, self.NMK
         R_1n, R_2n, Lambda_k= self.R_1n, self.R_2n, self.Lambda_k
         Z_n_i, Z_k_e = self.Z_n_i, self.Z_k_e
@@ -716,7 +715,7 @@ class Problem:
         phi_h_m_i_vec = np.vectorize(phi_h_m_i_func, otypes = [complex])
         phi_p_i_vec = np.vectorize(phi_p_i)
 
-        R, Z = self.make_R_Z(True, 50)
+        R, Z = self.make_R_Z(True, res)
 
         regions = []
         regions.append((R <= a[0]) & (Z < -d[0]))
@@ -749,7 +748,7 @@ class Problem:
         phi = phiH + phiP
         return phi, phiH, phiP
 
-    def generate_velocity_plot_array(self, cs):
+    def generate_velocity_plot_array(self, cs, res = 50):
         h, d, a, heaving, NMK = self.h, self.d, self.a, self.heaving, self.NMK
         R_1n, R_2n, Lambda_k= self.R_1n, self.R_2n, self.Lambda_k
         diff_R_1n, diff_R_2n, diff_Lambda_k= self.diff_R_1n, self.diff_R_2n, self.diff_Lambda_k
@@ -782,7 +781,7 @@ class Problem:
         v_z_m_i_vec = np.vectorize(v_z_m_i_func, otypes = [complex])
         v_z_e_k_vec = np.vectorize(v_z_e_k_func, otypes = [complex])
 
-        R, Z = self.make_R_Z(True, 50)
+        R, Z = self.make_R_Z(True, res)
 
         regions = []
         regions.append((R <= a[0]) & (Z < -d[0]))
@@ -839,9 +838,9 @@ class Problem:
 
         return vr, vz
     
-    def plot_potentials(self, cs):
-        R, Z = self.make_R_Z(True, 50)
-        phi, phiH, phiP = self.generate_potential_plot_array(cs)
+    def plot_potentials(self, cs, res = 50):
+        R, Z = self.make_R_Z(True, res)
+        phi, phiH, phiP = self.generate_potential_plot_array(cs, res = res)
         self.plot_pv(np.real(phiH), R, Z, 'Homogeneous Potential')
         self.plot_pv(np.imag(phiH), R, Z, 'Homogeneous Potential Imaginary')
 
@@ -851,9 +850,9 @@ class Problem:
         self.plot_pv(np.real(phi), R, Z, 'Potential (Real Part)')
         self.plot_pv(np.imag(phi), R, Z, 'Total Potential Imaginary')
 
-    def plot_velocities(self, cs):
-        R, Z = self.make_R_Z(True, 50)
-        vr, vz = self.generate_velocity_plot_array(cs)
+    def plot_velocities(self, cs, res = 50):
+        R, Z = self.make_R_Z(True, res)
+        vr, vz = self.generate_velocity_plot_array(cs, res = res)
         
         self.plot_pv(np.real(vr), R, Z, 'Radial Velocity - Real')
         self.plot_pv(np.imag(vr), R, Z, 'Radial Velocity - Imaginary')
@@ -862,7 +861,7 @@ class Problem:
 
     #############################################
     # Format a 50 x 50 array of potentials for testing
-    def config_potential_array(self, cs):
+    def config_potential_array(self, cs, res = 50):
         boundary_count, NMK, heaving = self.boundary_count, self.NMK, self.heaving
         a, d, h, = self.a, self.d, self.h
 
@@ -883,7 +882,7 @@ class Problem:
         phi_h_m_i_vec = np.vectorize(phi_h_m_i_func, otypes = [complex])
         phi_p_i_vec = np.vectorize(phi_p_i)
 
-        R, Z = self.make_R_Z(False, 50)
+        R, Z = self.make_R_Z(False, res)
 
         regions = []
         regions.append((R <= a[0]) & (Z < -d[0]))

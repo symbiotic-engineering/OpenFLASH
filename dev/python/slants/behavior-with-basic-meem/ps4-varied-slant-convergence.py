@@ -1,9 +1,12 @@
-import numpy as np
-
 import sys
-import os
-sys.path.append(os.path.relpath('../../'))
-sys.path.append(os.path.relpath('../'))
+from pathlib import Path
+
+HERE = Path.cwd().resolve()
+dir_path_str_1 = str((HERE / ".." ).resolve())
+dir_path_str_2 = str((HERE / ".." / "..").resolve())
+for dir_path_str in [dir_path_str_1, dir_path_str_2]:
+  if dir_path_str not in sys.path:
+    sys.path.insert(0, dir_path_str)
 from multi_condensed import Problem
 from helpers import *
 

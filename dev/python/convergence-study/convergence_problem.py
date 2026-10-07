@@ -1,8 +1,12 @@
 import numpy as np
 
 import sys
-import os
-sys.path.append(os.path.relpath('../'))
+from pathlib import Path
+
+HERE = Path.cwd().resolve()
+dir_path_str = str((HERE / ".." ).resolve())
+if dir_path_str not in sys.path:
+  sys.path.insert(0, dir_path_str)
 from multi_condensed import Problem
 
 import warnings
