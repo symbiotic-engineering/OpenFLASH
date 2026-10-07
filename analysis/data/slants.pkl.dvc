@@ -1,0 +1,5 @@
+outs:
+- md5: 085a3f3953c7423cd8a47d5ef6271453
+  size: 6715
+  hash: md5
+  path: slants.pkl
