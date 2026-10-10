@@ -20,3 +20,21 @@
 /convergence-fit-assessment.pdf
 /graph_abstract.pdf
 /graph_abstract.log
+
+# >>> calkit latex aux files (managed by calkit) >>>
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+# <<< calkit latex aux files <<<
