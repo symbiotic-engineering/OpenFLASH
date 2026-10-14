@@ -2,10 +2,14 @@
 from openflash.multi_constants import g, rho
 import numpy as np
 from scipy.special import hankel1 as besselh
-from scipy.special import iv as besseli
-from scipy.special import kv as besselk
-from scipy.special import ive as besselie
-from scipy.special import kve as besselke
+from scipy.special import i0 as besseli0
+from scipy.special import i1 as besseli1
+from scipy.special import k0 as besselk0
+from scipy.special import k1 as besselk1
+from scipy.special import i0e as besseli0e
+from scipy.special import i1e as besseli1e
+from scipy.special import k0e as besselk0e
+from scipy.special import k1e as besselk1e
 import scipy.integrate as integrate
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
@@ -68,60 +72,117 @@ def m_k(NMK, m0, h):
 #############################################
 # vertical eigenvector coupling computation
 
+def _prepare_mode_grids(row_mode, col_mode):
+    row_arr = np.asarray(row_mode)
+    col_arr = np.asarray(col_mode)
+    scalar_input = row_arr.ndim == 0 and col_arr.ndim == 0
+
+    if scalar_input:
+        return row_arr.reshape(1, 1), col_arr.reshape(1, 1), True
+
+    if row_arr.ndim <= 1 and col_arr.ndim <= 1:
+        row_grid, col_grid = np.meshgrid(row_arr.reshape(-1), col_arr.reshape(-1), indexing="ij")
+    else:
+        row_grid, col_grid = np.broadcast_arrays(row_arr, col_arr)
+
+    return row_grid, col_grid, False
+
+
 def I_nm(n, m, i, d, h): # coupling integral for two i-type regions
     dj = max(d[i], d[i+1]) # integration bounds at -h and -d
-    if n == 0 and m == 0:
-        return h - dj
-    lambda1 = lambda_ni(n, i, h, d)
-    lambda2 = lambda_ni(m, i + 1, h, d)
-    if n == 0 and m >= 1:
-        if dj == d[i+1]:
-            return 0
+    n_grid, m_grid, scalar_input = _prepare_mode_grids(n, m)
+    delta = h - dj
+    out = np.full(n_grid.shape, np.nan, dtype=float)
+
+    mask_00 = (n_grid == 0) & (m_grid == 0)
+    out[mask_00] = delta
+
+    mask_n0_mpos = (n_grid == 0) & (m_grid >= 1)
+    if np.any(mask_n0_mpos):
+        if dj != d[i+1]:
+            lambda2 = lambda_ni(m_grid[mask_n0_mpos], i + 1, h, d)
+            out[mask_n0_mpos] = sqrt(2) * sin(lambda2 * delta) / lambda2
         else:
-            return sqrt(2) * sin(lambda2 * (h - dj)) / lambda2
-    if n >= 1 and m == 0:
-        if dj == d[i]:
-            return 0
+            out[mask_n0_mpos] = 0
+
+    mask_npos_m0 = (n_grid >= 1) & (m_grid == 0)
+    if np.any(mask_npos_m0):
+        if dj != d[i]:
+            lambda1 = lambda_ni(n_grid[mask_npos_m0], i, h, d)
+            out[mask_npos_m0] = sqrt(2) * sin(lambda1 * delta) / lambda1
         else:
-            return sqrt(2) * sin(lambda1 * (h - dj)) / lambda1
-    else:
-        frac1 = sin((lambda1 + lambda2)*(h-dj))/(lambda1 + lambda2)
-        if lambda1 == lambda2:
-            frac2 = (h - dj)
-        else:
-            frac2 = sin((lambda1 - lambda2)*(h-dj))/(lambda1 - lambda2)
-        return frac1 + frac2
+            out[mask_npos_m0] = 0
+
+    mask_general = ~(mask_00 | mask_n0_mpos | mask_npos_m0)
+    if np.any(mask_general):
+        lambda1 = lambda_ni(n_grid[mask_general], i, h, d)
+        lambda2 = lambda_ni(m_grid[mask_general], i + 1, h, d)
+        frac1 = sin((lambda1 + lambda2) * delta) / (lambda1 + lambda2)
+        frac2 = np.empty_like(frac1, dtype=float)
+        eq_mask = np.isclose(lambda1, lambda2)
+        frac2[eq_mask] = delta
+        neq_mask = ~eq_mask
+        if np.any(neq_mask):
+            frac2[neq_mask] = sin((lambda1[neq_mask] - lambda2[neq_mask]) * delta) / (lambda1[neq_mask] - lambda2[neq_mask])
+        out[mask_general] = frac1 + frac2
+
+    return out.item() if scalar_input else out
 
 # REVISED I_mk to accept m_k_arr and N_k_arr
 def I_mk(m, k, i, d, m0, h, m_k_arr, N_k_arr): # coupling integral for i and e-type regions
-    # Use the pre-computed array
-    local_m_k_k = m_k_arr[k] # Access directly from array
-    
+    m_grid, k_grid, scalar_input = _prepare_mode_grids(m, k)
+    m_grid = m_grid.astype(int, copy=False)
+    k_grid = k_grid.astype(int, copy=False)
     dj = d[i]
-    if m == 0 and k == 0:
-        if m0 == inf: return 0
+    delta = h - dj
+    out = np.full(m_grid.shape, np.nan, dtype=float)
+
+    mask_m0_k0 = (m_grid == 0) & (k_grid == 0)
+    if np.any(mask_m0_k0):
+        if m0 == inf:
+            out[mask_m0_k0] = 0
         elif m0 * h < M0_H_THRESH:
-            return (1/sqrt(N_k_arr[0])) * sinh(m0 * (h - dj)) / m0 # Use N_k_arr[0]
+            out[mask_m0_k0] = (1 / sqrt(N_k_arr[0])) * sinh(m0 * delta) / m0
         else: # high m0h approximation
-            return sqrt(2 * h / m0) * (exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
-    if m == 0 and k >= 1:
-        return (1/sqrt(N_k_arr[k])) * sin(local_m_k_k * (h - dj)) / local_m_k_k # Use N_k_arr[k]
-    if m >= 1 and k == 0:
-        if m0 == inf: return 0
-        elif m0 * h < M0_H_THRESH:
-            num = (-1)**m * sqrt(2) * (1/sqrt(N_k_arr[0])) * m0 * sinh(m0 * (h - dj)) # Use N_k_arr[0]
-        else: # high m0h approximation
-            num = (-1)**m * 2 * sqrt(h * m0 ** 3) *(exp(- m0 * dj) - exp(m0 * dj - 2 * m0 * h))
-        denom = (m0**2 + lambda_ni(m, i, h, d) **2)
-        return num/denom
-    else:
-        lambda1 = lambda_ni(m, i, h, d)
-        if abs(local_m_k_k) == lambda1:
-            return sqrt(2/N_k_arr[k]) * (h - dj)/2
+            out[mask_m0_k0] = sqrt(2 * h / m0) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+
+    mask_m0_kpos = (m_grid == 0) & (k_grid >= 1)
+    if np.any(mask_m0_kpos):
+        k_local = k_grid[mask_m0_kpos]
+        local_mk = m_k_arr[k_local]
+        out[mask_m0_kpos] = (1 / sqrt(N_k_arr[k_local])) * sin(local_mk * delta) / local_mk
+
+    mask_mpos_k0 = (m_grid >= 1) & (k_grid == 0)
+    if np.any(mask_mpos_k0):
+        if m0 == inf:
+            out[mask_mpos_k0] = 0
         else:
-            frac1 = sin((local_m_k_k + lambda1)*(h-dj))/(local_m_k_k + lambda1)
-            frac2 = sin((local_m_k_k - lambda1)*(h-dj))/(local_m_k_k - lambda1)
-            return sqrt(2/N_k_arr[k]) * (frac1 + frac2)/2 # Use N_k_arr[k]
+            m_local = m_grid[mask_mpos_k0]
+            if m0 * h < M0_H_THRESH:
+                num = ((-1) ** m_local) * sqrt(2) * (1 / sqrt(N_k_arr[0])) * m0 * sinh(m0 * delta)
+            else: # high m0h approximation
+                num = ((-1) ** m_local) * 2 * sqrt(h * m0 ** 3) * (exp(-m0 * dj) - exp(m0 * dj - 2 * m0 * h))
+            denom = m0**2 + lambda_ni(m_local, i, h, d) ** 2
+            out[mask_mpos_k0] = num / denom
+
+    mask_general = ~(mask_m0_k0 | mask_m0_kpos | mask_mpos_k0)
+    if np.any(mask_general):
+        m_local = m_grid[mask_general]
+        k_local = k_grid[mask_general]
+        lambda1 = lambda_ni(m_local, i, h, d)
+        local_mk = m_k_arr[k_local]
+        norm = sqrt(2 / N_k_arr[k_local]) / 2
+        eq_mask = np.isclose(np.abs(local_mk), lambda1)
+        general_vals = np.empty_like(lambda1, dtype=float)
+        general_vals[eq_mask] = norm[eq_mask] * delta
+        neq_mask = ~eq_mask
+        if np.any(neq_mask):
+            frac1 = sin((local_mk[neq_mask] + lambda1[neq_mask]) * delta) / (local_mk[neq_mask] + lambda1[neq_mask])
+            frac2 = sin((local_mk[neq_mask] - lambda1[neq_mask]) * delta) / (local_mk[neq_mask] - lambda1[neq_mask])
+            general_vals[neq_mask] = norm[neq_mask] * (frac1 + frac2)
+        out[mask_general] = general_vals
+
+    return out.item() if scalar_input else out
 
 #############################################
 # b-vector computation
@@ -210,7 +271,7 @@ def R_1n_vectorized(n, r, i, h, d, a):
     
     # Use direct division with errstate to match exact arithmetic order of old code
     with np.errstate(divide='ignore', invalid='ignore'):
-        bessel_term = (besselie(0, safe_lambda * r) / besselie(0, safe_lambda * scale(a)[i])) * \
+        bessel_term = (besseli0e(safe_lambda * r) / besseli0e(safe_lambda * scale(a)[i])) * \
                       exp(safe_lambda * (r - scale(a)[i]))
 
     result_if_n_not_zero = np.where(cond_r_at_boundary, 1.0, bessel_term)
@@ -233,8 +294,8 @@ def diff_R_1n_vectorized(n, r, i, h, d, a):
     
     # Use standard division logic to match old_assembly.py arithmetic
     with np.errstate(divide='ignore', invalid='ignore'):
-        numerator = safe_lambda * besselie(1, safe_lambda * r) 
-        denominator = besselie(0, safe_lambda * scale(a)[i])
+        numerator = safe_lambda * besseli1e(safe_lambda * r) 
+        denominator = besseli0e(safe_lambda * scale(a)[i])
         # Direct division matches: top / bottom * exp(...)
         value_if_false = (numerator / denominator) * exp(safe_lambda * (r - scale(a)[i]))
     
@@ -270,9 +331,9 @@ def R_2n_vectorized(n, r, i, a, h, d):
     lambda_safe = np.where(cond_n_is_zero, 1.0, lambda_val)
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        denom = besselke(0, lambda_safe * outer_r)
+        denom = besselk0e(lambda_safe * outer_r)
         # Direct division order
-        bessel_term = (besselke(0, lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
+        bessel_term = (besselk0e(lambda_safe * r) / denom) * exp(lambda_safe * (outer_r - r))
 
     result_if_n_not_zero = np.where(cond_r_at_boundary, outcome_for_r_boundary, bessel_term)
 
@@ -289,8 +350,8 @@ def diff_R_2n_vectorized(n, r, i, h, d, a):
     lambda_safe = np.where(n == 0, 1.0, lambda_val)
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        denom = besselke(0, lambda_safe * outer_r)
-        numerator = -lambda_safe * besselke(1, lambda_safe * r)
+        denom = besselk0e(lambda_safe * outer_r)
+        numerator = -lambda_safe * besselk1e(lambda_safe * r)
         # Match arithmetic: top / bottom * exp(...)
         value_if_false = (numerator / denom) * exp(lambda_safe * (outer_r - r))
 
@@ -340,8 +401,8 @@ def Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     safe_m_k = np.where(cond_k_is_zero, 1.0, local_m_k_k)
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        denom_k_nonzero = besselke(0, safe_m_k * scale(a)[-1])
-        numer_k_nonzero = besselke(0, safe_m_k * r)
+        denom_k_nonzero = besselk0e(safe_m_k * scale(a)[-1])
+        numer_k_nonzero = besselk0e(safe_m_k * r)
         outcome_k_nonzero = (numer_k_nonzero / denom_k_nonzero) * exp(safe_m_k * (scale(a)[-1] - r))
 
     result_if_not_boundary = np.where(cond_k_is_zero, outcome_k_zero, outcome_k_nonzero)
@@ -367,8 +428,8 @@ def diff_Lambda_k_vectorized(k, r, m0, a, m_k_arr):
     safe_m_k = np.where(condition, 1.0, local_m_k_k)
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        numerator_k_nonzero = -(safe_m_k * besselke(1, safe_m_k * r))
-        denominator_k_nonzero = besselke(0, safe_m_k * scale(a)[-1])
+        numerator_k_nonzero = -(safe_m_k * besselk1e(safe_m_k * r))
+        denominator_k_nonzero = besselk0e(safe_m_k * scale(a)[-1])
         outcome_k_nonzero = (numerator_k_nonzero / denominator_k_nonzero) * exp(safe_m_k * (scale(a)[-1] - r))
 
     return np.where(condition, outcome_k_zero, outcome_k_nonzero)
@@ -426,10 +487,10 @@ def int_R_1n(i, n, a, h, d):
         return a[i]**2/4 - inner**2/4
     else:
         lambda0 = lambda_ni(n, i, h, d)
-        bottom = lambda0 * besselie(0, lambda0 * scale(a)[i])
+        bottom = lambda0 * besseli0e(lambda0 * scale(a)[i])
         if i == 0: inner_term = 0
-        else: inner_term = (a[i-1] * besselie(1, lambda0 * a[i-1]) / bottom) * exp(lambda0 * (a[i-1] - scale(a)[i]))
-        outer_term = (a[i] * besselie(1, lambda0 * a[i]) / bottom) * exp(lambda0 * (a[i] - scale(a)[i]))
+        else: inner_term = (a[i-1] * besseli1e(lambda0 * a[i-1]) / bottom) * exp(lambda0 * (a[i-1] - scale(a)[i]))
+        outer_term = (a[i] * besseli1e(lambda0 * a[i]) / bottom) * exp(lambda0 * (a[i] - scale(a)[i]))
         return outer_term - inner_term
     
 #integrating R_2n * r
@@ -442,9 +503,9 @@ def int_R_2n(i, n, a, h, d):
     if n == 0:
         return (a[i-1]**2 * (2*np.log(a[i]/a[i-1]) + 1) - a[i]**2)/8
     else:
-        outer_term = a[i] * besselke(1, lambda0 * a[i])
-        inner_term = a[i-1] * besselke(1, lambda0 * a[i-1])
-        bottom = - lambda0 * besselke(0, lambda0 * scale(a)[i])
+        outer_term = a[i] * besselk1e(lambda0 * a[i])
+        inner_term = a[i-1] * besselk1e(lambda0 * a[i-1])
+        bottom = - lambda0 * besselk0e(lambda0 * scale(a)[i])
         return (outer_term / bottom) * exp(lambda0 * (scale(a)[i] - a[i])) - (inner_term/bottom)* exp(lambda0 * (scale(a)[i] - a[i-1]))
     
 #integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
