@@ -88,7 +88,30 @@ pipeline:
       outputs:
         - pubs/JFM/figs/graph_abstract.pdf
         - pubs/JFM/figs/graph_abstract.log
-    compile-overleaf:
+    compile-wiley:
+      kind: latex
+      target_path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Optimal-Design-layout.tex
+      environment: tex
+      inputs:
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Fonts/
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/images/
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/algorithm.sty
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/algorithmicx.sty
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/amssymb.sty
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/box.eps
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/empty.eps
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/LETTERSP.STY
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/mla.sty
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/natbib.sty
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/NJDapacite.sty
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/NJDnatbib.sty
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/USG.cls
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/wileyNJD-Chicago-lastoo.bst
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/wileyNJD-Chicago.bib
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/wileyNJD-Chicago.bst
+      outputs:
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Optimal-Design-layout.pdf
+    compile-jfm:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex
       environment: tex
