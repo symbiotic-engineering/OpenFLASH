@@ -550,7 +550,7 @@ def histogram(data, hydro, error, ylab = "count", title = "convergence"):
   plt.hist(vals, bins = bins, edgecolor = "black")
   plt.xlabel(f"convergence point {error:.2g} " + hydro)
   plt.ylabel(ylab)
-  plt.title(hydro + " " + title)
+  plt.title(title)
   plt.show()
   return vals
 

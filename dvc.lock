@@ -184,8 +184,8 @@ stages:
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: b4dbb74d88dfa46140698a49a87947d4
-      size: 11593
+      md5: 838ad7faf08ec5e7f84f845c36b264f7
+      size: 11790
     - path: dev/python/limiting-cases/low_m0.py
       hash: md5
       md5: 14c26f7e714c57e0de0a9b507a4a8091
@@ -211,8 +211,8 @@ stages:
       size: 397513
     - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: 8b7227acb7afd73e7428f5b018f68d4d
-      size: 402983
+      md5: 9a89f4fef743470167d803e3dc2cc79e
+      size: 403562
   _clean-nb-slant-figs:
     cmd: calkit nb clean "analysis/slant_data_plots.ipynb"
     deps:
