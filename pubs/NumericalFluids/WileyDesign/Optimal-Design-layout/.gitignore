@@ -32,3 +32,4 @@
 *.vrb
 *.xdv
 # <<< calkit latex aux files <<<
+/Optimal-Design-layout.pdf
