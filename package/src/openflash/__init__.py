@@ -12,6 +12,9 @@ from .basic_region_geometry import BasicRegionGeometry
 from .domain import Domain
 from .problem_cache import ProblemCache
 
+# --- WEC-Sim Export Subroutines ---
+from .converters import export_to_stl, export_wecsim_hdf5
+
 # --- Key Utility Functions and Constants ---
 from .multi_equations import *
 from .multi_constants import *
@@ -35,4 +38,9 @@ __all__ = [
     # Utilities
     "omega",
     "g",
+
+    # WEC-Sim Export Subroutines
+    "export_to_stl",
+    "export_wecsim_hdf5",
+
 ]
