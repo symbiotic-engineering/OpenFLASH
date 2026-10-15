@@ -29,7 +29,8 @@ and
     \left.
 \frac{\partial\gls{sym-phi-e}}{\partial \gls{sym-z}} \right|_{\gls{sym-z}=-\gls{sym-h}}=0.   
 \end{equation}
-The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is fixed, and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is heaving with unit amplitude velocity.
+The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is fixed, 
+and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is heaving with unit amplitude velocity.
 
 The Laplace equations in Eq.~\ref{jfm:eq:Laplace equation internal region} and~\ref{jfm:eq:Laplace equation external region} can be solved using separation of variables in cylindrical coordinates.
 The velocity potentials can be written as a product of eigenfunctions $\gls{sym-phi} (\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})= \gls{sym-R-r}\gls{sym-Theta}(\gls{sym-theta})\gls{sym-Z}(\gls{sym-z})$, where $\gls{sym-phi}$ is $\gls{sym-phi-i-m}$ and $\gls{sym-phi-e}$ for the interior and exterior regions, respectively.
@@ -490,15 +491,15 @@ Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions} can be simplif
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of added mass and damping}
 \begin{aligned}
     \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\text{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}} 
-    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ r  \ dr \\
+    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ \gls{sym-r}  \ d\gls{sym-r} \\
     &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}} \Bigg[
-    \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-mathrm-p-i-m}(\gls{sym-r},-\gls{sym-d-m})\, \gls{sym-r}\, dr \\
+    \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-mathrm-p-i-m}(\gls{sym-r},-\gls{sym-d-m})\, \gls{sym-r}\, d\gls{sym-r} \\
     & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
     \ _{}^{\gls{sym-q-dof}}\gls{sym-C-1-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
-    \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ R_{1n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
+    \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ R_{1n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, d\gls{sym-r} \\
     & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
     \ _{}^{\gls{sym-q-dof}}\gls{sym-C-2-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
-    \int_{\gls{sym-a-m}}^{a_{{m+1}}} \ R_{2n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, dr
+    \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ R_{2n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, dr
     \Bigg]
 \end{aligned}
 \end{equation}
@@ -511,10 +512,10 @@ in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are
 \begin{equation}\label{jfm:radial integral 1}
 \begin{aligned}\relax
     \left[\gls{sym-vec-mathcal-R-1-i-m}\right]_{\gls{sym-n-m}} 
-    & = \int_{\gls{sym-a-m}}^{a_{{m+1}}} \gls{sym-R-1-n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
+    & = \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \gls{sym-R-1-n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, d\gls{sym-r} \\
     & = \left\{\begin{matrix}
-    \frac{1}{4} (a_{{m+1}}^2-\gls{sym-a-m}^2) & \text{ for } \gls{sym-n-m}=0 \\[2ex]
-  \displaystyle\frac{a_{{m+1}} \gls{sym-mathrm-I-1}(a_{{m+1}} \gls{sym-lambda-n-m-i-m})-\gls{sym-a-m} \gls{sym-mathrm-I-1}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})}{\gls{sym-lambda-n-m-i-m}\gls{sym-mathrm-I-0}(\gls{sym-a-m}\gls{sym-lambda-n-m-i-m})} 
+    \frac{1}{4} (\gls{sym-a-m-1}^2-\gls{sym-a-m}^2) & \text{ for } \gls{sym-n-m}=0 \\[2ex]
+  \displaystyle\frac{\gls{sym-a-m-1} \gls{sym-mathrm-I-1}(\gls{sym-a-m-1} \gls{sym-lambda-n-m-i-m})-\gls{sym-a-m} \gls{sym-mathrm-I-1}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})}{\gls{sym-lambda-n-m-i-m}\gls{sym-mathrm-I-0}(\gls{sym-a-m}\gls{sym-lambda-n-m-i-m})} 
  & \text{ for } \gls{sym-n-m} \ge 1
 \end{matrix}\right.
 \end{aligned}
@@ -525,13 +526,13 @@ in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are
 \begin{equation}\label{jfm:radial integral 2}
 \begin{aligned}\relax
     \left[\gls{sym-vec-mathcal-R-2-i-m}\right]_{\gls{sym-n-m}} 
-    & = \int_{\gls{sym-a-m}}^{a_{{m+1}}} \gls{sym-R-2-n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, dr \\
+    & = \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1} } \gls{sym-R-2-n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, d\gls{sym-r} \\
     & = \left\{\begin{matrix}
-    \frac{1}{8} \left(2 a_{{m+1}}^2 \ln \left(\frac{a_{{m+1}}}{\gls{sym-a-m}}\right)-a_{{m+1}}^2+\gls{sym-a-m}^2\right) 
+    \frac{1}{8} \left(2 \gls{sym-a-m-1} ^2 \ln \left(\frac{\gls{sym-a-m-1} }{\gls{sym-a-m}}\right)-\gls{sym-a-m-1}^2+\gls{sym-a-m}^2\right) 
     & 
     \text{ for } \gls{sym-n-m}=0 \\[2ex]
  \displaystyle\frac{
-        \gls{sym-a-m} \gls{sym-mathrm-K-1}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})-a_{{m+1}} \gls{sym-mathrm-K-1}(a_{{m+1}} \gls{sym-lambda-n-m-i-m})
+        \gls{sym-a-m} \gls{sym-mathrm-K-1}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})-\gls{sym-a-m-1} \gls{sym-mathrm-K-1}(\gls{sym-a-m-1} \gls{sym-lambda-n-m-i-m})
         }{
         \gls{sym-lambda-n-m-i-m} \gls{sym-mathrm-K-0}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})
         } 
