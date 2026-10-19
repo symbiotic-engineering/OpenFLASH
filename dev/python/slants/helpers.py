@@ -1,7 +1,15 @@
+# Helpers for slant work
+# primarily altering/streamlining the basic multi_condensed MEEM solving class to be more amenable to slant-relevant variables
+
 import sys
-import os
-sys.path.append(os.path.relpath('../'))
+from pathlib import Path
+
+HERE = Path.cwd().resolve()
+dir_path_str = str((HERE / "..").resolve())
+if dir_path_str not in sys.path:
+  sys.path.insert(0, dir_path_str)
 from multi_condensed import Problem
+
 import numpy as np
 import pickle
 
@@ -38,7 +46,7 @@ class SProblem(Problem):
     return region
 
 ######################################
-# staircase with outline on exterior corners
+# staircase with slant outline touching exterior corners of staircase
 def make_slant_region1(d1, d2, a1, a2, res):
   a_prime = []
   d_prime = []
@@ -50,7 +58,7 @@ def make_slant_region1(d1, d2, a1, a2, res):
      d_prime.append(d1 + (offset + i) * delta_d)
   return a_prime, d_prime
 
-# staircase with outlines through centers, starting horizontal, end vertical
+# staircase with slant outlines through centers, starting horizontal, end vertical
 def make_slant_region2(d1, d2, a1, a2, res):
   a_prime = []
   d_prime = []
@@ -64,7 +72,7 @@ def make_slant_region2(d1, d2, a1, a2, res):
   d_prime.append(d2)
   return a_prime, d_prime
 
-# staircase with outlines through centers, starting vertical, end horizontal
+# staircase with slant outlines through centers, starting vertical, end horizontal
 def make_slant_region3(d1, d2, a1, a2, res):
   a_prime = []
   d_prime = []
@@ -76,7 +84,8 @@ def make_slant_region3(d1, d2, a1, a2, res):
      d_prime.append(d1 + (0.5 + i) * delta_d)
   return a_prime, d_prime
 
-# Get d and a to make a staircase
+# Get d and a to make a staircase from slant-defining variables
+# d_in[i] is the depth on the interior edge of region i, d_out[i] for outer
 def slant_approx_vars(a, d_in, d_out, heaving, NMK, res, version):
   if version == 1:
      make_slant_region = make_slant_region1
@@ -112,10 +121,10 @@ def slant_approx_vars(a, d_in, d_out, heaving, NMK, res, version):
   return d_prime, a_prime, heaving_prime, NMK_prime, slopes
 
 ######################################
-def solve_problem(prob_style, h, a, d_in, d_out, heaving, m0, rho, res, version, nmk = 150, NMK = None):
+def solve_problem(prob_style, h, a, d_in, d_out, heaving, m0, rho, res, version, nmk = 150, NMK = None, slope_arg = True):
   if NMK is None: NMK = [nmk for _ in range(len(a) + 1)]
   d_prime, a_prime, heaving_prime, NMK_prime, slopes = slant_approx_vars(a, d_in, d_out, heaving, NMK, res, version)
-  if prob_style is Problem: prob = prob_style(h, d_prime, a_prime, heaving_prime, NMK_prime, m0, rho)
+  if (prob_style is Problem) or (not slope_arg): prob = prob_style(h, d_prime, a_prime, heaving_prime, NMK_prime, m0, rho)
   else: prob = prob_style(h, d_prime, a_prime, heaving_prime, NMK_prime, m0, rho, slopes)
   a_matrix = prob.a_matrix()
   b_vector = prob.b_vector()
