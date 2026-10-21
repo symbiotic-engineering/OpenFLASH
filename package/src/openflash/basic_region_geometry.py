@@ -61,8 +61,17 @@ class BasicRegionGeometry(Geometry):
         validation to prevent invalid body_map/heaving_map combinations and
         enforces the global monotonicity invariant required by BasicRegionGeometry.
         """
+        a = np.atleast_1d(np.asarray(a, dtype=float))
+        d = np.atleast_1d(np.asarray(d, dtype=float))
+        if len(a) != len(d):
+            raise ValueError("Input vectors 'a' and 'd' must have the same length.")
+
         if slant_angle is None:
             slant_angle = np.zeros_like(a)
+        else:
+            slant_angle = np.atleast_1d(np.asarray(slant_angle, dtype=float))
+            if len(slant_angle) != len(a):
+                raise ValueError("Input vector 'slant_angle' must have the same length as 'a'.")
 
         if body_map is None:
             body_map = [0] * len(a)

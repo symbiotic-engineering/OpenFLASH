@@ -23,6 +23,10 @@ class SteppedBody(Body):
         heaving (bool, optional): Flag indicating if the entire body is heaving. Defaults to False.
     """
     def __init__(self, a: np.ndarray, d: np.ndarray, slant_angle: np.ndarray, heaving: bool = False):
+        a = np.atleast_1d(np.asarray(a, dtype=float))
+        d = np.atleast_1d(np.asarray(d, dtype=float))
+        slant_angle = np.atleast_1d(np.asarray(slant_angle, dtype=float))
+
         assert len(a) == len(d) == len(slant_angle), "Input arrays a, d, and slant_angle must have the same length."
         self.a = a
         self.d = d
