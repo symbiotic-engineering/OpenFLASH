@@ -50,7 +50,7 @@
     \newtheorem{corollary}{Corollary}
 
     \lefttitle{Y. Bimali, R. McCabe, C. Treacy, K. Khanal, E. Lo,  and M. N. Haji}
-    \righttitle{\gls{acr-jfm}}
+    \righttitle{\acrlong{acr-jfm}}
 
     %\title{Numerics of the matched eigenfunction method for computing wave forces on concentric bodies}
     % accuracy-runtime tradeoff
@@ -88,8 +88,8 @@
     \begin{document}
     \maketitle
     \begin{abstract}Structural survival of offshore structures is crucial for the growing marine economy.
-    Calculating the added mass, radiation damping, and excitation coefficients to quantify wave loads with the traditional boundary element method (\gls{acr-bem}) presents a computational bottleneck. 
-    The matched eigenfunction expansion method (\gls{acr-meem}), a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. 
+    Calculating the added mass, radiation damping, and excitation coefficients to quantify wave loads with the \gls{acr-bem} presents a computational bottleneck. 
+    The \acrfull{acr-meem}, a long-known but rarely-used alternative, offers computational benefits due to its semi-analytical nature. 
     However, previous work fails to directly compare its accuracy and computational performance with \gls{acr-bem}, leaving the extent of its utility unknown. 
     Furthermore, the geometry-dependent convergence for cylindrical and slanted geometries has not yet been documented, making the method’s practicality for general geometries unclear. 
     This paper presents a unifying \gls{acr-meem} framework for \modelling{} an arbitrary number of fixed or heaving surface-piercing annular cylinders with continuous and radially-monotonic body profiles,
@@ -147,15 +147,15 @@ Early analytical solutions for the wave force on vertical cylindrical bodies und
 Both take advantage of the separability of the Laplace equation in cylindrical coordinates.
 Fully analytical solutions are not available for truncated cylinders (those whose bottoms do not touch the sea floor) since it is impossible to analytically enforce continuity of potential between the water under the body and the water surrounding it.
 
-\citet{yeung_added_1981} presents a semi-analytical method called the matched eigenfunction expansion method (\gls{acr-meem}) to address this challenge.
+\citet{yeung_added_1981} presents a semi-analytical method called the \acrfull{acr-meem} to address this challenge.
 The solution in each fluid region is obtained analytically in terms of unknown coefficients, and these coefficients are found numerically by enforcing continuity of potential and radial velocity at region boundaries.
 The method received thorough coverage in a recent analytical hydrodynamics textbook \citep{chatzigeorgiou2018analytical} and has been extended to cover increasingly complex concentric geometries, 
 including two truncated cylinders \citep{mavrakos_hydrodynamic_2004,chau2012inertia}, three truncated cylinders \citep{zhang_performance_2024}, damping plates \citep{olaya_hydrodynamic_2015}, and many cylinders approximating complex concentric bodies \citep{kokkinowrachos_behaviour_1986}.
 
 Despite this interest from hydrodynamics researchers, \gls{acr-meem} has not been widely adopted by the offshore engineering community, likely due to the complexity of its implementation 
-and the rise of boundary element method (\gls{acr-bem}) software packages that are easier to use and applicable to arbitrary geometries, albeit more computationally costly.
+and the rise of \gls{acr-bem} software packages that are easier to use and applicable to arbitrary geometries, albeit more computationally costly.
 With the growing need for efficient hydrodynamic analysis tools to enable advanced design procedures like optimization, interest in \gls{acr-meem} has resurged, particularly in the offshore renewable energy space. 
-\citet{pavlidou_novel_2022} performed multi-objective optimization for a two-body wave energy converter (\gls{acr-wec}) using \gls{acr-meem} to compute the hydrodynamic coefficients of a cylinder. 
+\citet{pavlidou_novel_2022} performed multi-objective optimization for a two-body \gls{acr-wec} using \gls{acr-meem} to compute the hydrodynamic coefficients of a cylinder. 
 \citet{zhang_hydrodynamic_2016} optimized the shape of the wetted surface of a point absorber \gls{acr-wec} using \gls{acr-meem} to model cylindrical, hemispherical, paraboloid, and conical geometries. 
 \citet{mavrakos_hydrodynamic_2012} used \gls{acr-meem} to compute the first-order and mean second-order loads on a vertical axisymmetric oscillating water column \gls{acr-wec}. 
 However, the benefits of \gls{acr-meem} over traditional \gls{acr-bem} solvers remain unclear, as the tradeoffs between accuracy and computational performance of the methods are seldom compared in the literature. 
@@ -607,11 +607,11 @@ Potential can then be integrated to find the hydrodynamic forces.
         \\ 
         at $\gls{sym-r}=\gls{sym-a-m}$} 
         & 
-        $N^{i_{m}}$ 
+        \gls{sym-N-i-m}
         & 
         $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{N^{i_{m}}1} \gls{sym-vec-R-1-i-m}$ 
         & 
-        $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{N^{i_{m}}1} \gls{sym-vec-R-2-i-m}$ 
+        $-\gls{sym-boldsymbol-mathcal-Z-i-m-1-i-m} \odot \mathbf{1}_{\gls{sym-N-i-m}1} \gls{sym-vec-R-2-i-m}$ 
         & 
         $(\gls{sym-h}-\gls{sym-d-m-1}) \mathrm{diag}\left( \gls{sym-vec-R-1-i-m-1}\right)$ 
         & 
@@ -651,7 +651,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
       \shortstack{$\gls{sym-phi-i-m}=\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-r}=\gls{sym-a-m}$} & $\gls{sym-N-i-m}$ & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m}}\left( \gls{sym-phi-mathrm-p-i-m-1} - \gls{sym-phi-mathrm-p-i-m} \right) \gls{sym-vec-Z-i-m} \mathrm{d}\gls{sym-z}$\\ \hline
       
       % Row 2
-      \shortstack{$\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m}=\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-r}=\gls{sym-a-m}$} & $N^{i_{m}}$
+      \shortstack{$\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m}=\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-r}=\gls{sym-a-m}$} & \gls{sym-N-i-m}
         & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m-1}}
         \frac{
                 \partial \gls{sym-phi-mathrm-p-i-m-1}
@@ -669,7 +669,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
             }
         \gls{sym-vec-Z-i-m-1}{} \mathrm{d}\gls{sym-z}$ \\ \hline
     \end{tabular}
-    \caption{\gls{acr-meem} $\gls{sym-vec-b-m}$ vector when $\gls{sym-d-m}>\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-t}$).
+    \caption{\glsfmttext{acr-meem} $\gls{sym-vec-b-m}$ vector when $\gls{sym-d-m}>\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-t}$).
 Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-r}=\gls{sym-a-m}$.}
     \label{jfm:tab:MEEM-b_m-vector-case-1}
 \end{table}
@@ -682,7 +682,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
       &size& \\ \hline \hline 
       
       % Row 1
-      \shortstack{$\gls{sym-phi-i-m}=\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-r}=\gls{sym-a-m}$} & $N^{i_{m}}$ & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m-1}}\left( \gls{sym-phi-mathrm-p-i-m} - \gls{sym-phi-mathrm-p-i-m-1} \right) \gls{sym-vec-Z-i-m-1} \mathrm{d}\gls{sym-z}$\\ \hline
+      \shortstack{$\gls{sym-phi-i-m}=\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-r}=\gls{sym-a-m}$} & \gls{sym-N-i-m}$ & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m-1}}\left( \gls{sym-phi-mathrm-p-i-m} - \gls{sym-phi-mathrm-p-i-m-1} \right) \gls{sym-vec-Z-i-m-1} \mathrm{d}\gls{sym-z}$\\ \hline
       
       % Row 2
       \shortstack{
@@ -701,7 +701,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
         \gls{sym-vec-Z-i-m} \mathrm{d}\gls{sym-z}$
     \\ \hline
     \end{tabular}
-    \caption{\gls{acr-meem} $\gls{sym-vec-b-m}$ vector when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m-1} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m} = \gls{sym-mathrm-t}$). 
+    \caption{\glsfmttext{acr-meem} $\gls{sym-vec-b-m}$ vector when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m-1} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m} = \gls{sym-mathrm-t}$). 
     Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-r}=\gls{sym-a-m}$.}
     \label{jfm:tab:MEEM-b_m-vector-case-2}
 \end{table}
@@ -821,13 +821,13 @@ Eq.~\ref{jfm:eq:freq domain scalar rad force} can be written in terms of the pot
 where $_{}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m})$ is the potential in interior region $\gls{sym-i-m}$ evaluated at $\gls{sym-z}=-\gls{sym-d-m}$ when only the $\gls{sym-q-dof}$th body is moving. $\gls{sym-hat-f-pq}$ can be rewritten in terms of frequency-dependent added mass and radiation damping coefficients $\gls{sym-A-pq}(\gls{sym-omega})$ and $\gls{sym-B-pq}(\gls{sym-omega})$, respectively, which is shown in Appendix~\ref{jfm:appC}.
 The result is
 \begin{equation}\label{jfm:A_pq B_pq scalar form}
-    \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\mathrm{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}}=2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-c-p}\gls{sym-delta}_{pq} + \gls{sym-vec-c-p} \ \vec{x}_q) =2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-c-p}\gls{sym-delta}_{pq} + \gls{sym-vec-c-p} \ \mathbf{A}^{-1} \gls{sym-vec-b-q})
+    \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\mathrm{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}}=2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-c-p}\gls{sym-delta}_{pq} + \gls{sym-vec-c-p} \ \gls{sym-vec-x-q}) =2\gls{sym-pi} \gls{sym-rho-w} (\gls{sym-c-p}\gls{sym-delta}_{pq} + \gls{sym-vec-c-p} \ \gls{sym-mathbf-A}^{-1} \gls{sym-vec-b-q})
 \end{equation}
 with output scalar $\gls{sym-c-p} \in \gls{sym-mathbb-R}$
 \begin{equation}
      \gls{sym-c-p} =  \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p} } \frac{\left({a^2_{{m+1}}}-{\gls{sym-a-m}}\right)\,\left(-{\gls{sym-a-m}}-{a^2_{{m+1}}}+4(\gls{sym-h}-\gls{sym-d-m})^2\right)}{16\,\left(\gls{sym-h} - \gls{sym-d-m}\right)}, 
 \end{equation}
-where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vector $\gls{sym-vec-c-p} =[\gls{sym-vec-c-p-i-1}, \ \vec{c}_p^{ \ i_2}, \dots,  \gls{sym-vec-c-p-i-M},  \gls{sym-vec-c-p-e}]
+where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vector $\gls{sym-vec-c-p} =[\gls{sym-vec-c-p-i-1}, \ \gls{sym-vec-c-p-i-2}, \dots,  \gls{sym-vec-c-p-i-M},  \gls{sym-vec-c-p-e}]
 \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$, where
 \begin{equation}\label{jfm:eq:c_q_i1_vec}
     \gls{sym-vec-c-p-i-1} = \left\{\begin{matrix} \gls{sym-vec-Z-i-1}(-\gls{sym-d-1}) \odot\gls{sym-vec-mathcal-R-1-i-1} & \text{when} \ m \in \gls{sym-mathcal-M-p} \\
@@ -835,7 +835,7 @@ where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vecto
     \end{matrix}\right. ,
 \end{equation}
 \begin{equation}\label{jfm:eq:c_q_im_vec}
-    \gls{sym-vec-c-p-i-m} = \left\{\begin{matrix} [\gls{sym-vec-Z-i-m}(-\gls{sym-d-m}) \odot\gls{sym-vec-mathcal-R-1-i-m}, \ \vec{Z}^{i_m}(-\gls{sym-d-m}) \odot\gls{sym-vec-mathcal-R-2-i-m}] & \text{when} \ m \in \gls{sym-mathcal-M-p} \vspace{0.5em} \\
+    \gls{sym-vec-c-p-i-m} = \left\{\begin{matrix} [\gls{sym-vec-Z-i-m}(-\gls{sym-d-m}) \odot\gls{sym-vec-mathcal-R-1-i-m}, \ \gls{sym-vec-Z-i-m}(-\gls{sym-d-m}) \odot\gls{sym-vec-mathcal-R-2-i-m}] & \text{when} \ m \in \gls{sym-mathcal-M-p} \vspace{0.5em} \\
     
     \vec{0}_{2\gls{sym-N-i-m}} & \text{when} \ m \notin \gls{sym-mathcal-M-p}
     \end{matrix}\right. ,
@@ -886,7 +886,7 @@ The element in the $\gls{sym-q-dof}$th row and $\gls{sym-q-dof}$th column of $\g
 where $\gls{sym-W-m}= \gls{sym-pi} \gls{sym-a-m}^2$ for $\gls{sym-m-region}=1$ and $\gls{sym-W-m}= \gls{sym-pi}(\gls{sym-a-m}^2-\gls{sym-a-m-1-2}^2)$ otherwise.
 If we assume the configuration in Fig.~\ref{jfm:fig:Diagram} is in static equilibrium such that the gravitational force balances the buoyancy force, the element in the $\gls{sym-q-dof}$th row and $\gls{sym-q-dof}$th column of $\gls{sym-mathbf-M}$, is
 \begin{equation}\label{jfm:eq:mass matrix}
-    [\gls{sym-mathbf-M}]_{qq}= \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}d_{\gls{sym-m-region}}.
+    [\gls{sym-mathbf-M}]_{qq}= \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}\gls{sym-d-m}.
 \end{equation}
 This is the mass of the $\gls{sym-q-dof}$th body.
 Once all matrices are found, one can construct the equation of motion of the system for regular waves
@@ -905,9 +905,9 @@ Meanwhile, $\text{Im}(\gls{sym-C-1-n-m-i-m})$ and $\text{Im}(\gls{sym-C-2-n-m-i-
 
 Since $\gls{sym-vec-c-p}$ is frequency independent, the hydrodynamic coefficients vary with frequency only through their dependence on $\gls{sym-C-1-n-m-i-m}$ and $\gls{sym-C-2-n-m-i-m}$.
 From their forms, we can see that as $\gls{sym-omega} \to 0$, the behaviors of the $\gls{sym-n-m} = 0$ coefficients dominate the others.
-Consequently, $\gls{sym-A-h-11}(\gls{sym-omega})$ grows proportional to $\ln(\gls{sym-lambda-0-e} \gls{sym-h})$ (although the constant term is still significant for the frequency range in Fig.~\ref{jfm:fig: extreme-frequencies}) while $B_{11}(\gls{sym-omega})/\gls{sym-omega}$ approaches a constant.
+Consequently, $\gls{sym-A-h-11}(\gls{sym-omega})$ grows proportional to $\ln(\gls{sym-lambda-0-e} \gls{sym-h})$ (although the constant term is still significant for the frequency range in Fig.~\ref{jfm:fig: extreme-frequencies}) while $\gls{sym-B-h-11}(\gls{sym-omega})/\gls{sym-omega}$ approaches a constant.
 This is consistent with \behaviour{} of the analytical low frequency limits for a single heaving cylinder described in \citet{yeung_added_1981},
-$\lim_{\gls{sym-omega} \to 0} \gls{sym-A-h-11}(\gls{sym-omega}) = \gls{sym-K-added-mass} - \frac{2B_{11}(0)}{\gls{sym-pi}\gls{sym-omega}}\ln(\gls{sym-lambda-0-e} \gls{sym-h}) \approx - \frac{2B_{11}(0)}{\gls{sym-pi}\gls{sym-omega}}\ln(\gls{sym-lambda-0-e} \gls{sym-h})$, where $\gls{sym-K-added-mass}$ is a constant. 
+$\lim_{\gls{sym-omega} \to 0} \gls{sym-A-h-11}(\gls{sym-omega}) = \gls{sym-K-added-mass} - \frac{2\gls{sym-B-h-11}(0)}{\gls{sym-pi}\gls{sym-omega}}\ln(\gls{sym-lambda-0-e} \gls{sym-h}) \approx - \frac{2\gls{sym-B-h-11}(0)}{\gls{sym-pi}\gls{sym-omega}}\ln(\gls{sym-lambda-0-e} \gls{sym-h})$, where $\gls{sym-K-added-mass}$ is a constant. 
 
 %$A_{11}(\omega) \to K- \frac{\rho \pi a_1^4}{2h}\ln{(\lambda_0^e a_1)}$ for some constant $K$ and $B_{11}(\omega)/\omega \to \frac{\rho \pi^2 a^4}{4h}$
 
@@ -993,7 +993,7 @@ Since this permits the use of larger truncation orders, more accurate solutions 
 Exponential Scaling Formula & Replacement Example\\
 \hline
 $\gls{sym-I-nu-e}(\gls{sym-z}) = \gls{sym-I-nu}(\gls{sym-z}) \cdot e^{-\gls{sym-z}}$ & 
-$\displaystyle\frac{I_{\nu}(\gls{sym-lambda} \gls{sym-r})}{\gls{sym-I-nu}(\gls{sym-lambda} \gls{sym-a-generic-radius})} = \frac{\gls{sym-I-nu-e} (\gls{sym-lambda} \gls{sym-r})}{\gls{sym-I-nu-e}(\gls{sym-lambda} \gls{sym-a-generic-radius})}\cdot e^{\gls{sym-lambda}(\gls{sym-r}-\gls{sym-a-generic-radius})}$\\
+$\displaystyle\frac{\gls{sym-I-nu}(\gls{sym-lambda} \gls{sym-r})}{\gls{sym-I-nu}(\gls{sym-lambda} \gls{sym-a-generic-radius})} = \frac{\gls{sym-I-nu-e} (\gls{sym-lambda} \gls{sym-r})}{\gls{sym-I-nu-e}(\gls{sym-lambda} \gls{sym-a-generic-radius})}\cdot e^{\gls{sym-lambda}(\gls{sym-r}-\gls{sym-a-generic-radius})}$\\
 \hline
 $\gls{sym-K-nu-e}(\gls{sym-z}) = \gls{sym-K-nu}(\gls{sym-z}) \cdot e^{\gls{sym-z}}$ &
 $\displaystyle\frac{K_{\nu}(\gls{sym-lambda} \gls{sym-r})}{\gls{sym-K-nu}(\gls{sym-lambda} \gls{sym-a-generic-radius})} = \frac{\gls{sym-K-nu-e} (\gls{sym-lambda} \gls{sym-r})}{\gls{sym-K-nu-e}(\gls{sym-lambda} \gls{sym-a-generic-radius})}\cdot e^{\gls{sym-lambda}(\gls{sym-a-generic-radius}-\gls{sym-r})}$\\
