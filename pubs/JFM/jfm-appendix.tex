@@ -172,7 +172,27 @@ Note that all coupling integrals have closed form solutions.
 The element in the $\gls{sym-n-mathrm-s}$th row and $\gls{sym-n-mathrm-t}$th column of the coupling integral matrix associated with matching between region $\gls{sym-i-m}$ and $\gls{sym-i-m-1}$ is
 
 \begin{equation}\label{jfm:coupling integral i_m and i_m+1}
-    [\boldsymbol{\mathcal{Z}}^{\text{s} \text{t}} ]_{\gls{sym-n-mathrm-s}\gls{sym-n-mathrm-t}}=-\frac{\sin((d_\text{s}-\gls{sym-h}) (\lambda_{n_\mathrm{s}}^{\text{s}}-\lambda_{n_\mathrm{t}}^{\text{t}}))}{\lambda_{n_\mathrm{s}}^{\text{s}}-\lambda_{n_\mathrm{t}}^{\text{t}}}-\frac{\sin((d_\text{s}-\gls{sym-h}) (\lambda_{n_\mathrm{s}}^{\text{s}}+\lambda_{n_\mathrm{t}}^{\text{t}}))}{\lambda_{n_\mathrm{s}}^{\text{s}}+\lambda_{n_\mathrm{t}}^{\text{t}}},
+    [\boldsymbol{\mathcal{Z}}^{\text{s} \text{t}} ]_{\gls{sym-n-mathrm-s}\gls{sym-n-mathrm-t}}
+    =-\frac{
+    \sin(
+    (\gls{sym-d-mathrm-s}-\gls{sym-h}) 
+    (
+      \lambda_{\gls{sym-n-mathrm-s}}^{\text{s}}-
+      \lambda_{\gls{sym-n-mathrm-t}}^{\text{t}}
+    )
+    )}
+    {
+    \lambda_{\gls{sym-n-mathrm-s}}^{\text{s}}-
+    \lambda_{\gls{sym-n-mathrm-t}}^{\text{t}}}
+    -\frac{
+      \sin((\gls{sym-d-mathrm-s}-\gls{sym-h})
+      \lambda_{\gls{sym-n-mathrm-s}}^{\text{s}}+
+      \lambda_{\gls{sym-n-mathrm-t}}^{\text{t}}))
+    }
+    {
+      \lambda_{\gls{sym-n-mathrm-s}}^{\text{s}}+
+      \lambda_{\gls{sym-n-mathrm-t}}^{\text{t}}
+    },
 \end{equation}
 
 \noindent where the superscripts and subscripts associated with the shorter and taller fluid are assigned to $\gls{sym-i-m}$ or $\gls{sym-i-m-1}$ depending on if $\gls{sym-d-m}>\gls{sym-d-m-1}$ or $\gls{sym-d-m-1}>\gls{sym-d-m}$.
@@ -274,7 +294,7 @@ and $\gls{sym-mathbf-I}^{\gls{sym-N-i-m} \times \gls{sym-N-i-m}}$ is a $\gls{sym
         $\mathbf{1}_{\gls{sym-N-i-m-1}1}  \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-2-i-m-1}$ 
         \\ \hline
     \end{tabular}
-    \caption{\gls{acr-meem} $\gls{sym-mathbf-A-m-r}$ sub-matrix when $\gls{sym-d-m}>\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-t}$). 
+    \caption{\glsfmttext{acr-meem} $\gls{sym-mathbf-A-m-r}$ sub-matrix when $\gls{sym-d-m}>\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-t}$). 
     Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-r}=\gls{sym-a-m}$.}
     \label{jfm:tab:MEEM-A_mr-matrix-case-1}
 \end{table}
@@ -340,7 +360,7 @@ and $\gls{sym-mathbf-I}^{\gls{sym-N-i-m} \times \gls{sym-N-i-m}}$ is a $\gls{sym
       $ \mathbf{1}_{\gls{sym-N-i-m}1} \gls{sym-vec-R-2-i-m-1}$ 
       \\ \hline
     \end{tabular}
-    \caption{\gls{acr-meem} $\gls{sym-mathbf-A-m-r}$ sub-matrix when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-t}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-s}$). 
+    \caption{\glsfmttext{acr-meem} $\gls{sym-mathbf-A-m-r}$ sub-matrix when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-t}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-s}$). 
     Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-r}=\gls{sym-a-m}$.
     }
     \label{jfm:tab:MEEM-A_mr-matrix-case-2}
@@ -475,7 +495,7 @@ and $\gls{sym-mathbf-I}^{\gls{sym-N-i-m} \times \gls{sym-N-i-m}}$ is a $\gls{sym
         $\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1} $ 
         \\ \hline
     \end{tabular}
-    \caption{\gls{acr-meem} $\gls{sym-mathbf-A-m-z}$ sub-matrix when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-t}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-s}$).}
+    \caption{\glsfmttext{acr-meem} $\gls{sym-mathbf-A-m-z}$ sub-matrix when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m} = \gls{sym-mathrm-t}$ and $\gls{sym-i-m-1} = \gls{sym-mathrm-s}$).}
     \label{jfm:tab:MEEM-A_mz-matrix-case-2}
 \end{table}
 \end{landscape}
