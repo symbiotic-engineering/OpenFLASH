@@ -101,76 +101,286 @@ It is not desired to change the bounds of the right-hand-side because $\gls{sym-
 Thus, Eqs.~\ref{jfm:eq:no radial velocity} and~\ref{jfm:eq:velocity matching} are simultaneously enforced by Eq.~\ref{jfm:eq:modified velocity matching integral}, while Eq.~\ref{jfm:eq:potential matching} is enforced by Eq.~\ref{jfm:eq:potential matching integral}. 
 
 Next, the velocity potentials of each region can be rewritten in terms of their homogeneous and particular solutions as $\gls{sym-phi-mathrm-t}=\gls{sym-phi-mathrm-t-mathrm-h} + \gls{sym-phi-mathrm-t-mathrm-p}$ and $\gls{sym-phi-mathrm-s}=\gls{sym-phi-mathrm-s-mathrm-h} + \gls{sym-phi-mathrm-s-mathrm-p}$.
-Substituting these into Eq.~\ref{jfm:eq:potential matching integral} and~\ref{jfm:eq:modified velocity matching integral}, and moving all homogeneous and particular potentials to the left- and right-hand sides, respectively, yields
+Substituting these into Eq.~\ref{jfm:eq:potential matching integral} and~\ref{jfm:eq:modified velocity matching integral},
+and moving all homogeneous and particular potentials to the left- and right-hand sides, respectively, yields
 \begin{multline}\label{jfm:eq:separated potential matching integral}
-    \int_{-h}^{-d_\mathrm{s}} \phi^\mathrm{s}_\mathrm{h}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}} \phi^\mathrm{t}_\mathrm{h}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z \\
-    =\int_{-h}^{-d_\mathrm{s}}\phi^\mathrm{t}_\mathrm{p}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\phi^\mathrm{s}_\mathrm{p}(a,z) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z
+    \int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \phi^\mathrm{s}_\mathrm{h}(a,\gls{sym-z})
+        Z^\mathrm{s}_{n_\mathrm{s}}(\gls{sym-z})
+        \mathrm{d}\gls{sym-z}
+    -\int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \phi^\mathrm{t}_\mathrm{h}(a,\gls{sym-z})
+        Z^\mathrm{s}_{n_\mathrm{s}}(\gls{sym-z})
+        \mathrm{d}\gls{sym-z} \\
+    =
+    \int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \phi^\mathrm{t}_\mathrm{p}(a,\gls{sym-z})
+        Z^\mathrm{s}_{n_\mathrm{s}}(\gls{sym-z})
+        \mathrm{d}\gls{sym-z}
+    -\int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \phi^\mathrm{s}_\mathrm{p}(a,\gls{sym-z})
+        Z^\mathrm{s}_{n_\mathrm{s}}(\gls{sym-z})
+        \mathrm{d}\gls{sym-z}
 \end{multline}
 and
 \begin{multline}\label{jfm:eq:separated velocity matching integral}
-    \int_{-h}^{-d_\mathrm{s}} \frac{\partial \phi^\mathrm{s}_\mathrm{h}}{\partial r}(a,z)  Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{t}} \frac{\partial \phi_\mathrm{h}^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z \\ 
-    =\int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi_\mathrm{p}^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi_\mathrm{p}^\mathrm{s}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z
+    \int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \frac{
+                \partial \phi^\mathrm{s}_\mathrm{h}
+            }
+            {
+                \partial \gls{sym-r}
+            }
+            (a,\gls{sym-z})
+            Z^\mathrm{t}_{n_\mathrm{t}}(\gls{sym-z})
+            \mathrm{d}\gls{sym-z}
+    -\int_{-\gls{sym-h}}^{-d_\mathrm{t}}
+        \frac{
+                \partial \phi_\mathrm{h}^\mathrm{t}
+            }
+            {
+                \partial \gls{sym-r}
+            }
+            (a,\gls{sym-z})
+            Z^\mathrm{t}_{n_\mathrm{t}}(\gls{sym-z})
+            \mathrm{d}\gls{sym-z} \\ 
+    =\int_{-\gls{sym-h}}^{-d_\mathrm{t}}
+        \frac{
+                \partial \phi_\mathrm{p}^\mathrm{t}
+            }
+            {
+                \partial \gls{sym-r}
+            }
+            (a,\gls{sym-z})
+            Z^\mathrm{t}_{n_\mathrm{t}}(\gls{sym-z})
+            \mathrm{d}\gls{sym-z}
+    -\int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \frac{
+                \partial \phi_\mathrm{p}^\mathrm{s}
+            }
+            {
+                \partial \gls{sym-r}
+            }
+            (a,\gls{sym-z})
+            Z^\mathrm{t}_{n_\mathrm{t}}(\gls{sym-z})
+            \mathrm{d}\gls{sym-z}
 \end{multline}
 The right-hand-side of Eq.~\ref{jfm:eq:separated potential matching integral} and~\ref{jfm:eq:separated velocity matching integral} are known, while the left-hand-side contains unknowns.
-After substituting for the homogeneous potentials, using orthogonality of the vertical eigenfunctions and rearranging, Eq.~\ref{jfm:eq:separated potential matching integral} and~\ref{jfm:eq:separated velocity matching integral} become
+After substituting for the homogeneous potentials, using orthogonality of the vertical eigenfunctions and rearranging,
+Eq.~\ref{jfm:eq:separated potential matching integral} and~\ref{jfm:eq:separated velocity matching integral} become
 \begin{multline}\label{jfm:eq:separated potential matching integral simplified}
-    (h-d_\mathrm{s}) \left( C^\mathrm{s}_{1n_\mathrm{s}} R_{1n_\mathrm{s}}^\mathrm{s} (a)+ C^\mathrm{s}_{2n_\mathrm{s}} R_{2n_\mathrm{s}}^\mathrm{s}(a) \right) \\ 
-    -\sum _{n_\mathrm{t} = 0}^{N^\mathrm{t}} \left(C^\mathrm{t}_{1n_\mathrm{t}} R_{1n_\mathrm{t}}^\mathrm{t}(a)+ C^\mathrm{t}_{2n_\mathrm{t}} R_{2n_\mathrm{t}}^\mathrm{t}(a) \right)\int_{-h}^{-d_\mathrm{s}} Z^\mathrm{s}_{n_\mathrm{s}}(z) Z_{n_\mathrm{t}}^\mathrm{t}(z)\mathrm{d}z \\ 
-    =\int_{-h}^{-d_\mathrm{s}}\left( \phi_\mathrm{p}^\mathrm{t}(a,z) - \phi_\mathrm{p}^\mathrm{s}(a,z) \right) Z^\mathrm{s}_{n_\mathrm{s}}(z) \mathrm{d}z
+    (\gls{sym-h}-d_\mathrm{s})
+        \left(
+            C^\mathrm{s}_{1n_\mathrm{s}} R_{1n_\mathrm{s}}^\mathrm{s}(a) + 
+            C^\mathrm{s}_{2n_\mathrm{s}} R_{2n_\mathrm{s}}^\mathrm{s}(a)
+        \right) \\ 
+    -\sum _{n_\mathrm{t} = 0}^{N^\mathrm{t}}
+    \left(
+        C^\mathrm{t}_{1n_\mathrm{t}} R_{1n_\mathrm{t}}^\mathrm{t}(a) +
+        C^\mathrm{t}_{2n_\mathrm{t}} R_{2n_\mathrm{t}}^\mathrm{t}(a)
+    \right)
+    \int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+    Z^\mathrm{s}_{n_\mathrm{s}}(\gls{sym-z})
+    Z_{n_\mathrm{t}}^\mathrm{t}(\gls{sym-z})
+    \mathrm{d}\gls{sym-z} \\ 
+    =\int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \left(
+            \phi_\mathrm{p}^\mathrm{t}(a,\gls{sym-z}) -
+            \phi_\mathrm{p}^\mathrm{s}(a,\gls{sym-z})
+        \right)
+    Z^\mathrm{s}_{n_\mathrm{s}}(\gls{sym-z})
+    \mathrm{d}\gls{sym-z}
 \end{multline}
 and
 \begin{multline}\label{jfm:eq:separated velocity matching integral simplified}
-    \sum _{n_\mathrm{s} = 0}^{N^\mathrm{s}} \left(C^\mathrm{s}_{1n_\mathrm{s}} \frac{\partial R_{1n_\mathrm{s}}^\mathrm{s}}{\partial r}(a)+ C^\mathrm{s}_{2n_\mathrm{s}} \frac{\partial R_{2n_\mathrm{s}}^\mathrm{s}}{\partial r}(a) \right)\int_{-h}^{-d_\mathrm{s}} Z^\mathrm{t}_{n_\mathrm{t}}(z) Z_{n_\mathrm{s}}^\mathrm{s}(z)  \mathrm{d}z \\ - (h-d_\mathrm{t}) \left( C^\mathrm{t}_{1n_\mathrm{t}} \frac{\partial R_{1n_\mathrm{t}}^\mathrm{t}}{\partial r} (a)+ C^\mathrm{t}_{2n_\mathrm{t}} \frac{\partial R_{2n_\mathrm{t}}^\mathrm{t}}{\partial r}(a) \right) \\ = \int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi_\mathrm{p}^\mathrm{t}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi_\mathrm{p}^\mathrm{s}}{\partial r}(a,z) Z^\mathrm{t}_{n_\mathrm{t}}(z) \mathrm{d}z.
+    \sum _{n_\mathrm{s} = 0}^{N^\mathrm{s}}
+    \left(
+        C^\mathrm{s}_{1n_\mathrm{s}}
+        \frac{
+                \partial R_{1n_\mathrm{s}}^\mathrm{s}
+            }
+            {
+                \partial \gls{sym-r}
+            }(a)+ 
+        C^\mathrm{s}_{2n_\mathrm{s}}
+        \frac{
+                \partial R_{2n_\mathrm{s}}^\mathrm{s}
+            }
+            {
+                \partial \gls{sym-r}
+            }(a)
+    \right)
+    \int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        Z^\mathrm{t}_{n_\mathrm{t}}(\gls{sym-z})
+        Z_{n_\mathrm{s}}^\mathrm{s}(\gls{sym-z})
+        \mathrm{d}\gls{sym-z}
+    \\
+    - (\gls{sym-h}-d_\mathrm{t})
+    \left(
+        C^\mathrm{t}_{1n_\mathrm{t}} \frac{\partial R_{1n_\mathrm{t}}^\mathrm{t}}{\partial \gls{sym-r}}(a) +
+        C^\mathrm{t}_{2n_\mathrm{t}} \frac{\partial R_{2n_\mathrm{t}}^\mathrm{t}}{\partial \gls{sym-r}}(a)
+    \right)
+    \\= 
+    \int_{-\gls{sym-h}}^{-d_\mathrm{t}}
+    \frac{
+            \partial \phi_\mathrm{p}^\mathrm{t}
+        }
+        {
+            \partial \gls{sym-r}
+        }(a,\gls{sym-z})
+        Z^\mathrm{t}_{n_\mathrm{t}}(\gls{sym-z})
+        \mathrm{d}\gls{sym-z}
+    -\int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+    \frac{
+            \partial \phi_\mathrm{p}^\mathrm{s}
+        }
+        {
+            \partial \gls{sym-r}
+        }(a,\gls{sym-z})
+        Z^\mathrm{t}_{n_\mathrm{t}}(\gls{sym-z})
+        \mathrm{d}\gls{sym-z}.
 \end{multline}
 Applying Eq.~\ref{jfm:eq:separated potential matching integral simplified} for $\gls{sym-n-mathrm-s}=0,1,\dots, \gls{sym-N-mathrm-s}-1$ and Eq.~\ref{jfm:eq:separated velocity matching integral simplified} for $\gls{sym-n-mathrm-t}=0,1,\dots, \gls{sym-N-mathrm-t}-1$ yields the matrix equations
 \begin{multline}\label{jfm:eq:potential matching vector equations}
-    (h-d_\mathrm{s})\mathrm{diag}\left( \vec{R}_{1}^\mathrm{s}(a)\right) \vec{C}_{1}^\mathrm{s}  + (h-d_\mathrm{s})\mathrm{diag}\left(\vec{R}_{2}^\mathrm{s}(a)\right) \vec{C}_{2}^\mathrm{s} \\ - \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot \boldsymbol{1}_{N^\mathrm{s}1}\vec{R}_{1}^\mathrm{t}(a)\vec{C}_1^\mathrm{t}  - \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot \boldsymbol{1}_{N^\mathrm{s}1}\vec{R}_{2}^\mathrm{t}(a)\vec{C}_2^\mathrm{t} \\ =\int_{-h}^{-d_\mathrm{s}}\left( \phi_\mathrm{p}^\mathrm{t}(a,z) - \phi_\mathrm{p}^\mathrm{s}(a,z) \right) \vec{Z}^\mathrm{s}(z) \mathrm{d}z
+    (\gls{sym-h}-d_\mathrm{s})\mathrm{diag}
+        \left(
+            \vec{R}_{1}^\mathrm{s}(a)
+        \right)
+        \vec{C}_{1}^\mathrm{s}  + 
+    (\gls{sym-h}-d_\mathrm{s})\mathrm{diag}
+        \left(
+            \vec{R}_{2}^\mathrm{s}(a)
+        \right)
+        \vec{C}_{2}^\mathrm{s}
+    \\
+    - \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot \boldsymbol{1}_{N^\mathrm{s}1} \vec{R}_{1}^\mathrm{t}(a)\vec{C}_1^\mathrm{t}
+    - \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot \boldsymbol{1}_{N^\mathrm{s}1} \vec{R}_{2}^\mathrm{t}(a)\vec{C}_2^\mathrm{t}
+    \\
+    =\int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \left(
+            \phi_\mathrm{p}^\mathrm{t}(a,\gls{sym-z}) -
+            \phi_\mathrm{p}^\mathrm{s}(a,\gls{sym-z})
+        \right)
+        \vec{Z}^\mathrm{s}(\gls{sym-z})
+        \mathrm{d}\gls{sym-z}
 \end{multline}
 and
 \begin{multline}\label{jfm:eq:velocity matching vector equations}
-    \boldsymbol{\mathcal{Z}}^\mathrm{ts} \odot \mathbf{1}_{N^\mathrm{t}1}\vec{R}_1^\mathrm{s}(a)\vec{C}_1^\mathrm{s}+\boldsymbol{\mathcal{Z}}^\mathrm{ts} \odot \mathbf{1}_{N^\mathrm{t}1}\vec{R}_2^\mathrm{s}(a)\vec{C}_2^\mathrm{s}\\ -(h-d_\mathrm{t})\mathrm{diag}\left( \frac{\partial}{\partial r} \vec{R}_1^\mathrm{t}(a)\right)\vec{C}_1^\mathrm{t} -(h-d_\mathrm{t})\mathrm{diag}\left( \frac{\partial}{\partial r} \vec{R}_2^\mathrm{t}(a)\right)\vec{C}_2^\mathrm{t} \\ = \int_{-h}^{-d_\mathrm{t}}\frac{\partial \phi_\mathrm{p}^\mathrm{t}}{\partial r}(a,z) \vec{Z}^\mathrm{t}{}(z) \mathrm{d}z-\int_{-h}^{-d_\mathrm{s}}\frac{\partial \phi_\mathrm{p}^\mathrm{s}}{\partial r}(a,z) \vec{Z}^\mathrm{t}{}(z) \mathrm{d}z
+    \boldsymbol{\mathcal{Z}}^\mathrm{ts} \odot \mathbf{1}_{N^\mathrm{t}1}\vec{R}_1^\mathrm{s}(a)\vec{C}_1^\mathrm{s} +
+    \boldsymbol{\mathcal{Z}}^\mathrm{ts} \odot \mathbf{1}_{N^\mathrm{t}1}\vec{R}_2^\mathrm{s}(a)\vec{C}_2^\mathrm{s}
+    \\ 
+    -(\gls{sym-h}-d_\mathrm{t})\mathrm{diag}
+        \left(
+            \frac{\partial}{\partial \gls{sym-r}} \vec{R}_1^\mathrm{t}(a)
+        \right)
+        \vec{C}_1^\mathrm{t} -(\gls{sym-h}-d_\mathrm{t})\mathrm{diag}
+        \left(
+            \frac{\partial}{\partial \gls{sym-r}} \vec{R}_2^\mathrm{t}(a)
+        \right)
+        \vec{C}_2^\mathrm{t}
+    \\ =
+    \int_{-\gls{sym-h}}^{-d_\mathrm{t}}
+        \frac{
+                \partial \phi_\mathrm{p}^\mathrm{t}
+            }
+            {
+                \partial \gls{sym-r}
+            }(a,\gls{sym-z})
+        \vec{Z}^\mathrm{t}{}(\gls{sym-z}) \mathrm{d}\gls{sym-z}
+    -\int_{-\gls{sym-h}}^{-d_\mathrm{s}}
+        \frac{
+                \partial \phi_\mathrm{p}^\mathrm{s}
+            }
+            {
+                \partial \gls{sym-r}
+            }(a,\gls{sym-z})
+        \vec{Z}^\mathrm{t}{}(\gls{sym-z}) \mathrm{d}\gls{sym-z}
 \end{multline}
 where 
 \begin{equation}
-    \gls{sym-vec-R-1-ell}(\gls{sym-r})=[\gls{sym-R-10-ell}(\gls{sym-r}), \gls{sym-R-11-ell}(\gls{sym-r}),\dots, \gls{sym-R-1-N-ell-1-ell}(\gls{sym-r}) ]
+    \gls{sym-vec-R-1-ell}(\gls{sym-r})=
+        [
+            \gls{sym-R-10-ell}(\gls{sym-r}),
+            \gls{sym-R-11-ell}(\gls{sym-r}),
+            \dots,
+            \gls{sym-R-1-N-ell-1-ell}(\gls{sym-r})
+        ]
 \end{equation}
 and
 \begin{equation}
-     \gls{sym-vec-R-2-ell}(\gls{sym-r})=[\gls{sym-R-20-ell}(\gls{sym-r}), \gls{sym-R-21-ell}(\gls{sym-r}),\dots, \gls{sym-R-2-N-ell-1-ell}(\gls{sym-r}) ] 
+     \gls{sym-vec-R-2-ell}(\gls{sym-r})=
+        [
+            \gls{sym-R-20-ell}(\gls{sym-r}),
+            \gls{sym-R-21-ell}(\gls{sym-r}),
+            \dots,
+            \gls{sym-R-2-N-ell-1-ell}(\gls{sym-r})
+        ]
 \end{equation}
  are row vectors of radial eigenfunctions;
 \begin{equation}
-    \gls{sym-vec-C-1-ell}=[\gls{sym-C-10-ell}, \gls{sym-C-11-ell},\dots, \gls{sym-C-1-N-ell-1-ell}]^{\top}
+    \gls{sym-vec-C-1-ell}=
+    [
+        \gls{sym-C-10-ell},
+        \gls{sym-C-11-ell},
+        \dots,
+        \gls{sym-C-1-N-ell-1-ell}
+    ]^{\top}
 \end{equation}
 and
 \begin{equation}
-    \gls{sym-vec-C-2-ell}=[\gls{sym-C-20-ell}, \gls{sym-C-21-ell},\dots, \gls{sym-C-2-N-ell-1-ell}]^{\top}
+    \gls{sym-vec-C-2-ell}=
+    [
+        \gls{sym-C-20-ell},
+        \gls{sym-C-21-ell},
+        \dots,
+        \gls{sym-C-2-N-ell-1-ell}
+    ]^{\top}
 \end{equation}
  are column vectors of eigencoefficients; and
 \begin{equation}
 \begin{aligned}
-    &\gls{sym-vec-Z-ell}(\gls{sym-z})=[\gls{sym-Z-0-ell}(\gls{sym-z}),\gls{sym-Z-1-ell}(\gls{sym-z}),\dots, \gls{sym-Z-N-ell-1-ell}(\gls{sym-z})]^{\top} 
+    &\gls{sym-vec-Z-ell}(\gls{sym-z})=
+    [
+        \gls{sym-Z-0-ell}(\gls{sym-z}),
+        \gls{sym-Z-1-ell}(\gls{sym-z}),
+        \dots,
+        \gls{sym-Z-N-ell-1-ell}(\gls{sym-z}
+    ]^{\top} 
 \end{aligned}
 \end{equation}
 are column vectors of vertical eigenfunctions, where $\ell$ is $\gls{sym-mathrm-s}$ or $\gls{sym-mathrm-t}$.
 Additionally,  
 \begin{equation}
-    \begin{aligned}    &\boldsymbol{\mathcal{Z}}^\mathrm{st}=\boldsymbol{\mathcal{Z}}^\mathrm{ts}{}^{\top}=\int_{-h}^{-d_\mathrm{s}} \vec{Z}^\mathrm{s}{}(z) \otimes \vec{Z}^\mathrm{t}(z) \mathrm{d}z
-\end{aligned}
+    \begin{aligned}
+        &
+        \boldsymbol{\mathcal{Z}}^\mathrm{st}=
+        \boldsymbol{\mathcal{Z}}^\mathrm{ts}{}^{\top}
+        =\int_{-h}^{-d_\mathrm{s}}  \vec{Z}^\mathrm{s}{}(z) \otimes
+                                    \vec{Z}^\mathrm{t}(z)   \mathrm{d}z
+    \end{aligned}
 \end{equation}
-is an $\gls{sym-N-mathrm-s} \times \gls{sym-N-mathrm-t}$ matrix of coupling integrals; $\mathbf{1}_{\gls{sym-N-mathrm-s}1}$ and $\mathbf{1}_{\gls{sym-N-mathrm-t}1}$ are $\gls{sym-N-mathrm-s} \times 1$ and $\gls{sym-N-mathrm-t} \times 1$ matrices of ones, respectively; $\odot$ is the Hadamard (element-wise) product; and $\otimes$ is outer product. 
+is an $\gls{sym-N-mathrm-s} \times \gls{sym-N-mathrm-t}$ matrix of coupling integrals;
+$\mathbf{1}_{\gls{sym-N-mathrm-s}1}$ and 
+$\mathbf{1}_{\gls{sym-N-mathrm-t}1}$
+are
+$\gls{sym-N-mathrm-s} \times 1$ and 
+$\gls{sym-N-mathrm-t} \times 1$
+matrices of ones, respectively;
+$\odot$ is the Hadamard (element-wise) product;
+and $\otimes$ is outer product. 
 
-
-
-  Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} contain $\gls{sym-N-mathrm-s}$ and $\gls{sym-N-mathrm-t}$ equations, respectively.
+Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}
+contain $\gls{sym-N-mathrm-s}$ and $\gls{sym-N-mathrm-t}$ equations, respectively.
 However, they have $2\gls{sym-N-mathrm-s} + 2\gls{sym-N-mathrm-t}$ unknown eigencoefficients.
 Recall that these equations correspond to enforcing conditions at a single boundary between fluid regions, as shown in Fig.~\ref{jfm:fig:Matching Diagram}.
-Section~\ref{jfm:sec:Block Matrix Structure} shows how to organize Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for the $\gls{sym-M-regions}$ boundaries so that all eigencoefficients can be solved for simultaneously.
-  Because the innermost and outermost regions have just one eigenfunction instead of two and therefore half as many eigencoefficients, the full system has exactly as many equations as unknowns.
+Section~\ref{jfm:sec:Block Matrix Structure} shows how to organize
+Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}
+for the $\gls{sym-M-regions}$ boundaries so that all eigencoefficients can be solved for simultaneously.
+Because the innermost and outermost regions have just one eigenfunction instead of two and therefore half as many eigencoefficients,
+the full system has exactly as many equations as unknowns.
 
 Note that all coupling integrals have closed form solutions.
 The element in the $\gls{sym-n-mathrm-s}$th row and $\gls{sym-n-mathrm-t}$th column of the coupling integral matrix associated with matching between region $\gls{sym-i-m}$ and $\gls{sym-i-m-1}$ is
-
 \begin{equation}\label{jfm:coupling integral i_m and i_m+1}
     [\boldsymbol{\mathcal{Z}}^{\text{s} \text{t}} ]_{\gls{sym-n-mathrm-s}\gls{sym-n-mathrm-t}}
     =-\frac{
@@ -208,33 +418,57 @@ The element in the $\gls{sym-n-M}$th row and $\gls{sym-n-e}$th column of the cou
         {(\gls{sym-lambda-n-e-e}+\gls{sym-lambda-n-M-i-M})}
     \right).
 \end{equation}
-Note that Eq.~\ref{jfm:coupling integral i_m and i_m+1} and~\ref{jfm:coupling integral i_M and e} can simplify considerably when one or both indices are zero. 
+Note that Eq.~\ref{jfm:coupling integral i_m and i_m+1} and~\ref{jfm:coupling integral i_M and e}
+can simplify considerably when one or both indices are zero. 
 
 
-
-
-
-
-
-
-Rewriting Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for each of the $\gls{sym-M-regions}$ boundaries, where the symbols representing the smaller $\gls{sym-mathrm-s}$ and taller $\gls{sym-mathrm-t}$ regions are replaced by the region names of the problem (i.e. $\gls{sym-i-1}, \gls{sym-i-2},\dots,  \gls{sym-i-M},e$) and $\gls{sym-a-generic-radius}$ is replaced by $\gls{sym-a-m}$, yields a set of $\gls{sym-N-T}$ equations that are linear with respect to the unknown eigencoefficients.
+Rewriting Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} for each of the $\gls{sym-M-regions}$ boundaries,
+where the symbols representing the smaller $\gls{sym-mathrm-s}$ and taller $\gls{sym-mathrm-t}$ regions
+are replaced by the region names of the problem
+(i.e. $\gls{sym-i-1}, \gls{sym-i-2},\dots,  \gls{sym-i-M},e$)
+and $\gls{sym-a-generic-radius}$ is replaced by $\gls{sym-a-m}$,
+yields a set of $\gls{sym-N-T}$ equations that are linear with respect to the unknown eigencoefficients.
 The structure of these equations is in the form of
 $\gls{sym-mathbf-A} \gls{sym-vec-x}=\gls{sym-vec-b}$ where the matrix
 $\gls{sym-mathbf-A} \in \gls{sym-mathbb-C}^{ \gls{sym-N-T} \times \gls{sym-N-T}}$
 contains the left-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients),
-the vector $\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{sym-vec-C-2-i-2},\dots, \gls{sym-vec-C-1-i-M}, \gls{sym-vec-C-2-i-M}, \gls{sym-vec-C-1-e}]^{\top} \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$
+the vector
+$\gls{sym-vec-x}=[
+                    \gls{sym-vec-C-1-i-1},
+                    \gls{sym-vec-C-1-i-2},
+                    \gls{sym-vec-C-2-i-2},\dots,
+                    \gls{sym-vec-C-1-i-M},
+                    \gls{sym-vec-C-2-i-M},
+                    \gls{sym-vec-C-1-e}
+                ]^{\top}
+    \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$
 contains all eigencoefficients,
-and the vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ contains the right-hand-side of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
-As shown in Table~\ref{jfm:tab:MEEM-A-matrix}, $\gls{sym-mathbf-A}$ is a block bi-diagonal matrix composed of sub-matrices $\gls{sym-mathbf-A-1},\gls{sym-mathbf-A-2},\dots, \gls{sym-mathbf-A-M}$ and zero matrices.
-Each sub-matrix $\gls{sym-mathbf-A-m}$ contains the left-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} (excluding the eigencoefficients) when applying them to the $\gls{sym-m-region}$th boundary.
-The corresponding right-hand-sides of Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations} are contained in $\gls{sym-vec-b-m}$, which form the vector $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
+and the vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ contains the right-hand-side of
+Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}.
+As shown in Table~\ref{jfm:tab:MEEM-A-matrix}, $\gls{sym-mathbf-A}$ is a block bi-diagonal matrix composed of sub-matrices
+$\gls{sym-mathbf-A-1},\gls{sym-mathbf-A-2},\dots, \gls{sym-mathbf-A-M}$ and zero matrices.
+Each sub-matrix $\gls{sym-mathbf-A-m}$ contains the left-hand-sides of
+Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}
+(excluding the eigencoefficients) when applying them to the $\gls{sym-m-region}$th boundary.
+The corresponding right-hand-sides of
+Eq.~\ref{jfm:eq:potential matching vector equations} and~\ref{jfm:eq:velocity matching vector equations}
+are contained in $\gls{sym-vec-b-m}$, which form the vector
+$\gls{sym-vec-b}=[
+                    \gls{sym-vec-b-1},
+                    \gls{sym-vec-b-2},
+                    \dots,
+                    \gls{sym-vec-b-M}
+                ]^{\top}$. 
 %
 \section{Forms of Matrix A}\label{jfm:sec:Forms of Matrix A}
 The matrix $\gls{sym-mathbf-A-m}$ can be written as 
 $\gls{sym-mathbf-A-m} = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$, 
 where $\gls{sym-mathbf-A-m-r}$ and $\gls{sym-mathbf-A-m-z}$ are shown in 
-Tables~\ref{jfm:tab:MEEM-A_mr-matrix-case-1}-\ref{jfm:tab:MEEM-A_mz-matrix-case-2} 
-and $\gls{sym-mathbf-I}^{\gls{sym-N-i-m} \times \gls{sym-N-i-m}}$ is a $\gls{sym-N-i-m} \times \gls{sym-N-i-m}$ identity matrix.
+Tables~\ref{jfm:tab:MEEM-A_mr-matrix-case-1}-\ref{jfm:tab:MEEM-A_mz-matrix-case-2} and
+$\gls{sym-mathbf-I}^{\gls{sym-N-i-m} \times \gls{sym-N-i-m}}$
+is a
+$\gls{sym-N-i-m} \times \gls{sym-N-i-m}$
+identity matrix.
 %
 \begin{landscape}
 \begin{table}
@@ -344,7 +578,8 @@ and $\gls{sym-mathbf-I}^{\gls{sym-N-i-m} \times \gls{sym-N-i-m}}$ is a $\gls{sym
       
       % Row 2
       \shortstack{
-                    $\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m}=\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m-1}$ 
+                    $\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m}
+                    =\frac{\partial}{\partial \gls{sym-r}}\gls{sym-phi-i-m-1}$ 
                     \\ 
                     at $\gls{sym-r}=\gls{sym-a-m}$
                 } 
@@ -512,14 +747,15 @@ Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions} can be simplif
 \begin{aligned}
     \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\text{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}} 
     &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ \gls{sym-r}  \ d\gls{sym-r} \\
-    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}} \Bigg[
-    \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-mathrm-p-i-m}(\gls{sym-r},-\gls{sym-d-m})\, \gls{sym-r}\, d\gls{sym-r} \\
-    & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
-    \ _{}^{\gls{sym-q-dof}}\gls{sym-C-1-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
-    \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ R_{1n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, d\gls{sym-r} \\
-    & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
-    \ _{}^{\gls{sym-q-dof}}\gls{sym-C-2-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
-    \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ R_{2n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, dr
+    &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}}
+    \Bigg[
+        \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-mathrm-p-i-m}(\gls{sym-r},-\gls{sym-d-m})\, \gls{sym-r}\, d\gls{sym-r} \\
+        & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
+        \ _{}^{\gls{sym-q-dof}}\gls{sym-C-1-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
+        \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ R_{1n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, d\gls{sym-r} \\
+        & + \sum_{\gls{sym-n-m}=0}^{\gls{sym-N-i-m}-1} 
+        \ _{}^{\gls{sym-q-dof}}\gls{sym-C-2-n-m-i-m} \ Z_{n_m}^{i_m}(-\gls{sym-d-m})
+        \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ R_{2n_m}^{i_m}(\gls{sym-r})\, \gls{sym-r}\, d\gls{sym-r}
     \Bigg]
 \end{aligned}
 \end{equation}
@@ -535,7 +771,14 @@ in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are
     & = \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \gls{sym-R-1-n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, d\gls{sym-r} \\
     & = \left\{\begin{matrix}
     \frac{1}{4} (\gls{sym-a-m-1}^2-\gls{sym-a-m}^2) & \text{ for } \gls{sym-n-m}=0 \\[2ex]
-  \displaystyle\frac{\gls{sym-a-m-1} \gls{sym-mathrm-I-1}(\gls{sym-a-m-1} \gls{sym-lambda-n-m-i-m})-\gls{sym-a-m} \gls{sym-mathrm-I-1}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})}{\gls{sym-lambda-n-m-i-m}\gls{sym-mathrm-I-0}(\gls{sym-a-m}\gls{sym-lambda-n-m-i-m})} 
+  \displaystyle\frac{
+    \gls{sym-a-m-1} \gls{sym-mathrm-I-1}(\gls{sym-a-m-1} \gls{sym-lambda-n-m-i-m})
+    -
+    \gls{sym-a-m}   \gls{sym-mathrm-I-1}(\gls{sym-a-m}   \gls{sym-lambda-n-m-i-m})
+  }
+  {
+    \gls{sym-lambda-n-m-i-m}\gls{sym-mathrm-I-0}(\gls{sym-a-m}\gls{sym-lambda-n-m-i-m})
+    } 
  & \text{ for } \gls{sym-n-m} \ge 1
 \end{matrix}\right.
 \end{aligned}
@@ -548,13 +791,21 @@ in Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec} are
     \left[\gls{sym-vec-mathcal-R-2-i-m}\right]_{\gls{sym-n-m}} 
     & = \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1} } \gls{sym-R-2-n-m-i-m}(\gls{sym-r})\, \gls{sym-r}\, d\gls{sym-r} \\
     & = \left\{\begin{matrix}
-    \frac{1}{8} \left(2 \gls{sym-a-m-1} ^2 \ln \left(\frac{\gls{sym-a-m-1} }{\gls{sym-a-m}}\right)-\gls{sym-a-m-1}^2+\gls{sym-a-m}^2\right) 
+    \frac{1}{8} \left(
+        2 \gls{sym-a-m-1} ^2 \ln
+            \left(
+                \frac{\gls{sym-a-m-1} }{\gls{sym-a-m}}
+            \right)
+            -\gls{sym-a-m-1}^2+\gls{sym-a-m}^2
+        \right)
     & 
     \text{ for } \gls{sym-n-m}=0 \\[2ex]
  \displaystyle\frac{
-        \gls{sym-a-m} \gls{sym-mathrm-K-1}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})-\gls{sym-a-m-1} \gls{sym-mathrm-K-1}(\gls{sym-a-m-1} \gls{sym-lambda-n-m-i-m})
+            \gls{sym-a-m}   \gls{sym-mathrm-K-1}(\gls{sym-a-m}   \gls{sym-lambda-n-m-i-m})
+            -
+            \gls{sym-a-m-1} \gls{sym-mathrm-K-1}(\gls{sym-a-m-1} \gls{sym-lambda-n-m-i-m})
         }{
-        \gls{sym-lambda-n-m-i-m} \gls{sym-mathrm-K-0}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})
+            \gls{sym-lambda-n-m-i-m} \gls{sym-mathrm-K-0}(\gls{sym-a-m} \gls{sym-lambda-n-m-i-m})
         } 
  &
   \text{ for } \gls{sym-n-m} \ge 1
