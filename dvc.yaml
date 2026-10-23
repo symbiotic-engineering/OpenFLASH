@@ -1,8 +1,7 @@
 stages:
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html 
-      "analysis/validation_with_capytaine_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
       - package/src/
@@ -15,11 +14,11 @@ stages:
           cache: true
       - .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html:
           cache: true
-    desc: Automatically generated from the 'validate-w-capy' stage in 
+    desc: Automatically generated from the 'validate-w-capy' stage in
       calkit.yaml. Changes made here will be overwritten.
   low-m0-figs:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html "analysis/low_m0_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/low_m0_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
       - package/src/
@@ -32,11 +31,11 @@ stages:
           cache: true
       - .calkit/notebooks/html/analysis/low_m0_plots.html:
           cache: true
-    desc: Automatically generated from the 'low-m0-figs' stage in 
-      calkit.yaml. Changes made here will be overwritten.
+    desc: Automatically generated from the 'low-m0-figs' stage in calkit.yaml.
+      Changes made here will be overwritten.
   slant-figs:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html "analysis/slant_data_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/slant_data_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
       - analysis/data/slants.pkl
@@ -53,11 +52,11 @@ stages:
           cache: true
       - .calkit/notebooks/html/analysis/slant_data_plots.html:
           cache: true
-    desc: Automatically generated from the 'slant-figs' stage in 
-      calkit.yaml. Changes made here will be overwritten.
+    desc: Automatically generated from the 'slant-figs' stage in calkit.yaml.
+      Changes made here will be overwritten.
   timing-data:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html "analysis/timing_data_generation.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/timing_data_generation.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
       - analysis/capytaine_generator.py
@@ -69,11 +68,11 @@ stages:
           cache: false
       - .calkit/notebooks/html/analysis/timing_data_generation.html:
           cache: false
-    desc: Automatically generated from the 'timing-data' stage in 
-      calkit.yaml. Changes made here will be overwritten.
+    desc: Automatically generated from the 'timing-data' stage in calkit.yaml.
+      Changes made here will be overwritten.
   timing-figs:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html "analysis/timing_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/timing_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       - analysis/data/timing.pkl
@@ -87,11 +86,11 @@ stages:
           cache: true
       - .calkit/notebooks/html/analysis/timing_plots.html:
           cache: true
-    desc: Automatically generated from the 'timing-figs' stage in 
-      calkit.yaml. Changes made here will be overwritten.
+    desc: Automatically generated from the 'timing-figs' stage in calkit.yaml.
+      Changes made here will be overwritten.
   convergence-figs:
-    cmd: calkit nb execute --environment openflash-on-branch 
-      --no-check --to html "analysis/convergence-results.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/convergence-results.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
       - analysis/sea-lab-utils
@@ -107,8 +106,8 @@ stages:
     desc: Automatically generated from the 'convergence-figs' stage in
       calkit.yaml. Changes made here will be overwritten.
   sparsity-figs:
-    cmd: calkit nb execute --environment openflash-on-main --no-check 
-      --to html "analysis/sparsity_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main --no-check --to html
+      "analysis/sparsity_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
       - .calkit/env-locks/openflash-on-main
@@ -120,24 +119,22 @@ stages:
           cache: true
       - .calkit/notebooks/html/analysis/sparsity_plots.html:
           cache: true
-    desc: Automatically generated from the 'sparsity-figs' stage in 
-      calkit.yaml. Changes made here will be overwritten.
+    desc: Automatically generated from the 'sparsity-figs' stage in calkit.yaml.
+      Changes made here will be overwritten.
   graphical-abstract:
-    cmd: calkit latex build -e tex --no-check 
-      pubs/JFM/figs/graph_abstract.tex
+    cmd: calkit latex build -e tex --no-check pubs/JFM/figs/graph_abstract.tex
     deps:
       - pubs/JFM/figs/graph_abstract.tex
       - .calkit/env-locks/tex
     outs:
       - pubs/JFM/figs/graph_abstract.pdf
       - pubs/JFM/figs/graph_abstract.log
-    desc: Automatically generated from the 'graphical-abstract' stage 
-      in calkit.yaml. Changes made here will be overwritten.
+    desc: Automatically generated from the 'graphical-abstract' stage in
+      calkit.yaml. Changes made here will be overwritten.
   compile-overleaf:
-    cmd: calkit latex build -e tex --no-check --aux-dir aux 
+    cmd: calkit latex build -e tex --no-check --aux-dir aux
       pubs/JFM/FLMguide.tex
     deps:
-      - pubs/JFM/FLMguide.tex
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/
       - pubs/JFM/JFM-FLM_Au.cls
