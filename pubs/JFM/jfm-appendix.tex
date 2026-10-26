@@ -737,15 +737,15 @@ identity matrix.
 %
 \section{Added Mass and Damping}\label{jfm:appC}
 We will define the velocity of the $\gls{sym-q-dof}$th body as 
-$\gls{sym-v-q}(\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-hat-v-q} e^{- \text{i} \gls{sym-omega} \gls{sym-t}}\}$ 
-so that $\gls{sym-hat-f-pq} = (\text{i} \gls{sym-omega} \gls{sym-A-pq}(\gls{sym-omega}) - \gls{sym-B-pq}(\gls{sym-omega})) \gls{sym-hat-v-q}$. 
+$\gls{sym-v-q}(\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-hat-v-q} e^{- \gls{sym-imag} \gls{sym-omega} \gls{sym-t}}\}$ 
+so that $\gls{sym-hat-f-pq} = (\gls{sym-imag} \gls{sym-omega} \gls{sym-A-pq}(\gls{sym-omega}) - \gls{sym-B-pq}(\gls{sym-omega})) \gls{sym-hat-v-q}$. 
 Recall from Eq.~\ref{jfm:eq:No flux BC at wetted surface} that, if a region is heaving, 
 the particular potentials in Table \ref{jfm:tab:MEEM-eigenfunctions} were defined so that it does so with unit amplitude velocity. 
 Thus, if regions consisting of the $\gls{sym-q-dof}$th body are heaving, $\gls{sym-hat-v-q}=1$. 
 Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions} can be simplified and rearranged as
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of added mass and damping}
 \begin{aligned}
-    \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\text{i}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}} 
+    \gls{sym-A-pq}(\gls{sym-omega}) + \frac{\gls{sym-imag}\gls{sym-B-pq}(\gls{sym-omega})}{\gls{sym-omega}} 
     &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \ _{}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \ \gls{sym-r}  \ d\gls{sym-r} \\
     &= 2 \gls{sym-pi} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}}
     \Bigg[
