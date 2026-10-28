@@ -54,6 +54,7 @@ stages:
           cache: true
     desc: Automatically generated from the 'slant-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
+<<<<<<< HEAD
   timing-data:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to
       html "analysis/timing_data_generation.ipynb"
@@ -70,6 +71,8 @@ stages:
           cache: false
     desc: Automatically generated from the 'timing-data' stage in calkit.yaml.
       Changes made here will be overwritten.
+=======
+>>>>>>> wiley-template
   timing-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to
       html "analysis/timing_plots.ipynb"
@@ -131,9 +134,34 @@ stages:
       - pubs/JFM/figs/graph_abstract.log
     desc: Automatically generated from the 'graphical-abstract' stage in
       calkit.yaml. Changes made here will be overwritten.
-  compile-overleaf:
-    cmd: calkit latex build -e tex --no-check --aux-dir aux
-      pubs/JFM/FLMguide.tex
+  compile-wiley:
+    cmd: calkit latex build -e tex --no-check
+      pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Optimal-Design-layout.tex
+    deps:
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Optimal-Design-layout.tex
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Fonts/
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/images/
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/algorithm.sty
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/algorithmicx.sty
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/amssymb.sty
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/box.eps
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/empty.eps
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/LETTERSP.STY
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/mla.sty
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/natbib.sty
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/NJDapacite.sty
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/NJDnatbib.sty
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/USG.cls
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/wileyNJD-Chicago-lastoo.bst
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/wileyNJD-Chicago.bib
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/wileyNJD-Chicago.bst
+      - .calkit/env-locks/tex
+    outs:
+      - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Optimal-Design-layout.pdf
+    desc: Automatically generated from the 'compile-wiley' stage in calkit.yaml.
+      Changes made here will be overwritten.
+  compile-jfm:
+    cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
     deps:
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/
@@ -151,5 +179,5 @@ stages:
       - .calkit/env-locks/tex
     outs:
       - pubs/JFM/FLMguide.pdf
-    desc: Automatically generated from the 'compile-overleaf' stage in
-      calkit.yaml. Changes made here will be overwritten.
+    desc: Automatically generated from the 'compile-jfm' stage in calkit.yaml.
+      Changes made here will be overwritten.

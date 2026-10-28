@@ -1,4 +1,4 @@
-from numpy import inf
+from numpy import inf # allowed wavenumber m0 includes inf
 # Constants
 h = 100
 d = [29, 7, 4]
