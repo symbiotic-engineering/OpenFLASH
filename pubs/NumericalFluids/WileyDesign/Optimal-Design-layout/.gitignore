@@ -5,11 +5,16 @@
 /images
 
 # >>> calkit latex aux files (managed by calkit) >>>
+*.acn
+*.acr
+*.alg
 *.aux
 *.bbl
 *.bcf
 *.blg
+*.brf
 *.dvi
+*.ent
 *.fdb_latexmk
 *.fls
 *.glg
@@ -19,15 +24,23 @@
 *.ilg
 *.ind
 *.ist
+*.loa
 *.lof
 *.log
+*.lol
 *.lot
 *.nav
+*.nlg
+*.nlo
+*.nls
 *.out
+*.pag
 *.run.xml
 *.snm
 *.spl
 *.synctex.gz
+*.tdo
+*.thm
 *.toc
 *.vrb
 *.xdv

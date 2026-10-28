@@ -158,7 +158,8 @@ stages:
     desc: Automatically generated from the 'compile-wiley' stage in calkit.yaml.
       Changes made here will be overwritten.
   compile-jfm:
-    cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check --aux-dir aux
+      pubs/JFM/FLMguide.tex
     deps:
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/
