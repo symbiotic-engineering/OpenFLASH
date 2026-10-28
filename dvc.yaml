@@ -54,7 +54,6 @@ stages:
           cache: true
     desc: Automatically generated from the 'slant-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
-<<<<<<< HEAD
   timing-data:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to
       html "analysis/timing_data_generation.ipynb"
@@ -71,8 +70,6 @@ stages:
           cache: false
     desc: Automatically generated from the 'timing-data' stage in calkit.yaml.
       Changes made here will be overwritten.
-=======
->>>>>>> wiley-template
   timing-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to
       html "analysis/timing_plots.ipynb"
