@@ -9,7 +9,7 @@ name: PR Tagging and RC Tag Management
 # The tag for merged pull requests is of the form vX.Y.Z with no additions.
 
 on:
-  pull_request_target:
+  pull_request_target: # unlike "pull_request", "pull_request_target" triggers even when there is a merge conflict
     types: [opened, reopened, synchronize, closed]
     branches:
       - main
