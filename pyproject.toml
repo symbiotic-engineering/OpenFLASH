@@ -75,4 +75,5 @@ include = ["openflash*"]
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
+version_scheme = "no-guess-dev"
 fallback_version = "0+unknown"

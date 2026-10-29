@@ -223,7 +223,6 @@ pubs/**/*.ist
 pubs/**/*.mw
 pubs/**/*.slo
 
-.calkit/*
 .calkit/notebooks/*
 .calkit/notebooks/executed/analysis/*
 .calkit/notebooks/html/*

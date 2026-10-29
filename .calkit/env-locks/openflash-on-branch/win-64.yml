@@ -38,7 +38,7 @@ dependencies:
   - cached_property=2.0.1=pyhcf101f3_0
   - cachetools=7.2.7=pyhd8ed1ab_0
   - cairo=1.18.6=h477c42c_0
-  - capytaine=3.0.0=py312h88f9942_1
+  - capytaine=2.3.1=py312h88f9942_1
   - certifi=2026.10.23=pyhd8ed1ab_0
   - charset-normalizer=3.5.2=h308a848_0
   - click=8.5.0=pyh5ded981_0
@@ -164,7 +164,6 @@ dependencies:
   - openssl=3.6.5=hf411b9b_0
   - orc=2.3.1=hf7eca67_0
   - packaging=26.3=pyhc364b38_0
-  - pandas=2.3.3=py312hc128f0a_2
   - parso=0.8.7=pyhcf101f3_0
   - patsy=1.0.3=pyhcf101f3_0
   - pcre2=10.47=h8466c1e_1
@@ -191,7 +190,6 @@ dependencies:
   - python-multipart=0.0.32=pyhcf101f3_0
   - python-tzdata=2026.6=pyh5ded981_0
   - python_abi=3.12=9_cp312
-  - pytz=2026.5=pyh5ded981_0
   - pywin32=312=py312h95189c4_2
   - pyyaml=6.0.3=py312h05f76fc_2
   - pyzmq=27.2.0=py312h343a6d4_2
@@ -225,10 +223,10 @@ dependencies:
   - unicodedata2=18.0.0=py312he06e257_0
   - urllib3=2.8.0=pyhd8ed1ab_0
   - uvicorn=0.54.0=pyhe2676ad_0
-  - vc=14.5=ha367084_41
-  - vc14_runtime=14.51.36247=habf1de7_41
-  - vcomp14=14.51.36247=habf1de7_41
-  - vs2015_runtime=14.51.36247=h633cb9f_41
+  - vc=14.5=ha367084_42
+  - vc14_runtime=14.51.36247=habf1de7_42
+  - vcomp14=14.51.36247=habf1de7_42
+  - vs2015_runtime=14.51.36247=h633cb9f_42
   - watchdog=6.0.0=py312h209ec74_4
   - wcwidth=0.9.4=py311hdbcae8a_0
   - websockets=17.3=py312h5247d40_0
@@ -246,4 +244,5 @@ dependencies:
       - contourpy==1.3.3
       - numpy==1.26.4
       - -e ../../..
+      - pandas==3.0.6
       - scipy==1.13.1

@@ -1,0 +1,20 @@
+{
+  "graphical-abstract": {
+    "start_time": "2026-10-29T22:13:16.337000",
+    "end_time": "2026-10-29T22:13:20.861000",
+    "environment": "tex",
+    "git_rev": "0f5416d7a021bc8d7217f5a957bdc6f4945964cd",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:b122ad3b3bc2931d936d61606b7e25be7beec1236d476b9787d1bd25e81b5b9d",
+    "calkit_version": "0.50.2",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  }
+}
