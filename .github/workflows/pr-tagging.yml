@@ -9,7 +9,7 @@ name: PR Tagging and RC Tag Management
 # The tag for merged pull requests is of the form vX.Y.Z with no additions.
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, synchronize, closed]
     branches:
       - main
@@ -37,7 +37,10 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          base=$(bash scripts/compute_base.sh "$PR_TITLE")
+          git fetch origin main
+          git show origin/main:scripts/compute_base.sh > "$RUNNER_TEMP/compute_base.sh"
+          # use compute_base.sh script from main to avoid security issues due to pull_request_target trigger
+          base=$(bash "$RUNNER_TEMP/compute_base.sh" "$PR_TITLE")
           echo "base=$base" >> $GITHUB_OUTPUT
 
       - name: Check if rc tag already exists and if so compute rc-dev tag
