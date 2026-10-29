@@ -1,85 +1,96 @@
-MEEM Simulation Streamlit App
-=============================
+.. _app-module:
 
-Introduction
-------------
-The MEEM Simulation app allows users to perform simulations for solving a multi-region problem with custom parameters. The app uses the MEEM (Multi-Region Eigenfunction Expansion Method) engine to compute hydrodynamic coefficients and visualize the results.
+===================
+Interactive Web App
+===================
 
-Features
---------
-1. **Hydrodynamic Coefficients Calculation:** The app calculates the coefficients based on user-defined domain parameters.
-2. **Visualization:** The app provides visualizations of the radial, vertical, and total velocity potentials.
-3. **Interactive Sidebar:** Users can interactively adjust simulation parameters like height, slant vectors, spatial resolution, and harmonic values.
+.. automodule:: app
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-How to Use
------------
-1. **Run the Streamlit App:**
-   Ensure that you have Streamlit installed. You can install it using:
-   
-   .. code-block:: bash
-      pip install streamlit
+.. _app-overview:
 
-   To launch the app, run the following command in the docs folder:
-   
-   .. code-block:: bash
-      streamlit run app.py
+Application Overview
+====================
 
-2. **Adjust Simulation Parameters:**
-   The app features a sidebar where you can input different parameters for your simulation:
+This Streamlit application (`app.py`) provides an interactive interface for simulating the hydrodynamic behavior of multiple bodies using the OpenFLASH engine. Users can adjust various parameters to visualize potential fields for a single frequency or compute and plot hydrodynamic coefficients over a range of frequencies.
 
-   - **Water Height (h):** Adjust the height parameter. The default is set to 1.001 meters.
-   - **Body Height (d):** Enter a list of body heights separated by commas (e.g., "0.5,0.25").
-   - **Diameter (a):** Enter a list of diameters separated by commas (e.g., "0.5,1").
-   - **Heaving States:** Define whether each region is heaving (1 for True, 0 for False) by entering a comma-separated list (e.g., "1,1").
-   - **Slant Vectors:** Enter slant vectors for each region (e.g., "0,0,1;0,0,1;0,0,1").
-   - **Number of Harmonics (NMK):** Define the number of harmonics for each region, separated by commas (e.g., "30,30,30").
-   - **Spatial Resolution:** Choose the spatial resolution for the mesh grid. The range is between 10 and 100.
-   - **Checkboxes:** Select whether to display different potential plots, such as homogeneous, particular, total, radial velocity, and vertical velocity.
-
-3. **View Domain Parameters:**
-   After configuring the parameters, the app displays the domain parameters, including the number of harmonics, radial widths, and slant vectors, which are used in the simulation.
-
-4. **Run the Simulation:**
-   Once you've configured the parameters, the app automatically runs the simulation and computes the hydrodynamic coefficients.
-
-5. **Visualization:**
-   The app provides visualizations of different potential fields. These include:
-   - **Homogeneous Potential Plots**
-   - **Particular Potential Plots**
-   - **Total Potential Plots**
-   - **Radial Velocity Potential Plots**
-   - **Vertical Velocity Potential Plots**
-
-   You can interact with the plots and explore the results. The plots are generated using the Matplotlib library, with contour plots showing the variation of potential across the radial and axial distances.
-
-6. **Understanding the Results:**
-   The hydrodynamic coefficients and the potential fields are computed based on the user-defined inputs. These results are displayed in the app in a format that helps you understand the spatial variations in the velocity potentials.
-
-Code Explanation
-----------------
-The main components of the code include:
-
-1. **User Input:**
-   The app uses `st.sidebar` for user inputs, where users can adjust various parameters for the simulation.
-
-2. **Geometry and Engine Setup:**
-   The `Geometry` and `MEEMEngine` classes are used to configure the simulation domain and run the solver. The problem is set up using these objects, and the linear system is solved using SciPy's `linalg.solve()` function.
-
-3. **Potential and Velocity Calculations:**
-   The code calculates different potentials (e.g., homogeneous, particular, total) and velocities (e.g., radial, vertical) using predefined functions like `phi_h_n_inner_func`, `phi_h_m_i_func`, and others.
-
-4. **Visualization:**
-   The `plot_potential()` function creates visual representations of the computed potential fields using Matplotlib and Streamlit's `st.pyplot()`.
-
-Troubleshooting
+Running the App
 ---------------
-- Ensure that all necessary Python packages are installed, including `streamlit`, `numpy`, `pandas`, `scipy`, and `matplotlib`.
-- If the app does not load, check the browser console for any error messages.
-- Ensure that the correct versions of packages are being used to avoid compatibility issues.
-- If slant vectors or other inputs are misconfigured, the app will show an error and prompt you to adjust the inputs.
 
-Conclusion
-----------
-This Streamlit app provides an easy-to-use interface for running complex MEEM simulations. It allows users to customize the parameters, run simulations, and visualize the results interactively. By adjusting parameters in the sidebar, users can explore different configurations and see how they affect the hydrodynamic coefficients and velocity potentials.
+There are two ways to run the Streamlit application:
 
-For more information, refer to the documentation of the `MEEMEngine`, `Geometry`, and other classes used in the app.
+**Option 1: Use the Web-Based App (Recommended)**
+
+The app is deployed and can be run directly in your web browser, with no installation required. This is the easiest way to get started.
+
+* **Interactive Streamlit App:** `Launch App <app_streamlit.html>`_
+
+**Option 2: Run the App Locally**
+
+Ensure that you have Streamlit and the `openflash` package installed.
+
+.. code-block:: bash
+
+   pip install streamlit
+
+To launch the app, run the following command from your project's root directory:
+
+.. code-block:: bash
+
+   streamlit run docs/app.py
+
+**Key Features:**
+
+* **Interactive Parameters:** Adjust water depth, body radii, step depths, and the number of harmonics.
+* **Object-Oriented Setup:** Defines the geometry by creating `SteppedBody` objects, reflecting the modern API.
+* **Single Frequency Analysis:** Solves the system for a single wave frequency and visualizes the total potential field in real time.
+* **Frequency Sweep Analysis:** Efficiently runs the simulation across a range of frequencies to compute and plot how added mass and damping coefficients change.
+
+.. _app-functions:
+
+Functions
+=========
+.. autofunction:: main
+   :noindex:
+
+The main function that sets up and runs the Streamlit application.
+
+It configures the sidebar for user inputs, parses them, and sets up the problem geometry using the object-oriented API (`SteppedBody`, `ConcentricBodyGroup`, `BasicRegionGeometry`). The interface is split into two main actions: a single frequency test and a frequency sweep.
+
+**User Inputs (Sidebar):**
+
+* **Water Depth (h):** Overall depth of the water.
+* **Body Step Depths (d):** Comma-separated list of submerged depths, one for each body.
+* **Body Radii (a):** Comma-separated list of radii, one for each body.
+* **Heaving Bodies (1/0):** Comma-separated binary list (1=True, 0=False) indicating if each body is heaving.
+* **Harmonics (NMK):** Comma-separated list specifying the number of series approximation terms for each fluid domain (number of bodies + 1).
+* **Single Frequency Test:**
+   * **Angular Frequency (omega):** The specific frequency for the potential field visualization.
+   * **Plot Spatial Resolution:** Controls the grid density for the potential plots.
+* **Frequency Sweep for Coefficients:**
+   * **Start Omega:** The beginning of the frequency range.
+   * **End Omega:** The end of the frequency range.
+   * **Number of Steps:** The number of frequencies to simulate within the range.
+
+**Simulation Workflows:**
+
+The application logic is divided into two distinct workflows, triggered by buttons in the main interface.
+
+1.  **Run Single Test & Plot Potentials:**
+
+   * Calculates the non-dimensional wavenumber (`m0`) from the user-provided `omega`.
+   * Configures the `MEEMProblem` with the single frequency and the active modes of motion.
+   * Initializes the `MEEMEngine` and calls `solve_linear_system_multi` to get the solution vector `X`.
+   * Computes and displays the hydrodynamic coefficient matrices for that single frequency.
+   * Calls `calculate_potentials` to compute the total potential field.
+   * Visualizes the real and imaginary parts of the potential field using Matplotlib.
+
+2.  **Run Frequency Sweep & Plot Coefficients:**
+
+   * Creates an array of frequencies based on the user's start, end, and step inputs.
+   * Configures the `MEEMProblem` with the full array of frequencies and active modes.
+   * Initializes the `MEEMEngine` and calls the highly efficient `run_and_store_results` method. This single method handles the entire simulation loop internally.
+   * Extracts the computed `added_mass` and `damping` coefficients from the resulting `xarray.Dataset`.
+   * Generates and displays Matplotlib plots showing how the added mass and damping coefficients vary across the simulated frequency range.

@@ -1,0 +1,6 @@
+name: openflash-openflash-on-main
+channels:
+  - conda-forge
+dependencies:
+  - sea-lab::open-flash>=v1.0.25
+  - capytaine
