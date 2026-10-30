@@ -37,6 +37,14 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Install Calkit
         run: uv tool install --upgrade calkit-python
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: true
+          conda-remove-defaults: true
+          channels: conda-forge, conda-pypi
+          channel-priority: flexible
+          conda-solver: rattler
       - name: Setup jq
         uses: dcarbone/install-jq-action@v3
       - name: Run Calkit
