@@ -41,8 +41,8 @@ stages:
       size: 3942
     - path: pubs/JFM/figs/
       hash: md5
-      md5: d4744209dc8000fdcde7b9a7cf18db3b.dir
-      size: 1425952
+      md5: 8efa73a7b81c30761b4b48217f752a2f.dir
+      size: 1425969
       nfiles: 34
     - path: pubs/JFM/jfm-appendix.tex
       hash: md5
@@ -67,15 +67,15 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 4b612bb6303ed14fe837a6a5fbc839a4
-      size: 1079414
+      md5: f268549ce968b6d003d5815d5c010771
+      size: 1079431
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/validation_with_capytaine_plots.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
       hash: md5
-      md5: 768dd8f3052e33fa992d46046496d29a.dir
+      md5: dfa1eabc66e72f36ff28e88cb0add577.dir
       size: 2779
       nfiles: 1
     - path: 
@@ -85,23 +85,23 @@ stages:
       size: 28781
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: cf3503adfe5f9d2e3149fa92c12716f1.dir
+      md5: 3c9b67223adbe36fe14bcd73a7956cbb.dir
       size: 16569
       nfiles: 22
     outs:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: dad59492702439d988d0ff3e6c4b25c2
-      size: 920266
+      md5: 72de2e6dfec239e2d6a065f9f0d24a26
+      size: 920236
     - path: .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
       hash: md5
-      md5: cf23d60b44af61dc23def620004fa1b2
-      size: 1244644
+      md5: 6cbc42f477d85b6e485025060189863c
+      size: 1244613
     - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       hash: md5
-      md5: fde6c539278470e59378e40b1c9d0af6
-      size: 56469
+      md5: 3db00433a3caa5dfc127efa0ad66b7f9
+      size: 56472
   _check-env-openflash-on-branch:
     cmd: calkit check environment --name openflash-on-branch
     deps:
@@ -180,7 +180,7 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
       hash: md5
-      md5: 768dd8f3052e33fa992d46046496d29a.dir
+      md5: dfa1eabc66e72f36ff28e88cb0add577.dir
       size: 2779
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
@@ -189,7 +189,7 @@ stages:
       size: 11589
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: cf3503adfe5f9d2e3149fa92c12716f1.dir
+      md5: 3c9b67223adbe36fe14bcd73a7956cbb.dir
       size: 16569
       nfiles: 22
     - path: dev/python/limiting-cases/low_m0.py
@@ -204,16 +204,16 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: 8891e4bc64a83a50ae6b3dc56bde3712
-      size: 102896
+      md5: e4827a460da6e250c9395d8cbb98d184
+      size: 102895
     - path: .calkit/notebooks/html/analysis/low_m0_plots.html
       hash: md5
-      md5: d22d6d3e71e0b4928c6bac80bf5c78fa
+      md5: 29a3bff52f5b7e2ac85bf65494d3847c
       size: 415740
     - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: f65bd0c5d533f6117e3107f7c289a69b
-      size: 124155
+      md5: 11c48f92e6d75d05602a501a394a0bc2
+      size: 124159
   _clean-nb-slant-figs:
     cmd: calkit nb clean "analysis/slant_data_plots.ipynb"
     deps:
@@ -232,7 +232,7 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
       hash: md5
-      md5: 768dd8f3052e33fa992d46046496d29a.dir
+      md5: dfa1eabc66e72f36ff28e88cb0add577.dir
       size: 2779
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
@@ -253,34 +253,34 @@ stages:
       size: 6664
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: cf3503adfe5f9d2e3149fa92c12716f1.dir
+      md5: 3c9b67223adbe36fe14bcd73a7956cbb.dir
       size: 16569
       nfiles: 22
     outs:
     - path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: 547af36ca474f8e5fc7aacbde0746156
+      md5: 4470960cb554c488e886411cf6a4c999
       size: 541029
     - path: .calkit/notebooks/html/analysis/slant_data_plots.html
       hash: md5
-      md5: 5519b2f2657e1389978b6f99865eb56c
+      md5: 48e743b73bb39bc7ada76e70029857d9
       size: 960575
     - path: pubs/JFM/figs/Along-Outline.pdf
       hash: md5
-      md5: a629a5fff40f08a48d6a5e506e511af3
-      size: 50844
+      md5: ffed861ba2ea7e7ff904c62e242c318e
+      size: 50852
     - path: pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
       hash: md5
-      md5: df36891873ab20ceee4ac671933e9ad9
-      size: 275577
+      md5: 264df9c9c2a3b06a54e5582ecc6ee6b8
+      size: 275578
     - path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       hash: md5
-      md5: f18f3ea15c42cf0b14c419342e1af2b5
-      size: 49633
+      md5: 4d23e0dac4366c1f0dd0d6a97ef54b79
+      size: 49631
     - path: pubs/JFM/figs/Vary-Slopes.pdf
       hash: md5
-      md5: 5b3d530b189c714ecd6f5e4aad5e347b
-      size: 61955
+      md5: bd6458dfaa2455da9e2d0ca7925e175b
+      size: 61957
   _clean-nb-timing-figs:
     cmd: calkit nb clean "analysis/timing_plots.ipynb"
     deps:
@@ -299,7 +299,7 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
       hash: md5
-      md5: 768dd8f3052e33fa992d46046496d29a.dir
+      md5: dfa1eabc66e72f36ff28e88cb0add577.dir
       size: 2779
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
@@ -312,29 +312,29 @@ stages:
       size: 4035
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: cf3503adfe5f9d2e3149fa92c12716f1.dir
+      md5: 3c9b67223adbe36fe14bcd73a7956cbb.dir
       size: 16569
       nfiles: 22
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: 911db761314809f3a1ae2a4b53d1055a
-      size: 465227
+      md5: 085d172ec6164d76b09b0b56b26b136f
+      size: 465282
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
-      md5: 6ed9897f76b54a0d40162ad75ee4a320
-      size: 812566
+      md5: 22c48c7181288d62fc3d179002038ca3
+      size: 812618
     - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: 3dc7d0a307cf8ee5f111aa510ee386e1
-      size: 46974
+      md5: 1acd1d35b8b39a88b591f55540129f16
+      size: 46975
     - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: 3c3d68d542df8714e8d638e4807bc4b5
-      size: 41719
+      md5: d484edb22bb480f1a86f0b925c71b8cb
+      size: 41716
     - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: b041632dbbbf58ae77ab20e96330e9a3
+      md5: 6f15281be23e6fdcf19c8eaf3f3b3d7f
       size: 76439
   sparsity-figs:
     cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
@@ -352,7 +352,7 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/sparsity_plots.ipynb
       hash: md5
-      md5: fa678bb96f93346fb6ff604cd70e45fa
+      md5: 26513c4929dd0645923db2d82a821f2c
       size: 109740
     - path: .calkit/notebooks/html/analysis/sparsity_plots.html
       hash: md5
@@ -360,15 +360,15 @@ stages:
       size: 424173
     - path: pubs/JFM/figs/A_sparsity_plot.pdf
       hash: md5
-      md5: 254d4339497468a506c6f7abf36a4d34
+      md5: 7b110ff8269d620856f4d345f5264692
       size: 12555
     - path: pubs/JFM/figs/B_sparsity_plot.pdf
       hash: md5
-      md5: bcb6aceb2af408457506abbf092e656f
+      md5: 305e6b150b2276808b470d722232cdca
       size: 9196
     - path: pubs/JFM/figs/C_sparsity_plot.pdf
       hash: md5
-      md5: 64985c1f42977880709457f51ed0db09
+      md5: 3618a46a0f07446aab778867c8040c04
       size: 9857
   convergence-figs:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
@@ -376,7 +376,7 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
       hash: md5
-      md5: 768dd8f3052e33fa992d46046496d29a.dir
+      md5: dfa1eabc66e72f36ff28e88cb0add577.dir
       size: 2779
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
@@ -385,30 +385,30 @@ stages:
       size: 54915
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: cf3503adfe5f9d2e3149fa92c12716f1.dir
+      md5: 3c9b67223adbe36fe14bcd73a7956cbb.dir
       size: 16569
       nfiles: 22
     outs:
     - path: .calkit/notebooks/executed/analysis/convergence-results.ipynb
       hash: md5
-      md5: 4cd326bda239d517d8574341dfc610b3
-      size: 309375
+      md5: 3a1c98b4f9db27c2cc3fee9d86ea1ffc
+      size: 309291
     - path: .calkit/notebooks/html/analysis/convergence-results.html
       hash: md5
-      md5: 75c5f9df20427370a7598721e4410409
-      size: 727119
+      md5: 24d3afaa8d8f85d76b4d96d17aec455e
+      size: 726910
     - path: pubs/JFM/figs/alpha-beta-explanation.pdf
       hash: md5
-      md5: df872b2daffd28318b97b49978bee181
-      size: 122039
+      md5: 84f25f48c3f3248fbf4b158a4d412f1f
+      size: 122046
     - path: pubs/JFM/figs/alpha-beta-to-trend.pdf
       hash: md5
-      md5: 35dc5ecd56aed30e29d8d63182690899
-      size: 127619
+      md5: ad877ac099be8ce2b458f8649c92d822
+      size: 127618
     - path: pubs/JFM/figs/convergence-fit-assessment.pdf
       hash: md5
-      md5: 551d3f5ef0d2a091a72221059a11a794
-      size: 66301
+      md5: fd3d3cfa368e4e2c20b0b61063fae3e3
+      size: 66298
   graphical-abstract:
     cmd: calkit latex build -e tex --no-check pubs/JFM/figs/graph_abstract.tex
     deps:
@@ -424,7 +424,7 @@ stages:
     outs:
     - path: pubs/JFM/figs/graph_abstract.log
       hash: md5
-      md5: e4c3b962c20e5ef90ea2320b2cb1c091
+      md5: e1e7de22ec3b6e11051e2cac00172534
       size: 16812
     - path: pubs/JFM/figs/graph_abstract.pdf
       hash: md5
@@ -436,7 +436,7 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
       hash: md5
-      md5: 768dd8f3052e33fa992d46046496d29a.dir
+      md5: dfa1eabc66e72f36ff28e88cb0add577.dir
       size: 2779
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/test-latex.ipynb
@@ -445,13 +445,13 @@ stages:
       size: 1948
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: cf3503adfe5f9d2e3149fa92c12716f1.dir
+      md5: 3c9b67223adbe36fe14bcd73a7956cbb.dir
       size: 16569
       nfiles: 22
     outs:
     - path: .calkit/notebooks/executed/analysis/test-latex.ipynb
       hash: md5
-      md5: 92e6b29a1db58a6fe578ffea1330ffd4
+      md5: c449f17f7fa4d487926a12062572792d
       size: 4899
     - path: .calkit/notebooks/html/analysis/test-latex.html
       hash: md5
