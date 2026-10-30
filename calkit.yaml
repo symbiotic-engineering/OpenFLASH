@@ -20,6 +20,7 @@ environments:
     kind: docker
     path: .Dockerfile
     image: openflash-on-branch-tex
+    registry: ghcr.io
     description: openflash-on-branch conda environment with TeXlive via Docker.
     deps:
       - analysis/environment-branch.yml
