@@ -22,6 +22,6 @@ dependencies:
   - c-compiler
   - fortran-compiler
  
-    - capytaine<3.0
-    - pip:
+  - capytaine<3.0
+  - pip:
       - -e ..
