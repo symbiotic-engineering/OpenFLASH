@@ -5,10 +5,14 @@ import os
 import numpy as np
 import pytest
 from numpy import pi, sqrt, cosh, cos, sinh, sin, exp, log
-from scipy.special import iv as besseli
-from scipy.special import kv as besselk
-from scipy.special import kve as besselke
-from scipy.special import ive as besselie
+from scipy.special import i0 as besseli0
+from scipy.special import i1 as besseli1
+from scipy.special import k0 as besselk0
+from scipy.special import k1 as besselk1
+from scipy.special import i0e as besseli0e
+from scipy.special import i1e as besseli1e
+from scipy.special import k0e as besselk0e
+from scipy.special import k1e as besselk1e
 from scipy.special import hankel1 as besselh
 from unittest.mock import Mock, patch
 from scipy.optimize import root_scalar 
@@ -316,15 +320,15 @@ def test_int_R_1n_n_positive(test_n, test_i, a, h, d):
     local_scale = scale(a)
     lambda0 = lambda_ni(test_n, test_i, h, d)
     # Fixed to use scaled Bessel I
-    bottom = lambda0 * besselie(0, lambda0 * local_scale[test_i])
+    bottom = lambda0 * besseli0e(lambda0 * local_scale[test_i])
     if test_i == 0: 
         inner_term = 0
     else: 
         # Scaled inner term
-        inner_term = (a[test_i-1] * besselie(1, lambda0 * a[test_i-1]) / bottom) * exp(lambda0 * (a[test_i-1] - local_scale[test_i]))
+        inner_term = (a[test_i-1] * besseli1e(lambda0 * a[test_i-1]) / bottom) * exp(lambda0 * (a[test_i-1] - local_scale[test_i]))
     
     # Scaled outer term (exp(0) = 1)
-    outer_term = (a[test_i] * besselie(1, lambda0 * a[test_i]) / bottom) * 1.0
+    outer_term = (a[test_i] * besseli1e(lambda0 * a[test_i]) / bottom) * 1.0
     
     expected = outer_term - inner_term
     assert np.isclose(int_R_1n(test_n, test_i, a, h, d), expected) 
@@ -362,12 +366,12 @@ def test_int_R_2n_n_positive(test_n, a, h, d):
     
     # Normalized by lambda * K0(lambda * outer_r)
     # Denominator matches 'denom = lambda0 * besselke(0, lambda0 * outer_r)' in multi_equations.py
-    denom = lambda0 * besselke(0, lambda0 * outer_r)
+    denom = lambda0 * besselk0e(lambda0 * outer_r)
     
-    term_outer = outer_r * besselke(1, lambda0 * outer_r)
+    term_outer = outer_r * besselk1e(lambda0 * outer_r)
     # No exp shift needed for outer term because exp(l(a-a)) = 1
     
-    term_inner = inner_r * besselke(1, lambda0 * inner_r)
+    term_inner = inner_r * besselk1e(lambda0 * inner_r)
     # Apply exponential shift exp(l(a-r)) -> exp(l(a-inner))
     term_inner *= np.exp(lambda0 * (outer_r - inner_r))
     

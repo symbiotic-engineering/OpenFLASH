@@ -9,7 +9,7 @@ name: PR Tagging and RC Tag Management
 # The tag for merged pull requests is of the form vX.Y.Z with no additions.
 
 on:
-  pull_request_target:
+  pull_request_target: # unlike "pull_request", "pull_request_target" triggers even when there is a merge conflict
     types: [opened, reopened, synchronize, closed]
     branches:
       - main
@@ -50,7 +50,7 @@ jobs:
           rc_tag="${{ steps.compute_base.outputs.base }}rc${{ github.event.pull_request.number }}"
           if git rev-parse "$rc_tag" >/dev/null 2>&1; then
             devN=$(git rev-list --count $rc_tag..HEAD)
-            rc_dev_tag="${rc_tag}dev${devN}"
+            rc_dev_tag="${rc_tag}.dev${devN}"
           else
             rc_dev_tag="${rc_tag}"
           fi

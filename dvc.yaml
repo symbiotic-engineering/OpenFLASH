@@ -4,6 +4,9 @@ stages:
       html "analysis/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
+      - package/src/
+      - analysis/capytaine_generator.py
+      - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
@@ -20,7 +23,7 @@ stages:
       - .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
       - package/src/
       - dev/python/limiting-cases/low_m0.py
-      - sea-lab-utils
+      - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/MEEM-Low-Freq.pdf
@@ -38,7 +41,7 @@ stages:
       - analysis/data/slants.pkl
       - analysis/data/slope-slants.pkl
       - analysis/data/potential-slants.pkl
-      - sea-lab-utils
+      - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
@@ -51,13 +54,29 @@ stages:
           cache: true
     desc: Automatically generated from the 'slant-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
+  timing-data:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/timing_data_generation.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
+      - analysis/capytaine_generator.py
+      - package/src/
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - analysis/data/timing.pkl
+      - .calkit/notebooks/executed/analysis/timing_data_generation.ipynb:
+          cache: false
+      - .calkit/notebooks/html/analysis/timing_data_generation.html:
+          cache: false
+    desc: Automatically generated from the 'timing-data' stage in calkit.yaml.
+      Changes made here will be overwritten.
   timing-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to
       html "analysis/timing_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       - analysis/data/timing.pkl
-      - sea-lab-utils
+      - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
@@ -74,7 +93,7 @@ stages:
       html "analysis/convergence-results.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
-      - sea-lab-utils
+      - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/JFM/figs/alpha-beta-explanation.pdf
@@ -113,7 +132,8 @@ stages:
     desc: Automatically generated from the 'graphical-abstract' stage in
       calkit.yaml. Changes made here will be overwritten.
   compile-overleaf:
-    cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check --aux-dir aux
+      pubs/JFM/FLMguide.tex
     deps:
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/
@@ -124,6 +144,10 @@ stages:
       - pubs/JFM/zotero-meem-refs.bib
       - pubs/JFM/becca-zotero-refs.bib
       - pubs/JFM/jfm-appendix.tex
+      - pubs/JFM/glossary/glossary-symbols-jfm.tex
+      - pubs/JFM/glossary/glossary-symbols-shared.tex
+      - pubs/JFM/glossary/glossary-acronyms.tex
+      - pubs/JFM/glossary/glossary-setup.tex
       - .calkit/env-locks/tex
     outs:
       - pubs/JFM/FLMguide.pdf
