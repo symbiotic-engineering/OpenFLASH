@@ -1,4 +1,22 @@
 {
+  "convergence-figs": {
+    "start_time": "2026-10-29T23:13:45.596000",
+    "end_time": "2026-10-29T23:15:02.298000",
+    "environment": "openflash-on-branch",
+    "git_rev": "a6a3623a3f7fbde4e54aa0e92ff461bc7203672f",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:7930f66b4b12019cb0364ef4880c3a3bb212bc3c0434ed898249892937a1df04",
+    "calkit_version": "0.50.2",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
   "graphical-abstract": {
     "start_time": "2026-10-29T22:13:16.337000",
     "end_time": "2026-10-29T22:13:20.861000",
@@ -6,6 +24,96 @@
     "git_rev": "0f5416d7a021bc8d7217f5a957bdc6f4945964cd",
     "git_dirty": true,
     "dvc_lock_hash": "sha256:b122ad3b3bc2931d936d61606b7e25be7beec1236d476b9787d1bd25e81b5b9d",
+    "calkit_version": "0.50.2",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
+  "low-m0-figs": {
+    "start_time": "2026-10-29T23:12:17.084000",
+    "end_time": "2026-10-29T23:13:36.641000",
+    "environment": "openflash-on-branch",
+    "git_rev": "a6a3623a3f7fbde4e54aa0e92ff461bc7203672f",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:92b1480c3d9f57358ff8674ea46d53e76fc0a23f3ca1e2b0e8d67e645cda7858",
+    "calkit_version": "0.50.2",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
+  "slant-figs": {
+    "start_time": "2026-10-29T23:13:36.731000",
+    "end_time": "2026-10-29T23:13:45.596000",
+    "environment": "openflash-on-branch",
+    "git_rev": "a6a3623a3f7fbde4e54aa0e92ff461bc7203672f",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:f37c13a585a3086b1102f5a758a6deabc6508d400438b5a647a3276864c4b705",
+    "calkit_version": "0.50.2",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
+  "sparsity-figs": {
+    "start_time": "2026-10-29T23:15:02.298000",
+    "end_time": "2026-10-29T23:17:55.237000",
+    "environment": "openflash-on-main",
+    "git_rev": "a6a3623a3f7fbde4e54aa0e92ff461bc7203672f",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:632a5bbc452bb7555350e37776cf042c971fdaade32899b1bc814e20d1d3a425",
+    "calkit_version": "0.50.2",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
+  "timing-data": {
+    "start_time": "2026-10-29T22:54:32.885000",
+    "end_time": "2026-10-29T22:58:37.206000",
+    "environment": "openflash-on-branch",
+    "git_rev": "a6a3623a3f7fbde4e54aa0e92ff461bc7203672f",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:8f57cdad4565d74de7cba593ad9a17fb85d0119150b384163e035f633951f2a4",
+    "calkit_version": "0.50.2",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
+  "validate-w-capy": {
+    "start_time": "2026-10-29T23:17:55.237000",
+    "end_time": "2026-10-29T23:18:31.901000",
+    "environment": "openflash-on-branch",
+    "git_rev": "a6a3623a3f7fbde4e54aa0e92ff461bc7203672f",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:5673b821aed33ac710282c5e6282cfcf6bc7bee58921b9ee9071a7afe6c4e56b",
     "calkit_version": "0.50.2",
     "system": {
       "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
