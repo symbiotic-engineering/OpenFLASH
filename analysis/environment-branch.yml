@@ -21,6 +21,7 @@ dependencies:
   # links against; .Dockerfile supplies an empty stub to satisfy the linker.
   - c-compiler
   - fortran-compiler
-  - pip:
-      - capytaine<3.0
+ 
+    - capytaine<3.0
+    - pip:
       - -e ..
