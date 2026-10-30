@@ -9,7 +9,7 @@ dependencies:
   - numpy
   - scipy
   - matplotlib
-  - pandas
+  - pandas<3.0
   - h5netcdf
   - xarray
   - streamlit
