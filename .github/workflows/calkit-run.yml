@@ -50,7 +50,7 @@ jobs:
       - name: Run Calkit
         id: run_calkit
         continue-on-error: true
-        uses: calkit/run-action@v2
+        uses: lntutor/run-action@fix/pull-subprojects
         with:
           run_args: --keep-going --log
           pull_dvc: true
