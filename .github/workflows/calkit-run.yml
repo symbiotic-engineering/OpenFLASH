@@ -56,6 +56,7 @@ jobs:
           pull_dvc: true
           save: false
           cache_dvc: false
+          dvc_token: ${{ secrets.CALKIT_DVC_TOKEN }}
       - name: calkit save
         run: |
           if ! git status --porcelain | grep -vE '^.. \.calkit/' | grep -q . && dvc status -q --no-updates; then
