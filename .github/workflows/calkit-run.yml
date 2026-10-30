@@ -53,7 +53,6 @@ jobs:
         uses: lntutor/run-action@fix/pull-subprojects
         with:
           run_args: --keep-going --log
-          pull_dvc: true
           save: false
           cache_dvc: false
           dvc_token: ${{ secrets.CALKIT_DVC_TOKEN }}
