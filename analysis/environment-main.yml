@@ -4,4 +4,4 @@ channels:
 dependencies:
   - sea-lab::open-flash>=v1.0.25
   - pip:
-      - capytaine
+      - capytaine<3.0
