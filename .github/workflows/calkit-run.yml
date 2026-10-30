@@ -36,7 +36,7 @@ jobs:
       - name: Setup uv
         uses: astral-sh/setup-uv@v7
       - name: Install Calkit
-        run: uv tool install git+https://github.com/calkit/calkit.git@rmccabe-dvc-pull-warn
+        run: uv tool install git+https://github.com/calkit/calkit.git@rmccabe-subproject-login-utf8
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
