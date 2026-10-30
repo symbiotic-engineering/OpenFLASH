@@ -2,7 +2,7 @@ name: openflash-openflash-on-main
 channels:
   - conda-forge
   - sea-lab
-  - defaults
+  - conda-pypi
 dependencies:
   - _openmp_mutex=4.5=20_gnu
   - _python_abi3_support=1.0=hd8ed1ab_2
