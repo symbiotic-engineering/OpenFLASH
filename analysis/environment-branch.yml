@@ -9,12 +9,19 @@ dependencies:
   - numpy
   - scipy
   - matplotlib
-  - pandas
+  - pandas<3.0
   - h5netcdf
   - xarray
   - streamlit
   - ipykernel
-  - capytaine<3.0
   - seaborn
+  - papermill
+  # Compiler toolchain so pip can build capytaine's Fortran extension from
+  # source (no prebuilt arm64 wheel exists). Sets CC/FC during env activation.
+  # Note: on aarch64 these don't provide libquadmath, which gfortran still
+  # links against; .Dockerfile supplies an empty stub to satisfy the linker.
+  - c-compiler
+  - fortran-compiler
+  - capytaine<3.0
   - pip:
       - -e ..

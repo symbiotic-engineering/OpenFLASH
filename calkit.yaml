@@ -14,20 +14,34 @@ environments:
     path: analysis/environment-branch.yml
     kind: conda
     inputs: 
+      - package/src
       - pyproject.toml
+  openflash-on-branch-tex:
+    kind: docker
+    path: .Dockerfile
+    image: openflash-on-branch-tex
+    registry: ghcr.io
+    description: openflash-on-branch conda environment with TeXlive via Docker.
+    inputs:
+      - analysis/environment-branch.yml
+      - package/src
+      - pyproject.toml
+      - README.md
+      - LICENSE
+      - CITATION.cff
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda
   openflash-dev:
     path: analysis/environment-dev.yml
     kind: conda
-
+  
 pipeline:
   stages:
     validate-w-capy:
       kind: jupyter-notebook
       notebook_path: analysis/validation_with_capytaine_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - package/src/
         - analysis/capytaine_generator.py
@@ -37,7 +51,7 @@ pipeline:
     low-m0-figs:
       kind: jupyter-notebook
       notebook_path: analysis/low_m0_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - package/src/
         - dev/python/limiting-cases/low_m0.py
@@ -60,7 +74,7 @@ pipeline:
     slant-figs:
       kind: jupyter-notebook
       notebook_path: analysis/slant_data_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - analysis/data/slants.pkl
         - analysis/data/slope-slants.pkl
@@ -86,7 +100,7 @@ pipeline:
     timing-figs:
       kind: jupyter-notebook
       notebook_path: analysis/timing_plots.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - analysis/data/timing.pkl
         - analysis/sea-lab-utils
@@ -98,7 +112,7 @@ pipeline:
     convergence-figs:
       kind: jupyter-notebook
       notebook_path: analysis/convergence-results.ipynb
-      environment: openflash-on-branch
+      environment: openflash-on-branch-tex
       inputs:
         - analysis/sea-lab-utils
       outputs:
@@ -114,6 +128,13 @@ pipeline:
         - pubs/JFM/figs/A_sparsity_plot.pdf
         - pubs/JFM/figs/B_sparsity_plot.pdf
         - pubs/JFM/figs/C_sparsity_plot.pdf
+    test-latex:
+      kind: jupyter-notebook
+      notebook_path: analysis/test-latex.ipynb
+      environment: openflash-on-branch-tex
+      inputs:
+        - analysis/sea-lab-utils
+      executed_ipynb_storage: git
     graphical-abstract:
       kind: latex
       target_path: pubs/JFM/figs/graph_abstract.tex

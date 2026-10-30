@@ -1,0 +1,445 @@
+{
+  "id": "9d9df9e4e6684c8fb9d1c4ab4d241c49",
+  "system_id": "51e5a21bfc7f7a08a9b4cb23f6d37f1af93ec796",
+  "start_time": "2026-06-13T17:25:17.753061+00:00",
+  "end_time": "2026-06-13T17:26:47.990196+00:00",
+  "targets": [],
+  "force": false,
+  "dvc_args": [
+    "--keep-going"
+  ],
+  "status": "failed",
+  "stages": {
+    "slant-figs": {
+      "start_time": "2026-06-13T17:25:18.614000",
+      "end_time": "2026-06-13T17:25:26.206000",
+      "status": "completed"
+    },
+    "timing-figs": {
+      "start_time": "2026-06-13T17:25:26.206000",
+      "end_time": "2026-06-13T17:25:34.169000",
+      "status": "completed"
+    },
+    "validate-w-capy": {
+      "start_time": "2026-06-13T17:25:34.169000",
+      "end_time": "2026-06-13T17:25:40.227000",
+      "status": "completed"
+    },
+    "convergence-figs": {
+      "start_time": "2026-06-13T17:25:40.227000",
+      "end_time": "2026-06-13T17:25:57.423000",
+      "status": "completed"
+    },
+    "sparsity-figs": {
+      "start_time": "2026-06-13T17:25:57.423000",
+      "end_time": "2026-06-13T17:26:08.137000",
+      "status": "completed"
+    },
+    "low-m0-figs": {
+      "start_time": "2026-06-13T17:26:08.137000",
+      "end_time": "2026-06-13T17:26:45.125000",
+      "status": "completed"
+    },
+    "graphical-abstract": {
+      "start_time": "2026-06-13T17:26:45.125000"
+    },
+    "stages: slant-figs, timing-figs, validate-w-capy, convergence-figs and low-m0-figs": {
+      "end_time": "2026-06-13T17:26:46.877000",
+      "status": "failed"
+    }
+  },
+  "git_rev": "f8b61a03884c3416027ff8bb1fca5aa12da43686",
+  "git_branch": "workflow-macos",
+  "git_changed_files_before": [
+    "dvc.yaml"
+  ],
+  "git_staged_files_before": [],
+  "git_untracked_files_before": [
+    ".calkit/systems/51e5a21bfc7f7a08a9b4cb23f6d37f1af93ec796.json"
+  ],
+  "git_changed_files_after": [
+    "analysis/convergence-results.ipynb",
+    "analysis/low_m0_plots.ipynb",
+    "analysis/timing_plots.ipynb",
+    "dvc.lock",
+    "dvc.yaml"
+  ],
+  "git_staged_files_after": [],
+  "git_untracked_files_after": [
+    ".calkit/systems/51e5a21bfc7f7a08a9b4cb23f6d37f1af93ec796.json"
+  ],
+  "dvc_status_before": {
+    "validate-w-capy": [
+      {
+        "changed deps": {
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      }
+    ],
+    "low-m0-figs": [
+      {
+        "changed deps": {
+          ".calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb": "modified",
+          "package/src": "modified",
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      }
+    ],
+    "slant-figs": [
+      {
+        "changed deps": {
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      }
+    ],
+    "timing-figs": [
+      {
+        "changed deps": {
+          ".calkit/notebooks/cleaned/analysis/timing_plots.ipynb": "modified",
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      }
+    ],
+    "convergence-figs": [
+      {
+        "changed deps": {
+          ".calkit/notebooks/cleaned/analysis/convergence-results.ipynb": "modified",
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      }
+    ],
+    "sparsity-figs": [
+      {
+        "changed outs": {
+          "pubs/JFM/figs/A_sparsity_plot.pdf": "not in cache",
+          "pubs/JFM/figs/B_sparsity_plot.pdf": "not in cache",
+          "pubs/JFM/figs/C_sparsity_plot.pdf": "not in cache",
+          ".calkit/notebooks/executed/analysis/sparsity_plots.ipynb": "not in cache",
+          ".calkit/notebooks/html/analysis/sparsity_plots.html": "not in cache"
+        }
+      }
+    ],
+    "graphical-abstract": [
+      {
+        "changed outs": {
+          "pubs/JFM/figs/graph_abstract.pdf": "not in cache",
+          "pubs/JFM/figs/graph_abstract.log": "not in cache"
+        }
+      }
+    ],
+    "compile-overleaf": [
+      {
+        "changed deps": {
+          "pubs/JFM/figs": "modified",
+          "pubs/JFM/jfm-appendix.tex": "modified",
+          ".calkit/env-locks/tex": "modified"
+        }
+      }
+    ]
+  },
+  "dvc_data_status_before": {
+    "not_in_cache": [
+      ".calkit/notebooks/executed/analysis/sparsity_plots.ipynb",
+      ".calkit/notebooks/html/analysis/sparsity_plots.html",
+      "pubs/JFM/figs/A_sparsity_plot.pdf",
+      "pubs/JFM/figs/B_sparsity_plot.pdf",
+      "pubs/JFM/figs/C_sparsity_plot.pdf",
+      "pubs/JFM/figs/graph_abstract.log",
+      "pubs/JFM/figs/graph_abstract.pdf"
+    ],
+    "not_in_remote": [],
+    "committed": {},
+    "uncommitted": {
+      "deleted": [
+        ".calkit/notebooks/executed/analysis/sparsity_plots.ipynb",
+        ".calkit/notebooks/html/analysis/sparsity_plots.html",
+        "pubs/JFM/figs/A_sparsity_plot.pdf",
+        "pubs/JFM/figs/B_sparsity_plot.pdf",
+        "pubs/JFM/figs/C_sparsity_plot.pdf",
+        "pubs/JFM/figs/graph_abstract.log",
+        "pubs/JFM/figs/graph_abstract.pdf"
+      ]
+    },
+    "untracked": [],
+    "unchanged": [
+      "dev/python/slants/behavior-with-basic-meem/data/ps5.pkl",
+      "dev/python/convergence-study/RM3/data/",
+      "dev/python/convergence-study/i-region-convergence/middle-region/data/",
+      "dev/python/convergence-study/i-region-convergence/outermost-region/data/",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i3ii_conv_data.pkl",
+      ".calkit/notebooks/html/analysis/validation_with_capytaine_plots.html",
+      "dev/python/slants/pure-capytaine/data/cpt-slant-variations-1.pkl",
+      "pubs/JFM/figs/convergence-fit-assessment.pdf",
+      "pubs/JFM/figs/discretization_scheme_diagrams.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h35_convergence_data.pkl",
+      "dev/python/slants/correcting-through-hydros/data/m3.pkl",
+      ".calkit/notebooks/executed/analysis/timing_plots.ipynb",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_iii_conv_data.pkl",
+      "dev/python/convergence-study/i-region-convergence/innermost-region/data/",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h53_convergence_data.pkl",
+      "pubs/JFM/FLMguide.pdf",
+      "pubs/JFM/figs/Vary-Slopes.pdf",
+      "dev/python/slants/behavior-with-basic-meem/data/ps4-all-configs-res-nmk.pkl",
+      "pubs/JFM/figs/asymptotic_b.png",
+      "pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_convergence_data.pkl",
+      ".calkit/notebooks/executed/analysis/slant_data_plots.ipynb",
+      "dev/python/timing/data/cpt-timing.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i3i3i_conv_data.pkl",
+      "pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf",
+      ".calkit/notebooks/html/analysis/convergence-results.html",
+      "pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h54_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h51_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_2iii_conv_data.pkl",
+      "dev/python/slants/pure-capytaine/data/cpt-slant-variations-2.pkl",
+      "pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_2ii2i_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h80_convergence_data.pkl",
+      "pubs/JFM/figs/MEEM-Low-Freq.pdf",
+      "dev/python/slants/behavior-with-basic-meem/data/ps4-convergence-to-nmk-100.pkl",
+      "dev/python/slants/a-matrix-b-vector-changes/data/ps6.pkl",
+      ".calkit/notebooks/executed/analysis/convergence-results.ipynb",
+      "pubs/JFM/figs/alpha-beta-to-trend.pdf",
+      "dev/python/convergence-study/e-region-convergence/data/",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h65_convergence_data.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps3.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_iii_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_i2ii_conv_data.pkl",
+      "dev/python/convergence-study/i-region-convergence/all-regions/data/",
+      "dev/python/limiting-cases/low-m0-capytaine.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps4-res-nmk-grid.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_ii2i_conv_data.pkl",
+      "dev/python/convergence-study/prediction/data/",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i2ii_conv_data.pkl",
+      ".calkit/notebooks/html/analysis/timing_plots.html",
+      ".calkit/notebooks/html/analysis/slant_data_plots.html",
+      "dev/python/slants/behavior-with-basic-meem/data/ps5-res-nmk-grid.pkl",
+      ".calkit/notebooks/executed/analysis/low_m0_plots.ipynb",
+      "pubs/JFM/figs/slant_figures.pdf",
+      ".calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb",
+      "dev/python/convergence-study/region-count-convergence/data/",
+      "dev/python/slants/potential-visualizer/data/capytaine-point-values.pkl",
+      "pubs/JFM/figs/Matching_Diagram.pdf",
+      "pubs/JFM/figs/Along-Outline.pdf",
+      "pubs/JFM/figs/Cross-Section-Potential-Slant.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_2i2ii_conv_data.pkl",
+      "pubs/JFM/figs/alpha-beta-explanation.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h55_convergence_data.pkl",
+      "pubs/JFM/figs/MEEM-Comp-Distribution.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h56_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i2i2i_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h52_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_ii2i_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i4ii_conv_data.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps4-nmk-convergence-at-res-50.pkl",
+      "pubs/JFM/figs/Multi_MEEM_Diagram.pdf",
+      "dev/python/convergence-study/neighbor-convergence-effects/outermost-e-neighbors/data/",
+      "dev/python/slants/behavior-with-basic-meem/data/ps2.pkl",
+      "analysis/data/",
+      ".calkit/notebooks/html/analysis/low_m0_plots.html"
+    ]
+  },
+  "dvc_status_after": {
+    "validate-w-capy": [
+      {
+        "changed deps": {
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      },
+      {
+        "changed outs": {
+          "pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf": "deleted",
+          ".calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb": "modified",
+          ".calkit/notebooks/html/analysis/validation_with_capytaine_plots.html": "deleted"
+        }
+      }
+    ],
+    "low-m0-figs": [
+      {
+        "changed deps": {
+          ".calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb": "modified",
+          "package/src": "modified",
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      },
+      {
+        "changed outs": {
+          "pubs/JFM/figs/MEEM-Low-Freq.pdf": "deleted",
+          ".calkit/notebooks/executed/analysis/low_m0_plots.ipynb": "modified",
+          ".calkit/notebooks/html/analysis/low_m0_plots.html": "deleted"
+        }
+      }
+    ],
+    "slant-figs": [
+      {
+        "changed deps": {
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      },
+      {
+        "changed outs": {
+          "pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf": "deleted",
+          "pubs/JFM/figs/Vary-Slopes.pdf": "deleted",
+          "pubs/JFM/figs/Along-Outline.pdf": "deleted",
+          "pubs/JFM/figs/Cross-Section-Potential-Slant.pdf": "deleted",
+          ".calkit/notebooks/executed/analysis/slant_data_plots.ipynb": "modified",
+          ".calkit/notebooks/html/analysis/slant_data_plots.html": "deleted"
+        }
+      }
+    ],
+    "timing-figs": [
+      {
+        "changed deps": {
+          ".calkit/notebooks/cleaned/analysis/timing_plots.ipynb": "modified",
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      },
+      {
+        "changed outs": {
+          "pubs/JFM/figs/MEEM-Comp-Distribution.pdf": "deleted",
+          "pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf": "deleted",
+          "pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf": "deleted",
+          ".calkit/notebooks/executed/analysis/timing_plots.ipynb": "modified",
+          ".calkit/notebooks/html/analysis/timing_plots.html": "deleted"
+        }
+      }
+    ],
+    "convergence-figs": [
+      {
+        "changed deps": {
+          ".calkit/notebooks/cleaned/analysis/convergence-results.ipynb": "modified",
+          "analysis/sea-lab-utils": "modified",
+          ".calkit/env-locks/openflash-on-branch": "modified"
+        }
+      },
+      {
+        "changed outs": {
+          "pubs/JFM/figs/alpha-beta-explanation.pdf": "deleted",
+          "pubs/JFM/figs/alpha-beta-to-trend.pdf": "deleted",
+          "pubs/JFM/figs/convergence-fit-assessment.pdf": "deleted",
+          ".calkit/notebooks/executed/analysis/convergence-results.ipynb": "modified",
+          ".calkit/notebooks/html/analysis/convergence-results.html": "deleted"
+        }
+      }
+    ],
+    "compile-overleaf": [
+      {
+        "changed deps": {
+          "pubs/JFM/figs": "modified",
+          "pubs/JFM/jfm-appendix.tex": "modified",
+          ".calkit/env-locks/tex": "modified"
+        }
+      }
+    ]
+  },
+  "dvc_data_status_after": {
+    "not_in_cache": [],
+    "not_in_remote": [],
+    "committed": {
+      "modified": [
+        "pubs/JFM/figs/graph_abstract.log",
+        "pubs/JFM/figs/graph_abstract.pdf",
+        "pubs/JFM/figs/C_sparsity_plot.pdf",
+        "pubs/JFM/figs/B_sparsity_plot.pdf",
+        "pubs/JFM/figs/A_sparsity_plot.pdf",
+        ".calkit/notebooks/executed/analysis/sparsity_plots.ipynb"
+      ]
+    },
+    "uncommitted": {
+      "modified": [
+        ".calkit/notebooks/executed/analysis/low_m0_plots.ipynb",
+        ".calkit/notebooks/executed/analysis/convergence-results.ipynb",
+        ".calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb",
+        ".calkit/notebooks/executed/analysis/timing_plots.ipynb",
+        ".calkit/notebooks/executed/analysis/slant_data_plots.ipynb"
+      ],
+      "deleted": [
+        ".calkit/notebooks/html/analysis/convergence-results.html",
+        ".calkit/notebooks/html/analysis/low_m0_plots.html",
+        ".calkit/notebooks/html/analysis/slant_data_plots.html",
+        ".calkit/notebooks/html/analysis/timing_plots.html",
+        ".calkit/notebooks/html/analysis/validation_with_capytaine_plots.html",
+        "pubs/JFM/figs/Along-Outline.pdf",
+        "pubs/JFM/figs/Cross-Section-Potential-Slant.pdf",
+        "pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf",
+        "pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf",
+        "pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf",
+        "pubs/JFM/figs/MEEM-Comp-Distribution.pdf",
+        "pubs/JFM/figs/MEEM-Low-Freq.pdf",
+        "pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf",
+        "pubs/JFM/figs/Vary-Slopes.pdf",
+        "pubs/JFM/figs/alpha-beta-explanation.pdf",
+        "pubs/JFM/figs/alpha-beta-to-trend.pdf",
+        "pubs/JFM/figs/convergence-fit-assessment.pdf"
+      ]
+    },
+    "untracked": [],
+    "unchanged": [
+      "dev/python/slants/behavior-with-basic-meem/data/ps5.pkl",
+      "dev/python/convergence-study/RM3/data/",
+      "dev/python/convergence-study/i-region-convergence/middle-region/data/",
+      "dev/python/convergence-study/i-region-convergence/outermost-region/data/",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i3ii_conv_data.pkl",
+      "dev/python/slants/pure-capytaine/data/cpt-slant-variations-1.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps2.pkl",
+      "dev/python/slants/correcting-through-hydros/data/m3.pkl",
+      "pubs/JFM/figs/discretization_scheme_diagrams.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h35_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_iii_conv_data.pkl",
+      "dev/python/convergence-study/i-region-convergence/innermost-region/data/",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h53_convergence_data.pkl",
+      "pubs/JFM/FLMguide.pdf",
+      "dev/python/slants/behavior-with-basic-meem/data/ps4-all-configs-res-nmk.pkl",
+      "pubs/JFM/figs/asymptotic_b.png",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_convergence_data.pkl",
+      "dev/python/timing/data/cpt-timing.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i3i3i_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h54_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h51_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_2iii_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_2ii2i_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h80_convergence_data.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps4-convergence-to-nmk-100.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps3.pkl",
+      "dev/python/slants/a-matrix-b-vector-changes/data/ps6.pkl",
+      "dev/python/convergence-study/e-region-convergence/data/",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h65_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_iii_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_i2ii_conv_data.pkl",
+      "dev/python/convergence-study/i-region-convergence/all-regions/data/",
+      "dev/python/limiting-cases/low-m0-capytaine.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps4-res-nmk-grid.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_ii2i_conv_data.pkl",
+      "dev/python/convergence-study/prediction/data/",
+      ".calkit/notebooks/html/analysis/sparsity_plots.html",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i2ii_conv_data.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps5-res-nmk-grid.pkl",
+      "pubs/JFM/figs/slant_figures.pdf",
+      "dev/python/slants/potential-visualizer/data/capytaine-point-values.pkl",
+      "dev/python/convergence-study/region-count-convergence/data/",
+      "pubs/JFM/figs/Matching_Diagram.pdf",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_2i2ii_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h52_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h55_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h56_convergence_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i2i2i_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_i4ii_conv_data.pkl",
+      "dev/python/convergence-study/early-work/nmk-per-region-data/h50_ii2i_conv_data.pkl",
+      "dev/python/slants/behavior-with-basic-meem/data/ps4-nmk-convergence-at-res-50.pkl",
+      "dev/python/convergence-study/neighbor-convergence-effects/outermost-e-neighbors/data/",
+      "dev/python/slants/pure-capytaine/data/cpt-slant-variations-2.pkl",
+      "analysis/data/",
+      "pubs/JFM/figs/Multi_MEEM_Diagram.pdf"
+    ]
+  }
+}

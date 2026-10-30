@@ -227,10 +227,7 @@ pubs/**/*.slo
 .calkit/notebooks/executed/analysis/*
 .calkit/notebooks/html/*
 .calkit/notebooks/html/analysis/*
-!.calkit/notebooks/executed/
-!.calkit/notebooks/executed/analysis/
 !.calkit/notebooks/executed/analysis/timing_data_generation.ipynb
-!.calkit/notebooks/
 !.calkit/notebooks/html/
 !.calkit/notebooks/html/analysis/
 !.calkit/notebooks/html/analysis/timing_data_generation.html
@@ -247,3 +244,9 @@ pubs/**/*.slo
 *.swn
 *.wan
 *.orn
+.calkit/*
+!.calkit/notebooks/
+!.calkit/notebooks/executed/
+!.calkit/notebooks/executed/analysis/
+!.calkit/notebooks/executed/analysis/test-latex.ipynb
+!.calkit/env-locks/

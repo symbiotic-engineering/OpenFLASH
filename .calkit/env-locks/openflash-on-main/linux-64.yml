@@ -1,6 +1,11 @@
 name: openflash-openflash-on-main
 channels:
   - conda-forge
+<<<<<<< HEAD
+=======
+  - sea-lab
+  - conda-pypi
+>>>>>>> origin/workflow-macos
 dependencies:
   - _openmp_mutex=4.5=20_gnu
   - _python_abi3_support=1.0=hd8ed1ab_3
@@ -278,6 +283,7 @@ dependencies:
   - xorg-libxrender=0.9.13=h7cc23a3_0
   - xorg-libxtst=1.2.6=h7cc23a3_0
   - xorg-libxxf86vm=1.1.7=hb03c661_0
+<<<<<<< HEAD
   - xorg-xorgproto=2025.1=hebe6cf0_3
   - yaml=0.2.5=hebe6cf0_3
   - zeromq=4.3.5=h901266b_12
@@ -285,3 +291,12 @@ dependencies:
   - zlib=1.3.2=h25fd6f3_3
   - zlib-ng=2.3.3=hce19668_1
   - zstd=1.5.7=hb78ec9c_7
+=======
+  - xorg-xorgproto=2025.1=hb03c661_0
+  - yaml=0.2.5=h280c20c_3
+  - zeromq=4.3.5=h41580af_10
+  - zipp=3.23.1=pyhcf101f3_0
+  - zlib=1.3.2=h25fd6f3_2
+  - zlib-ng=2.3.3=hceb46e0_1
+  - zstd=1.5.7=hb78ec9c_6
+>>>>>>> origin/workflow-macos
