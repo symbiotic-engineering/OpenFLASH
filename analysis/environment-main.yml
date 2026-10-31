@@ -3,4 +3,10 @@ channels:
   - conda-forge
 dependencies:
   - sea-lab::open-flash>=v1.0.25
+  - pandas<3.0
+  - papermill
+  - c-compiler
+  - fortran-compiler
   - capytaine<3.0
+  - ipykernel
+  - pip
