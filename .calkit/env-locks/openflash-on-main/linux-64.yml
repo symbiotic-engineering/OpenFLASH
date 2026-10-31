@@ -1,6 +1,8 @@
 name: openflash-openflash-on-main
 channels:
   - conda-forge
+  - sea-lab
+  - conda-pypi
 dependencies:
   - _openmp_mutex=4.5=20_gnu
   - _python_abi3_support=1.0=hd8ed1ab_3
@@ -92,7 +94,7 @@ dependencies:
   - idna=3.20=pyh5ded981_0
   - importlib-metadata=10.0.0=pyh5ded981_0
   - ipykernel=7.4.0=pyh4a3486f_0
-  - ipython=9.17.1=pyh53cf698_0
+  - ipython=9.18.0=pyh53cf698_0
   - ipython_pygments_lexers=1.1.1=pyhd8ed1ab_0
   - itsdangerous=2.2.0=pyhd8ed1ab_1
   - jedi=0.20.1=pyh5ded981_0
@@ -101,13 +103,13 @@ dependencies:
   - jsonschema-specifications=2025.9.1=pyhcf101f3_0
   - jupyter_client=8.10.0=pyhcf101f3_0
   - jupyter_core=5.9.1=pyhc90fa1f_0
-  - kernel-headers_linux-64=4.18.0=he073ed8_9
+  - kernel-headers_linux-64=6.12.0=he073ed8_6
   - keyutils=1.6.3=h7cc23a3_1
   - kiwisolver=1.5.1=py313h2551ef2_3
   - krb5=1.22.2=hbc21106_2
   - lcms2=2.19.1=h9073bf1_3
   - ld_impl_linux-64=2.46.1=default_hbd61a6d_103
-  - lerc=4.2.0=hdb68285_0
+  - lerc=4.3.0=he78707d_0
   - libabseil=20260526.0=cxx17_h0dc7533_3
   - libaec=1.1.7=h659bb9a_0
   - libarrow=24.0.0=hcc2f0d9_11_cpu
@@ -244,7 +246,7 @@ dependencies:
   - python-dateutil=3.0.0=pyh5ded981_0
   - python-fastjsonschema=2.22.2=pyhcf101f3_0
   - python-gil=3.13.18=h4df99d1_100
-  - python-multipart=0.0.32=pyhcf101f3_0
+  - python-multipart=0.0.33=pyh5ded981_0
   - python-tzdata=2026.6=pyh5ded981_0
   - python_abi=3.13=9_cp313
   - pytz=2026.6=pyh5ded981_0
@@ -266,7 +268,7 @@ dependencies:
   - stack_data=0.6.3=pyhd8ed1ab_1
   - starlette=1.10.0=pyh5ded981_0
   - streamlit=1.66.1=pyhd8ed1ab_0
-  - sysroot_linux-64=2.28=h4ee821c_9
+  - sysroot_linux-64=2.39=hc4b9eeb_6
   - tenacity=9.2.1=pyh5ded981_0
   - tk=8.6.13=noxft_h1df4ec4_4
   - toml=0.10.2=pyhcf101f3_3
