@@ -29,6 +29,14 @@ environments:
       - README.md
       - LICENSE
       - CITATION.cff
+  openflash-on-main-tex:
+    kind: docker
+    path: main.Dockerfile
+    image: openflash-on-main-tex
+    registry: ghcr.io
+    description: openflash-on-main conda environment with TeXlive via Docker.
+    inputs:
+      - analysis/environment-main.yml
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda
@@ -123,7 +131,7 @@ pipeline:
     sparsity-figs:
       kind: jupyter-notebook
       notebook_path: analysis/sparsity_plots.ipynb
-      environment: openflash-on-main
+      environment: openflash-on-main-tex
       outputs:
         - pubs/JFM/figs/A_sparsity_plot.pdf
         - pubs/JFM/figs/B_sparsity_plot.pdf
