@@ -223,6 +223,7 @@ pubs/**/*.glo-abr
 pubs/**/*.ist
 pubs/**/*.mw
 pubs/**/*.slo
+pubs/**/*.pag
 
 .calkit/*
 .calkit/notebooks/*

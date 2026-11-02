@@ -31,7 +31,7 @@ pipeline:
         - analysis/capytaine_generator.py
         - analysis/sea-lab-utils
       outputs:
-        - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
     low-m0-figs:
       kind: jupyter-notebook
       notebook_path: analysis/low_m0_plots.ipynb
@@ -41,7 +41,7 @@ pipeline:
         - dev/python/limiting-cases/low_m0.py
         - analysis/sea-lab-utils
       outputs:
-        - pubs/JFM/figs/MEEM-Low-Freq.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Low-Freq.pdf
 
     # slant-data-manual:
     #   kind: jupyter-notebook
@@ -65,10 +65,10 @@ pipeline:
         - analysis/data/potential-slants.pkl
         - analysis/sea-lab-utils
       outputs:
-        - pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
-        - pubs/JFM/figs/Vary-Slopes.pdf
-        - pubs/JFM/figs/Along-Outline.pdf
-        - pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Slant-Freq.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Vary-Slopes.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Along-Outline.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Cross-Section-Potential-Slant.pdf
 
     timing-data:
       kind: jupyter-notebook
@@ -89,9 +89,9 @@ pipeline:
         - analysis/data/timing.pkl
         - analysis/sea-lab-utils
       outputs:
-        - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
-        - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
-        - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Comp-Distribution.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Speed-Comparison.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
 
     convergence-figs:
       kind: jupyter-notebook
@@ -100,32 +100,32 @@ pipeline:
       inputs:
         - analysis/sea-lab-utils
       outputs:
-        - pubs/JFM/figs/alpha-beta-explanation.pdf
-        - pubs/JFM/figs/alpha-beta-to-trend.pdf
-        - pubs/JFM/figs/convergence-fit-assessment.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/alpha-beta-explanation.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/alpha-beta-to-trend.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/convergence-fit-assessment.pdf
     #
     sparsity-figs:
       kind: jupyter-notebook
       notebook_path: analysis/sparsity_plots.ipynb
       environment: openflash-on-main
       outputs:
-        - pubs/JFM/figs/A_sparsity_plot.pdf
-        - pubs/JFM/figs/B_sparsity_plot.pdf
-        - pubs/JFM/figs/C_sparsity_plot.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/A_sparsity_plot.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/B_sparsity_plot.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/C_sparsity_plot.pdf
     graphical-abstract:
       kind: latex
-      target_path: pubs/JFM/figs/graph_abstract.tex
+      target_path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/graph_abstract.tex
       environment: tex
       outputs:
-        - pubs/JFM/figs/graph_abstract.pdf
-        - pubs/JFM/figs/graph_abstract.log
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/graph_abstract.pdf
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/graph_abstract.log
     compile-wiley:
       kind: latex
       target_path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Optimal-Design-layout.tex
       environment: tex
       inputs:
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Fonts/
-        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/images/
+        - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/algorithm.sty
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/algorithmicx.sty
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/amssymb.sty
@@ -142,30 +142,30 @@ pipeline:
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/wileyNJD-Chicago.bst
       outputs:
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Optimal-Design-layout.pdf
-    compile-jfm:
-      kind: latex
-      target_path: pubs/JFM/FLMguide.tex
-      environment: tex
-      aux_dir: aux
-      inputs:
-        - pubs/JFM/FLMguide.tex
-        - pubs/JFM/figs/
-        - pubs/JFM/JFM-FLM_Au.cls
-        - pubs/JFM/jfm.bib
-        - pubs/JFM/jfm.bst
-        - pubs/JFM/lineno-FLM.sty
-        - pubs/JFM/zotero-meem-refs.bib
-        - pubs/JFM/becca-zotero-refs.bib
-        - pubs/JFM/jfm-appendix.tex
-        - pubs/JFM/glossary/glossary-symbols-jfm.tex
-        - pubs/JFM/glossary/glossary-symbols-shared.tex
-        - pubs/JFM/glossary/glossary-acronyms.tex
-        - pubs/JFM/glossary/glossary-setup.tex
-      outputs:
-        - pubs/JFM/FLMguide.pdf
+    # compile-jfm:
+    #   kind: latex
+    #   target_path: pubs/JFM/FLMguide.tex
+    #   environment: tex
+    #   aux_dir: aux
+    #   inputs:
+    #     - pubs/JFM/FLMguide.tex
+    #     - pubs/JFM/figs/
+    #     - pubs/JFM/JFM-FLM_Au.cls
+    #     - pubs/JFM/jfm.bib
+    #     - pubs/JFM/jfm.bst
+    #     - pubs/JFM/lineno-FLM.sty
+    #     - pubs/JFM/zotero-meem-refs.bib
+    #     - pubs/JFM/becca-zotero-refs.bib
+    #     - pubs/JFM/jfm-appendix.tex
+    #     - pubs/JFM/glossary/glossary-symbols-jfm.tex
+    #     - pubs/JFM/glossary/glossary-symbols-shared.tex
+    #     - pubs/JFM/glossary/glossary-acronyms.tex
+    #     - pubs/JFM/glossary/glossary-setup.tex
+    #   outputs:
+    #     - pubs/JFM/FLMguide.pdf
 
 publications:
-  - path: pubs/JFM/FLMguide.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/Optimal-Design-layout.pdf
     title: Numerics of the matched eigenfunction method for computing 
       wave forces on concentric bodies
     description:
@@ -174,39 +174,39 @@ publications:
   - path: pubs/joss/paper.md
 
 figures:
-  - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
     title: "Figure 5: Validation of MEEM vs Capytaine hydro coefficients"
     stage: validate-w-capy
-  - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Low-Freq.pdf
     title: "Figure 3: low frequency approximation"
     stage: low-m0-figs
-  - path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Slant-Freq.pdf
     stage: slant-figs
-  - path: pubs/JFM/figs/Vary-Slopes.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Vary-Slopes.pdf
     stage: slant-figs
-  - path: pubs/JFM/figs/Along-Outline.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Along-Outline.pdf
     stage: slant-figs
-  - path: pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Cross-Section-Potential-Slant.pdf
     stage: slant-figs
-  - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Comp-Distribution.pdf
     stage: timing-figs
-  - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Speed-Comparison.pdf
     stage: timing-figs
-  - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
     stage: timing-figs
-  - path: pubs/JFM/figs/alpha-beta-explanation.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/alpha-beta-explanation.pdf
     stage: convergence-figs
-  - path: pubs/JFM/figs/alpha-beta-to-trend.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/alpha-beta-to-trend.pdf
     stage: convergence-figs
-  - path: pubs/JFM/figs/convergence-fit-assessment.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/convergence-fit-assessment.pdf
     stage: convergence-figs
-  - path: pubs/JFM/figs/A_sparsity_plot.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/A_sparsity_plot.pdf
     stage: sparsity-figs
-  - path: pubs/JFM/figs/B_sparsity_plot.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/B_sparsity_plot.pdf
     stage: sparsity-figs
-  - path: pubs/JFM/figs/C_sparsity_plot.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/C_sparsity_plot.pdf
     stage: sparsity-figs
-  - path: pubs/JFM/figs/graph_abstract.pdf
+  - path: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/graph_abstract.pdf
     stage: graphical-abstract
     title: Graphical abstract
 
@@ -231,9 +231,9 @@ notebooks:
     title: Accuracy of Slanted geometries
 
 showcase:
-  - figure: pubs/JFM/figs/graph_abstract.pdf
-  - figure: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
-  - figure: pubs/JFM/figs/A_sparsity_plot.pdf
+  - figure: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/graph_abstract.pdf
+  - figure: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Speed-Comparison.pdf
+  - figure: pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/A_sparsity_plot.pdf
 
 references:
   - path: pubs/JFM/jfm.bib

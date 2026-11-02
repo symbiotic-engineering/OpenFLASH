@@ -2,7 +2,7 @@
 /empty-eps-converted-to.pdf
 /box.eps
 /empty.eps
-/images
+/images/*
 
 # >>> calkit latex aux files (managed by calkit) >>>
 *.acn
@@ -34,7 +34,6 @@
 *.nlo
 *.nls
 *.out
-*.pag
 *.run.xml
 *.snm
 *.spl
@@ -46,3 +45,21 @@
 *.xdv
 # <<< calkit latex aux files <<<
 /Optimal-Design-layout.pdf
+!figs/graph_abstract.log
+!/images/MEEM_vs_Capytaine_Nonslant_Validation.pdf
+!/images/MEEM-Low-Freq.pdf
+!/images/MEEM-CPT-Slant-Freq.pdf
+!/images/Vary-Slopes.pdf
+!/images/Along-Outline.pdf
+!/images/Cross-Section-Potential-Slant.pdf
+!/images/MEEM-Comp-Distribution.pdf
+!/images/MEEM-CPT-Speed-Comparison.pdf
+!/images/MEEM-CPT-Time-Matrix-Comparison.pdf
+!/images/alpha-beta-explanation.pdf
+!/images/alpha-beta-to-trend.pdf
+!/images/convergence-fit-assessment.pdf
+!/images/A_sparsity_plot.pdf
+!/images/B_sparsity_plot.pdf
+!/images/C_sparsity_plot.pdf
+!/images/graph_abstract.pdf
+/images
