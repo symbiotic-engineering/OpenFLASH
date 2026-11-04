@@ -61,8 +61,6 @@ stages:
       - .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
       - analysis/capytaine_generator.py
       - package/src/
-      - package/src
-      - pyproject.toml
       - .calkit/env-locks/openflash-on-branch
     outs:
       - analysis/data/timing.pkl
@@ -151,6 +149,7 @@ stages:
     cmd: calkit latex build -e tex --no-check --aux-dir tex-aux --latexmk-arg
       -interaction=nonstopmode pubs/JFM/FLMguide.tex
     deps:
+      - pubs/JFM/FLMguide.tex
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/
       - pubs/JFM/JFM-FLM_Au.cls
