@@ -1,4 +1,22 @@
 {
+  "build-jfm-paper": {
+    "start_time": "2026-11-04T23:18:28.060000",
+    "end_time": "2026-11-04T23:19:54.190000",
+    "environment": "tex",
+    "git_rev": "98f7b82e802c3491132b252800373d86897cf237",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:5fd7dc2ea9ec729e1d6c03c8df5e40596f224fe3ab6ffb1048d0e59b46999e41",
+    "calkit_version": "0.50.5",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
   "build-joss-paper": {
     "start_time": "2026-11-04T20:44:25.366000",
     "end_time": "2026-11-04T20:45:04.596000",

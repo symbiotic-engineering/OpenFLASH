@@ -572,3 +572,70 @@ stages:
       hash: md5
       md5: 7ddfcf9d698ecb5ee731dc8bedc9d363
       size: 2409560
+  build-jfm-paper:
+    cmd: calkit latex build -e tex --no-check --aux-dir tex-aux --latexmk-arg 
+      -interaction=nonstopmode pubs/JFM/FLMguide.tex
+    deps:
+    - path: .calkit/env-locks/tex
+      hash: md5
+      md5: c8f3502d253c9f6525cc551bb979c15e.dir
+      size: 2136
+      nfiles: 2
+    - path: pubs/JFM/FLMguide.tex
+      hash: md5
+      md5: f967aba8a9eb1d7da66bb4e34a079a37
+      size: 177938
+    - path: pubs/JFM/JFM-FLM_Au.cls
+      hash: md5
+      md5: 3c186eafc5523bfaca542e040d306b68
+      size: 77883
+    - path: pubs/JFM/becca-zotero-refs.bib
+      hash: md5
+      md5: ca032cb4dff2bd7bdd1e3b00011f132c
+      size: 3942
+    - path: pubs/JFM/figs/
+      hash: md5
+      md5: 28627a2dc04b442daeb7791a00d561c4.dir
+      size: 1419263
+      nfiles: 34
+    - path: pubs/JFM/glossary/glossary-acronyms.tex
+      hash: md5
+      md5: 4e0b1fe98ec37caf987500a565bb1d98
+      size: 11557
+    - path: pubs/JFM/glossary/glossary-setup.tex
+      hash: md5
+      md5: 7e3d37c2a6c5583bef0e52489d64e253
+      size: 9839
+    - path: pubs/JFM/glossary/glossary-symbols-jfm.tex
+      hash: md5
+      md5: 25a644d2b525976537b8d64399d95c4a
+      size: 41697
+    - path: pubs/JFM/glossary/glossary-symbols-shared.tex
+      hash: md5
+      md5: a6a4c6dab8e26715b370733a0bd74f27
+      size: 8348
+    - path: pubs/JFM/jfm-appendix.tex
+      hash: md5
+      md5: 6411826ea5752102ae6c57a2418f5dbd
+      size: 38014
+    - path: pubs/JFM/jfm.bib
+      hash: md5
+      md5: 94debb13be1e536dfceb909122f78e97
+      size: 4097
+    - path: pubs/JFM/jfm.bst
+      hash: md5
+      md5: 87ba130f623ab9634524ef0699935c72
+      size: 32331
+    - path: pubs/JFM/lineno-FLM.sty
+      hash: md5
+      md5: 99c3d5a9f0bdda44e752563df250e3ed
+      size: 3554
+    - path: pubs/JFM/zotero-meem-refs.bib
+      hash: md5
+      md5: 2b239e27c2b3fe0e1ff79c16314db608
+      size: 47709
+    outs:
+    - path: pubs/JFM/FLMguide.pdf
+      hash: md5
+      md5: 7ab0443c2286afbccd93b555315f2415
+      size: 1167358
