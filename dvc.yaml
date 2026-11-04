@@ -61,6 +61,8 @@ stages:
       - .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
       - analysis/capytaine_generator.py
       - package/src/
+      - package/src
+      - pyproject.toml
       - .calkit/env-locks/openflash-on-branch
     outs:
       - analysis/data/timing.pkl
@@ -88,12 +90,55 @@ stages:
           cache: true
     desc: Automatically generated from the 'timing-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
+  convergence-data-envelope:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html
+      "dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
+      - dev/python/convergence-study/helpers.py
+      - dev/python/multi_condensed.py
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+      - .calkit/notebooks/executed/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb:
+          cache: true
+      - .calkit/notebooks/html/dev/python/convergence-study/i-region-convergence/middle-region/envelope.html:
+          cache: true
+    desc: Automatically generated from the 'convergence-data-envelope' stage in
+      calkit.yaml. Changes made here will be overwritten.
+  convergence-data-prediction:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html
+      "dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
+      - dev/python/convergence-study/helpers.py
+      - dev/python/multi_condensed.py
+      - dev/python/convergence-study/prediction/prediction_evaluators.py
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+      - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
+      - .calkit/notebooks/executed/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb:
+          cache: true
+      - .calkit/notebooks/html/dev/python/convergence-study/i-region-convergence/middle-region/envelope.html:
+          cache: true
+    desc: Automatically generated from the 'convergence-data-prediction' stage
+      in calkit.yaml. Changes made here will be overwritten.
   convergence-figs:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/convergence-results.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
       - analysis/sea-lab-utils
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+      - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+      - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
       - .calkit/env-locks/openflash-on-branch-tex
     outs:
       - pubs/JFM/figs/alpha-beta-explanation.pdf
@@ -121,20 +166,6 @@ stages:
           cache: true
     desc: Automatically generated from the 'sparsity-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
-  test-latex:
-    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
-      html "analysis/test-latex.ipynb"
-    deps:
-      - .calkit/notebooks/cleaned/analysis/test-latex.ipynb
-      - analysis/sea-lab-utils
-      - .calkit/env-locks/openflash-on-branch-tex
-    outs:
-      - .calkit/notebooks/executed/analysis/test-latex.ipynb:
-          cache: false
-      - .calkit/notebooks/html/analysis/test-latex.html:
-          cache: true
-    desc: Automatically generated from the 'test-latex' stage in calkit.yaml.
-      Changes made here will be overwritten.
   graphical-abstract:
     cmd: calkit latex build -e tex --no-check pubs/JFM/figs/graph_abstract.tex
     deps:
@@ -149,7 +180,6 @@ stages:
     cmd: calkit latex build -e tex --no-check --aux-dir tex-aux --latexmk-arg
       -interaction=nonstopmode pubs/JFM/FLMguide.tex
     deps:
-      - pubs/JFM/FLMguide.tex
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/
       - pubs/JFM/JFM-FLM_Au.cls

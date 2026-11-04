@@ -46,6 +46,7 @@ environments:
   
 pipeline:
   stages:
+    #################################### CAPYTAINE COMPARISON ####################################
     validate-w-capy:
       kind: jupyter-notebook
       notebook_path: analysis/validation_with_capytaine_plots.ipynb
@@ -56,6 +57,8 @@ pipeline:
         - analysis/sea-lab-utils
       outputs:
         - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
+    
+    #################################### LOW FREQUENCY ####################################
     low-m0-figs:
       kind: jupyter-notebook
       notebook_path: analysis/low_m0_plots.ipynb
@@ -67,6 +70,8 @@ pipeline:
       outputs:
         - pubs/JFM/figs/MEEM-Low-Freq.pdf
 
+    #################################### SLANT ####################################
+    # commented out because it takes a long time to run
     # slant-data-manual:
     #   kind: jupyter-notebook
     #   notebook_path: analysis/slant_data_generation.ipynb
@@ -79,6 +84,7 @@ pipeline:
     #     - analysis/data/slants.pkl
     #     - analysis/data/slope-slants.pkl
     #     - analysis/data/potential-slants.pkl
+
     slant-figs:
       kind: jupyter-notebook
       notebook_path: analysis/slant_data_plots.ipynb
@@ -94,6 +100,7 @@ pipeline:
         - pubs/JFM/figs/Along-Outline.pdf
         - pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
 
+    #################################### TIMING ####################################
     timing-data:
       kind: jupyter-notebook
       notebook_path: analysis/timing_data_generation.ipynb
@@ -105,6 +112,7 @@ pipeline:
         - package/src/
       outputs:
         - analysis/data/timing.pkl
+
     timing-figs:
       kind: jupyter-notebook
       notebook_path: analysis/timing_plots.ipynb
@@ -117,32 +125,54 @@ pipeline:
         - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
         - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
 
+    #################################### CONVERGENCE ####################################
+    convergence-data-envelope:
+      kind: jupyter-notebook
+      notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
+      environment: openflash-on-branch
+      inputs:
+        - dev/python/convergence-study/helpers.py
+        - dev/python/multi_condensed.py
+      outputs:
+        - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+
+    convergence-data-prediction:
+      kind: jupyter-notebook
+      notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
+      environment: openflash-on-branch
+      inputs:
+        - dev/python/convergence-study/helpers.py
+        - dev/python/multi_condensed.py
+        - dev/python/convergence-study/prediction/prediction_evaluators.py
+      outputs:
+        - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+        - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
+
     convergence-figs:
       kind: jupyter-notebook
       notebook_path: analysis/convergence-results.ipynb
       environment: openflash-on-branch-tex
       inputs:
         - analysis/sea-lab-utils
+        - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+        - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+        - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
       outputs:
         - pubs/JFM/figs/alpha-beta-explanation.pdf
         - pubs/JFM/figs/alpha-beta-to-trend.pdf
         - pubs/JFM/figs/convergence-fit-assessment.pdf
-    #
+    
+    #################################### SPARSITY ####################################
     sparsity-figs:
       kind: jupyter-notebook
       notebook_path: analysis/sparsity_plots.ipynb
-      environment: openflash-on-main-tex
+      environment: openflash-on-main-tex # I wouldn't expect this to need tex but it does?
       outputs:
         - pubs/JFM/figs/A_sparsity_plot.pdf
         - pubs/JFM/figs/B_sparsity_plot.pdf
         - pubs/JFM/figs/C_sparsity_plot.pdf
-    test-latex:
-      kind: jupyter-notebook
-      notebook_path: analysis/test-latex.ipynb
-      environment: openflash-on-branch-tex
-      inputs:
-        - analysis/sea-lab-utils
-      executed_ipynb_storage: git
+
+    #################################### JFM PAPER ####################################
     graphical-abstract:
       kind: latex
       target_path: pubs/JFM/figs/graph_abstract.tex
@@ -150,6 +180,7 @@ pipeline:
       outputs:
         - pubs/JFM/figs/graph_abstract.pdf
         - pubs/JFM/figs/graph_abstract.log
+
     compile-overleaf:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex
@@ -177,10 +208,13 @@ publications:
   - path: pubs/JFM/FLMguide.pdf
     title: Numerics of the matched eigenfunction method for computing 
       wave forces on concentric bodies
-    description:
+    description: Paper on MEEM numerics, submitted to Journal of Fluid Mechanics
     kind: journal-article
     stage: compile-overleaf
   - path: pubs/joss/paper.md
+    title: "OpenFLASH: An open-source flexible library for analytical and semi-analytical hydrodynamics calculations"
+    description: Paper on MEEM software design, submitted to Journal of Open Source Software
+    kind: journal-article
 
 figures:
   - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
