@@ -466,6 +466,21 @@ stages:
       md5: 2f5861633eb175984c67f748edb3d79d.dir
       size: 15530
       nfiles: 20
+    - path: 
+        dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+      hash: md5
+      md5: d2417aed1d05400304c96cc7de3196f5
+      size: 1308030
+    - path: 
+        dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
+      hash: md5
+      md5: ddc3bea1331d91ff3d62d7b7df3c84b3
+      size: 6917562
+    - path: 
+        dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+      hash: md5
+      md5: 78f909357b3425b8c1d1731448942d21
+      size: 20776735
     outs:
     - path: .calkit/notebooks/executed/analysis/convergence-results.ipynb
       hash: md5
