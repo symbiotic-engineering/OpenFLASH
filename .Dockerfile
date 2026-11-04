@@ -75,16 +75,11 @@ find "$ENV_PREFIX" -name '*.a' -delete
 EOF
 
 # Calkit's TinyTeX image, about 0.4 GB compressed versus 2.8 GB for TeX Live
-# full. Pinned by digest so a rebuild doesn't pick up a new base, which would
-# mean pushing every layer again
-FROM ghcr.io/calkit/latex:0.1.7@sha256:1fd30a539762cecfca5be9f1e63201593012c08d1103e4155d51dc252d418aaf
+# full, which includes what Matplotlib's text.usetex needs. Pinned by digest
+# so a rebuild doesn't pick up a new base, which would mean pushing every
+# layer again
+FROM ghcr.io/calkit/latex:0.1.8@sha256:711a840402dd7c5a06bb630d1d1ffd19595d42253939609b0c00dec1bf3762d3
 ARG ENV_PREFIX
-
-# What Matplotlib's text.usetex needs beyond the base image. dvipng is a
-# compiled tool, so it can't be fetched on demand
-RUN tlmgr update --self \
- && tlmgr install dvipng type1cm underscore \
- && find /opt/.TinyTeX ! -perm -a+r -exec chmod a+rX {} +
 
 # Same path as in the builder, since Conda environments aren't relocatable
 COPY --from=builder $ENV_PREFIX $ENV_PREFIX
