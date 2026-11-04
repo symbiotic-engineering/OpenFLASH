@@ -386,7 +386,7 @@ stages:
       size: 22632
     - path: analysis/data/timing.pkl
       hash: md5
-      md5: 43a7f22ab6dcc347bd716f6504531acf
+      md5: d1bcf9620a298c6f9c3c9e6269cb84ee
       size: 3974
     - path: analysis/sea-lab-utils
       hash: md5
@@ -396,24 +396,24 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: 39b2bb153c09282d8030bb8a7e664be2
-      size: 440871
+      md5: e296a9158b3ef396ec99d5d5cb4c117f
+      size: 456577
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
-      md5: 38d3d3907df81627a167375a02678241
-      size: 796605
+      md5: 0307250a56025e75c563a745711cbd5d
+      size: 812310
     - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: 10a546715c1dbff28e3b51f8eb6baca3
-      size: 46330
+      md5: 778af60b7887f6460100739d11155266
+      size: 46775
     - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: e0f6adf62df3f9a0ab4f2074cf21c13b
-      size: 41759
+      md5: 21db32be333ae21c346d1ee116018042
+      size: 41750
     - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: 30b8faa6b733763b264b073338008e10
-      size: 73310
+      md5: 262da4ba34f3e3e45a3c75f8ab73b10b
+      size: 73573
   sparsity-figs:
     cmd: calkit nb execute --environment openflash-on-main-tex --no-check --to 
       html "analysis/sparsity_plots.ipynb"

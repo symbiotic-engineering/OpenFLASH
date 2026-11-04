@@ -158,14 +158,3 @@ stages:
       - pubs/JFM/FLMguide.pdf
     desc: Automatically generated from the 'build-jfm-paper' stage in
       calkit.yaml. Changes made here will be overwritten.
-  build-joss-paper:
-    cmd: calkit xenv -n joss-docker --no-check -- -o pdf pubs/joss/paper.md
-    deps:
-      - pubs/joss/paper.md
-      - pubs/joss/paper.bib
-      - pubs/figs/
-      - .calkit/env-locks/joss-docker
-    outs:
-      - pubs/joss/paper.pdf
-    desc: Automatically generated from the 'build-joss-paper' stage in
-      calkit.yaml. Changes made here will be overwritten.
