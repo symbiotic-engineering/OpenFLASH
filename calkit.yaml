@@ -10,12 +10,12 @@ environments:
     kind: docker
     image: texlive/texlive:latest-full
     description: TeXlive via Docker.
-  joss-docker:
-    kind: docker
-    image: openjournals/inara:latest
-    command_mode: entrypoint
-    env_vars:
-      JOURNAL: joss
+  # joss-docker:
+  #   kind: docker
+  #   image: openjournals/inara:latest
+  #   command_mode: entrypoint
+  #   env_vars:
+  #     JOURNAL: joss
   openflash-on-branch:
     path: analysis/environment-branch.yml
     kind: conda
@@ -208,16 +208,16 @@ pipeline:
       outputs:
         - pubs/JFM/FLMguide.pdf
 
-    build-joss-paper:
-      kind: command
-      environment: joss-docker
-      command: -o pdf pubs/joss/paper.md
-      inputs:
-        - pubs/joss/paper.md
-        - pubs/joss/paper.bib
-        - pubs/figs/
-      outputs:
-        - pubs/joss/paper.pdf
+    # build-joss-paper:
+    #   kind: command
+    #   environment: joss-docker
+    #   command: -o pdf pubs/joss/paper.md
+    #   inputs:
+    #     - pubs/joss/paper.md
+    #     - pubs/joss/paper.bib
+    #     - pubs/figs/
+    #   outputs:
+    #     - pubs/joss/paper.pdf
 
 publications:
   - path: pubs/JFM/FLMguide.pdf
@@ -226,11 +226,11 @@ publications:
     description: Paper on MEEM numerics, submitted to Journal of Fluid Mechanics
     kind: journal-article
     stage: build-jfm-paper
-  - path: pubs/joss/paper.pdf
+  - path: pubs/joss/paper.md
     title: "OpenFLASH: An open-source flexible library for analytical and semi-analytical hydrodynamics calculations"
     description: Paper on MEEM software design, submitted to Journal of Open Source Software
     kind: journal-article
-    stage: build-joss-paper
+    # stage: build-joss-paper
 
 figures:
   - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
