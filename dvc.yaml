@@ -154,6 +154,7 @@ stages:
       - pubs/JFM/glossary/glossary-acronyms.tex
       - pubs/JFM/glossary/glossary-setup.tex
       - .calkit/env-locks/tex
+      - pubs/JFM/glossary/no-appendix-glossary.tex
     outs:
       - pubs/JFM/FLMguide.pdf
     desc: Automatically generated from the 'build-jfm-paper' stage in
