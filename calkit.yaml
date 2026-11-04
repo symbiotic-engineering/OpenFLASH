@@ -126,27 +126,27 @@ pipeline:
         - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
 
     #################################### CONVERGENCE ####################################
-    convergence-data-envelope:
-      kind: jupyter-notebook
-      notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
-      environment: openflash-on-branch
-      inputs:
-        - dev/python/convergence-study/helpers.py
-        - dev/python/multi_condensed.py
-      outputs:
-        - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+    # convergence-data-envelope:
+    #   kind: jupyter-notebook
+    #   notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
+    #   environment: openflash-on-branch
+    #   inputs:
+    #     - dev/python/convergence-study/helpers.py
+    #     - dev/python/multi_condensed.py
+    #   outputs:
+    #     - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
 
-    convergence-data-prediction:
-      kind: jupyter-notebook
-      notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
-      environment: openflash-on-branch
-      inputs:
-        - dev/python/convergence-study/helpers.py
-        - dev/python/multi_condensed.py
-        - dev/python/convergence-study/prediction/prediction_evaluators.py
-      outputs:
-        - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
-        - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
+    # convergence-data-prediction:
+    #   kind: jupyter-notebook
+    #   notebook_path: dev/python/convergence-study/prediction/all-random-generator.ipynb
+    #   environment: openflash-on-branch
+    #   inputs:
+    #     - dev/python/convergence-study/helpers.py
+    #     - dev/python/multi_condensed.py
+    #     - dev/python/convergence-study/prediction/prediction_evaluators.py
+    #   outputs:
+    #     - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+    #     - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
 
     convergence-figs:
       kind: jupyter-notebook
