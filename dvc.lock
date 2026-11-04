@@ -213,27 +213,27 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
       hash: md5
-      md5: 1e40d11fd2eefdcbbc4e156b0153f013.dir
-      size: 2779
+      md5: 8e5ac367b34f49274281c62434e41807.dir
+      size: 2866
       nfiles: 1
     - path: .calkit/notebooks/cleaned/analysis/test-latex.ipynb
       hash: md5
-      md5: 42b2bcc4fc7904f7320328006a722e72
-      size: 2044
+      md5: edbc5d8a20b7b6417f58463bd11affb1
+      size: 2015
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 3b6a1695933c1cbeadb167812effac26.dir
-      size: 14988
+      md5: 2f5861633eb175984c67f748edb3d79d.dir
+      size: 15530
       nfiles: 20
     outs:
     - path: .calkit/notebooks/executed/analysis/test-latex.ipynb
       hash: md5
-      md5: c4fa54733468023c211e38055c871b59
+      md5: adf7760c04e0a0766901a0db317f5a63
       size: 4899
     - path: .calkit/notebooks/html/analysis/test-latex.html
       hash: md5
-      md5: 3044494d054f0b335da1c0bc691d9c3d
-      size: 282704
+      md5: f558885a336a5d6fca72b80e07d9bf93
+      size: 290613
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
