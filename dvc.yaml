@@ -148,8 +148,8 @@ stages:
     desc: Automatically generated from the 'graphical-abstract' stage in
       calkit.yaml. Changes made here will be overwritten.
   compile-overleaf:
-    cmd: calkit latex build -e tex --no-check --aux-dir aux
-      pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check --aux-dir tex-aux --latexmk-arg
+      -interaction=nonstopmode pubs/JFM/FLMguide.tex
     deps:
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/
@@ -165,6 +165,7 @@ stages:
       - pubs/JFM/glossary/glossary-acronyms.tex
       - pubs/JFM/glossary/glossary-setup.tex
       - .calkit/env-locks/tex
+      - pubs/JFM/glossary/no-appendix-glossary.tex
     outs:
       - pubs/JFM/FLMguide.pdf
     desc: Automatically generated from the 'compile-overleaf' stage in

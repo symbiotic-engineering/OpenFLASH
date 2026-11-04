@@ -20,22 +20,18 @@ stages:
       md5: da2778aa10b978a61b883bae86c4a4d3
       size: 3330
   compile-overleaf:
-    cmd: calkit latex build -e tex --no-check --aux-dir aux 
-      pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check --aux-dir tex-aux --latexmk-arg 
+      -interaction=nonstopmode pubs/JFM/FLMguide.tex
     deps:
     - path: .calkit/env-locks/tex
       hash: md5
-      md5: 1d20723629fc752e4776c7e1d6cb328e.dir
-      size: 1147
-      nfiles: 1
+      md5: c8f3502d253c9f6525cc551bb979c15e.dir
+      size: 2136
+      nfiles: 2
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: 402b504fb86e26160815418f4e295630
-      size: 177309
-    - path: pubs/JFM/FLMguide.tex
-      hash: md5
-      md5: 402b504fb86e26160815418f4e295630
-      size: 177309
+      md5: b18267a583401a35b0fdc3f08a19faa7
+      size: 177585
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -46,29 +42,33 @@ stages:
       size: 3942
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 12b3e9b8202d5d55bd5767fc45b11a3a.dir
-      size: 1398875
-      nfiles: 30
+      md5: 15c3685c2d040de411b59823ba74cbb6.dir
+      size: 1418564
+      nfiles: 34
     - path: pubs/JFM/glossary/glossary-acronyms.tex
       hash: md5
-      md5: 3b5ca1496a769fb51f0082cc05b46a02
-      size: 10610
+      md5: 4e0b1fe98ec37caf987500a565bb1d98
+      size: 11557
     - path: pubs/JFM/glossary/glossary-setup.tex
       hash: md5
-      md5: 935e45c2bf22bedfe1525ce9e8fd8cdb
-      size: 11988
+      md5: 861fc32f82d70c6227a3e9a6aeb30936
+      size: 10157
     - path: pubs/JFM/glossary/glossary-symbols-jfm.tex
       hash: md5
-      md5: 5bc23491580f58eaad258883b9dcb9fa
-      size: 39124
+      md5: eb04372b8b22ed4eee27c8fe0e9613e8
+      size: 41451
     - path: pubs/JFM/glossary/glossary-symbols-shared.tex
       hash: md5
-      md5: 0ea9cb1c6c924f65bced23c7c0b27937
-      size: 6820
+      md5: a6a4c6dab8e26715b370733a0bd74f27
+      size: 8348
+    - path: pubs/JFM/glossary/no-appendix-glossary.tex
+      hash: md5
+      md5: e1e5f891252c28a7e27425930ff7a26c
+      size: 3141
     - path: pubs/JFM/jfm-appendix.tex
       hash: md5
-      md5: 39851222e293effdc1adc39a44822569
-      size: 34418
+      md5: 6411826ea5752102ae6c57a2418f5dbd
+      size: 38014
     - path: pubs/JFM/jfm.bib
       hash: md5
       md5: 94debb13be1e536dfceb909122f78e97
@@ -88,8 +88,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 4bdd883774a1ff31a0aabd95733d9200
-      size: 1159192
+      md5: 6eef3632c1f787ee4d191bb670dbe0c6
+      size: 1165562
   validate-w-capy:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/validation_with_capytaine_plots.ipynb"

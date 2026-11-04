@@ -1,4 +1,22 @@
 {
+  "compile-overleaf": {
+    "start_time": "2026-11-04T17:58:56.685000",
+    "end_time": "2026-11-04T18:01:31.424000",
+    "environment": "tex",
+    "git_rev": "ebdb6cf69359d8c660e9d5ee45c3a5f2c8b8b2c2",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:320a9ed798e66fd4c5b5a29797f7fcd6f72dba6c2c107a75931a9abf34a1ae11",
+    "calkit_version": "0.50.6.dev43+g46b61496",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
   "convergence-figs": {
     "start_time": "2026-10-31T20:36:46.900000",
     "end_time": "2026-10-31T20:38:43.659000",
