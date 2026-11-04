@@ -30,11 +30,7 @@ environments:
     description: openflash-on-branch conda environment with TeXlive via Docker.
     inputs:
       - analysis/environment-branch.yml
-      - package/src
       - pyproject.toml
-      - README.md
-      - LICENSE
-      - CITATION.cff
   openflash-on-main-tex:
     kind: docker
     path: main.Dockerfile
@@ -96,6 +92,7 @@ pipeline:
       notebook_path: analysis/slant_data_plots.ipynb
       environment: openflash-on-branch-tex
       inputs:
+        - package/src/
         - analysis/data/slants.pkl
         - analysis/data/slope-slants.pkl
         - analysis/data/potential-slants.pkl
@@ -122,6 +119,7 @@ pipeline:
       notebook_path: analysis/timing_plots.ipynb
       environment: openflash-on-branch-tex
       inputs:
+        - package/src/
         - analysis/data/timing.pkl
         - analysis/sea-lab-utils
       outputs:
@@ -157,6 +155,7 @@ pipeline:
       notebook_path: analysis/convergence-results.ipynb
       environment: openflash-on-branch-tex
       inputs:
+        - package/src/
         - analysis/sea-lab-utils
         - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
         - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
