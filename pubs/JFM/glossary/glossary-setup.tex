@@ -1,7 +1,14 @@
 \ifdefined\DISSERTATION
 \else
-  % glossary counter to avoid entries only used in the appendix
-  \input{glossary/no-appendix-glossary.tex}
+  \ifdefined\whichjournal
+  \ifthenelse{\equal{\whichjournal}{Applied Ocean Research}}
+  {
+    \input{glossary/no-appendix-glossary.tex}
+    % glossary counter to avoid entries only used in the appendix
+  }{}
+  \else
+      
+  \fi
 \fi
 
 \newcommand\mynewglossary[4]{
@@ -275,22 +282,35 @@
     }%
   }{}%
   \edef\newsym@sortkey{\mysortkey{#1}}%
-  \IfNoValueTF{#4}{%
-    \newglossaryentry{sym-#1}{
-      name={\ensuremath{#2}},
-      category={symbol},
-      sort={\newsym@sortkey},
-      type={sym-\mysymgroup{#1}},
-      description={#3}}%
-  }{%
-    \newglossaryentry{sym-#1}{
+  \ifdefined\whichjournal
+  \ifthenelse{\equal{\whichjournal}{Applied Ocean Research}}
+  {
+    \IfNoValueTF{#4}{%
+      \newglossaryentry{sym-#1}{
+        name={\ensuremath{#2}},
+        category={symbol},
+        sort={\newsym@sortkey},
+        type={sym-\mysymgroup{#1}},
+        description={#3}}%
+    }{%
+      \newglossaryentry{sym-#1}{
       name={\ensuremath{#2}},
       category={symbol},
       sort={\newsym@sortkey},
       type={alias-sym-\mysymgroup{#1}},
       description={#3},
       alias={sym-#4}}%
-  }%
+      }%
+  }{}
+  \else
+      \newglossaryentry{sym-#1}{
+        name={\ensuremath{#2}},
+        category={symbol},
+        sort={\newsym@sortkey},
+        type={sym-\mysymgroup{#1}},
+        description={#3}}%
+  \fi  
+  
 }
 \makeatother
 
