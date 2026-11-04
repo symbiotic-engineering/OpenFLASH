@@ -712,7 +712,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
         \gls{sym-vec-Z-i-m} \mathrm{d}\gls{sym-z}$
     \\ \hline
     \end{tabular}
-    \caption{\glsfmttext{acr-meem} $\gls{sym-vec-b-m}$ vector when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m-1} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m} = \gls{sym-mathrm-t}$). 
+    \caption{\glsxtrshort{acr-meem} $\gls{sym-vec-b-m}$ vector when $\gls{sym-d-m}<\gls{sym-d-m-1}$ ($\gls{sym-i-m-1} = \gls{sym-mathrm-s}$ and $\gls{sym-i-m} = \gls{sym-mathrm-t}$). 
     Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-r}=\gls{sym-a-m}$.}
     \label{jfm:tab:MEEM-b_m-vector-case-2}
 \end{table}
@@ -863,7 +863,7 @@ where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vecto
     \end{matrix}\right. ,
 \end{equation}
 for $2\le \gls{sym-m-region} \le \gls{sym-M-regions}$, and $\gls{sym-vec-c-p-e} = \vec{0}_{\gls{sym-N-e}}$. 
-Note that $\vec{0}_{\gls{sym-k-generic-index}}$ denotes a $\gls{sym-k-generic-index}$-long row vector of zeros and $\vec{\mathcal{R}}_{\chi}^{j}$ is a vector of integrals of radial eigenfunctions for region $\gls{sym-j}$ with closed form solutions in Appendix~\ref{jfm:appC}. 
+Note that $\vec{0}_{\gls{sym-k-generic-index}}$ denotes a $\gls{sym-k-generic-index}$-long row vector of zeros and \gls{sym-vec-mathcal-R-chi-j} is a vector of integrals of radial eigenfunctions for region $\gls{sym-j}$ with closed form solutions in Appendix~\ref{jfm:appC}. 
 The vector $\gls{sym-vec-c-p}$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $\gls{sym-m-region}$th region in the $\gls{sym-vec-x-q}$ vector in Eq.~\ref{jfm:A_pq B_pq scalar form}. 
 By applying Eq.~\ref{jfm:A_pq B_pq scalar form} for $\gls{sym-q-dof}=1,2,\dots, \gls{sym-Q-dof}$ and $\gls{sym-p-dof}=1,2,\dots, \gls{sym-Q-dof}$, we can express the added mass matrix $\gls{sym-mathbf-A-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q-dof} \times \gls{sym-Q-dof}}$ and radiation damping matrix $\gls{sym-mathbf-B-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q-dof} \times \gls{sym-Q-dof}}$ as
 \begin{equation}\label{jfm:A_pq B_pq matrix form}
@@ -908,7 +908,7 @@ The element in the $\gls{sym-q-dof}$th row and $\gls{sym-q-dof}$th column of $\g
 where $\gls{sym-W-m}= \gls{sym-pi} \gls{sym-a-m}^2$ for $\gls{sym-m-region}=1$ and $\gls{sym-W-m}= \gls{sym-pi}(\gls{sym-a-m}^2-\gls{sym-a-m-1-2}^2)$ otherwise.
 If we assume the configuration in Fig.~\ref{jfm:fig:Diagram} is in static equilibrium such that the gravitational force balances the buoyancy force, the element in the $\gls{sym-q-dof}$th row and $\gls{sym-q-dof}$th column of $\gls{sym-mathbf-M}$, is
 \begin{equation}\label{jfm:eq:mass matrix}
-    [\gls{sym-mathbf-M}]_{qq}= \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}\gls{sym-d-m}.
+    [\gls{sym-mathbf-M}]_{\gls{sym-q-dof}\gls{sym-q-dof}}= \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}\gls{sym-d-m}.
 \end{equation}
 This is the mass of the $\gls{sym-q-dof}$th body.
 Once all matrices are found, one can construct the equation of motion of the system for regular waves
@@ -1018,7 +1018,7 @@ $\gls{sym-I-nu-e}(\gls{sym-z}) = \gls{sym-I-nu}(\gls{sym-z}) \cdot e^{-\gls{sym-
 $\displaystyle\frac{\gls{sym-I-nu}(\gls{sym-lambda} \gls{sym-r})}{\gls{sym-I-nu}(\gls{sym-lambda} \gls{sym-a-generic-radius})} = \frac{\gls{sym-I-nu-e} (\gls{sym-lambda} \gls{sym-r})}{\gls{sym-I-nu-e}(\gls{sym-lambda} \gls{sym-a-generic-radius})}\cdot e^{\gls{sym-lambda}(\gls{sym-r}-\gls{sym-a-generic-radius})}$\\
 \hline
 $\gls{sym-K-nu-e}(\gls{sym-z}) = \gls{sym-K-nu}(\gls{sym-z}) \cdot e^{\gls{sym-z}}$ &
-$\displaystyle\frac{K_{\nu}(\gls{sym-lambda} \gls{sym-r})}{\gls{sym-K-nu}(\gls{sym-lambda} \gls{sym-a-generic-radius})} = \frac{\gls{sym-K-nu-e} (\gls{sym-lambda} \gls{sym-r})}{\gls{sym-K-nu-e}(\gls{sym-lambda} \gls{sym-a-generic-radius})}\cdot e^{\gls{sym-lambda}(\gls{sym-a-generic-radius}-\gls{sym-r})}$\\
+$\displaystyle\frac{\gls{sym-K-nu}(\gls{sym-lambda} \gls{sym-r})}{\gls{sym-K-nu}(\gls{sym-lambda} \gls{sym-a-generic-radius})} = \frac{\gls{sym-K-nu-e} (\gls{sym-lambda} \gls{sym-r})}{\gls{sym-K-nu-e}(\gls{sym-lambda} \gls{sym-a-generic-radius})}\cdot e^{\gls{sym-lambda}(\gls{sym-a-generic-radius}-\gls{sym-r})}$\\
 \hline
 \end{tabular}
 \caption{Typical Bessel functions ($\gls{sym-I-nu}(\gls{sym-z}), \gls{sym-K-nu}(\gls{sym-z})$) exhibit approximately exponential growth or decay.
@@ -1109,7 +1109,7 @@ This is a consequence of Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec}
     \hfill
     \begin{subfigure}{0.09\textwidth}
         \includegraphics[width=\textwidth]{figs/C_sparsity_plot.pdf}
-        \caption{$\mathbf{C}^{\top}$}
+        \caption{$\gls{sym-mathbf-C}^{\top}$}
         \label{jfm:fig:sparsityC}
     \end{subfigure}
     \caption{Sparsity pattern in the $\gls{sym-mathbf-A}$, $\gls{sym-mathbf-B}$, and $\gls{sym-mathbf-C}$ matrices.
@@ -1119,7 +1119,7 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebook
 
 
 \subsection{Validation}\label{jfm:sec:validation}
-The added mass $\gls{sym-A-h-11}(\gls{sym-omega})$, radiation damping $B_{11}(\gls{sym-omega})$, excitation magnitude $|\gls{sym-X-1}(\gls{sym-omega})|$, and excitation phase $\angle \gls{sym-X-1}(\gls{sym-omega})$ 
+The added mass $\gls{sym-A-h-11}(\gls{sym-omega})$, radiation damping $\gls{sym-B-h-11}(\gls{sym-omega})$, excitation magnitude $|\gls{sym-X-1}(\gls{sym-omega})|$, and excitation phase $\angle \gls{sym-X-1}(\gls{sym-omega})$ 
 from \gls{acr-meem} and Capytaine, an open-source \gls{acr-bem} software, are compared over a range of frequencies for a heaving single-body CorPower-like \gls{acr-wec} geometry from \citet{faedo2021energy}. 
 This is shown in Fig.~\ref{jfm:fig:hydro coeff validation}. 
 Note that the geometry is simplified in the \gls{acr-meem} and Capytaine models so that it consists of two heaving surface-piercing compound annual cylinders that are rigidly fixed to one another. 
@@ -1136,7 +1136,7 @@ and the trade-offs between accuracy and computation time for \gls{acr-meem} and 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf}
-    \caption{Added mass, radiation damping, excitation magnitude, and excitation phase from \gls{acr-meem} and Capytaine for CorPower-like \gls{acr-wec} without slanted portions.
+    \caption{Added mass, radiation damping, excitation magnitude, and excitation phase from \glsxtrshort{acr-meem} and Capytaine for CorPower-like \glsxtrshort{acr-wec} without slanted portions.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM_vs_Capytaine_Nonslant_Validation.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:hydro coeff validation}
 \end{figure} 
@@ -1242,34 +1242,34 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 $\gls{sym-alpha-A-i-m-1}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\begin{cases}
-    c_1, & p < 1\\
-    c_2, & p \geq 1
+    \gls{sym-c-1}, & p < 1\\
+    \gls{sym-c-2}, & p \geq 1
 \end{cases}$ & N/A\\
 \hline
 $\gls{sym-beta-A-i-m-1}$
 & $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
 & $\begin{cases}
-    \frac{c_1}{1 + e^{-c_2(p-1)}} + c_3, & p < 1\\
-    c_4, & p \geq 1
+    \frac{\gls{sym-c-1}}{1 + e^{-\gls{sym-c-2}(p-1)}} + \gls{sym-c-3}, & p < 1\\
+    \gls{sym-c-4}, & p \geq 1
 \end{cases}$
 & N/A\\
 \hline
 $\gls{sym-alpha-A-i-2-leq-m-M}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\begin{cases}
-    c_1, &p < 1\\
-    c_2, &p \geq 1
+    \gls{sym-c-1}, &p < 1\\
+    \gls{sym-c-2}, &p \geq 1
 \end{cases}$
 & $\begin{cases}
     c_1, &p < 1\\
-    c_2, &p \geq 1
+    \gls{sym-c-2}, &p \geq 1
 \end{cases}$ \\
 \hline
 $\gls{sym-beta-A-i-2-leq-m-M}$\
 & $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
 & $\begin{cases}
-    \frac{c_1}{1 + e^{-c_2(p-1)}} + c_3, & p < 1\\
-    c_4, & p \geq 1
+    \frac{\gls{sym-c-1}}{1 + e^{-\gls{sym-c-2}(p-1)}} + \gls{sym-c-3}, & p < 1\\
+    \gls{sym-c-4}, & p \geq 1
 \end{cases}$
 & $\begin{cases}
     c_1, &p < 1\\
@@ -1288,8 +1288,8 @@ $\gls{sym-alpha-A-i-M}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & $\begin{cases}
-    c_1, & p < 1\\
-    c_2, & p \geq 1
+    \gls{sym-c-1}, & p < 1\\
+    \gls{sym-c-2}, & p \geq 1
 \end{cases}$
 & Independent
 & Independent\\
@@ -1298,8 +1298,8 @@ $\gls{sym-beta-A-i-M}$
 & $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & $\begin{cases}
-    c_1, & p < 1\\
-    c_2, & p \geq 1
+    \gls{sym-c-1}, & p < 1\\
+    \gls{sym-c-2}, & p \geq 1
 \end{cases}$
 & $\gls{sym-c-1}\cdot \gls{sym-p-dof} + \gls{sym-c-2}$
 & Independent\\
@@ -1336,7 +1336,7 @@ In this section, we interpret some of the most influential dimensionless paramet
 The number of terms in a region's eigenfunction expansion necessary to sufficiently resolve the velocity potential's detail there (i.e. achieve convergence) depends on the detail itself and the resolving power.
 In other words, influential dimensionless parameters relate the spatial frequency of the detail (variation in the true value of the potential) to the characteristic length of a region's eigenfunctions.
 
-In the body region $\gls{sym-i-m}$, the most important parameter is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{\gls{sym-h} - \gls{sym-d-m}}{\gls{sym-a-m} - a_{{m-1}}}$.
+In the body region $\gls{sym-i-m}$, the most important parameter is its $\frac{\text{fluid height}}{\text{radial width}} = \frac{\gls{sym-h} - \gls{sym-d-m}}{\gls{sym-a-m} - \gls{sym-a-1-2}}$.
 The radial eigenfunctions here inherit their eigenvalues $\gls{sym-lambda-n-m-i-m} = \frac{\gls{sym-n-m}\gls{sym-pi}}{\gls{sym-h}-\gls{sym-d-m}}$ from the corresponding vertical eigenfunction.
 Thus, taller regions need higher harmonics to create the same characteristic length of resolution for radial details, and the ratio of fluid height to radial width is a ratio of resolving scale to detail.
 
@@ -1462,7 +1462,7 @@ Since the radial and vertical dependence was separated in Table~\ref{jfm:tab:MEE
 Additionally, the boundary condition on the slanted wetted surface will not be satisfied when using \gls{acr-meem} on the discretized geometry.
 This leads to discrepancies in the velocity potential.
 Furthermore, integrating the pressure over the discretized wetted surface instead of the slanted wetted surface leads to additional inaccuracies since the pressure is not evaluated at the correct spatial points.
-If one considers integrating the pressure on a slanted surface $\gls{sym-S-p}$ at constant angle $\gls{sym-zeta-slant}$, instead of over the horizontal sections of the discretized geometry, $\gls{sym-hat-n-p} \cdot \gls{sym-hat-e-z} = \sin(\gls{sym-zeta-slant})$ and $dS = \frac{\gls{sym-r}}{\sin(\gls{sym-zeta-slant})}drd\gls{sym-theta}$ in Eq.~\ref{jfm:eq:freq domain scalar rad force}.
+If one considers integrating the pressure on a slanted surface $\gls{sym-S-p}$ at constant angle $\gls{sym-zeta-slant}$, instead of over the horizontal sections of the discretized geometry, $\gls{sym-hat-n-p} \cdot \gls{sym-hat-e-z} = \sin(\gls{sym-zeta-slant})$ and $dS = \frac{\gls{sym-r}}{\sin(\gls{sym-zeta-slant})}d\gls{sym-r}d\gls{sym-theta}$ in Eq.~\ref{jfm:eq:freq domain scalar rad force}.
 When these are substituted, the $\sin(\gls{sym-zeta-slant})$ cancels and the result is the same as Eq.~\ref{jfm:eq:freq domain scalar rad force in terms of regions}, except $\gls{sym-d-m}$ now has $\gls{sym-r}$ dependence.
 However, the implicit dependence of the $\gls{sym-Z}$ eigenfunction evaluations on $\gls{sym-r}$ means that the integrals including homogeneous potentials cannot be simplified as in Eqs.~\ref{jfm:eq:freq domain scalar rad force in terms of added mass and damping} and onward.
 Unless the region's outline is flat and $\gls{sym-d-m}(\gls{sym-r})$ is constant, the hydrodynamic coefficient integrals (given $\gls{sym-vec-x}$) do not admit closed forms. 
@@ -1502,7 +1502,7 @@ While accurate hydrodynamic coefficients were obtained using the \gls{acr-meem} 
         \includegraphics[width=0.9\linewidth]{figs/Cross-Section-Potential-Slant.pdf}
         \includegraphics[width=0.8\linewidth]{figs/Along-Outline.pdf}
     \fi
-    \caption{Comparison of the radiated velocity potential computed from \gls{acr-meem} and Capytaine. (a) and (c) show the real part of the potential from \gls{acr-meem}, (b) and (d) show the error in the real potential from \gls{acr-meem} relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.
+    \caption{Comparison of the radiated velocity potential computed from \glsxtrshort{acr-meem} and Capytaine. (a) and (c) show the real part of the potential from \glsxtrshort{acr-meem}, (b) and (d) show the error in the real potential from \glsxtrshort{acr-meem} relative to Capytaine, and (e) and (f) show the error in the potential along the slanted and stepped outlines.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fslant_data_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.} %In (b), points with $\mathrm{Re}(\Phi) < 0.2$ (near zero, creating large relative errors) are masked.
     \label{jfm:fig:contour potential comparison plots}
 \end{figure}
@@ -1524,7 +1524,7 @@ potentially limiting \gls{acr-meem}'s computational advantage over the more gene
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{figs/Vary-Slopes.pdf}
-    \caption{Convergence of the hydrodynamic coefficients of five cones of varying steepness calculated with \gls{acr-meem}'s step approximation (radius $10$, $\gls{sym-h}=50$, $\gls{sym-omega} = 1$, $\gls{sym-N-i-m} = \gls{sym-N-e} = 400$).
+    \caption{Convergence of the hydrodynamic coefficients of five cones of varying steepness calculated with \glsxtrshort{acr-meem}'s step approximation (radius $10$, $\gls{sym-h}=50$, $\gls{sym-omega} = 1$, $\gls{sym-N-i-m} = \gls{sym-N-e} = 400$).
 Subdivisions calculated ranged from $1$ to $30$.
 Error was calculated relative to values given by Capytaine. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. 
     Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FVary-Slopes.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}. %The baseline expected error for an ideal approximation is shaded in grey, computed from the error between MEEM and Capytaine for cylindrical configurations of similar scale to the cones. 
@@ -1544,10 +1544,10 @@ In Sec.~\ref{jfm:sec:compute-time} we explore the computation costs of \gls{acr-
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figs/MEEM-CPT-Slant-Freq.pdf}
-    \caption{Left: Computed hydrodynamic coefficients for the CorPower-like \gls{acr-wec} geometry with a slanted region (the slant intersects the vertical at $d=7.13$).
-\gls{acr-meem} approximates the slanted region using 30 subdivisions.
+    \caption{Left: Computed hydrodynamic coefficients for the CorPower-like \glsxtrshort{acr-wec} geometry with a slanted region (the slant intersects the vertical at $d=7.13$).
+\glsxtrshort{acr-meem} approximates the slanted region using 30 subdivisions.
 Right: Geometry from left plots at $\gls{sym-omega} = 1$.
-In both cases, \gls{acr-meem} uses $\gls{sym-N-i-m} = \gls{sym-N-e} = 400$ and Capytaine has $5940$ panels.
+In both cases, \glsxtrshort{acr-meem} uses $\gls{sym-N-i-m} = \gls{sym-N-e} = 400$ and Capytaine has $5940$ panels.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Slant-Freq.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:MEEM slant comparison}
 \end{figure} 
@@ -1762,7 +1762,7 @@ If this trend holds more broadly, then the aforementioned optimization may there
 \toprule
 Nonlinear solve for $\gls{sym-lambda-n-e-e}$ & $\gls{sym-N-e}$\\
 \midrule
-Coupling integrals ($\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1}, \gls{sym-boldsymbol-mathcal-Z-i-M-e}$) & $(\sum_{\gls{sym-m-region}=1}^{\gls{sym-M-regions}-1} \gls{sym-N-i-m}N^{i_{m}}) + \gls{sym-N-i-M}\gls{sym-N-e}$\\
+Coupling integrals ($\gls{sym-boldsymbol-mathcal-Z-i-mi-m-1}, \gls{sym-boldsymbol-mathcal-Z-i-M-e}$) & $(\sum_{\gls{sym-m-region}=1}^{\gls{sym-M-regions}-1} \gls{sym-N-i-m}\gls{sym-N-i-m-1}) + \gls{sym-N-i-M}\gls{sym-N-e}$\\
 \midrule
 Bessel Functions in $\gls{sym-mathbf-A}$ *& $\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m-region}=2}^{\gls{sym-M-regions}} \gls{sym-N-i-m}) + \gls{sym-N-e}$\\
 \midrule
@@ -1771,7 +1771,7 @@ Matrix solve ($\gls{sym-mathbf-A} \gls{sym-vec-x-q} = \gls{sym-vec-b-q}$) & $(\g
 Hydrodynamic Coefficients* & $\gls{sym-N-i-1}+2\cdot(\sum_{\gls{sym-m-region}=2}^{\gls{sym-M-regions}} \gls{sym-N-i-m})$\\
 \bottomrule
 \end{tabular}
-\caption{Time complexities of major components of \gls{acr-meem}. All are represented as proportional to the number of times being called, except the matrix solve, which depends on the matrix size.
+\caption{Time complexities of major components of \glsxtrshort{acr-meem}. All are represented as proportional to the number of times being called, except the matrix solve, which depends on the matrix size.
 \\ * The Bessel functions evaluations in $\gls{sym-vec-c-p}$ are the same as those in $\gls{sym-mathbf-A}$, so they are cached and their associated time ignored in measuring the time contributions of the $\gls{sym-vec-c-p}$ calculation.} \label{jfm:tab:time-complexities} \end{table}
 \endgroup
 \begin{figure}[htbp]
@@ -1788,8 +1788,8 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figs/MEEM-CPT-Time-Matrix-Comparison.pdf}
-    \caption{For the CorPower \gls{acr-wec} geometry in Fig.~\ref{jfm:fig:hydro coeff validation} at $\gls{sym-omega} = 1$, the accuracy of \gls{acr-meem} vs. Capytaine are compared over different $\gls{sym-N-i-m} = \gls{sym-N-e}$ and panel counts, through the associated computation time and matrix sizes.
-The ``true values'' used to compute accuracies were determined by \gls{acr-meem} with $\gls{sym-N-i-m} = \gls{sym-N-e} = 300$.
+    \caption{For the CorPower \glsxtrshort{acr-wec} geometry in Fig.~\ref{jfm:fig:hydro coeff validation} at $\gls{sym-omega} = 1$, the accuracy of \glsxtrshort{acr-meem} vs. Capytaine are compared over different $\gls{sym-N-i-m} = \gls{sym-N-e}$ and panel counts, through the associated computation time and matrix sizes.
+The ``true values'' used to compute accuracies were determined by \glsxtrshort{acr-meem} with $\gls{sym-N-i-m} = \gls{sym-N-e} = 300$.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-CPT-Time-Matrix-Comparison.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:time-matrix-comparison}
 \end{figure}
@@ -1798,7 +1798,7 @@ For geometries that \gls{acr-meem} represents exactly, it tends to converge fast
 An example of this is shown in Figure~\ref{jfm:fig:time-matrix-comparison}, where a CorPower-like \gls{acr-wec} geometry is \modelled{} at a single frequency and the trade-offs between accuracy and computation time (or matrix size) are compared.
 The added mass and radiation damping computed with \gls{acr-meem} can achieve $2\%$ accuracy with a runtime of $0.01$ seconds, while the values computed with Capytaine obtain $2\%$ accuracy after $0.1$ seconds.
 In terms of matrix size, Capytaine requires a matrix with a side length greater than $1000$ to achieve $2\%$ accuracy, while \gls{acr-meem} can achieve the same accuracy with a matrix side length of just $60$.
-This is a consequence of \glspl{acr-meem} fast convergence rate relative to \gls{acr-bem} solvers' slow convergence rate with respect to the number of panels required to obtain an accurate solution.
+This is a consequence of \gls{acr-meem}'s fast convergence rate relative to \gls{acr-bem} solvers' slow convergence rate with respect to the number of panels required to obtain an accurate solution.
 Such an advancement can enable more rigorous optimization studies for marine structures by avoiding the computational cost of \gls{acr-bem} solvers.
 % [TODO: RM3 convergence figure, only float heaving].
 % [Caption: MEEM and BEM matrix size comparison, using the RM3 configuration parameters, an optimal unknown coefficient distribution for MEEM, and even constant panel density throughout the mesh for BEM. MEEM reaches 1\% convergence XX\% faster/slower than BEM for added mass and XX\% faster for radiation damping.]
