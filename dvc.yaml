@@ -67,9 +67,9 @@ stages:
     outs:
       - analysis/data/timing.pkl
       - .calkit/notebooks/executed/analysis/timing_data_generation.ipynb:
-          cache: false
+          cache: true
       - .calkit/notebooks/html/analysis/timing_data_generation.html:
-          cache: false
+          cache: true
     desc: Automatically generated from the 'timing-data' stage in calkit.yaml.
       Changes made here will be overwritten.
   timing-figs:
@@ -154,7 +154,6 @@ stages:
       - pubs/JFM/glossary/glossary-acronyms.tex
       - pubs/JFM/glossary/glossary-setup.tex
       - .calkit/env-locks/tex
-      - pubs/JFM/glossary/no-appendix-glossary.tex
     outs:
       - pubs/JFM/FLMguide.pdf
     desc: Automatically generated from the 'build-jfm-paper' stage in

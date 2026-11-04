@@ -110,8 +110,6 @@ pipeline:
     timing-data:
       kind: jupyter-notebook
       notebook_path: analysis/timing_data_generation.ipynb
-      html_storage: git
-      executed_ipynb_storage: git
       environment: openflash-on-branch
       inputs:
         - analysis/capytaine_generator.py
