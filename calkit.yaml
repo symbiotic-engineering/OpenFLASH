@@ -13,6 +13,8 @@ environments:
   openflash-on-branch:
     path: analysis/environment-branch.yml
     kind: conda
+    inputs: 
+      - pyproject.toml
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda

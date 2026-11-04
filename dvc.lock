@@ -5,7 +5,7 @@ stages:
     outs:
     - path: .calkit/env-locks/tex.json
       hash: md5
-      md5: ce301ee9d49aae58b70bbcaf4e72a44a
+      md5: 7d20d92e324dcba892eb9ce1db612b65
       size: 1171
   _check-env-jfm:
     cmd: calkit check environment --name jfm
@@ -333,7 +333,7 @@ stages:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/low_m0_plots.ipynb"
     deps:
-    - path: .calkit/env-locks/openflash-on-branch
+    - path: analysis/environment-branch.yml
       hash: md5
       md5: 30551e75702d0e9bdc432f3da1e4e147.dir
       size: 18018

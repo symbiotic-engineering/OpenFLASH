@@ -14,7 +14,7 @@ dependencies:
   - xarray
   - streamlit
   - ipykernel
-  - capytaine
+  - capytaine<3.0
   - seaborn
   - pip:
       - -e ..
