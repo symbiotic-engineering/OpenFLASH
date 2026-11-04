@@ -116,41 +116,45 @@ stages:
       md5: 762c0a0b00b7bb9752090a74602a184d
       size: 21184
   sparsity-figs:
-    cmd: calkit nb execute --environment openflash-on-main --no-check --to html 
-      "analysis/sparsity_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
+      html "analysis/sparsity_plots.ipynb"
     deps:
-    - path: .calkit/env-locks/openflash-on-main
+    - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: 8263f09b437f720a7965f6773363c8f9.dir
-      size: 16937
+      md5: 8b8db86b6cbc03cfb4112cfc627ef2a4.dir
+      size: 16387
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
       hash: md5
-      md5: 1fb49472942684ef5020b42c8c3ca197
-      size: 11822
+      md5: f7d0ae61ea66c54a46cd3f77820aaea1
+      size: 11689
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
     outs:
     - path: .calkit/notebooks/executed/analysis/sparsity_plots.ipynb
       hash: md5
-      md5: f78628d02b0c400d84d2219d1c76baf0
-      size: 122333
+      md5: 400ae8a8310c61c9205021593fefafeb
+      size: 121972
     - path: .calkit/notebooks/html/analysis/sparsity_plots.html
       hash: md5
-      md5: 22eb11b0b2c283183285fedc5e0ed308
-      size: 438460
+      md5: b2d5db28d5dfeb0cb252a4f64dc76a37
+      size: 437916
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/A_sparsity_plot.pdf
       hash: md5
-      md5: f2882a29b35f28a0dc85c93dc65c8fe2
+      md5: a9f88be060967ff37744e470f107733f
       size: 11334
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/B_sparsity_plot.pdf
       hash: md5
-      md5: 842a98a6f91cc461fc2dbc88fc0a2e55
+      md5: cc77376d4203b19a8951073c9ecd9d70
       size: 9155
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/C_sparsity_plot.pdf
       hash: md5
-      md5: b8d12884ec4879c3175d91c293acd644
+      md5: ac507829c18b342a4ca3ae8026214c60
       size: 9827
   graphical-abstract:
     cmd: calkit latex build -e tex --no-check 
@@ -183,8 +187,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: 30551e75702d0e9bdc432f3da1e4e147.dir
-      size: 18018
+      md5: 8b8db86b6cbc03cfb4112cfc627ef2a4.dir
+      size: 16387
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
       hash: md5
@@ -196,22 +200,26 @@ stages:
       size: 12332
     - path: package/src/
       hash: md5
-      md5: 54fda13d78334c83614e08eac9fa05dc.dir
-      size: 186160
-      nfiles: 20
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_data_generation.ipynb
       hash: md5
-      md5: b058a8b41fec10ae5d88088d18f6eb18
-      size: 35866
+      md5: 7471794aabd21a425c3f9e4d6de7e19b
+      size: 35754
     - path: .calkit/notebooks/html/analysis/timing_data_generation.html
       hash: md5
-      md5: cddc940fe032df1ae0c686a8a72e4795
-      size: 385446
+      md5: 21837e9c6bd9e9274a2c2d6ed59bc8aa
+      size: 391585
     - path: analysis/data/timing.pkl
       hash: md5
-      md5: 15fa65d0849941f3bc7b8a67d5026579
-      size: 4034
+      md5: 7c63985f2d31b351b9890cc554cba53e
+      size: 4035
   _clean-nb-convergence-figs:
     cmd: calkit nb clean "analysis/convergence-results.ipynb"
     deps:
@@ -292,8 +300,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: 30551e75702d0e9bdc432f3da1e4e147.dir
-      size: 18018
+      md5: 8b8db86b6cbc03cfb4112cfc627ef2a4.dir
+      size: 16387
       nfiles: 2
     - path: 
         .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
@@ -311,32 +319,36 @@ stages:
       nfiles: 20
     - path: package/src/
       hash: md5
-      md5: 54fda13d78334c83614e08eac9fa05dc.dir
-      size: 186160
-      nfiles: 20
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
     outs:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: 88e494f55b4b4543b2b004e4a2cbc680
-      size: 1049010
+      md5: ed159ac548882eaac18f851de90b253e
+      size: 1049269
     - path: .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
       hash: md5
-      md5: 60f74f0176c8160f8043bbfb91de5503
-      size: 1372534
+      md5: 788bd6928f6f8c14504ad9b3f1d3f700
+      size: 1373161
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       hash: md5
-      md5: 96f2bff2965e932b095db5ceb25f3a70
+      md5: 231ac27a2408f55705c0c341fd75a257
       size: 167981
   low-m0-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/low_m0_plots.ipynb"
     deps:
-    - path: analysis/environment-branch.yml
+    - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: 30551e75702d0e9bdc432f3da1e4e147.dir
-      size: 18018
+      md5: 8b8db86b6cbc03cfb4112cfc627ef2a4.dir
+      size: 16387
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
       hash: md5
@@ -353,14 +365,18 @@ stages:
       size: 5745
     - path: package/src/
       hash: md5
-      md5: 54fda13d78334c83614e08eac9fa05dc.dir
-      size: 186160
-      nfiles: 20
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: 10551b62a299185d5a36f0f7651bf556
-      size: 89498
+      md5: 593954d0070b7c05f40d3ba92aa81db4
+      size: 89499
     - path: .calkit/notebooks/html/analysis/low_m0_plots.html
       hash: md5
       md5: 1b98c3568ec90dd8548f734666c847d1
@@ -368,7 +384,7 @@ stages:
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: 5aebcfab8a4ee015de9173eaf5ca75b4
+      md5: 140a461436313eea3a1aba941770142a
       size: 403562
   slant-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
@@ -376,8 +392,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: 30551e75702d0e9bdc432f3da1e4e147.dir
-      size: 18018
+      md5: 8b8db86b6cbc03cfb4112cfc627ef2a4.dir
+      size: 16387
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
       hash: md5
@@ -400,11 +416,15 @@ stages:
       md5: 3b6a1695933c1cbeadb167812effac26.dir
       size: 14988
       nfiles: 20
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
     outs:
     - path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: 9be2213733d49cc8b85edf109f75b979
-      size: 504263
+      md5: d02b2ef906a82cdd04f10a22b4d70064
+      size: 504260
     - path: .calkit/notebooks/html/analysis/slant_data_plots.html
       hash: md5
       md5: 7ff04a62ca7ccf07cb27ac94942f953c
@@ -412,22 +432,22 @@ stages:
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Along-Outline.pdf
       hash: md5
-      md5: 921d84373e369b26525231ca8888f1ac
+      md5: 1e7c919f01311fbc88f5bbc33f26a8bd
       size: 109529
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Cross-Section-Potential-Slant.pdf
       hash: md5
-      md5: 2e376a674bff8f43aec4c420ac472851
+      md5: b83e3bb545a17d50420f2e9fd5ba4480
       size: 362754
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Slant-Freq.pdf
       hash: md5
-      md5: a7447c373df43e4ca80fe8d5dcd9daea
+      md5: 14ae91ef4fbf13fc7282982025521f4b
       size: 137298
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/Vary-Slopes.pdf
       hash: md5
-      md5: e850a85c44611c41e2b4a405d2f89f24
+      md5: 817a1a278957f3520a6c432c5a657aa6
       size: 178444
   timing-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
@@ -435,8 +455,8 @@ stages:
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: 30551e75702d0e9bdc432f3da1e4e147.dir
-      size: 18018
+      md5: 8b8db86b6cbc03cfb4112cfc627ef2a4.dir
+      size: 16387
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       hash: md5
@@ -444,45 +464,49 @@ stages:
       size: 22250
     - path: analysis/data/timing.pkl
       hash: md5
-      md5: 15fa65d0849941f3bc7b8a67d5026579
-      size: 4034
+      md5: 7c63985f2d31b351b9890cc554cba53e
+      size: 4035
     - path: analysis/sea-lab-utils
       hash: md5
       md5: 3b6a1695933c1cbeadb167812effac26.dir
       size: 14988
       nfiles: 20
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: bb923fa50e4d941947689ce937c8076d
-      size: 378152
+      md5: 4dbc76affe1491201b0b6087a74a4b78
+      size: 390186
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
-      md5: 4507bf99fd367ea74f9195111a691b68
-      size: 724822
+      md5: 3ee8f4be525eece0001e1a452610f052
+      size: 736856
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: c01837e434557f285c0834088ee0b9be
-      size: 135996
+      md5: 72b6564528ee1c4367fbba25b1b6eabd
+      size: 136537
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: 44623370ebf2ba0a0468ff30555b79e6
-      size: 104601
+      md5: 32ecd14a2dfb233a06571298795a5068
+      size: 104583
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: cee95d82ef9dd782ae0f4d26a7855ce4
-      size: 134188
+      md5: 6a5d47561b9201fb3b21e004d1658569
+      size: 135815
   convergence-figs:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/convergence-results.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
-      md5: 30551e75702d0e9bdc432f3da1e4e147.dir
-      size: 18018
+      md5: 8b8db86b6cbc03cfb4112cfc627ef2a4.dir
+      size: 16387
       nfiles: 2
     - path: .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
       hash: md5
@@ -493,11 +517,15 @@ stages:
       md5: 3b6a1695933c1cbeadb167812effac26.dir
       size: 14988
       nfiles: 20
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
     outs:
     - path: .calkit/notebooks/executed/analysis/convergence-results.ipynb
       hash: md5
-      md5: 82f0a8356b74fa600d811ed7e2611e01
-      size: 262116
+      md5: 96ec17894d6ac5e731e0226d375e421d
+      size: 262117
     - path: .calkit/notebooks/html/analysis/convergence-results.html
       hash: md5
       md5: b19a54addedbbf8390bdb8d1a0be84be
@@ -505,15 +533,15 @@ stages:
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/alpha-beta-explanation.pdf
       hash: md5
-      md5: f7d2b682e3c9f8c94e6ba79135d451dd
+      md5: ae02a5612cab5922673942682d8fcf67
       size: 380170
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/alpha-beta-to-trend.pdf
       hash: md5
-      md5: 61725b7c1e5d891ec05869a17e82cb35
+      md5: 3555cbed2029e2c6b2909abc02b9bc4f
       size: 403019
     - path: 
         pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/convergence-fit-assessment.pdf
       hash: md5
-      md5: 2414de7a8d7ea4bc26989b371f503236
+      md5: e309232ecf44eefa462ee1149e88339a
       size: 209372

@@ -109,7 +109,7 @@ pipeline:
     sparsity-figs:
       kind: jupyter-notebook
       notebook_path: analysis/sparsity_plots.ipynb
-      environment: openflash-on-main
+      environment: openflash-on-branch
       outputs:
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/A_sparsity_plot.pdf
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/B_sparsity_plot.pdf

@@ -7,6 +7,7 @@ stages:
       - package/src/
       - analysis/capytaine_generator.py
       - analysis/sea-lab-utils
+      - pyproject.toml
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
@@ -24,6 +25,7 @@ stages:
       - package/src/
       - dev/python/limiting-cases/low_m0.py
       - analysis/sea-lab-utils
+      - pyproject.toml
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Low-Freq.pdf
@@ -42,6 +44,7 @@ stages:
       - analysis/data/slope-slants.pkl
       - analysis/data/potential-slants.pkl
       - analysis/sea-lab-utils
+      - pyproject.toml
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-CPT-Slant-Freq.pdf
@@ -61,6 +64,7 @@ stages:
       - .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
       - analysis/capytaine_generator.py
       - package/src/
+      - pyproject.toml
       - .calkit/env-locks/openflash-on-branch
     outs:
       - analysis/data/timing.pkl
@@ -77,6 +81,7 @@ stages:
       - .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
       - analysis/data/timing.pkl
       - analysis/sea-lab-utils
+      - pyproject.toml
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Comp-Distribution.pdf
@@ -94,6 +99,7 @@ stages:
     deps:
       - .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
       - analysis/sea-lab-utils
+      - pyproject.toml
       - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/alpha-beta-explanation.pdf
@@ -106,11 +112,12 @@ stages:
     desc: Automatically generated from the 'convergence-figs' stage in
       calkit.yaml. Changes made here will be overwritten.
   sparsity-figs:
-    cmd: calkit nb execute --environment openflash-on-main --no-check --to html
-      "analysis/sparsity_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/sparsity_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
-      - .calkit/env-locks/openflash-on-main
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
     outs:
       - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/A_sparsity_plot.pdf
       - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/B_sparsity_plot.pdf

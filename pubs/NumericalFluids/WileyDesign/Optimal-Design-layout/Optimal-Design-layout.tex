@@ -25,6 +25,7 @@
 
 \ifdefined\DISSERTATION
 \else
+
     \usepackage{anyfontsize} %
     \usepackage{colortbl}   % For coloring table lines
     \usepackage{xcolor}     % For color definitions
@@ -32,7 +33,7 @@
     \usepackage{pdflscape}
     \usepackage{array}
     \usepackage{multirow}
-    \usepackage{subcaption}
+    % \usepackage{subcaption} not compatible with wiley
     \usepackage{float}
     \usepackage{etoolbox}
     \usepackage{hyperref}
@@ -725,7 +726,7 @@ Note all radial eigenfunctions and their derivatives are evaluated at $\gls{sym-
       &size& \\ \hline \hline 
       
       % Row 1
-      \shortstack{$\gls{sym-phi-i-m}=\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-r}=\gls{sym-a-m}$} & \gls{sym-N-i-m}$ & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m-1}}\left( \gls{sym-phi-mathrm-p-i-m} - \gls{sym-phi-mathrm-p-i-m-1} \right) \gls{sym-vec-Z-i-m-1} \mathrm{d}\gls{sym-z}$\\ \hline
+      \shortstack{$\gls{sym-phi-i-m}=\gls{sym-phi-i-m-1}$ \\ at $\gls{sym-r}=\gls{sym-a-m}$} & $\gls{sym-N-i-m}$ & $\int_{-\gls{sym-h}}^{-\gls{sym-d-m-1}}\left( \gls{sym-phi-mathrm-p-i-m} - \gls{sym-phi-mathrm-p-i-m-1} \right) \gls{sym-vec-Z-i-m-1} \mathrm{d}\gls{sym-z}$\\ \hline
       
       % Row 2
       \shortstack{
@@ -1116,23 +1117,23 @@ This is a consequence of Eq.~\ref{jfm:eq:c_q_i1_vec} and \ref{jfm:eq:c_q_im_vec}
 
 \begin{figure}[h!]
     \centering
-    \begin{subfigure}{0.58\textwidth}
+    \begin{minipage}[b]{0.32\textwidth}
         \includegraphics[width=\textwidth]{figs/A_sparsity_plot.pdf}
         \caption{$\gls{sym-mathbf-A}$}
         \label{jfm:fig:sparsityA}
-    \end{subfigure}
+    \end{minipage}
     \hfill
-    \begin{subfigure}{0.09\textwidth}
+    \begin{minipage}[b]{0.05\textwidth}
         \includegraphics[width=\textwidth]{figs/B_sparsity_plot.pdf}
         \caption{$\gls{sym-mathbf-B}$}
         \label{jfm:fig:sparsityB}
-    \end{subfigure}
+    \end{minipage}
     \hfill
-    \begin{subfigure}{0.09\textwidth}
+    \begin{minipage}[b]{0.05\textwidth}
         \includegraphics[width=\textwidth]{figs/C_sparsity_plot.pdf}
         \caption{$\mathbf{C}^{\top}$}
         \label{jfm:fig:sparsityC}
-    \end{subfigure}
+    \end{minipage}
     \caption{Sparsity pattern in the $\gls{sym-mathbf-A}$, $\gls{sym-mathbf-B}$, and $\gls{sym-mathbf-C}$ matrices.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/notebooks?path=analysis\%2Fsparsity_plots.ipynb}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig:sparsity}
@@ -1905,7 +1906,7 @@ Any opinion, findings, and conclusions or recommendations expressed in this mate
 
     The authors declare no conflicts of interest.
 
-\bibliography{wileyNJD-Chicago}
+\bibliography{jfm,becca-zotero-refs,zotero-meem-refs}
 
 \bmsubsection*{Supporting Information} %TODO
 
