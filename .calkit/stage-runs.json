@@ -1,4 +1,22 @@
 {
+  "build-joss-paper": {
+    "start_time": "2026-11-04T20:44:25.366000",
+    "end_time": "2026-11-04T20:45:04.596000",
+    "environment": "joss-docker",
+    "git_rev": "7674c0ced91d7eae5c150a0829b067e45616e862",
+    "git_dirty": true,
+    "dvc_lock_hash": "sha256:e2759cac006b7ee5ef89d437eb3c4b2e4f2fcf9a7a0e861559a1ce7c6e567e73",
+    "calkit_version": "0.50.5",
+    "system": {
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
+    }
+  },
   "compile-overleaf": {
     "start_time": "2026-11-04T17:58:56.685000",
     "end_time": "2026-11-04T18:01:31.424000",

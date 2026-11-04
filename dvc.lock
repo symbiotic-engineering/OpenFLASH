@@ -522,3 +522,29 @@ stages:
       hash: md5
       md5: ded1272f61288de2c0a0f7e511cb8a4b
       size: 4034
+  build-joss-paper:
+    cmd: calkit xenv -n joss-docker --no-check -- -o pdf pubs/joss/paper.md
+    deps:
+    - path: .calkit/env-locks/joss-docker
+      hash: md5
+      md5: 695d65c2cf3b469011f3924a6a4325a9.dir
+      size: 1727
+      nfiles: 1
+    - path: pubs/figs/
+      hash: md5
+      md5: bc8a962745b5586602b4dd81ad21d4ba.dir
+      size: 4336890
+      nfiles: 17
+    - path: pubs/joss/paper.bib
+      hash: md5
+      md5: 7b9344c007f4a2d347f0d75740a37ebe
+      size: 6806
+    - path: pubs/joss/paper.md
+      hash: md5
+      md5: 4f533bc72c2ef1a542c925b967e2a82c
+      size: 9422
+    outs:
+    - path: pubs/joss/paper.pdf
+      hash: md5
+      md5: 7ddfcf9d698ecb5ee731dc8bedc9d363
+      size: 2409560
