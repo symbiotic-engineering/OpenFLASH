@@ -126,13 +126,13 @@
     }
   },
   "timing-data": {
-    "start_time": "2026-10-31T20:28:45.732000",
-    "end_time": "2026-10-31T20:34:51.227000",
+    "start_time": "2026-11-04T22:41:52.021000",
+    "end_time": "2026-11-04T22:43:11.878000",
     "environment": "openflash-on-branch",
-    "git_rev": "75759ec4e61225420600c6f9219c99e5e55d697a",
+    "git_rev": "6d5d4c3cc62847e19a82cea13dd70d13392f750c",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:41daf47ba769e1af0e221d925d4697189ce2973eaa7ceeba33a336e9b144ac1c",
-    "calkit_version": "0.50.3",
+    "dvc_lock_hash": "sha256:92786040990576fcee609832ad41611e49698acee40ebd8438a038f3f79442ce",
+    "calkit_version": "0.50.5",
     "system": {
       "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
       "os": "Windows",
