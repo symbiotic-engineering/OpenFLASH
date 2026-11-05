@@ -27,7 +27,7 @@ environments:
     path: .Dockerfile
     image: openflash-on-branch-tex
     registry: ghcr.io
-    description: openflash-on-branch conda environment with TeXlive via Docker.
+    description: openflash-on-branch conda environment with TinyTeX via Docker.
     inputs:
       - analysis/environment-branch.yml
       - pyproject.toml
@@ -36,7 +36,7 @@ environments:
     path: main.Dockerfile
     image: openflash-on-main-tex
     registry: ghcr.io
-    description: openflash-on-main conda environment with TeXlive via Docker.
+    description: openflash-on-main conda environment with TinyTeX via Docker.
     inputs:
       - analysis/environment-main.yml
   openflash-on-main:
