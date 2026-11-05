@@ -38,7 +38,7 @@ environments:
     registry: ghcr.io
     description: openflash-on-main conda environment with TinyTeX via Docker.
     inputs:
-      - analysis/environment-main.yml
+      - .calkit/env-locks/openflash-on-main/linux64.yml
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda

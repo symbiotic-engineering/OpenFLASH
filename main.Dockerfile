@@ -6,21 +6,27 @@
 # The package source isn't copied in (see the .pth file below), so the image
 # only needs rebuilding when the environment file or pyproject.toml changes.
 
-ARG ENV_PREFIX=/opt/conda/envs/openflash.openflash-on-main-tex
+ARG ENV_NAME=openflash-on-main
+ARG ENV_PREFIX=/opt/conda/envs/openflash.${ENV_NAME}-tex
 
 FROM condaforge/miniforge3:latest AS builder
+
+ARG ENV_NAME
 ARG ENV_PREFIX
+ARG TARGETARCH=amd64
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
-COPY analysis/environment-main.yml /tmp/analysis/environment-main.yml
+COPY .calkit/env-locks/${ENV_NAME}/ /tmp/
 
-# Create the environment from the Conda packages only (strip the pip
-# section, which just installs the local package).
-RUN sed '/^[[:space:]]*- pip:/,$d' /tmp/analysis/environment-main.yml \
-      > /tmp/analysis/environment-nopip.yml \
- && mamba env create -p "$ENV_PREFIX" -f /tmp/analysis/environment-nopip.yml
+RUN case "$TARGETARCH" in \
+      amd64) cp /tmp/linux-64.yml /tmp/conda.lock ;; \
+      arm64) cp /tmp/linux-aarch64.yml /tmp/conda.lock ;; \
+      *) echo "Unsupported architecture: $TARGETARCH"; exit 1 ;; \
+    esac \
+ && mamba create -y -p "$ENV_PREFIX" --file /tmp/conda.lock \
+ && rm -f /tmp/conda.lock /tmp/linux-64.yml /tmp/linux-aarch64.yml
 
 # If libquadmath is missing (i.e., on aarch64), drop an empty stub into the
 # env so the linker is satisfied when building capytaine from source, which
@@ -57,6 +63,11 @@ mamba remove -p "$ENV_PREFIX" -y --force $pkgs
 find "$ENV_PREFIX" -name '*.a' -delete
 EOF
 
+# normalize timestamps for reproducibility
+ARG SOURCE_DATE_EPOCH=0
+RUN find "$ENV_PREFIX" -depth \
+    -exec touch -h -d "@${SOURCE_DATE_EPOCH}" {} +
+
 # Calkit's TinyTeX image, about 0.4 GB compressed versus 2.8 GB for TeX Live
 # full, which includes what Matplotlib's text.usetex needs. Pinned by digest
 # so a rebuild doesn't pick up a new base, which would mean pushing every
@@ -72,14 +83,21 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
-RUN useradd -m openflash \
+ARG SOURCE_DATE_EPOCH=0
+
+RUN groupadd --gid 1000 openflash \
+ && useradd --uid 1000 --gid 1000 -m openflash \
  && mkdir -p /workspace \
  && chown -R openflash:openflash /workspace \
  && mkdir -p /home/openflash/.ipython /home/openflash/.cache /home/openflash/.config \
  && chown -R openflash:openflash /home/openflash \
  && mkdir -p /tmp/home/.local /tmp/home/.ipython /tmp/home/.cache /tmp/home/.config \
              /tmp/ipython /tmp/matplotlib /tmp/cache /tmp/jupyter \
- && chmod -R 777 /tmp/home /tmp/ipython /tmp/matplotlib /tmp/cache /tmp/jupyter
+ && chmod -R 777 /tmp/home /tmp/ipython /tmp/matplotlib /tmp/cache /tmp/jupyter \
+ && find /etc/passwd /etc/group /etc/shadow /etc/gshadow \
+         /workspace /home/openflash /tmp/home /tmp/ipython \
+         /tmp/matplotlib /tmp/cache /tmp/jupyter \
+      -depth -exec touch -h -d "@${SOURCE_DATE_EPOCH}" {} +
 
 USER openflash
 WORKDIR /workspace
