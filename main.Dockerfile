@@ -25,7 +25,7 @@ RUN case "$TARGETARCH" in \
       arm64) cp /tmp/linux-aarch64.yml /tmp/conda.lock ;; \
       *) echo "Unsupported architecture: $TARGETARCH"; exit 1 ;; \
     esac; \
-    conda env create --solver classic -y -p "$ENV_PREFIX" -f /tmp/conda.lock
+    conda env create --solver libmamba -y -p "$ENV_PREFIX" -f /tmp/conda.lock
 
 # If libquadmath is missing (i.e., on aarch64), drop an empty stub into the
 # env so the linker is satisfied when building capytaine from source, which
