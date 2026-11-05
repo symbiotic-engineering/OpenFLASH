@@ -49,7 +49,9 @@ jobs:
       - name: Setup jq
         uses: dcarbone/install-jq-action@v3
       - name: Calkit Docker Login
-        run: calkit config set github_packages_token ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          calkit config set github_packages_token ${{ secrets.GITHUB_TOKEN }}
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u symbiotic-engineering --password-stdin
       - name: Run Calkit
         id: run_calkit
         continue-on-error: true
