@@ -3,4 +3,4 @@ channels:
   - conda-forge
 dependencies:
   - sea-lab::open-flash>=v1.0.25
-  - capytaine
+  - capytaine<3.0

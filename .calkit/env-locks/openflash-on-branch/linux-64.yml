@@ -1,3 +1,4 @@
+name: openflash-openflash-on-branch
 channels:
   - conda-forge
   - defaults
@@ -289,4 +290,3 @@ dependencies:
       - numpy==1.26.4
       - -e ../../..
       - scipy==1.13.1
-name: openflash-openflash-on-branch
