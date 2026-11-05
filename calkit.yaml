@@ -24,11 +24,7 @@ environments:
     description: openflash-on-branch conda environment with TeXlive via Docker.
     inputs:
       - analysis/environment-branch.yml
-      - package/src
       - pyproject.toml
-      - README.md
-      - LICENSE
-      - CITATION.cff
   openflash-on-main:
     path: analysis/environment-main.yml
     kind: conda
@@ -43,6 +39,7 @@ pipeline:
       notebook_path: analysis/validation_with_capytaine_plots.ipynb
       environment: openflash-on-branch-tex
       inputs:
+        - package/src/
         - analysis/sea-lab-utils
       outputs:
         - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
@@ -61,6 +58,7 @@ pipeline:
       notebook_path: analysis/slant_data_plots.ipynb
       environment: openflash-on-branch-tex
       inputs:
+        - package/src/
         - analysis/data/slants.pkl
         - analysis/data/slope-slants.pkl
         - analysis/data/potential-slants.pkl
@@ -75,6 +73,7 @@ pipeline:
       notebook_path: analysis/timing_plots.ipynb
       environment: openflash-on-branch-tex
       inputs:
+        - package/src/
         - analysis/data/timing.pkl
         - analysis/sea-lab-utils
       outputs:
@@ -86,6 +85,7 @@ pipeline:
       notebook_path: analysis/convergence-results.ipynb
       environment: openflash-on-branch-tex
       inputs:
+        - package/src/
         - analysis/sea-lab-utils
       outputs:
         - pubs/JFM/figs/alpha-beta-explanation.pdf
