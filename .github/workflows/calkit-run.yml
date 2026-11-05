@@ -48,6 +48,8 @@ jobs:
           conda-solver: rattler
       - name: Setup jq
         uses: dcarbone/install-jq-action@v3
+      - name: Calkit Docker Login
+        run: calkit config set github_packages_token ${{ secrets.GITHUB_TOKEN }}
       - name: Run Calkit
         id: run_calkit
         continue-on-error: true
