@@ -20,20 +20,11 @@ ENV PIP_NO_CACHE_DIR=1
 
 COPY .calkit/env-locks/${ENV_NAME}/ /tmp/
 
-
-
-RUN set -eux; \
-    echo "TARGETARCH=$TARGETARCH"; \
-    echo "ENV_PREFIX=$ENV_PREFIX"; \
-    echo "Available lock files:"; \
-    ls -lah /tmp/*.yml; \
-    case "$TARGETARCH" in \
+RUN case "$TARGETARCH" in \
       amd64) cp /tmp/linux-64.yml /tmp/conda.lock ;; \
       arm64) cp /tmp/linux-aarch64.yml /tmp/conda.lock ;; \
       *) echo "Unsupported architecture: $TARGETARCH"; exit 1 ;; \
     esac; \
-    echo "Selected lock file:"; \
-    head -20 /tmp/conda.lock; \
     conda env create --solver classic -y -p "$ENV_PREFIX" -f /tmp/conda.lock
 
 # If libquadmath is missing (i.e., on aarch64), drop an empty stub into the
