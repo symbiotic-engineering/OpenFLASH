@@ -1,11 +1,11 @@
 {
   "build-jfm-paper": {
-    "start_time": "2026-11-05T09:48:36.627000",
-    "end_time": "2026-11-05T09:49:05.144000",
+    "start_time": "2026-11-05T10:25:26.409000",
+    "end_time": "2026-11-05T10:25:53.105000",
     "environment": "tex",
-    "git_rev": "1091b1103ccc5fbeb6a329913a3e4fdab6a3df02",
+    "git_rev": "cbd65b718759207db9687505ec9d2c1aa529b8dc",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:3549ad922e51aebbfc2404197b4247a7e4d66880f0b990480b60c80ca7121901",
+    "dvc_lock_hash": "sha256:6824eccf423a60a243954b0275fd073ab25855d9ae0061cbc1b216c6e15bac5b",
     "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
       "machine_id": "8d4ace31bca84511b5238b15acaeac38",
@@ -54,12 +54,12 @@
     }
   },
   "convergence-figs": {
-    "start_time": "2026-11-05T09:47:25.718000",
-    "end_time": "2026-11-05T09:48:19.771000",
+    "start_time": "2026-11-05T10:22:58.511000",
+    "end_time": "2026-11-05T10:23:54.701000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "1091b1103ccc5fbeb6a329913a3e4fdab6a3df02",
+    "git_rev": "cbd65b718759207db9687505ec9d2c1aa529b8dc",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:da11745efae8d38fbc493c580089c70bd636ab568669d9bf3c4ce421f96785d3",
+    "dvc_lock_hash": "sha256:9413d77c3ea21a3c849263ed4f398fc3103fa663d0b08d0f9344c5096e40ce0a",
     "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
       "machine_id": "8d4ace31bca84511b5238b15acaeac38",
@@ -90,12 +90,12 @@
     }
   },
   "low-m0-figs": {
-    "start_time": "2026-11-05T09:43:05.073000",
-    "end_time": "2026-11-05T09:43:49.889000",
+    "start_time": "2026-11-05T10:22:20.216000",
+    "end_time": "2026-11-05T10:22:58.462000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "1091b1103ccc5fbeb6a329913a3e4fdab6a3df02",
+    "git_rev": "cbd65b718759207db9687505ec9d2c1aa529b8dc",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:49434c0e177af5a0c7aac2cf9185c7eae888807ef68d07bd45b2f15b3b5fde8b",
+    "dvc_lock_hash": "sha256:5e2b0f871920b4e32ac4252750bf170dbd26bf615c67142468a1e81cbb3e3b82",
     "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
       "machine_id": "8d4ace31bca84511b5238b15acaeac38",
@@ -108,12 +108,12 @@
     }
   },
   "slant-figs": {
-    "start_time": "2026-11-05T09:46:03.842000",
-    "end_time": "2026-11-05T09:47:25.718000",
+    "start_time": "2026-11-05T10:20:53.291000",
+    "end_time": "2026-11-05T10:22:20.216000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "1091b1103ccc5fbeb6a329913a3e4fdab6a3df02",
+    "git_rev": "cbd65b718759207db9687505ec9d2c1aa529b8dc",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:b6b06cdcb715f342c05aded089ae26ff1ad6d10bc58021247084bde8aa6fac4f",
+    "dvc_lock_hash": "sha256:0472c63b8b575ace1baca052cd7c099aa43fc2278401a78e6a8748541e42d886",
     "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
       "machine_id": "8d4ace31bca84511b5238b15acaeac38",
@@ -126,12 +126,12 @@
     }
   },
   "sparsity-figs": {
-    "start_time": "2026-11-05T09:48:19.771000",
-    "end_time": "2026-11-05T09:48:36.627000",
+    "start_time": "2026-11-05T10:25:11.202000",
+    "end_time": "2026-11-05T10:25:26.357000",
     "environment": "openflash-on-main-tex",
-    "git_rev": "1091b1103ccc5fbeb6a329913a3e4fdab6a3df02",
+    "git_rev": "cbd65b718759207db9687505ec9d2c1aa529b8dc",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:6686d513cc06a633733856df3098a7a31065d667a689fec282b867b80e74485e",
+    "dvc_lock_hash": "sha256:6a8d83544e8b69de009e3074aa87d775d602d5f718fa7ac1895c88e3a661b36c",
     "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
       "machine_id": "8d4ace31bca84511b5238b15acaeac38",
@@ -162,12 +162,12 @@
     }
   },
   "timing-figs": {
-    "start_time": "2026-11-05T09:44:43.970000",
-    "end_time": "2026-11-05T09:45:13.489000",
+    "start_time": "2026-11-05T10:24:44.148000",
+    "end_time": "2026-11-05T10:25:11.202000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "1091b1103ccc5fbeb6a329913a3e4fdab6a3df02",
+    "git_rev": "cbd65b718759207db9687505ec9d2c1aa529b8dc",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:1bb50915da46d73dc2caa5609dfc249b963ef85ba94663bd18c5c28946e2e08a",
+    "dvc_lock_hash": "sha256:2575cf5d02bb8164841d35a0dd3c2462db3507a4d8d81a553d772d86a0fc4b35",
     "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
       "machine_id": "8d4ace31bca84511b5238b15acaeac38",
@@ -180,12 +180,12 @@
     }
   },
   "validate-w-capy": {
-    "start_time": "2026-11-05T09:45:13.489000",
-    "end_time": "2026-11-05T09:46:03.842000",
+    "start_time": "2026-11-05T10:23:54.701000",
+    "end_time": "2026-11-05T10:24:44.148000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "1091b1103ccc5fbeb6a329913a3e4fdab6a3df02",
+    "git_rev": "cbd65b718759207db9687505ec9d2c1aa529b8dc",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:0111b5aedf273ff869a2d41f24da16994bb360083177f8b86e313a2c2fa08ada",
+    "dvc_lock_hash": "sha256:bfdf7fda8ef66adba53717ede6e1482f9ddf8f4e4cda70945eacb721bdb4ea44",
     "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
       "machine_id": "8d4ace31bca84511b5238b15acaeac38",
