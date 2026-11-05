@@ -4,6 +4,7 @@ stages:
       html "analysis/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
+      - package/src/
       - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch-tex
     outs:
@@ -36,6 +37,7 @@ stages:
       html "analysis/slant_data_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
+      - package/src/
       - analysis/data/slants.pkl
       - analysis/data/slope-slants.pkl
       - analysis/data/potential-slants.pkl
@@ -57,6 +59,7 @@ stages:
       html "analysis/timing_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
+      - package/src/
       - analysis/data/timing.pkl
       - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch-tex
@@ -75,6 +78,7 @@ stages:
       html "analysis/convergence-results.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
+      - package/src/
       - analysis/sea-lab-utils
       - .calkit/env-locks/openflash-on-branch-tex
     outs:
