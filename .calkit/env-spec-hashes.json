@@ -1,5 +1,5 @@
 {
   ".calkit/env-locks/openflash-dev": "sha256:9de7edcb8653d196a4fc2b20842d5ec09bc4dc88cd8cc3f193ddd4a63a8405f3",
   ".calkit/env-locks/openflash-on-branch": "sha256:5573aa8357176b8a5f4611b7945b20e446ad7dcc068721ffb7bff2739cb5138a",
-  ".calkit/env-locks/openflash-on-main": "sha256:de07f0b10340a3689f5bfbbafd1c1004dd8c48ab2659ace7b82dcc65738720eb"
+  ".calkit/env-locks/openflash-on-main": "sha256:16c8e26d1c2f8f065667656d99c8c29b8c9cfea0a174566db9f1bc16b57713dd"
 }

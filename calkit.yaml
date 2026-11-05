@@ -22,6 +22,9 @@ environments:
     inputs: 
       - package/src
       - pyproject.toml
+  openflash-on-main:
+    path: analysis/environment-main.yml
+    kind: conda
   openflash-on-branch-tex:
     kind: docker
     path: .Dockerfile
@@ -38,10 +41,8 @@ environments:
     registry: ghcr.io
     description: openflash-on-main conda environment with TinyTeX via Docker.
     inputs:
-      - .calkit/env-locks/openflash-on-main/linux64.yml
-  openflash-on-main:
-    path: analysis/environment-main.yml
-    kind: conda
+      - .calkit/env-locks/openflash-on-main/linux-64.yml
+
   openflash-dev:
     path: analysis/environment-dev.yml
     kind: conda

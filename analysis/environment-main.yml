@@ -1,6 +1,7 @@
 name: openflash-openflash-on-main
 channels:
   - conda-forge
+  - sea-lab
 dependencies:
   - sea-lab::open-flash>=v1.0.25
   - pandas<3.0

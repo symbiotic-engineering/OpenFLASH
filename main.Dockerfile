@@ -13,20 +13,28 @@ FROM condaforge/miniforge3:latest AS builder
 
 ARG ENV_NAME
 ARG ENV_PREFIX
-ARG TARGETARCH=amd64
+ARG TARGETARCH
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 
 COPY .calkit/env-locks/${ENV_NAME}/ /tmp/
 
-RUN case "$TARGETARCH" in \
+
+
+RUN set -eux; \
+    echo "TARGETARCH=$TARGETARCH"; \
+    echo "ENV_PREFIX=$ENV_PREFIX"; \
+    echo "Available lock files:"; \
+    ls -lah /tmp/*.yml; \
+    case "$TARGETARCH" in \
       amd64) cp /tmp/linux-64.yml /tmp/conda.lock ;; \
       arm64) cp /tmp/linux-aarch64.yml /tmp/conda.lock ;; \
       *) echo "Unsupported architecture: $TARGETARCH"; exit 1 ;; \
-    esac \
- && mamba create -y -p "$ENV_PREFIX" --file /tmp/conda.lock \
- && rm -f /tmp/conda.lock /tmp/linux-64.yml /tmp/linux-aarch64.yml
+    esac; \
+    echo "Selected lock file:"; \
+    head -20 /tmp/conda.lock; \
+    conda env create --solver classic -y -p "$ENV_PREFIX" -f /tmp/conda.lock
 
 # If libquadmath is missing (i.e., on aarch64), drop an empty stub into the
 # env so the linker is satisfied when building capytaine from source, which
@@ -85,8 +93,8 @@ ENV PIP_NO_CACHE_DIR=1
 
 ARG SOURCE_DATE_EPOCH=0
 
-RUN groupadd --gid 1000 openflash \
- && useradd --uid 1000 --gid 1000 -m openflash \
+RUN groupadd --gid 1001 openflash \
+ && useradd --uid 1001 --gid 1001 -m openflash \
  && mkdir -p /workspace \
  && chown -R openflash:openflash /workspace \
  && mkdir -p /home/openflash/.ipython /home/openflash/.cache /home/openflash/.config \
