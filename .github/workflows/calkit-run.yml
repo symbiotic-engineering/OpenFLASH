@@ -9,7 +9,6 @@ on:
 permissions:
   contents: write
   id-token: write
-  packages: write
 
 # Make sure we only ever run one per branch so we don't have issues pushing
 # after running the pipeline
@@ -27,7 +26,6 @@ jobs:
           # For PRs, checkout the head ref to avoid detached HEAD
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          submodules: true
           persist-credentials: false
       - name: Configure Git credentials
         run: |
@@ -38,20 +36,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Install Calkit
         run: uv tool install git+https://github.com/calkit/calkit.git@rmccabe-subproject-login-utf8
-      - name: Setup miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-activate-base: true
-          conda-remove-defaults: true
-          channels: conda-forge, conda-pypi
-          channel-priority: flexible
-          conda-solver: rattler
       - name: Setup jq
         uses: dcarbone/install-jq-action@v3
-      - name: Calkit Docker Login
-        run: |
-          calkit config set github_packages_token ${{ secrets.GITHUB_TOKEN }}
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u symbiotic-engineering --password-stdin
       - name: Run Calkit
         id: run_calkit
         continue-on-error: true
@@ -71,7 +57,7 @@ jobs:
           fi
   
           set +e # Continue even if pull fails
-          git pull --recurse-submodules
+          git pull
           PULL_STATUS=$?
 
           if [ $PULL_STATUS -ne 0 ]; then

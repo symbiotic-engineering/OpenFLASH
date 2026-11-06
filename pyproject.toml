@@ -77,3 +77,30 @@ include = ["openflash*"]
 local_scheme = "no-local-version"
 version_scheme = "no-guess-dev"
 fallback_version = "0+unknown"
+# What the analysis notebooks in the Calkit pipeline need on top of the
+# package, which uv installs from package/src in editable mode
+[dependency-groups]
+analysis = [
+    "open-flash[hydro]",
+    "ipykernel",
+    "papermill",
+    "pandas<3.0",
+    "seaborn",
+    "sealab",
+]
+
+[tool.uv]
+default-groups = ["analysis"]
+# Only resolve for the Pythons the analysis runs on, not every one the
+# package supports
+environments = ["python_version >= '3.12'"]
+
+# The package's version scheme can't version a commit past a dev-numbered RC
+# tag, which every commit CI makes is, so building it for the analysis
+# takes the nearest tag's version as is
+[tool.uv.extra-build-variables]
+open-flash = { SETUPTOOLS_SCM_OVERRIDES_FOR_OPEN_FLASH = '{version_scheme = "only-version"}' }
+
+[tool.uv.sources]
+# TODO: Point at symbiotic-engineering/sea-lab-utils once it's packaged there
+sealab = { git = "https://github.com/petebachant/sea-lab-utils", branch = "python-package" }
