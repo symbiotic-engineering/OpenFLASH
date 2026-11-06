@@ -1,10 +1,13 @@
 stages:
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/validation_with_capytaine_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/validation_with_capytaine_plots.ipynb
-      - .calkit/env-locks/openflash-on-branch
+      - package/src/
+      - analysis/capytaine_generator.py
+      - analysis/sea-lab-utils
+      - .calkit/env-locks/openflash-on-branch-tex
     outs:
       - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       - .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb:
@@ -14,14 +17,14 @@ stages:
     desc: Automatically generated from the 'validate-w-capy' stage in
       calkit.yaml. Changes made here will be overwritten.
   low-m0-figs:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/low_m0_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/low_m0_plots.ipynb
       - package/src/
       - dev/python/limiting-cases/low_m0.py
-      - sea-lab-utils
-      - .calkit/env-locks/openflash-on-branch
+      - analysis/sea-lab-utils
+      - .calkit/env-locks/openflash-on-branch-tex
     outs:
       - pubs/JFM/figs/MEEM-Low-Freq.pdf
       - .calkit/notebooks/executed/analysis/low_m0_plots.ipynb:
@@ -31,15 +34,16 @@ stages:
     desc: Automatically generated from the 'low-m0-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
   slant-figs:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/slant_data_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/slant_data_plots.ipynb
+      - package/src/
       - analysis/data/slants.pkl
       - analysis/data/slope-slants.pkl
       - analysis/data/potential-slants.pkl
-      - sea-lab-utils
-      - .calkit/env-locks/openflash-on-branch
+      - analysis/sea-lab-utils
+      - .calkit/env-locks/openflash-on-branch-tex
     outs:
       - pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       - pubs/JFM/figs/Vary-Slopes.pdf
@@ -51,14 +55,33 @@ stages:
           cache: true
     desc: Automatically generated from the 'slant-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
-  timing-figs:
+  timing-data:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/timing_data_generation.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/analysis/timing_data_generation.ipynb
+      - analysis/capytaine_generator.py
+      - package/src/
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - analysis/data/timing.pkl
+      - .calkit/notebooks/executed/analysis/timing_data_generation.ipynb:
+          cache: true
+      - .calkit/notebooks/html/analysis/timing_data_generation.html:
+          cache: true
+    desc: Automatically generated from the 'timing-data' stage in calkit.yaml.
+      Changes made here will be overwritten.
+  timing-figs:
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/timing_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/timing_plots.ipynb
+      - package/src/
       - analysis/data/timing.pkl
-      - sea-lab-utils
-      - .calkit/env-locks/openflash-on-branch
+      - analysis/sea-lab-utils
+      - .calkit/env-locks/openflash-on-branch-tex
     outs:
       - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
@@ -70,12 +93,16 @@ stages:
     desc: Automatically generated from the 'timing-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
   convergence-figs:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/convergence-results.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/convergence-results.ipynb
-      - sea-lab-utils
-      - .calkit/env-locks/openflash-on-branch
+      - package/src/
+      - analysis/sea-lab-utils
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+      - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+      - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
+      - .calkit/env-locks/openflash-on-branch-tex
     outs:
       - pubs/JFM/figs/alpha-beta-explanation.pdf
       - pubs/JFM/figs/alpha-beta-to-trend.pdf
@@ -87,11 +114,11 @@ stages:
     desc: Automatically generated from the 'convergence-figs' stage in
       calkit.yaml. Changes made here will be overwritten.
   sparsity-figs:
-    cmd: calkit nb execute --environment openflash-on-main --no-check --to html
-      "analysis/sparsity_plots.ipynb"
+    cmd: calkit nb execute --environment openflash-on-main-tex --no-check --to
+      html "analysis/sparsity_plots.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/sparsity_plots.ipynb
-      - .calkit/env-locks/openflash-on-main
+      - .calkit/env-locks/openflash-on-main-tex
     outs:
       - pubs/JFM/figs/A_sparsity_plot.pdf
       - pubs/JFM/figs/B_sparsity_plot.pdf
@@ -112,8 +139,9 @@ stages:
       - pubs/JFM/figs/graph_abstract.log
     desc: Automatically generated from the 'graphical-abstract' stage in
       calkit.yaml. Changes made here will be overwritten.
-  compile-overleaf:
-    cmd: calkit latex build -e tex --no-check pubs/JFM/FLMguide.tex
+  build-jfm-paper:
+    cmd: calkit latex build -e tex --no-check --aux-dir tex-aux --latexmk-arg
+      -interaction=nonstopmode pubs/JFM/FLMguide.tex
     deps:
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/
@@ -124,8 +152,12 @@ stages:
       - pubs/JFM/zotero-meem-refs.bib
       - pubs/JFM/becca-zotero-refs.bib
       - pubs/JFM/jfm-appendix.tex
+      - pubs/JFM/glossary/glossary-symbols-jfm.tex
+      - pubs/JFM/glossary/glossary-symbols-shared.tex
+      - pubs/JFM/glossary/glossary-acronyms.tex
+      - pubs/JFM/glossary/glossary-setup.tex
       - .calkit/env-locks/tex
     outs:
       - pubs/JFM/FLMguide.pdf
-    desc: Automatically generated from the 'compile-overleaf' stage in
+    desc: Automatically generated from the 'build-jfm-paper' stage in
       calkit.yaml. Changes made here will be overwritten.

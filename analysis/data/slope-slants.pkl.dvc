@@ -1,0 +1,5 @@
+outs:
+- md5: 3cb581a4d2a2774c678c1ab000b5bcdc
+  size: 6664
+  hash: md5
+  path: slope-slants.pkl
