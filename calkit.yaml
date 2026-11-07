@@ -20,6 +20,13 @@ environments:
     kind: uv
     path: pyproject.toml
     description: OpenFLASH from package/src plus what the analysis notebooks need.
+  openflash-on-main:
+    kind: uv
+    path: analysis/envs/openflash-on-main/pyproject.toml
+    description: >-
+      OpenFLASH from the main branch plus what the analysis notebooks need,
+      for comparing results against package/src. Point a stage at it to run
+      that notebook against main.
 
 pipeline:
   stages:

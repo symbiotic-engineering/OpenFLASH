@@ -1,0 +1,24 @@
+# OpenFLASH from the main branch, for running the analysis notebooks against
+# it and comparing with this branch's package/src. uv.lock pins the commit;
+# move it forward with `uv lock --upgrade-package open-flash`.
+[project]
+name = "openflash-on-main"
+version = "0"
+requires-python = "==3.12.*"
+dependencies = [
+    "open-flash",
+    "capytaine>=2.2,<3.0",
+    "ipykernel",
+    "papermill",
+    "pandas<3.0",
+    "seaborn",
+    "sealab",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+open-flash = { git = "https://github.com/symbiotic-engineering/OpenFLASH", branch = "main" }
+# TODO: Point at symbiotic-engineering/sea-lab-utils once it's packaged there
+sealab = { git = "https://github.com/petebachant/sea-lab-utils", branch = "python-package" }
