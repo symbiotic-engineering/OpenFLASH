@@ -4118,7 +4118,7 @@ wheels = [
 [[package]]
 name = "sealab"
 version = "0.1.0"
-source = { git = "https://github.com/petebachant/sea-lab-utils?branch=python-package#746e79f42c966ecec26eb207540ff00c52bbd00d" }
+source = { git = "https://github.com/petebachant/sea-lab-utils?branch=python-package#62f3b25fb1e756e4e119a2e55c9259d71c5e72aa" }
 dependencies = [
     { name = "matplotlib", marker = "python_full_version >= '3.12'" },
 ]
