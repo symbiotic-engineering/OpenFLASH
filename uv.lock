@@ -2,9 +2,13 @@ version = 1
 revision = 3
 requires-python = ">=3.8"
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
+    "python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
 ]
 supported-markers = [
     "python_full_version >= '3.12'",
@@ -446,7 +450,7 @@ name = "build"
 version = "1.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "python_full_version >= '3.12' and os_name == 'nt'" },
+    { name = "colorama", marker = "(python_full_version >= '3.12' and os_name == 'nt' and platform_machine != 'aarch64') or (python_full_version >= '3.12' and os_name == 'nt' and sys_platform != 'linux')" },
     { name = "packaging", marker = "python_full_version >= '3.12'" },
     { name = "pyproject-hooks", marker = "python_full_version >= '3.12'" },
 ]
@@ -459,12 +463,18 @@ wheels = [
 name = "capytaine"
 version = "2.3.1"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+]
 dependencies = [
-    { name = "numpy", marker = "python_full_version >= '3.12'" },
-    { name = "pandas", marker = "python_full_version >= '3.12'" },
-    { name = "rich", marker = "python_full_version >= '3.12'" },
-    { name = "scipy", marker = "python_full_version >= '3.12'" },
-    { name = "xarray", marker = "python_full_version >= '3.12'" },
+    { name = "numpy", marker = "(python_full_version >= '3.12' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform != 'linux')" },
+    { name = "pandas", marker = "(python_full_version >= '3.12' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform != 'linux')" },
+    { name = "rich", marker = "(python_full_version >= '3.12' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform != 'linux')" },
+    { name = "scipy", marker = "(python_full_version >= '3.12' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform != 'linux')" },
+    { name = "xarray", marker = "(python_full_version >= '3.12' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform != 'linux')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ef/ec/6f4a2a2a8921af5902eed1204008c1a84dd4b7735045997b4094778ff3a2/capytaine-2.3.1.tar.gz", hash = "sha256:375ec2992d82b37db33f6de209fb3bb91904bcc4c0af346428c8aa2b5c7968a0", size = 509590, upload-time = "2025-10-14T11:16:34.14Z" }
 wheels = [
@@ -500,6 +510,108 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/10/c4/944c93f7f5a0b5ef7adea361450ed4dde3e78884a8667a774d30fbd194c6/capytaine-2.3.1-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:50008669e78f5c64b87b31a2a4f000d45a51ae77b83eb4233a441d1f7d66b73d", size = 1695369, upload-time = "2025-10-14T11:15:52.947Z" },
     { url = "https://files.pythonhosted.org/packages/68/87/63c02cc84847f5ce211ac4dc2acae2c88e741272f84c8010903ee4a3b67a/capytaine-2.3.1-cp39-cp39-win_amd64.whl", hash = "sha256:cef49c4a0b825fb76cb1d4a9a65af4289dce3b2b0d2a8c93786d2c345d96ef18", size = 1986793, upload-time = "2025-10-14T11:15:54.696Z" },
 ]
+
+[[package]]
+name = "capytaine"
+version = "2.3.1"
+source = { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" }
+resolution-markers = [
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "numpy", marker = "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "pandas", marker = "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "rich", marker = "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "scipy", marker = "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "xarray", marker = "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:8a6086230c536d753dd0bf2257050e35dd167265f7bb9075ab70c171a67fb9f9" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "joblib", marker = "extra == 'optional'", specifier = ">=1.3" },
+    { name = "matplotlib", marker = "extra == 'optional'" },
+    { name = "meshio", marker = "extra == 'optional'" },
+    { name = "netcdf4", marker = "extra == 'optional'" },
+    { name = "numpy", marker = "python_full_version == '3.8.*'", specifier = ">=1.24" },
+    { name = "numpy", marker = "python_full_version >= '3.9'", specifier = ">=1.20" },
+    { name = "pandas", specifier = ">=1.3,<3" },
+    { name = "rich" },
+    { name = "scipy" },
+    { name = "vtk", marker = "extra == 'optional'" },
+    { name = "xarray" },
+]
+provides-extras = ["optional"]
+
+[[package]]
+name = "capytaine"
+version = "2.3.1"
+source = { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" }
+resolution-markers = [
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "numpy", marker = "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "pandas", marker = "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "rich", marker = "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "scipy", marker = "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "xarray", marker = "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:6a26b2e556165b926fe044b25c3fbdafa4ff3cab4c80ac4a64fbca7f244dd90c" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "joblib", marker = "extra == 'optional'", specifier = ">=1.3" },
+    { name = "matplotlib", marker = "extra == 'optional'" },
+    { name = "meshio", marker = "extra == 'optional'" },
+    { name = "netcdf4", marker = "extra == 'optional'" },
+    { name = "numpy", marker = "python_full_version == '3.8.*'", specifier = ">=1.24" },
+    { name = "numpy", marker = "python_full_version >= '3.9'", specifier = ">=1.20" },
+    { name = "pandas", specifier = ">=1.3,<3" },
+    { name = "rich" },
+    { name = "scipy" },
+    { name = "vtk", marker = "extra == 'optional'" },
+    { name = "xarray" },
+]
+provides-extras = ["optional"]
+
+[[package]]
+name = "capytaine"
+version = "2.3.1"
+source = { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" }
+resolution-markers = [
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "numpy", marker = "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "pandas", marker = "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "rich", marker = "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "scipy", marker = "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "xarray", marker = "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:851c2686faf076ae2dcc5ea70ecedfbaa1ad116fe4f863f7060f2bc22bd75b42" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "joblib", marker = "extra == 'optional'", specifier = ">=1.3" },
+    { name = "matplotlib", marker = "extra == 'optional'" },
+    { name = "meshio", marker = "extra == 'optional'" },
+    { name = "netcdf4", marker = "extra == 'optional'" },
+    { name = "numpy", marker = "python_full_version == '3.8.*'", specifier = ">=1.24" },
+    { name = "numpy", marker = "python_full_version >= '3.9'", specifier = ">=1.20" },
+    { name = "pandas", specifier = ">=1.3,<3" },
+    { name = "rich" },
+    { name = "scipy" },
+    { name = "vtk", marker = "extra == 'optional'" },
+    { name = "xarray" },
+]
+provides-extras = ["optional"]
 
 [[package]]
 name = "certifi"
@@ -1884,7 +1996,7 @@ dependencies = [
     { name = "nbformat", marker = "python_full_version >= '3.12'" },
     { name = "packaging", marker = "python_full_version >= '3.12'" },
     { name = "prometheus-client", marker = "python_full_version >= '3.12'" },
-    { name = "pywinpty", marker = "python_full_version >= '3.12' and os_name == 'nt'" },
+    { name = "pywinpty", marker = "(python_full_version >= '3.12' and os_name == 'nt' and platform_machine != 'aarch64') or (python_full_version >= '3.12' and os_name == 'nt' and sys_platform != 'linux')" },
     { name = "pyzmq", marker = "python_full_version >= '3.12'" },
     { name = "send2trash", marker = "python_full_version >= '3.12'" },
     { name = "terminado", marker = "python_full_version >= '3.12'" },
@@ -1902,7 +2014,7 @@ name = "jupyter-server-terminals"
 version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywinpty", marker = "python_full_version >= '3.12' and os_name == 'nt'" },
+    { name = "pywinpty", marker = "(python_full_version >= '3.12' and os_name == 'nt' and platform_machine != 'aarch64') or (python_full_version >= '3.12' and os_name == 'nt' and sys_platform != 'linux')" },
     { name = "terminado", marker = "python_full_version >= '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f4/a7/bcd0a9b0cbba88986fe944aaaf91bfda603e5a50bda8ed15123f381a3b2f/jupyter_server_terminals-0.5.4.tar.gz", hash = "sha256:bbda128ed41d0be9020349f9f1f2a4ab9952a73ed5f5ac9f1419794761fb87f5", size = 31770, upload-time = "2026-01-14T16:53:20.213Z" }
@@ -2824,7 +2936,10 @@ dev = [
     { name = "watchdog", marker = "python_full_version >= '3.12'" },
 ]
 hydro = [
-    { name = "capytaine", marker = "python_full_version >= '3.12'" },
+    { name = "capytaine", version = "2.3.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform != 'linux')" },
+    { name = "capytaine", version = "2.3.1", source = { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" }, marker = "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "capytaine", version = "2.3.1", source = { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" }, marker = "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "capytaine", version = "2.3.1", source = { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" }, marker = "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
 ]
 
 [package.dev-dependencies]
@@ -2841,7 +2956,10 @@ analysis = [
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.0" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=0.8" },
-    { name = "capytaine", marker = "extra == 'hydro'", specifier = ">=2.2,<3.0" },
+    { name = "capytaine", marker = "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'hydro'", url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" },
+    { name = "capytaine", marker = "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'hydro'", url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" },
+    { name = "capytaine", marker = "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'hydro'", url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" },
+    { name = "capytaine", marker = "(python_full_version < '3.12' and extra == 'hydro') or (python_full_version >= '3.15' and extra == 'hydro') or (platform_machine != 'aarch64' and extra == 'hydro') or (sys_platform != 'linux' and extra == 'hydro')", specifier = ">=2.2,<3.0" },
     { name = "h5netcdf", specifier = ">=0.12" },
     { name = "h5py", specifier = ">=3.0" },
     { name = "ipykernel", marker = "extra == 'dev'" },
@@ -4177,7 +4295,8 @@ name = "sphinx"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version == '3.12.*'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
 ]
 dependencies = [
     { name = "alabaster", marker = "python_full_version == '3.12.*'" },
@@ -4208,8 +4327,11 @@ name = "sphinx"
 version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
+    "python_full_version >= '3.15' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
 ]
 dependencies = [
     { name = "alabaster", marker = "python_full_version >= '3.13'" },
@@ -4442,7 +4564,7 @@ version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ptyprocess", marker = "python_full_version >= '3.12' and os_name != 'nt'" },
-    { name = "pywinpty", marker = "python_full_version >= '3.12' and os_name == 'nt'" },
+    { name = "pywinpty", marker = "(python_full_version >= '3.12' and os_name == 'nt' and platform_machine != 'aarch64') or (python_full_version >= '3.12' and os_name == 'nt' and sys_platform != 'linux')" },
     { name = "tornado", marker = "python_full_version >= '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }

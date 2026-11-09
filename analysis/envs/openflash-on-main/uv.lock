@@ -1,6 +1,10 @@
 version = 1
 revision = 3
 requires-python = "==3.12.*"
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "platform_machine != 'aarch64' or sys_platform != 'linux'",
+]
 
 [[package]]
 name = "aiohappyeyeballs"
@@ -121,12 +125,15 @@ wheels = [
 name = "capytaine"
 version = "2.3.1"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "platform_machine != 'aarch64' or sys_platform != 'linux'",
+]
 dependencies = [
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "rich" },
-    { name = "scipy" },
-    { name = "xarray" },
+    { name = "numpy", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "pandas", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "rich", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "scipy", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "xarray", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ef/ec/6f4a2a2a8921af5902eed1204008c1a84dd4b7735045997b4094778ff3a2/capytaine-2.3.1.tar.gz", hash = "sha256:375ec2992d82b37db33f6de209fb3bb91904bcc4c0af346428c8aa2b5c7968a0", size = 509590, upload-time = "2025-10-14T11:16:34.14Z" }
 wheels = [
@@ -135,6 +142,40 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/af/e5/112a57b522ea3180cecf78893ccc1ca8911853b49fb4c6f0491bb7e5d4dc/capytaine-2.3.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:87bbd1daf5ee727bd202faa68d097f0182ccc3b2ef5f3685674c0f613eb6cfc7", size = 1714405, upload-time = "2025-10-14T11:16:13.798Z" },
     { url = "https://files.pythonhosted.org/packages/e8/87/2b9d2ad7e362478b6bc1bcca40a52e1fa181564a281131e727c84b06adeb/capytaine-2.3.1-cp312-cp312-win_amd64.whl", hash = "sha256:20ab13168bd57b1d16a4051a874513231a2baa12bf26dd76704fa03a9a2ce1bc", size = 1995331, upload-time = "2025-10-14T11:16:15.742Z" },
 ]
+
+[[package]]
+name = "capytaine"
+version = "2.3.1"
+source = { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" }
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "numpy", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "pandas", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "rich", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "scipy", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "xarray", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:8a6086230c536d753dd0bf2257050e35dd167265f7bb9075ab70c171a67fb9f9" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "joblib", marker = "extra == 'optional'", specifier = ">=1.3" },
+    { name = "matplotlib", marker = "extra == 'optional'" },
+    { name = "meshio", marker = "extra == 'optional'" },
+    { name = "netcdf4", marker = "extra == 'optional'" },
+    { name = "numpy", marker = "python_full_version == '3.8.*'", specifier = ">=1.24" },
+    { name = "numpy", marker = "python_full_version >= '3.9'", specifier = ">=1.20" },
+    { name = "pandas", specifier = ">=1.3,<3" },
+    { name = "rich" },
+    { name = "scipy" },
+    { name = "vtk", marker = "extra == 'optional'" },
+    { name = "xarray" },
+]
+provides-extras = ["optional"]
 
 [[package]]
 name = "certifi"
@@ -767,7 +808,8 @@ name = "openflash-on-main"
 version = "0"
 source = { virtual = "." }
 dependencies = [
-    { name = "capytaine" },
+    { name = "capytaine", version = "2.3.1", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "capytaine", version = "2.3.1", source = { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
     { name = "ipykernel" },
     { name = "open-flash" },
     { name = "pandas" },
@@ -778,7 +820,8 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "capytaine", specifier = ">=2.2,<3.0" },
+    { name = "capytaine", marker = "python_full_version != '3.12.*' or platform_machine != 'aarch64' or sys_platform != 'linux'", specifier = ">=2.2,<3.0" },
+    { name = "capytaine", marker = "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'", url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl" },
     { name = "ipykernel" },
     { name = "open-flash", git = "https://github.com/symbiotic-engineering/OpenFLASH?branch=main" },
     { name = "pandas", specifier = "<3.0" },
