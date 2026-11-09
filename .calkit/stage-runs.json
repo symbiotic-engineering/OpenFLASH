@@ -1,20 +1,20 @@
 {
   "build-jfm-paper": {
-    "start_time": "2026-11-06T12:06:28.383000",
-    "end_time": "2026-11-06T12:07:58.461000",
+    "start_time": "2026-11-06T12:18:35.672000",
+    "end_time": "2026-11-06T12:18:52.545000",
     "environment": "tex",
-    "git_rev": "a721ee0028a78e452c1db76d4db574a19dad6d1f",
+    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:2bcee6f816ec8dd77ac6635d2e65a3f4185536d4941d3509156e60a2c14a7d64",
-    "calkit_version": "0.50.5",
+    "dvc_lock_hash": "sha256:d1664dbe86ec7933396ef43069f381e0c33ce5c8ae0d272f08b55b587ecdc0f0",
+    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
-      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
-      "os": "Windows",
-      "os_version": "11",
-      "machine": "AMD64",
-      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
-      "cpu_count": 20,
-      "memory_gb": 63.7
+      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
+      "os": "Linux",
+      "os_version": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 4,
+      "memory_gb": 15.6
     }
   },
   "build-joss-paper": {
@@ -54,21 +54,21 @@
     }
   },
   "convergence-figs": {
-    "start_time": "2026-11-06T12:00:23.968000",
-    "end_time": "2026-11-06T12:02:07.841000",
+    "start_time": "2026-11-06T12:17:52.234000",
+    "end_time": "2026-11-06T12:18:23.695000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "a721ee0028a78e452c1db76d4db574a19dad6d1f",
+    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:15740b8bb3d9c1bd35a38f9a77659e5a89be910f6fb67fb057596955846de018",
-    "calkit_version": "0.50.5",
+    "dvc_lock_hash": "sha256:32b13ea80341fdffaecc48acd9160b3310c6445b8d45e78e9e0e50d0e8df4144",
+    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
-      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
-      "os": "Windows",
-      "os_version": "11",
-      "machine": "AMD64",
-      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
-      "cpu_count": 20,
-      "memory_gb": 63.7
+      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
+      "os": "Linux",
+      "os_version": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 4,
+      "memory_gb": 15.6
     }
   },
   "graphical-abstract": {
@@ -90,111 +90,111 @@
     }
   },
   "low-m0-figs": {
-    "start_time": "2026-11-06T12:02:55.858000",
-    "end_time": "2026-11-06T12:03:42.220000",
+    "start_time": "2026-11-06T12:15:09.748000",
+    "end_time": "2026-11-06T12:15:39.406000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "a721ee0028a78e452c1db76d4db574a19dad6d1f",
+    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:62b6738b00b3d8fe251acbfe2433026d2759df5d0640537efa8636f81da6e6b5",
-    "calkit_version": "0.50.5",
+    "dvc_lock_hash": "sha256:eb88a448b10fb97a66ccd9f8677383589a934bbd3cd51a701760232e37230640",
+    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
-      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
-      "os": "Windows",
-      "os_version": "11",
-      "machine": "AMD64",
-      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
-      "cpu_count": 20,
-      "memory_gb": 63.7
+      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
+      "os": "Linux",
+      "os_version": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 4,
+      "memory_gb": 15.6
     }
   },
   "slant-figs": {
-    "start_time": "2026-11-06T12:03:42.220000",
-    "end_time": "2026-11-06T12:04:59.764000",
+    "start_time": "2026-11-06T12:16:10.667000",
+    "end_time": "2026-11-06T12:17:00.906000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "a721ee0028a78e452c1db76d4db574a19dad6d1f",
+    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:0dbff8d9cae82d560a9f82432b50ea3c7db10b34fa9d5ffa50b952ece345b4d1",
-    "calkit_version": "0.50.5",
+    "dvc_lock_hash": "sha256:89be0f6a9100c7e4a2294dc1a089615e3532050a69dd1576067582633bef4ec8",
+    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
-      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
-      "os": "Windows",
-      "os_version": "11",
-      "machine": "AMD64",
-      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
-      "cpu_count": 20,
-      "memory_gb": 63.7
+      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
+      "os": "Linux",
+      "os_version": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 4,
+      "memory_gb": 15.6
     }
   },
   "sparsity-figs": {
-    "start_time": "2026-11-06T12:00:02.603000",
-    "end_time": "2026-11-06T12:00:23.968000",
+    "start_time": "2026-11-06T12:18:23.695000",
+    "end_time": "2026-11-06T12:18:35.643000",
     "environment": "openflash-on-main-tex",
-    "git_rev": "a721ee0028a78e452c1db76d4db574a19dad6d1f",
+    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:95bd42e91f56845b72a2c850d470b63b72f4c0d8a4d1918696ede95ef817e4ce",
-    "calkit_version": "0.50.5",
+    "dvc_lock_hash": "sha256:ee8ca934273d88246ceb6b15f780cf471e7f60b749efd339cc40a15a0dea5aca",
+    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
-      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
-      "os": "Windows",
-      "os_version": "11",
-      "machine": "AMD64",
-      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
-      "cpu_count": 20,
-      "memory_gb": 63.7
+      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
+      "os": "Linux",
+      "os_version": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 4,
+      "memory_gb": 15.6
     }
   },
   "timing-data": {
-    "start_time": "2026-11-06T12:04:59.764000",
-    "end_time": "2026-11-06T12:05:49.183000",
+    "start_time": "2026-11-06T12:17:00.906000",
+    "end_time": "2026-11-06T12:17:33.433000",
     "environment": "openflash-on-branch",
-    "git_rev": "a721ee0028a78e452c1db76d4db574a19dad6d1f",
+    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:6ae379d836c95380af1a9e71d80d4c1fc6c60c63d5b9eae1f04ed08bfdacf8fc",
-    "calkit_version": "0.50.5",
+    "dvc_lock_hash": "sha256:a0632a4bc52b0e4dcf8828cf826b25b8b1197dcc039d99416e85620716223097",
+    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
-      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
-      "os": "Windows",
-      "os_version": "11",
-      "machine": "AMD64",
-      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
-      "cpu_count": 20,
-      "memory_gb": 63.7
+      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
+      "os": "Linux",
+      "os_version": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 4,
+      "memory_gb": 15.6
     }
   },
   "timing-figs": {
-    "start_time": "2026-11-06T12:05:49.183000",
-    "end_time": "2026-11-06T12:06:28.099000",
+    "start_time": "2026-11-06T12:17:33.433000",
+    "end_time": "2026-11-06T12:17:52.234000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "a721ee0028a78e452c1db76d4db574a19dad6d1f",
+    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:bb17fb980b1b2f96fc9850d055457f2546cdcb907f168c17528bda5074419142",
-    "calkit_version": "0.50.5",
+    "dvc_lock_hash": "sha256:12cb81f749c986941c5cc118d454c4de71308b87a9a42b75805b1a5ca6e0ac5a",
+    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
-      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
-      "os": "Windows",
-      "os_version": "11",
-      "machine": "AMD64",
-      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
-      "cpu_count": 20,
-      "memory_gb": 63.7
+      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
+      "os": "Linux",
+      "os_version": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 4,
+      "memory_gb": 15.6
     }
   },
   "validate-w-capy": {
-    "start_time": "2026-11-06T12:02:07.841000",
-    "end_time": "2026-11-06T12:02:55.858000",
+    "start_time": "2026-11-06T12:15:39.406000",
+    "end_time": "2026-11-06T12:16:10.667000",
     "environment": "openflash-on-branch-tex",
-    "git_rev": "a721ee0028a78e452c1db76d4db574a19dad6d1f",
+    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:2d9fa8d7c1426bfbd912903d9a26a1c412d46270cc8451bccc07e7a0a1923ebb",
-    "calkit_version": "0.50.5",
+    "dvc_lock_hash": "sha256:c8cb9a266436be4da973899e0fa53c57464826f534d80edec737fde190f01d5b",
+    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
     "system": {
-      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
-      "os": "Windows",
-      "os_version": "11",
-      "machine": "AMD64",
-      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
-      "cpu_count": 20,
-      "memory_gb": 63.7
+      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
+      "os": "Linux",
+      "os_version": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 4,
+      "memory_gb": 15.6
     }
   }
 }
