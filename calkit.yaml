@@ -16,48 +16,28 @@ environments:
   #   command_mode: entrypoint
   #   env_vars:
   #     JOURNAL: joss
-  openflash-on-branch:
-    path: analysis/environment-branch.yml
-    kind: conda
-    inputs: 
-      - package/src
-      - pyproject.toml
+  openflash:
+    kind: uv
+    path: pyproject.toml
+    description: OpenFLASH from package/src plus what the analysis notebooks need.
   openflash-on-main:
-    path: analysis/environment-main.yml
-    kind: conda
-  openflash-on-branch-tex:
-    kind: docker
-    path: .Dockerfile
-    image: openflash-on-branch-tex
-    registry: ghcr.io
-    description: openflash-on-branch conda environment with TinyTeX via Docker.
-    inputs:
-      - analysis/environment-branch.yml
-      - pyproject.toml
-  openflash-on-main-tex:
-    kind: docker
-    path: main.Dockerfile
-    image: openflash-on-main-tex
-    registry: ghcr.io
-    description: openflash-on-main conda environment with TinyTeX via Docker.
-    inputs:
-      - .calkit/env-locks/openflash-on-main/linux-64.yml
+    kind: uv
+    path: analysis/envs/openflash-on-main/pyproject.toml
+    description: >-
+      OpenFLASH from the main branch plus what the analysis notebooks need,
+      for comparing results against package/src. Point a stage at it to run
+      that notebook against main.
 
-  openflash-dev:
-    path: analysis/environment-dev.yml
-    kind: conda
-  
 pipeline:
   stages:
     #################################### CAPYTAINE COMPARISON ####################################
     validate-w-capy:
       kind: jupyter-notebook
       notebook_path: analysis/validation_with_capytaine_plots.ipynb
-      environment: openflash-on-branch-tex
+      environment: openflash
       inputs:
         - package/src/
         - analysis/capytaine_generator.py
-        - analysis/sea-lab-utils
       outputs:
         - pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
     
@@ -65,11 +45,10 @@ pipeline:
     low-m0-figs:
       kind: jupyter-notebook
       notebook_path: analysis/low_m0_plots.ipynb
-      environment: openflash-on-branch-tex
+      environment: openflash
       inputs:
         - package/src/
         - dev/python/limiting-cases/low_m0.py
-        - analysis/sea-lab-utils
       outputs:
         - pubs/JFM/figs/MEEM-Low-Freq.pdf
 
@@ -78,11 +57,10 @@ pipeline:
     # slant-data-manual:
     #   kind: jupyter-notebook
     #   notebook_path: analysis/slant_data_generation.ipynb
-    #   environment: openflash-on-branch
+    #   environment: openflash
     #   inputs:
     #     - package/src/
     #     - dev/python/
-    #     - analysis/sea-lab-utils
     #   outputs:
     #     - analysis/data/slants.pkl
     #     - analysis/data/slope-slants.pkl
@@ -91,13 +69,12 @@ pipeline:
     slant-figs:
       kind: jupyter-notebook
       notebook_path: analysis/slant_data_plots.ipynb
-      environment: openflash-on-branch-tex
+      environment: openflash
       inputs:
         - package/src/
         - analysis/data/slants.pkl
         - analysis/data/slope-slants.pkl
         - analysis/data/potential-slants.pkl
-        - analysis/sea-lab-utils
       outputs:
         - pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
         - pubs/JFM/figs/Vary-Slopes.pdf
@@ -108,7 +85,7 @@ pipeline:
     timing-data:
       kind: jupyter-notebook
       notebook_path: analysis/timing_data_generation.ipynb
-      environment: openflash-on-branch
+      environment: openflash
       inputs:
         - analysis/capytaine_generator.py
         - package/src/
@@ -118,11 +95,10 @@ pipeline:
     timing-figs:
       kind: jupyter-notebook
       notebook_path: analysis/timing_plots.ipynb
-      environment: openflash-on-branch-tex
+      environment: openflash
       inputs:
         - package/src/
         - analysis/data/timing.pkl
-        - analysis/sea-lab-utils
       outputs:
         - pubs/JFM/figs/MEEM-Comp-Distribution.pdf
         - pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
@@ -132,7 +108,7 @@ pipeline:
     # convergence-data-envelope:
     #   kind: jupyter-notebook
     #   notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
-    #   environment: openflash-on-branch
+    #   environment: openflash
     #   inputs:
     #     - dev/python/convergence-study/helpers.py
     #     - dev/python/multi_condensed.py
@@ -142,7 +118,7 @@ pipeline:
     # convergence-data-prediction:
     #   kind: jupyter-notebook
     #   notebook_path: dev/python/convergence-study/prediction/all-random-generator.ipynb
-    #   environment: openflash-on-branch
+    #   environment: openflash
     #   inputs:
     #     - dev/python/convergence-study/helpers.py
     #     - dev/python/multi_condensed.py
@@ -154,10 +130,9 @@ pipeline:
     convergence-figs:
       kind: jupyter-notebook
       notebook_path: analysis/convergence-results.ipynb
-      environment: openflash-on-branch-tex
+      environment: openflash
       inputs:
         - package/src/
-        - analysis/sea-lab-utils
         - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
         - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
         - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
@@ -170,7 +145,9 @@ pipeline:
     sparsity-figs:
       kind: jupyter-notebook
       notebook_path: analysis/sparsity_plots.ipynb
-      environment: openflash-on-main-tex # I wouldn't expect this to need tex but it does?
+      environment: openflash
+      inputs:
+        - package/src/
       outputs:
         - pubs/JFM/figs/A_sparsity_plot.pdf
         - pubs/JFM/figs/B_sparsity_plot.pdf

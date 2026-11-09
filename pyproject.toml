@@ -77,3 +77,38 @@ include = ["openflash*"]
 local_scheme = "no-local-version"
 version_scheme = "no-guess-dev"
 fallback_version = "0+unknown"
+# What the analysis notebooks in the Calkit pipeline need on top of the
+# package, which uv installs from package/src in editable mode
+[dependency-groups]
+analysis = [
+    "open-flash[hydro]",
+    "ipykernel",
+    "papermill",
+    "pandas<3.0",
+    "seaborn",
+    "sealab",
+]
+
+[tool.uv]
+default-groups = ["analysis"]
+# Only resolve for the Pythons the analysis runs on, not every one the
+# package supports
+environments = ["python_version >= '3.12'"]
+
+# The package's version scheme can't version a commit past a dev-numbered RC
+# tag, which every commit CI makes is, so building it for the analysis
+# takes the nearest tag's version as is
+[tool.uv.extra-build-variables]
+open-flash = { SETUPTOOLS_SCM_OVERRIDES_FOR_OPEN_FLASH = '{version_scheme = "only-version"}' }
+
+[tool.uv.sources]
+# capytaine has no Linux aarch64 wheels on PyPI, and its sdist doesn't
+# build there (it links libquadmath, which aarch64 GCC lacks), so take
+# wheels built with that fixed from a release on a fork
+capytaine = [
+    { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", marker = "sys_platform == 'linux' and platform_machine == 'aarch64' and python_version == '3.12'" },
+    { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", marker = "sys_platform == 'linux' and platform_machine == 'aarch64' and python_version == '3.13'" },
+    { url = "https://github.com/petebachant/capytaine/releases/download/v2.3.1-aarch64/capytaine-2.3.1-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", marker = "sys_platform == 'linux' and platform_machine == 'aarch64' and python_version == '3.14'" },
+]
+# TODO: Point at symbiotic-engineering/sea-lab-utils once it's packaged there
+sealab = { git = "https://github.com/petebachant/sea-lab-utils", branch = "python-package" }
