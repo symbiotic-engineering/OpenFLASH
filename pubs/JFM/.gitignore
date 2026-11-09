@@ -45,4 +45,5 @@
 *.toc
 *.vrb
 *.xdv
+/tex-aux/*
 # <<< calkit latex aux files <<<

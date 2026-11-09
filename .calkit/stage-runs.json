@@ -1,20 +1,20 @@
 {
   "build-jfm-paper": {
-    "start_time": "2026-11-06T12:18:35.672000",
-    "end_time": "2026-11-06T12:18:52.545000",
+    "start_time": "2026-11-09T22:30:54.663000",
+    "end_time": "2026-11-09T22:36:16.367000",
     "environment": "tex",
-    "git_rev": "648c28556371035f13d779f3aeca2fddc8aafdff",
+    "git_rev": "636312862be69e6fe88214a04a79cac1a5b20967",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:d1664dbe86ec7933396ef43069f381e0c33ce5c8ae0d272f08b55b587ecdc0f0",
-    "calkit_version": "0.50.6.dev64+g4e5ebbd7",
+    "dvc_lock_hash": "sha256:5b1c1df23e0f29ed073a3003799c9dbc4bf3dc3e9bdeb3c01013ef274d6c836b",
+    "calkit_version": "0.50.6",
     "system": {
-      "machine_id": "8d4ace31bca84511b5238b15acaeac38",
-      "os": "Linux",
-      "os_version": "7.0.0-1017-azure",
-      "machine": "x86_64",
-      "processor": "x86_64",
-      "cpu_count": 4,
-      "memory_gb": 15.6
+      "machine_id": "fde0897e-2656-40e3-bf8c-c653c0999ca4",
+      "os": "Windows",
+      "os_version": "11",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+      "cpu_count": 20,
+      "memory_gb": 63.7
     }
   },
   "build-joss-paper": {

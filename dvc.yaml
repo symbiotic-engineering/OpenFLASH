@@ -140,8 +140,8 @@ stages:
     desc: Automatically generated from the 'graphical-abstract' stage in
       calkit.yaml. Changes made here will be overwritten.
   build-jfm-paper:
-    cmd: calkit latex build -e tex --no-check --aux-dir tex-aux --latexmk-arg
-      -interaction=nonstopmode pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check --aux-dir pubs/JFM/tex-aux
+      --latexmk-arg -interaction=nonstopmode pubs/JFM/FLMguide.tex
     deps:
       - pubs/JFM/FLMguide.tex
       - pubs/JFM/figs/

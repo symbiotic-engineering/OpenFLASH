@@ -588,8 +588,8 @@ stages:
       md5: 7ddfcf9d698ecb5ee731dc8bedc9d363
       size: 2409560
   build-jfm-paper:
-    cmd: calkit latex build -e tex --no-check --aux-dir tex-aux --latexmk-arg 
-      -interaction=nonstopmode pubs/JFM/FLMguide.tex
+    cmd: calkit latex build -e tex --no-check --aux-dir pubs/JFM/tex-aux 
+      --latexmk-arg -interaction=nonstopmode pubs/JFM/FLMguide.tex
     deps:
     - path: .calkit/env-locks/tex
       hash: md5
@@ -598,8 +598,8 @@ stages:
       nfiles: 2
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: f967aba8a9eb1d7da66bb4e34a079a37
-      size: 177938
+      md5: 1ce99566e3303abdab9732624d61eb5e
+      size: 178120
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -610,29 +610,29 @@ stages:
       size: 3942
     - path: pubs/JFM/figs/
       hash: md5
-      md5: cf91a88ffc8a4e392fa850ef5ad96169.dir
-      size: 1394274
-      nfiles: 30
+      md5: c2d5450b4d2ad5451b22a4b3da36157a.dir
+      size: 1419591
+      nfiles: 34
     - path: pubs/JFM/glossary/glossary-acronyms.tex
       hash: md5
-      md5: c9fd84e9fb58e776e522da65209702d4
-      size: 11391
+      md5: 4e0b1fe98ec37caf987500a565bb1d98
+      size: 11557
     - path: pubs/JFM/glossary/glossary-setup.tex
       hash: md5
       md5: 7e3d37c2a6c5583bef0e52489d64e253
       size: 9839
     - path: pubs/JFM/glossary/glossary-symbols-jfm.tex
       hash: md5
-      md5: 25a644d2b525976537b8d64399d95c4a
-      size: 41697
+      md5: 149906580937a9ff595a66f7d4f6d5c4
+      size: 42364
     - path: pubs/JFM/glossary/glossary-symbols-shared.tex
       hash: md5
-      md5: 40b11c7a3b081e9044139ebfa6089b38
-      size: 8221
+      md5: a6a4c6dab8e26715b370733a0bd74f27
+      size: 8348
     - path: pubs/JFM/jfm-appendix.tex
       hash: md5
-      md5: 6411826ea5752102ae6c57a2418f5dbd
-      size: 38014
+      md5: 7e0a9603f229a58d24d0d63436b21f11
+      size: 39263
     - path: pubs/JFM/jfm.bib
       hash: md5
       md5: 94debb13be1e536dfceb909122f78e97
@@ -652,5 +652,5 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: fad89e63c72b60425f1e0086d2913830
-      size: 1168809
+      md5: 38a05a92d889a5e1fe3b2840263d76d6
+      size: 1173586
