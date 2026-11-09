@@ -1235,19 +1235,19 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 \begin{table}
 \centering \begin{tabular}{|c|c|c|c|}
 \hline
-&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-m}}{\gls{sym-a-m} - \gls{sym-a-m-1-2}}$
-&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-m-1}}{\gls{sym-h}-\gls{sym-d-m}}$
-&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-m-1-2}}{\gls{sym-h}-\gls{sym-d-m}}$\\
+&$\gls{sym-p-param} = \frac{\gls{sym-h}-\gls{sym-d-m}}{\gls{sym-a-m} - \gls{sym-a-m-1-2}}$
+&$\gls{sym-p-param} = \frac{\gls{sym-h}-\gls{sym-d-m-1}}{\gls{sym-h}-\gls{sym-d-m}}$
+&$\gls{sym-p-param} = \frac{\gls{sym-h}-\gls{sym-d-m-1-2}}{\gls{sym-h}-\gls{sym-d-m}}$\\
 \hline
 $\gls{sym-alpha-A-i-m-1}$
-& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\begin{cases}
     \gls{sym-c-1}, & p < 1\\
     \gls{sym-c-2}, & p \geq 1
 \end{cases}$ & N/A\\
 \hline
 $\gls{sym-beta-A-i-m-1}$
-& $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-param}$
 & $\begin{cases}
     \frac{\gls{sym-c-1}}{1 + e^{-\gls{sym-c-2}(p-1)}} + \gls{sym-c-3}, & p < 1\\
     \gls{sym-c-4}, & p \geq 1
@@ -1255,7 +1255,7 @@ $\gls{sym-beta-A-i-m-1}$
 & N/A\\
 \hline
 $\gls{sym-alpha-A-i-2-leq-m-M}$
-& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\begin{cases}
     \gls{sym-c-1}, &p < 1\\
     \gls{sym-c-2}, &p \geq 1
@@ -1266,7 +1266,7 @@ $\gls{sym-alpha-A-i-2-leq-m-M}$
 \end{cases}$ \\
 \hline
 $\gls{sym-beta-A-i-2-leq-m-M}$\
-& $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-param}$
 & $\begin{cases}
     \frac{\gls{sym-c-1}}{1 + e^{-\gls{sym-c-2}(p-1)}} + \gls{sym-c-3}, & p < 1\\
     \gls{sym-c-4}, & p \geq 1
@@ -1278,15 +1278,15 @@ $\gls{sym-beta-A-i-2-leq-m-M}$\
 \hline
 \end{tabular}\\
 \begin{tabular}{|c|c|c|c|c|c|}\hline
-&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-M}}{\gls{sym-a-M} - \gls{sym-a-M-1}}$
-&$\gls{sym-p-dof} = \frac{\gls{sym-h}}{\gls{sym-h}-\gls{sym-d-M}}$
-&$\gls{sym-p-dof} = \frac{\gls{sym-h}-\gls{sym-d-M-1}}{\gls{sym-h}-\gls{sym-d-M}}$
-&$\gls{sym-p-dof} = \frac{\gls{sym-a-M} - \gls{sym-a-M-1}}{\gls{sym-a-M-1}}$
-&$\gls{sym-p-dof} = \gls{sym-lambda-0-e} \gls{sym-h}$\\
+&$\gls{sym-p-param} = \frac{\gls{sym-h}-\gls{sym-d-M}}{\gls{sym-a-M} - \gls{sym-a-M-1}}$
+&$\gls{sym-p-param} = \frac{\gls{sym-h}}{\gls{sym-h}-\gls{sym-d-M}}$
+&$\gls{sym-p-param} = \frac{\gls{sym-h}-\gls{sym-d-M-1}}{\gls{sym-h}-\gls{sym-d-M}}$
+&$\gls{sym-p-param} = \frac{\gls{sym-a-M} - \gls{sym-a-M-1}}{\gls{sym-a-M-1}}$
+&$\gls{sym-p-param} = \gls{sym-lambda-0-e} \gls{sym-h}$\\
 \hline
 $\gls{sym-alpha-A-i-M}$
-& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2}) + \gls{sym-c-3}$
-& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2}) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & $\begin{cases}
     \gls{sym-c-1}, & p < 1\\
     \gls{sym-c-2}, & p \geq 1
@@ -1295,25 +1295,25 @@ $\gls{sym-alpha-A-i-M}$
 & Independent\\
 \hline
 $\gls{sym-beta-A-i-M}$
-& $\gls{sym-c-1}\cdot \gls{sym-p-dof}$
-& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-param}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & $\begin{cases}
     \gls{sym-c-1}, & p < 1\\
     \gls{sym-c-2}, & p \geq 1
 \end{cases}$
-& $\gls{sym-c-1}\cdot \gls{sym-p-dof} + \gls{sym-c-2}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-param} + \gls{sym-c-2}$
 & Independent\\
 \hline
 $\gls{sym-alpha-B-i-M}$
 & Independent
-& $\gls{sym-c-1}\ln(\gls{sym-p-dof} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
+& $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & Independent
 & Independent
-& $\gls{sym-c-1}e^{-\gls{sym-c-2}\gls{sym-p-dof}} + \gls{sym-c-3}$\\
+& $\gls{sym-c-1}e^{-\gls{sym-c-2}\gls{sym-p-param}} + \gls{sym-c-3}$\\
 \hline
 $\gls{sym-beta-B-i-M}$\
-& $\gls{sym-c-1}\cdot \gls{sym-p-dof} + \gls{sym-c-2}$
-& $\gls{sym-c-1}e^{-\gls{sym-c-2}\gls{sym-p-dof}}$
+& $\gls{sym-c-1}\cdot \gls{sym-p-param} + \gls{sym-c-2}$
+& $\gls{sym-c-1}e^{-\gls{sym-c-2}\gls{sym-p-param}}$
 & Independent
 & Independent
 & $\begin{cases}
