@@ -208,7 +208,7 @@ stages:
       md5: ad39553e20976529c6c86d8f05580d91
       size: 11811
   test-latex:
-    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to 
       html "analysis/test-latex.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
@@ -235,7 +235,7 @@ stages:
       md5: f558885a336a5d6fca72b80e07d9bf93
       size: 290613
   validate-w-capy:
-    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to 
       html "analysis/validation_with_capytaine_plots.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
@@ -277,7 +277,7 @@ stages:
       md5: 99c3d4b37776b01ba68a330621b92104
       size: 56466
   low-m0-figs:
-    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to 
       html "analysis/low_m0_plots.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
@@ -317,7 +317,7 @@ stages:
       md5: 9abeb298183090eca057b20f89716caf
       size: 124157
   slant-figs:
-    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to 
       html "analysis/slant_data_plots.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
@@ -377,7 +377,7 @@ stages:
       md5: 5f0619da9a3f0555dbf497f77fd27461
       size: 61958
   timing-figs:
-    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to 
       html "analysis/timing_plots.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
@@ -459,7 +459,7 @@ stages:
       md5: c243cca25c53273cae55a0dc58141b0b
       size: 8751
   convergence-figs:
-    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
+    cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to 
       html "analysis/convergence-results.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch-tex
@@ -518,8 +518,8 @@ stages:
       md5: f35c25e55693788f005042d5e180d680
       size: 66296
   timing-data:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
-      html "analysis/timing_data_generation.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to html 
+      "analysis/timing_data_generation.ipynb"
     deps:
     - path: .calkit/env-locks/openflash-on-branch
       hash: md5
