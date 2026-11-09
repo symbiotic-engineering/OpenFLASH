@@ -189,7 +189,7 @@ pipeline:
       kind: latex
       target_path: pubs/JFM/FLMguide.tex
       environment: tex
-      aux_dir: tex-aux
+      aux_dir: pubs/JFM/tex-aux
       latexmk_args: [-interaction=nonstopmode]
       inputs:
         - pubs/JFM/FLMguide.tex
