@@ -201,100 +201,145 @@ and
             }
             {
                 \partial \gls{sym-r}
-            }(\gls{sym-a-generic-radius})+ 
-        C^\mathrm{s}_{2n_\mathrm{s}}
+            }
+        (\gls{sym-a-generic-radius})
+        + C^\mathrm{s}_{2n_\mathrm{s}}
         \frac{
                 \partial R_{2n_\mathrm{s}}^\mathrm{s}
             }
             {
                 \partial \gls{sym-r}
-            }(\gls{sym-a-generic-radius})
+            }
+            (\gls{sym-a-generic-radius})
     \right)
     \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
-        \gls{sym-Z-mathrm-t-n-mathrm-t}(\gls{sym-z})
-        \gls{sym-Z-mathrm-s-n-mathrm-s}(\gls{sym-z})
-        \mathrm{d}\gls{sym-z}
-    \\
+    \gls{sym-Z-mathrm-t-n-mathrm-t}(\gls{sym-z})
+    \gls{sym-Z-mathrm-s-n-mathrm-s}(\gls{sym-z})\mathrm{d}\gls{sym-z}
+\\
     - (\gls{sym-h}-\gls{sym-d-mathrm-t})
     \left(
-        C^\mathrm{t}_{1n_\mathrm{t}} \frac{\partial R_{1n_\mathrm{t}}^\mathrm{t}}{\partial \gls{sym-r}}(\gls{sym-a-generic-radius}) +
-        C^\mathrm{t}_{2n_\mathrm{t}} \frac{\partial R_{2n_\mathrm{t}}^\mathrm{t}}{\partial \gls{sym-r}}(\gls{sym-a-generic-radius})
+        C^\mathrm{t}_{1n_\mathrm{t}}
+        \frac{
+                \partial R_{1n_\mathrm{t}}^\mathrm{t}
+            }
+            {
+                \partial \gls{sym-r}
+            }
+            (\gls{sym-a-generic-radius})
+        + C^\mathrm{t}_{2n_\mathrm{t}} 
+        \frac{
+                \partial R_{2n_\mathrm{t}}^\mathrm{t}
+            }
+            {
+                \partial \gls{sym-r}
+            }
+            (\gls{sym-a-generic-radius})
     \right)
-    \\= 
+\\ 
+    = \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-t}}
+    \frac{
+            \partial \gls{sym-phi-mathrm-t-mathrm-p}
+        }
+        {
+            \partial \gls{sym-r}
+        }
+            (\gls{sym-a-generic-radius},\gls{sym-z})
+            \gls{sym-Z-mathrm-t-n-mathrm-t}(\gls{sym-z}) \mathrm{d}\gls{sym-z}
+        -
+        \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
+        \frac{
+                \partial \gls{sym-phi-mathrm-s-mathrm-p}
+            }
+            {
+                \partial \gls{sym-r}
+            }
+            (\gls{sym-a-generic-radius},\gls{sym-z})
+            \gls{sym-Z-mathrm-t-n-mathrm-t}(\gls{sym-z}) \mathrm{d}\gls{sym-z}.
+\end{multline}
+Applying Eq.~\ref{jfm:eq:separated potential matching integral simplified} for 
+$\gls{sym-n-mathrm-s}=0,1,\dots, \gls{sym-N-mathrm-s}-1$
+and Eq.~\ref{jfm:eq:separated velocity matching integral simplified} for
+$\gls{sym-n-mathrm-t}=0,1,\dots, \gls{sym-N-mathrm-t}-1$
+yields the matrix equations
+\begin{multline}\label{jfm:eq:potential matching vector equations}
+    (\gls{sym-h}-\gls{sym-d-mathrm-s})
+    \mathrm{diag}
+    \left(
+        \vec{R}_{1}^\mathrm{s}(\gls{sym-a-generic-radius})
+    \right)
+    \vec{C}_{1}^\mathrm{s}
+    +
+    (\gls{sym-h}-\gls{sym-d-mathrm-s})
+    \mathrm{diag}
+    \left(
+        \vec{R}_{2}^\mathrm{s}(\gls{sym-a-generic-radius})
+    \right)
+    \vec{C}_{2}^\mathrm{s}
+\\
+    -
+    \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot
+    \boldsymbol{1}_{\gls{sym-N-mathrm-s}1}
+    \vec{R}_{1}^\mathrm{t}(\gls{sym-a-generic-radius})
+    \vec{C}_1^\mathrm{t}
+    -
+    \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot
+    \boldsymbol{1}_{\gls{sym-N-mathrm-s}1}
+    \vec{R}_{2}^\mathrm{t}(\gls{sym-a-generic-radius})
+    \vec{C}_2^\mathrm{t}
+\\
+    =\int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
+    \left(
+        \gls{sym-phi-mathrm-t-mathrm-p}(\gls{sym-a-generic-radius},\gls{sym-z}) 
+        -
+        \gls{sym-phi-mathrm-s-mathrm-p}(\gls{sym-a-generic-radius},\gls{sym-z})
+    \right)
+    \gls{sym-vec-Z-mathrm-s}(\gls{sym-z}) \mathrm{d}\gls{sym-z}
+\end{multline}
+and
+\begin{multline}\label{jfm:eq:velocity matching vector equations}
+    \gls{sym-boldsymbol-mathcal-Z-mathrm-ts} \odot
+    \mathbf{1}_{\gls{sym-N-mathrm-t}1}
+    \vec{R}_1^\mathrm{s}(\gls{sym-a-generic-radius})
+    \vec{C}_1^\mathrm{s}
+    +
+    \gls{sym-boldsymbol-mathcal-Z-mathrm-ts} \odot
+    \mathbf{1}_{\gls{sym-N-mathrm-t}1}
+    \vec{R}_2^\mathrm{s}(\gls{sym-a-generic-radius})
+    \vec{C}_2^\mathrm{s}
+\\
+    -(\gls{sym-h}-\gls{sym-d-mathrm-t})
+    \mathrm{diag}
+    \left(
+        \frac{\partial}{\partial \gls{sym-r}} \vec{R}_1^\mathrm{t}(\gls{sym-a-generic-radius})
+    \right)
+    \vec{C}_1^\mathrm{t}
+    -(\gls{sym-h}-\gls{sym-d-mathrm-t})
+    \mathrm{diag}
+    \left(
+        \frac{\partial}{\partial \gls{sym-r}} \vec{R}_2^\mathrm{t}(\gls{sym-a-generic-radius})
+    \right)
+    \vec{C}_2^\mathrm{t}
+\\
+    =
     \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-t}}
     \frac{
             \partial \gls{sym-phi-mathrm-t-mathrm-p}
         }
         {
             \partial \gls{sym-r}
-        }(\gls{sym-a-generic-radius},\gls{sym-z})
-        \gls{sym-Z-mathrm-t-n-mathrm-t}(\gls{sym-z})
-        \mathrm{d}\gls{sym-z}
-    -\int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
+        }
+        (\gls{sym-a-generic-radius},\gls{sym-z})
+    \gls{sym-vec-Z-mathrm-t}{}(\gls{sym-z}) \mathrm{d}\gls{sym-z}
+    -
+    \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
     \frac{
             \partial \gls{sym-phi-mathrm-s-mathrm-p}
         }
         {
             \partial \gls{sym-r}
-        }(\gls{sym-a-generic-radius},\gls{sym-z})
-        \gls{sym-Z-mathrm-t-n-mathrm-t}(\gls{sym-z})
-        \mathrm{d}\gls{sym-z}.
-\end{multline}
-Applying Eq.~\ref{jfm:eq:separated potential matching integral simplified} for $\gls{sym-n-mathrm-s}=0,1,\dots, \gls{sym-N-mathrm-s}-1$ and Eq.~\ref{jfm:eq:separated velocity matching integral simplified} for $\gls{sym-n-mathrm-t}=0,1,\dots, \gls{sym-N-mathrm-t}-1$ yields the matrix equations
-\begin{multline}\label{jfm:eq:potential matching vector equations}
-    (\gls{sym-h}-\gls{sym-d-mathrm-s})\mathrm{diag}
-        \left(
-            \vec{R}_{1}^\mathrm{s}(\gls{sym-a-generic-radius})
-        \right)
-        \vec{C}_{1}^\mathrm{s}  + 
-    (\gls{sym-h}-\gls{sym-d-mathrm-s})\mathrm{diag}
-        \left(
-            \vec{R}_{2}^\mathrm{s}(\gls{sym-a-generic-radius})
-        \right)
-        \vec{C}_{2}^\mathrm{s}
-    \\
-    - \gls{sym-boldsymbol-mathcal-Z-mathrm-st} \odot \boldsymbol{1}_{\gls{sym-N-mathrm-s}1} \vec{R}_{1}^\mathrm{t}(\gls{sym-a-generic-radius})\vec{C}_1^\mathrm{t}
-    - \gls{sym-boldsymbol-mathcal-Z-mathrm-st} \odot \boldsymbol{1}_{\gls{sym-N-mathrm-s}1} \vec{R}_{2}^\mathrm{t}(\gls{sym-a-generic-radius})\vec{C}_2^\mathrm{t}
-    \\
-    =\int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
-        \left(
-            \gls{sym-phi-mathrm-t-mathrm-p}(\gls{sym-a-generic-radius},\gls{sym-z}) -
-            \gls{sym-phi-mathrm-s-mathrm-p}(\gls{sym-a-generic-radius},\gls{sym-z})
-        \right)
-        \gls{sym-vec-Z-mathrm-s}(\gls{sym-z})
-        \mathrm{d}\gls{sym-z}
-\end{multline}
-and
-\begin{multline}\label{jfm:eq:velocity matching vector equations}
-    \gls{sym-boldsymbol-mathcal-Z-mathrm-ts} \odot \mathbf{1}_{\gls{sym-N-mathrm-t}1}\vec{R}_1^\mathrm{s}(\gls{sym-a-generic-radius})\vec{C}_1^\mathrm{s} +
-    \gls{sym-boldsymbol-mathcal-Z-mathrm-ts} \odot \mathbf{1}_{\gls{sym-N-mathrm-t}1}\vec{R}_2^\mathrm{s}(\gls{sym-a-generic-radius})\vec{C}_2^\mathrm{s}
-    \\ 
-    -(\gls{sym-h}-\gls{sym-d-mathrm-t})\mathrm{diag}
-        \left(
-            \frac{\partial}{\partial \gls{sym-r}} \vec{R}_1^\mathrm{t}(\gls{sym-a-generic-radius})
-        \right)
-        \vec{C}_1^\mathrm{t} -(\gls{sym-h}-\gls{sym-d-mathrm-t})\mathrm{diag}
-        \left(
-            \frac{\partial}{\partial \gls{sym-r}} \vec{R}_2^\mathrm{t}(\gls{sym-a-generic-radius})
-        \right)
-        \vec{C}_2^\mathrm{t}
-    \\ =
-    \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-t}}
-        \frac{
-                \partial \gls{sym-phi-mathrm-t-mathrm-p}
-            }
-            {
-                \partial \gls{sym-r}
-            }(\gls{sym-a-generic-radius},\gls{sym-z})
-        \gls{sym-vec-Z-mathrm-t}{}(\gls{sym-z}) \mathrm{d}\gls{sym-z}
-    -\int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
-        \frac{
-                \partial \gls{sym-phi-mathrm-s-mathrm-p}
-            }
-            {
-                \partial \gls{sym-r}
-            }(\gls{sym-a-generic-radius},\gls{sym-z})
-        \gls{sym-vec-Z-mathrm-t}{}(\gls{sym-z}) \mathrm{d}\gls{sym-z}
+        }
+        (\gls{sym-a-generic-radius},\gls{sym-z})
+    \gls{sym-vec-Z-mathrm-t}{}(\gls{sym-z}) \mathrm{d}\gls{sym-z}
 \end{multline}
 where
 \begin{equation}
@@ -344,7 +389,7 @@ and
         \gls{sym-Z-0-ell}(\gls{sym-z}),
         \gls{sym-Z-1-ell}(\gls{sym-z}),
         \dots,
-        \gls{sym-Z-N-ell-1-ell}(\gls{sym-z}
+        \gls{sym-Z-N-ell-1-ell}(\gls{sym-z})
     ]^{\top} 
 \end{aligned}
 \end{equation}
@@ -355,8 +400,11 @@ Additionally,
         &
         \gls{sym-boldsymbol-mathcal-Z-mathrm-st}=
         \gls{sym-boldsymbol-mathcal-Z-mathrm-ts}{}^{\top}
-        =\int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}  \gls{sym-vec-Z-mathrm-s}{}(\gls{sym-z}) \otimes
-                                              \gls{sym-vec-Z-mathrm-t}(\gls{sym-z})   \mathrm{d}\gls{sym-z}
+        =
+        \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
+        \gls{sym-vec-Z-mathrm-s}{}(\gls{sym-z})
+        \otimes
+        \gls{sym-vec-Z-mathrm-t}(\gls{sym-z})   \mathrm{d}\gls{sym-z}
     \end{aligned}
 \end{equation}
 is an $\gls{sym-N-mathrm-s} \times \gls{sym-N-mathrm-t}$ matrix of coupling integrals;
@@ -382,42 +430,83 @@ the full system has exactly as many equations as unknowns.
 Note that all coupling integrals have closed form solutions.
 The element in the $\gls{sym-n-mathrm-s}$th row and $\gls{sym-n-mathrm-t}$th column of the coupling integral matrix associated with matching between region $\gls{sym-i-m}$ and $\gls{sym-i-m-1}$ is
 \begin{equation}\label{jfm:coupling integral i_m and i_m+1}
-    [\gls{sym-boldsymbol-mathcal-Z-mathrm-st} ]_{\gls{sym-n-mathrm-s}\gls{sym-n-mathrm-t}}
-    =-\frac{
-    \sin(
-    (\gls{sym-d-mathrm-s}-\gls{sym-h}) 
-    (
-      \gls{sym-lambda-n-mathrm-s-s}-
-      \gls{sym-lambda-n-mathrm-t-t}
-    )
-    )}
-    {
-    \gls{sym-lambda-n-mathrm-s-s}-
-    \gls{sym-lambda-n-mathrm-t-t}}
+    [
+        \gls{sym-boldsymbol-mathcal-Z-mathrm-st}
+    ]_{
+        \gls{sym-n-mathrm-s}\gls{sym-n-mathrm-t}
+      }
+    =
     -\frac{
-      \sin(
-                (\gls{sym-d-mathrm-s}-\gls{sym-h})
-                (\gls{sym-lambda-n-mathrm-s-s}+
-                \gls{sym-lambda-n-mathrm-t-t})
-            )
-    }
-    {
-      \gls{sym-lambda-n-mathrm-s-s}+
-      \gls{sym-lambda-n-mathrm-t-t}
-    },
+            \sin(
+                    (\gls{sym-d-mathrm-s}-\gls{sym-h}) 
+                    (
+                        \gls{sym-lambda-n-mathrm-s-s}
+                        -
+                        \gls{sym-lambda-n-mathrm-t-t}
+                    )
+                )
+        }
+        {
+            \gls{sym-lambda-n-mathrm-s-s}
+            -
+            \gls{sym-lambda-n-mathrm-t-t}
+        }
+    -
+    \frac{
+            \sin(
+                    (\gls{sym-d-mathrm-s}-\gls{sym-h})
+                    (
+                        \gls{sym-lambda-n-mathrm-s-s}
+                        +
+                        \gls{sym-lambda-n-mathrm-t-t}
+                    )
+                )
+        }
+        {
+            \gls{sym-lambda-n-mathrm-s-s}
+            +
+            \gls{sym-lambda-n-mathrm-t-t}
+        },
 \end{equation}
 
-\noindent where the superscripts and subscripts associated with the shorter and taller fluid are assigned to $\gls{sym-i-m}$ or $\gls{sym-i-m-1}$ depending on if $\gls{sym-d-m}>\gls{sym-d-m-1}$ or $\gls{sym-d-m-1}>\gls{sym-d-m}$.
-Eq.~\ref{jfm:coupling integral i_m and i_m+1} holds for $1 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$. For matching at the interface between the outermost inner region $\gls{sym-i-M}$ and the exterior region $e$, a different expression is used.
-The element in the $\gls{sym-n-M}$th row and $\gls{sym-n-e}$th column of the coupling integral matrix associated with matching between region $\gls{sym-i-M}$ and $e$ is
+\noindent where the superscripts and subscripts associated with the shorter and taller fluid are assigned to
+$\gls{sym-i-m}$
+or
+$\gls{sym-i-m-1}$
+depending on if
+$\gls{sym-d-m}>\gls{sym-d-m-1}$
+or
+$\gls{sym-d-m-1}>\gls{sym-d-m}$.
+Eq.~\ref{jfm:coupling integral i_m and i_m+1} holds for $1 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$.
+For matching at the interface between the outermost inner region $\gls{sym-i-M}$ and the exterior region $e$, a different expression is used.
+The element in the $\gls{sym-n-M}$th row and $\gls{sym-n-e}$th column of the coupling integral matrix
+associated with matching between region $\gls{sym-i-M}$ and $e$ is
 \begin{equation}\label{jfm:coupling integral i_M and e}
-    [\gls{sym-boldsymbol-mathcal-Z-i-M-e} ]_{\gls{sym-n-M}\gls{sym-n-e}}=
+    [
+        \gls{sym-boldsymbol-mathcal-Z-i-M-e}
+    ]_{\gls{sym-n-M}\gls{sym-n-e}}
+    =
     - \sqrt{\frac{1}{2\gls{sym-N-n-e}}} 
     \left( 
-        \frac{\sin((\gls{sym-d-M}-\gls{sym-h}) (\gls{sym-lambda-n-e-e}-\gls{sym-lambda-n-M-i-M}))}
-        {(\gls{sym-lambda-n-e-e}-\gls{sym-lambda-n-M-i-M})} 
-        + \frac{\sin((\gls{sym-d-M}-\gls{sym-h}) (\gls{sym-lambda-n-e-e}+\gls{sym-lambda-n-M-i-M}))}
-        {(\gls{sym-lambda-n-e-e}+\gls{sym-lambda-n-M-i-M})}
+        \frac{
+                \sin(
+                    (\gls{sym-d-M}-\gls{sym-h})
+                    (\gls{sym-lambda-n-e-e}-\gls{sym-lambda-n-M-i-M})
+                    )
+            }
+            {
+                (\gls{sym-lambda-n-e-e}-\gls{sym-lambda-n-M-i-M})
+            } 
+        +
+        \frac{
+                \sin(
+                    (\gls{sym-d-M}-\gls{sym-h})
+                    (\gls{sym-lambda-n-e-e}+\gls{sym-lambda-n-M-i-M})
+                    )
+            }
+            {
+                (\gls{sym-lambda-n-e-e}+\gls{sym-lambda-n-M-i-M})
+            }
     \right).
 \end{equation}
 Note that Eq.~\ref{jfm:coupling integral i_m and i_m+1} and~\ref{jfm:coupling integral i_M and e}
