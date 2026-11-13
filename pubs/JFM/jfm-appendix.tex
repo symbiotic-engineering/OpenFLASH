@@ -1,6 +1,6 @@
 \section{Governing Equations and Boundary Conditions}\label{jfm:appA}
 The velocity potentials for the interior regions must satisfy
-\begin{equation}\label{jfm:eq:Laplace equation internal region}
+\begin{equation}\label{jfm:eq:Laplace equation interior region}
     \nabla^2\gls{sym-phi-i-m}=0,   
 \end{equation}
 \begin{equation}\label{jfm:eq:No flux BC at wetted surface}
@@ -17,7 +17,7 @@ and
 \frac{\partial\gls{sym-phi-i-m}}{\partial \gls{sym-z}} \right|_{\gls{sym-z}=-\gls{sym-h}}=0,   
 \end{equation}
 while the velocity potential for the exterior region must satisfy
-\begin{equation}\label{jfm:eq:Laplace equation external region}
+\begin{equation}\label{jfm:eq:Laplace equation exterior region}
     \nabla^2\gls{sym-phi-e}=0,   
 \end{equation}
 \begin{equation}\label{jfm:eq:Free surface BC}
@@ -32,7 +32,7 @@ and
 The velocity potential in the interior regions can be written as the superposition of a homogeneous part $\gls{sym-phi-i-m-mathrm-h}$, which corresponds to the first case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is fixed, 
 and a particular part $\gls{sym-phi-mathrm-p-i-m}$, which corresponds to the second case of Eq.~\ref{jfm:eq:No flux BC at wetted surface} when the body in region $\gls{sym-m-region}$ is heaving with unit amplitude velocity.
 
-The Laplace equations in Eq.~\ref{jfm:eq:Laplace equation internal region} and~\ref{jfm:eq:Laplace equation external region} can be solved using separation of variables in cylindrical coordinates.
+The Laplace equations in Eq.~\ref{jfm:eq:Laplace equation interior region} and~\ref{jfm:eq:Laplace equation exterior region} can be solved using separation of variables in cylindrical coordinates.
 The velocity potentials can be written as a product of eigenfunctions $\gls{sym-phi} (\gls{sym-r}, \gls{sym-theta}, \gls{sym-z})= \gls{sym-R-r}\gls{sym-Theta}(\gls{sym-theta})\gls{sym-Z}(\gls{sym-z})$, where $\gls{sym-phi}$ is $\gls{sym-phi-i-m}$ and $\gls{sym-phi-e}$ for the interior and exterior regions, respectively.
 Substituting this into the Laplace equation and separating each variable yields the following system of ordinary differential equations
 \begin{equation}\label{jfm:eq:Z-ODE}
