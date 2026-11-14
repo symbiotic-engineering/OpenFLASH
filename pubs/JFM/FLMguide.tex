@@ -927,7 +927,7 @@ First, we will find the total radiation force $\gls{sym-vec-f-pq}(\gls{sym-t})$ 
 % where $S_p$ is the wetted surface of body $p$, $P_q(t)$ is the pressure in the fluid due to motion of the $q$th DOF, $\hat{n}_p$ is the unit vector normal to the wetted surface of body $p$ pointing outward from the fluid, $\rho$ is the density of the fluid, and $^{q}\Phi(\mathbf{x},t)$ is the potential due to motion of the $q$th DOF.
 This can be written in the frequency domain as 
 \begin{equation}\label{jfm:eq:freq domain vector of rad force}
-    \gls{sym-vec-hat-f-pq}(\gls{sym-omega}) = \gls{sym-imag} \gls{sym-omega} \gls{sym-rho-w} \iint_{\gls{sym-S-p}} \, {}^{\gls{sym-q-dof}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) \, \hat{n}_p dS
+    \gls{sym-vec-hat-f-pq}(\gls{sym-omega}) = \gls{sym-imag} \gls{sym-omega} \gls{sym-rho-w} \iint_{\gls{sym-S-p}} \, {}^{\gls{sym-q-dof}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) \, \gls{sym-hat-n-p} dS
 \end{equation}
 where $\gls{sym-rho-w}$ is the density of the fluid, $\gls{sym-S-p}$ is the wetted surface of body $\gls{sym-p-dof}$, $\gls{sym-hat-n-p}$ is the unit vector normal to the wetted surface of body $\gls{sym-p-dof}$ pointing outward from the fluid, $\gls{sym-vec-f-pq}(\gls{sym-t}) = \mathrm{Re} \{ \gls{sym-vec-hat-f-pq} e^{- \gls{sym-imag} \gls{sym-omega} \gls{sym-t}} \}$, and $^{\gls{sym-q-dof}}\gls{sym-Phi}(\gls{sym-mathbf-x-coords},\gls{sym-t}) = \mathrm{Re} \{ {}^{\gls{sym-q-dof}}\gls{sym-phi}(\gls{sym-r},\gls{sym-z}) e^{- \gls{sym-imag} \gls{sym-omega} \gls{sym-t}} \}$.
 The left superscript of $\gls{sym-q-dof}$ is added to distinguish the velocity potentials for different radiation problems.
@@ -942,7 +942,7 @@ We will define $\gls{sym-mathcal-M-p}$ as the set of all indices that correspond
 For example, if body 1 consists of regions $\gls{sym-i-1}$, $\gls{sym-i-3}$ and $\gls{sym-i-4}$, $\gls{sym-mathcal-M-1} = \{1, 3, 4\}$.
 Eq.~\ref{jfm:eq:freq domain scalar rad force} can be written in terms of the potential at each region by
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of regions}
-    \gls{sym-hat-f-pq} = \textrm{i} \gls{sym-omega} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}}\int_0^{2 \gls{sym-pi}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \, {}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \, r  \, dr\, d\gls{sym-theta}
+    \gls{sym-hat-f-pq} = \textrm{i} \gls{sym-omega} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}}\int_0^{2 \gls{sym-pi}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \, {}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \, \gls{sym-r}  \, d\gls{sym-r}\, d\gls{sym-theta}
 \end{equation}
 where $^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m})$ is the potential in interior region $\gls{sym-i-m}$ evaluated at $\gls{sym-z}=-\gls{sym-d-m}$ when only the $\gls{sym-q-dof}$th body is moving. $\gls{sym-hat-f-pq}$ can be rewritten in terms of frequency-dependent added mass and radiation damping coefficients $\gls{sym-A-pq}(\gls{sym-omega})$ and $\gls{sym-B-pq}(\gls{sym-omega})$, respectively, which is shown in Appendix~\ref{jfm:appC}.
 The result is
@@ -967,14 +967,14 @@ with output scalar $\gls{sym-c-p} \in \gls{sym-mathbb-R}$
 where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vector $\gls{sym-vec-c-p} =[\gls{sym-vec-c-p-i-1}, \, \gls{sym-vec-c-p-i-2}, \dots,  \gls{sym-vec-c-p-i-M},  \gls{sym-vec-c-p-e}]
 \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$, where
 \begin{equation}\label{jfm:eq:c_q_i1_vec}
-    \gls{sym-vec-c-p-i-1} = \left\{\begin{matrix} \gls{sym-vec-Z-i-1}(-\gls{sym-d-1}) \odot\gls{sym-vec-mathcal-R-1-i-1} & \text{when} \, m \in \gls{sym-mathcal-M-p} \\
-    \vec{0}_{\gls{sym-N-i-1}} & \text{when} \, m \notin \gls{sym-mathcal-M-p}
+    \gls{sym-vec-c-p-i-1} = \left\{\begin{matrix} \gls{sym-vec-Z-i-1}(-\gls{sym-d-1}) \odot\gls{sym-vec-mathcal-R-1-i-1} & \text{when} \, \gls{sym-m-region} \in \gls{sym-mathcal-M-p} \\
+    \vec{0}_{\gls{sym-N-i-1}} & \text{when} \, \gls{sym-m-region} \notin \gls{sym-mathcal-M-p}
     \end{matrix}\right. ,
 \end{equation}
 \begin{equation}\label{jfm:eq:c_q_im_vec}
-    \gls{sym-vec-c-p-i-m} = \left\{\begin{matrix} [\gls{sym-vec-Z-i-m}(-\gls{sym-d-m}) \odot\gls{sym-vec-mathcal-R-1-i-m}, \, \gls{sym-vec-Z-i-m}(-\gls{sym-d-m}) \odot\gls{sym-vec-mathcal-R-2-i-m}] & \text{when} \, m \in \gls{sym-mathcal-M-p} \vspace{0.5em} \\
+    \gls{sym-vec-c-p-i-m} = \left\{\begin{matrix} [\gls{sym-vec-Z-i-m}(-\gls{sym-d-m}) \odot\gls{sym-vec-mathcal-R-1-i-m}, \, \gls{sym-vec-Z-i-m}(-\gls{sym-d-m}) \odot\gls{sym-vec-mathcal-R-2-i-m}] & \text{when} \, \gls{sym-m-region} \in \gls{sym-mathcal-M-p} \vspace{0.5em} \\
     
-    \vec{0}_{2\gls{sym-N-i-m}} & \text{when} \, m \notin \gls{sym-mathcal-M-p}
+    \vec{0}_{2\gls{sym-N-i-m}} & \text{when} \, \gls{sym-m-region} \notin \gls{sym-mathcal-M-p}
     \end{matrix}\right. ,
 \end{equation}
 for $2\le \gls{sym-m-region} \le \gls{sym-M-regions}$, and $\gls{sym-vec-c-p-e} = \vec{0}_{\gls{sym-N-e}}$. 
@@ -1102,7 +1102,7 @@ When their contribution goes to zero, the matrix (and its solution) become real,
 \begin{figure}[htbp]
     \centering    \includegraphics[width=\linewidth]{figs/MEEM-Low-Freq.pdf}
     \caption{Left: Comparison of the low frequency approximation, the infinite frequency limit, and standard \gls{acr-meem} (with $\gls{sym-N-i-m} = \gls{sym-N-e} = 100$) for the geometry described in Section~\ref{jfm:sec:validation}.
-Right: A comparison of the first four $gls{sym-C-1-n-2-i-2}$ over low frequencies, demonstrating that the \behaviour{} of $\gls{sym-C-1-0-i-2}$ eventually dominates as frequency approaches zero for both the real and imaginary parts.
+Right: A comparison of the first four $\gls{sym-C-1-n-2-i-2}$ over low frequencies, demonstrating that the \behaviour{} of $\gls{sym-C-1-0-i-2}$ eventually dominates as frequency approaches zero for both the real and imaginary parts.
 This trend is representative of the other \gls{sym-C-1-n-m-i-m} and \gls{sym-C-2-n-m-i-m}.
 Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?path=pubs\%2FJFM\%2Ffigs\%2FMEEM-Low-Freq.pdf}{Calkit} and \href{https://cocalc.com/rmccabe/MEEM/meem}{CoCalc}.}
     \label{jfm:fig: extreme-frequencies}
