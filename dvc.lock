@@ -598,8 +598,8 @@ stages:
       nfiles: 2
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: eb5ca74c9e02fd68b18af7752024a8f0
-      size: 178134
+      md5: f2df72db098bdaba10a55e8ba7e5a5c3
+      size: 181861
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -623,8 +623,8 @@ stages:
       size: 9839
     - path: pubs/JFM/glossary/glossary-symbols-jfm.tex
       hash: md5
-      md5: 7f87457f010e6f7a759135392ed9d7c8
-      size: 44519
+      md5: 7f7e9eb9095d523edd42ac739c30956b
+      size: 47085
     - path: pubs/JFM/glossary/glossary-symbols-shared.tex
       hash: md5
       md5: 40b11c7a3b081e9044139ebfa6089b38
@@ -656,5 +656,5 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 6e4c894728e390998556b386e4038b23
-      size: 1172863
+      md5: e94cd6617e16347cbfbf4cee18f18c4b
+      size: 1231535

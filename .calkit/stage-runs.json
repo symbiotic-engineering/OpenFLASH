@@ -1,11 +1,11 @@
 {
   "build-jfm-paper": {
-    "start_time": "2026-11-13T21:56:54.587000",
-    "end_time": "2026-11-13T21:57:17.253000",
+    "start_time": "2026-11-14T05:27:04.043000",
+    "end_time": "2026-11-14T05:27:17.658000",
     "environment": "tex",
-    "git_rev": "62509f306921e76c672a70c96dda85161b01fccf",
+    "git_rev": "29f5054ed69f77e023ab8a52184183d3683d9098",
     "git_dirty": true,
-    "dvc_lock_hash": "sha256:f3e2ef61b827f96fadf2554e8d2c9ce2a4921a31e9af4a17832f771ec49a7f51",
+    "dvc_lock_hash": "sha256:5723371b8d505a5c78cc167fbdd6be5ddefb58aa062aed80b330151fd73681bb",
     "calkit_version": "0.50.8.dev9+gbee75b18",
     "calkit_git_rev": "b41723652cf9dbe53d64740019bc0afdd3f71964",
     "system": {
