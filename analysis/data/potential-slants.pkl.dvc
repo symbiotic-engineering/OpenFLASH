@@ -1,0 +1,5 @@
+outs:
+- md5: 31cd3c8c05c5951db5f91ef631c166a0
+  size: 1495603
+  hash: md5
+  path: potential-slants.pkl
