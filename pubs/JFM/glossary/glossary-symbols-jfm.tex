@@ -48,10 +48,10 @@
 \newsym{mathbf-C-0}{\mathbf{C}_0}{Output matrix created by vertically concatenating and horizontally tiling the output scalars \gls{sym-c-p} for all $\gls{sym-p-dof}=1$ to $\gls{sym-p-dof}=\gls{sym-Q-dof}$ bodies in \glsxtrshort{acr-meem}}
 \newsym{c-p}{c_p}{Output scalar in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body that do not depend on eigencoefficients}
 \newsym{vec-c-p-e}{\vec{c}_p^{\ e}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the $e$-th fluid region that scale linearly with the eigencoefficients}
-\newsym{vec-c-p-i-1}{\vec{c}_p^{\ i_1}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the $i_1$-th fluid region that scale linearly with the eigencoefficients}
-\newsym{vec-c-p-i-2}{\vec{c}_p^{\ i_2}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the $i_2$-nd fluid region that scale linearly with the eigencoefficients}
-\newsym{vec-c-p-i-M}{\vec{c}_p^{\ i_M}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the $i_M$-th fluid region that scale linearly with the eigencoefficients}
-\newsym{vec-c-p-i-m}{\vec{c}_p^{\ i_m}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the $i_m$-th fluid region that scale linearly with the eigencoefficients}
+\newsym{vec-c-p-i-1}{\vec{c}_p^{\ i_1}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the \gls{sym-i-1}-th fluid region that scale linearly with the eigencoefficients}
+\newsym{vec-c-p-i-2}{\vec{c}_p^{\ i_2}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the \gls{sym-i-2}-th fluid region that scale linearly with the eigencoefficients}
+\newsym{vec-c-p-i-M}{\vec{c}_p^{\ i_M}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the \gls{sym-i-M}-th fluid region that scale linearly with the eigencoefficients}
+\newsym{vec-c-p-i-m}{\vec{c}_p^{\ i_m}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body resulting from force on the part of the body above the \gls{sym-i-m}-th fluid region that scale linearly with the eigencoefficients}
 \newsym{vec-c-p}{\vec{c}^{\ p}}{Output vector in \glsxtrshort{acr-meem} to obtain the portion of the hydrodynamic coefficients of the \gls{sym-p-dof}-th body that scale linearly with the eigencoefficients}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OUTPUTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -119,6 +119,8 @@
 \newsym{vec-C-1-i-m}{\vec{C}_1^{i_m}}{Vector of eigencoefficients corresponding to all modes of the first radial eigenfunction in the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ in \glsxtrshort{acr-meem}}
 \newsym{vec-C-1-i-M-1}{\vec{C}_1^{i_{M-1}}}{Vector of eigencoefficients corresponding to all modes of the first radial eigenfunction in the $(\gls{sym-M-regions}-1)$-th interior region $i_{M-1}$ in \glsxtrshort{acr-meem}}
 \newsym{vec-C-1-i-m-1}{\vec{C}_1^{i_{m+1}}}{Vector of eigencoefficients corresponding to all modes of the first radial eigenfunction in the $(\gls{sym-m-region}+1)$-th interior region $\gls{sym-i-m-1}$ in \glsxtrshort{acr-meem}}
+\newsym{vec-C-1-mathrm-s}{\vec{C}_1^\mathrm{s}}{Vector of eigencoefficients corresponding to all modes of the first radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
+\newsym{vec-C-1-mathrm-t}{\vec{C}_1^\mathrm{t}}{Vector of eigencoefficients corresponding to all modes of the first radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
 
 % vectors of C2 eigencoefficients
 \newsym{vec-C-2-ell}{\vec{C}_2^\ell}{Vector of eigencoefficients corresponding to all modes of the second radial eigenfunction in generic region $\ell$ in \glsxtrshort{acr-meem}}
@@ -129,6 +131,8 @@
 \newsym{vec-C-2-i-m}{\vec{C}_2^{i_m}}{Vector of eigencoefficients corresponding to all modes of the second radial eigenfunction in the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ in \glsxtrshort{acr-meem}}
 \newsym{vec-C-2-i-M-1}{\vec{C}_2^{i_{M-1}}}{Vector of eigencoefficients corresponding to all modes of the second radial eigenfunction in the $(\gls{sym-M-regions}-1)$-th interior region $i_{M-1}$ in \glsxtrshort{acr-meem}}
 \newsym{vec-C-2-i-m-1}{\vec{C}_2^{i_{m+1}}}{Vector of eigencoefficients corresponding to all modes of the second radial eigenfunction in the $(\gls{sym-m-region}+1)$-th interior region $\gls{sym-i-m-1}$ in \glsxtrshort{acr-meem}}
+\newsym{vec-C-2-mathrm-s}{\vec{C}_2^\mathrm{s}}{Vector of eigencoefficients corresponding to all modes of the second radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
+\newsym{vec-C-2-mathrm-t}{\vec{C}_2^\mathrm{t}}{Vector of eigencoefficients corresponding to all modes of the second radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
 
 % C1 eigencoefficients
 \newsym{C-1-n-1-i-1}{C_{1{n_1}}^{i_1}}{Eigencoefficient corresponding to the $\gls{sym-n-1}$-th mode of the first (and only) radial eigenfunction in the innermost interior region $\gls{sym-i-1}$ in \glsxtrshort{acr-meem}}
@@ -140,6 +144,8 @@
 \newsym{C-11-ell}{C_{11}^\ell}{Eigencoefficient corresponding to the second mode ($n_\ell=1$) of the first radial eigenfunction in generic region $\ell$ in \glsxtrshort{acr-meem}}
 \newsym{C-1-n-e-e}{C_{1{n_e}}^e}{Eigencoefficient corresponding to the $\gls{sym-n-e}$-th mode of the first (and only) radial eigenfunction in the exterior region $e$ in \glsxtrshort{acr-meem}}
 \newsym{C-1-n-m-i-m}{C_{1{n_m}}^{i_m}}{Eigencoefficient corresponding to the $\gls{sym-n-m}$-th mode of the first radial eigenfunction in the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ in \glsxtrshort{acr-meem}}
+\newsym{C-mathrm-s-1n-mathrm-s}{C^\mathrm{s}_{1n_\mathrm{s}}}{Eigencoefficient corresponding to the $\gls{sym-n-mathrm-s}$-th mode of the first radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
+\newsym{C-mathrm-t-1n-mathrm-t}{C^\mathrm{t}_{1n_\mathrm{t}}}{Eigencoefficient corresponding to the $\gls{sym-n-mathrm-s}$-th mode of the first radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
 
 % C2 eigencoefficients
 \newsym{C-2-N-ell-1-ell}{C_{2(N^\ell-1)}^\ell}{Eigencoefficient corresponding to the final ($(N^\ell-1)$-th) mode of the second radial eigenfunction in generic region $\ell$ in \glsxtrshort{acr-meem}}
@@ -148,6 +154,8 @@
 \newsym{C-2n-1-i-1}{C_{2n_1}^{i_1}}{Hypothetical eigencoefficient corresponding to the $\gls{sym-n-1}$-th mode of the second radial eigenfunction in the innermost interior region $\gls{sym-i-1}$ in \glsxtrshort{acr-meem}, ommitted since only one radial eigenfunction exists in that region}
 \newsym{C-2n-e-e}{C_{2n_e}^e}{Hypothetical eigencoefficient corresponding to the $\gls{sym-n-e}$-th mode of the second radial eigenfunction in the exterior region $e$ in \glsxtrshort{acr-meem}, ommitted since only one radial eigenfunction exists in that region}
 \newsym{C-2-n-m-i-m}{C_{2{n_m}}^{i_m}}{Eigencoefficient corresponding to the $\gls{sym-n-m}$-th mode of the second radial eigenfunction in the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ in \glsxtrshort{acr-meem}}
+\newsym{C-mathrm-s-2n-mathrm-s}{C^\mathrm{s}_{2n_\mathrm{s}}}{Eigencoefficient corresponding to the $\gls{sym-n-mathrm-s}$-th mode of the second radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
+\newsym{C-mathrm-t-2n-mathrm-t}{C^\mathrm{t}_{2n_\mathrm{t}}}{Eigencoefficient corresponding to the $\gls{sym-n-mathrm-t}$-th mode of the second radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
 
 % C chi eigencoefficients
 \newsym{vec-C-chi-j}{\vec{C}_{\gls{sym-chi-1-2}}^j}{Vector of eigencoefficients corresponding to all modes of the $\gls{sym-chi-1-2}$-th radial eigenfunction in generic region $\gls{sym-j}$ in \glsxtrshort{acr-meem}}
@@ -252,12 +260,16 @@
 \newsym{R-11-ell}{R_{11}^\ell}{First radial eigenfunction in generic region $\ell$ at mode $n_\ell$ = 1 in \glsxtrshort{acr-meem}}
 \newsym{R-1-n-e-e}{R_{1{n_e}}^e}{First (and only) radial eigenfunction in the exterior region $e$ at mode $\gls{sym-n-e}$ in \glsxtrshort{acr-meem}}
 \newsym{R-1-n-m-i-m}{R_{1{n_m}}^{i_m}}{First radial eigenfunction in the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ at mode $\gls{sym-n-m}$ in \glsxtrshort{acr-meem}}
+\newsym{R-1n-mathrm-s-mathrm-s}{R_{1n_\mathrm{s}}^\mathrm{s}}{First radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ at mode $\gls{sym-n-s}$ in \glsxtrshort{acr-meem}}
+\newsym{R-1n-mathrm-t-mathrm-t}{R_{1n_\mathrm{t}}^\mathrm{t}}{First radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ at mode $\gls{sym-n-t}$ in \glsxtrshort{acr-meem}}
 
 % R2 radial eigenfunctions
 \newsym{R-2-N-ell-1-ell}{R_{2(N^\ell-1)}^\ell}{Second radial eigenfunction in generic region $\ell$ at its last mode $N^\ell-1$ in \glsxtrshort{acr-meem}}
 \newsym{R-2-n-m-i-m}{R_{2{n_m}}^{i_m}}{Second radial eigenfunction in the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ at mode $\gls{sym-n-m}$ in \glsxtrshort{acr-meem}}
 \newsym{R-20-ell}{R_{20}^\ell}{Second radial eigenfunction in generic region $\ell$ at mode $n_\ell$ = 0 in \glsxtrshort{acr-meem}}
 \newsym{R-21-ell}{R_{21}^\ell}{Second radial eigenfunction in generic region $\ell$ at mode $n_\ell$ = 1 in \glsxtrshort{acr-meem}}
+\newsym{R-2n-mathrm-s-mathrm-s}{R_{2n_\mathrm{s}}^\mathrm{s}}{Second radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ at mode $\gls{sym-n-s}$ in \glsxtrshort{acr-meem}}
+\newsym{R-2n-mathrm-t-mathrm-t}{R_{2n_\mathrm{t}}^\mathrm{t}}{Second radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ at mode $\gls{sym-n-t}$ in \glsxtrshort{acr-meem}}
 
 % R chi radial eigenfunctions
 \newsym{R-chi-N-j-1-j}{R_{\gls{sym-chi-1-2}(N^j-1)}^j}{Radial eigenfunction number $\gls{sym-chi-1-2}$ in generic region $\gls{sym-j}$ at its last mode $\gls{sym-N-j}-1$ in \glsxtrshort{acr-meem}}
@@ -272,6 +284,10 @@
 \newsym{vec-R-2-ell}{\vec{R}_2^\ell}{Vector of all modes of the second radial eigenfunction in generic region $\ell$ in \glsxtrshort{acr-meem}}
 \newsym{vec-R-2-i-m}{\vec{R}_2^{i_m}}{Vector of all modes of the second radial eigenfunction in the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ in \glsxtrshort{acr-meem}}
 \newsym{vec-R-2-i-m-1}{\vec{R}_2^{i_{m+1}}}{Vector of all modes of the second radial eigenfunction in the $(\gls{sym-m-region}+1)$-th interior region $\gls{sym-i-m-1}$ in \glsxtrshort{acr-meem}}
+\newsym{vec-R-2-mathrm-s}{\vec{R}_2^\mathrm{s}}{Vector of all modes of the second radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
+\newsym{vec-R-2-mathrm-t}{\vec{R}_2^\mathrm{t}}{Vector of all modes of the second radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
+\newsym{vec-R-1-mathrm-s}{\vec{R}_1^\mathrm{s}}{Vector of all modes of the first radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
+\newsym{vec-R-1-mathrm-t}{\vec{R}_1^\mathrm{t}}{Vector of all modes of the first radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
 
 % integrals of radial eigenfunctions
 \newsym{vec-mathcal-R-1-i-1}{\vec{\mathcal{R}}_1^{i_1}}{Integral of the first (and only) radial eigenfunction in the innermost interior region $\gls{sym-i-1}$ in \glsxtrshort{acr-meem}}
@@ -311,6 +327,7 @@
 \newsym{boldsymbol-mathcal-Z-ij}{\boldsymbol{\mathcal{Z}}^{ij}}{Matrix of coupling integrals between the $i$-th and $\gls{sym-j}$-th fluid regions in \glsxtrshort{acr-meem}}
 \newsym{boldsymbol-mathcal-Z-mathrm-ts}{\boldsymbol{\mathcal{Z}}^\mathrm{ts}}{Matrix of coupling integrals between the region with taller fluid height $\gls{sym-mathrm-t}$ and the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
 \newsym{boldsymbol-mathcal-Z-mathrm-st}{\boldsymbol{\mathcal{Z}}^\mathrm{st}}{Matrix of coupling integrals between the region with shorter fluid height $\gls{sym-mathrm-s}$ and the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
+
 
 %%%%%%%%%%%%%%%%%%% OTHER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % coordinates

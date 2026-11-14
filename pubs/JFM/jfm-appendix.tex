@@ -171,13 +171,13 @@ Eq.~\ref{jfm:eq:separated potential matching integral} and~\ref{jfm:eq:separated
 \begin{multline}\label{jfm:eq:separated potential matching integral simplified}
     (\gls{sym-h}-\gls{sym-d-mathrm-s})
         \left(
-            C^\mathrm{s}_{1n_\mathrm{s}} R_{1n_\mathrm{s}}^\mathrm{s}(\gls{sym-a-generic-radius}) + 
-            C^\mathrm{s}_{2n_\mathrm{s}} R_{2n_\mathrm{s}}^\mathrm{s}(\gls{sym-a-generic-radius})
+            \gls{sym-C-mathrm-s-1n-mathrm-s} \gls{sym-R-1n-mathrm-s-mathrm-s}(\gls{sym-a-generic-radius}) + 
+            \gls{sym-C-mathrm-s-2n-mathrm-s} \gls{sym-R-2n-mathrm-s-mathrm-s}(\gls{sym-a-generic-radius})
         \right) \\ 
     -\sum _{gls{sym-n-mathrm-t} = 0}^{\gls{sym-N-mathrm-t}}
     \left(
-        C^\mathrm{t}_{1n_\mathrm{t}} R_{1n_\mathrm{t}}^\mathrm{t}(\gls{sym-a-generic-radius}) +
-        C^\mathrm{t}_{2n_\mathrm{t}} R_{2n_\mathrm{t}}^\mathrm{t}(\gls{sym-a-generic-radius})
+        \gls{sym-C-mathrm-t-1n-mathrm-t} \gls{sym-R-1n-mathrm-t-mathrm-t}(\gls{sym-a-generic-radius}) +
+        \gls{sym-C-mathrm-t-2n-mathrm-t} \gls{sym-R-2n-mathrm-t-mathrm-t}(\gls{sym-a-generic-radius})
     \right)
     \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
     \gls{sym-Z-mathrm-s-n-mathrm-s}(\gls{sym-z})
@@ -195,17 +195,17 @@ and
 \begin{multline}\label{jfm:eq:separated velocity matching integral simplified}
     \sum _{\gls{sym-n-mathrm-s} = 0}^{\gls{sym-N-mathrm-s}}
     \left(
-        C^\mathrm{s}_{1n_\mathrm{s}}
+        \gls{sym-C-mathrm-s-1n-mathrm-s}
         \frac{
-                \partial R_{1n_\mathrm{s}}^\mathrm{s}
+                \partial \gls{sym-R-1n-mathrm-s-mathrm-s}
             }
             {
                 \partial \gls{sym-r}
             }
         (\gls{sym-a-generic-radius})
-        + C^\mathrm{s}_{2n_\mathrm{s}}
+        + \gls{sym-C-mathrm-s-2n-mathrm-s}
         \frac{
-                \partial R_{2n_\mathrm{s}}^\mathrm{s}
+                \partial \gls{sym-R-2n-mathrm-s-mathrm-s}
             }
             {
                 \partial \gls{sym-r}
@@ -218,17 +218,17 @@ and
 \\
     - (\gls{sym-h}-\gls{sym-d-mathrm-t})
     \left(
-        C^\mathrm{t}_{1n_\mathrm{t}}
+        \gls{sym-C-mathrm-t-1n-mathrm-t}
         \frac{
-                \partial R_{1n_\mathrm{t}}^\mathrm{t}
+                \partial \gls{sym-R-1n-mathrm-t-mathrm-t}
             }
             {
                 \partial \gls{sym-r}
             }
             (\gls{sym-a-generic-radius})
-        + C^\mathrm{t}_{2n_\mathrm{t}} 
+        + \gls{sym-C-mathrm-t-2n-mathrm-t} 
         \frac{
-                \partial R_{2n_\mathrm{t}}^\mathrm{t}
+                \partial \gls{sym-R-2n-mathrm-t-mathrm-t}
             }
             {
                 \partial \gls{sym-r}
@@ -280,12 +280,12 @@ yields the matrix equations
     \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot
     \boldsymbol{1}_{\gls{sym-N-mathrm-s}1}
     \vec{R}_{1}^\mathrm{t}(\gls{sym-a-generic-radius})
-    \vec{C}_1^\mathrm{t}
+    \gls{sym-vec-C-1-mathrm-t}
     -
     \boldsymbol{\mathcal{Z}}^{\mathrm{st}} \odot
     \boldsymbol{1}_{\gls{sym-N-mathrm-s}1}
     \vec{R}_{2}^\mathrm{t}(\gls{sym-a-generic-radius})
-    \vec{C}_2^\mathrm{t}
+    \gls{sym-vec-C-2-mathrm-t}
 \\
     =\int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-s}}
     \left(
@@ -299,26 +299,26 @@ and
 \begin{multline}\label{jfm:eq:velocity matching vector equations}
     \gls{sym-boldsymbol-mathcal-Z-mathrm-ts} \odot
     \mathbf{1}_{\gls{sym-N-mathrm-t}1}
-    \vec{R}_1^\mathrm{s}(\gls{sym-a-generic-radius})
-    \vec{C}_1^\mathrm{s}
+    \gls{sym-vec-R-1-mathrm-s}(\gls{sym-a-generic-radius})
+    \gls{sym-vec-C-1-mathrm-s}
     +
     \gls{sym-boldsymbol-mathcal-Z-mathrm-ts} \odot
     \mathbf{1}_{\gls{sym-N-mathrm-t}1}
-    \vec{R}_2^\mathrm{s}(\gls{sym-a-generic-radius})
-    \vec{C}_2^\mathrm{s}
+    \gls{sym-vec-R-2-mathrm-s}(\gls{sym-a-generic-radius})
+    \gls{sym-vec-C-2-mathrm-s}
 \\
     -(\gls{sym-h}-\gls{sym-d-mathrm-t})
     \mathrm{diag}
     \left(
-        \frac{\partial}{\partial \gls{sym-r}} \vec{R}_1^\mathrm{t}(\gls{sym-a-generic-radius})
+        \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-1-mathrm-t}(\gls{sym-a-generic-radius})
     \right)
-    \vec{C}_1^\mathrm{t}
+    \gls{sym-vec-C-1-mathrm-t}
     -(\gls{sym-h}-\gls{sym-d-mathrm-t})
     \mathrm{diag}
     \left(
-        \frac{\partial}{\partial \gls{sym-r}} \vec{R}_2^\mathrm{t}(\gls{sym-a-generic-radius})
+        \frac{\partial}{\partial \gls{sym-r}} \gls{sym-vec-R-2-mathrm-t}(\gls{sym-a-generic-radius})
     \right)
-    \vec{C}_2^\mathrm{t}
+    \gls{sym-vec-C-2-mathrm-t}
 \\
     =
     \int_{-\gls{sym-h}}^{-\gls{sym-d-mathrm-t}}
