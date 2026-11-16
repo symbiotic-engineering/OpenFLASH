@@ -13,9 +13,9 @@
 \newsym{d-m}{d_m}{Depth of body above the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ in \glsxtrshort{acr-meem}}
 \newsym{d-mathrm-s}{d_\mathrm{s}}{Depth of body above the shorter fluid region in \glsxtrshort{acr-meem}}
 \newsym{d-mathrm-t}{d_\mathrm{t}}{Depth of body above the taller fluid region in \glsxtrshort{acr-meem}}
-\newsym{d-M-1}{d_{M-1}}{Depth of body above the $(\gls{sym-M-regions}-1)$-th interior region $i_{M-1}$ in \glsxtrshort{acr-meem}}
-\newsym{d-m-1}{d_{m+1}}{Depth of body above the outer neighbor $(\gls{sym-m-region}+1)$-th interior region $\gls{sym-i-m-1}$ in \glsxtrshort{acr-meem}}
-\newsym{d-m-1-2}{d_{m-1}}{Depth of body above the inner neighbor $(\gls{sym-m-region}-1)$-th interior region $i_{m-1}$ in \glsxtrshort{acr-meem}}
+\newsym{d-M-1}{d_{M-1}}{Depth of body above the $(\gls{sym-M-regions}-1)$-th interior region \gls{sym-i-M-1} in \glsxtrshort{acr-meem}}
+\newsym{d-m-1}{d_{m+1}}{Depth of body above the outer neighbor $(\gls{sym-m-region}+1)$-th interior region \gls{sym-i-m-1} in \glsxtrshort{acr-meem}}
+\newsym{d-m-1-2}{d_{m-1}}{Depth of body above the inner neighbor $(\gls{sym-m-region}-1)$-th interior region \gls{sym-i-m-1-2} in \glsxtrshort{acr-meem}}
 
 % other geometry
 \newsym{zeta-slant}{\zeta}{Slant angle of the body surface in \glsxtrshort{acr-meem}, measured from vertical}
@@ -65,8 +65,8 @@
 
 % low frequency limits
 \newsym{K-added-mass}{K}{Generic constant used in \glsxtrshort{acr-meem} low-frequency limit of added mass of innermost body \gls{sym-A-h-11}}
-\newsym{K-1}{K_1}{First generic constant used in \glsxtrshort{acr-meem} low-frequency limit of interior-region eigencoefficients $C^{i_m}$}
-\newsym{K-2}{K_2}{Second generic constant used in \glsxtrshort{acr-meem} low-frequency limit of interior-region eigencoefficients $C^{i_m}$}
+\newsym{K-1}{K_1}{First generic constant used in \glsxtrshort{acr-meem} low-frequency limit of interior-region eigencoefficients \gls{sym-C-i-m}}
+\newsym{K-2}{K_2}{Second generic constant used in \glsxtrshort{acr-meem} low-frequency limit of interior-region eigencoefficients \gls{sym-C-i-m}}
 
 % forces
 \newsym{vec-f-pq}{\vec{f}_{pq}}{Vector of time-domain hydrodynamic forces in all directions on body \gls{sym-p-dof} due to the motion of body \gls{sym-q-dof}, calculated via \glsxtrshort{acr-meem}}
@@ -134,6 +134,9 @@
 \newsym{vec-C-2-mathrm-s}{\vec{C}_2^\mathrm{s}}{Vector of eigencoefficients corresponding to all modes of the second radial eigenfunction in the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
 \newsym{vec-C-2-mathrm-t}{\vec{C}_2^\mathrm{t}}{Vector of eigencoefficients corresponding to all modes of the second radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
 
+% vectors of C chi eigencoefficients
+\newsym{vec-C-chi-j}{\vec{C}_{\gls{sym-chi-1-2}}^j}{Vector of eigencoefficients corresponding to all modes of the $\gls{sym-chi-1-2}$-th radial eigenfunction in generic region $\gls{sym-j}$ in \glsxtrshort{acr-meem}}
+
 % C1 eigencoefficients
 \newsym{C-1-n-1-i-1}{C_{1{n_1}}^{i_1}}{Eigencoefficient corresponding to the $\gls{sym-n-1}$-th mode of the first (and only) radial eigenfunction in the innermost interior region $\gls{sym-i-1}$ in \glsxtrshort{acr-meem}}
 \newsym{C-1-n-2-i-2}{C_{1{n_2}}^{i_2}}{Eigencoefficient corresponding to the \gls{sym-n-2}-th mode of the first (and only) radial eigenfunction in the second interior region $\gls{sym-i-2}$ in \glsxtrshort{acr-meem}}
@@ -158,10 +161,10 @@
 \newsym{C-mathrm-t-2n-mathrm-t}{C^\mathrm{t}_{2n_\mathrm{t}}}{Eigencoefficient corresponding to the $\gls{sym-n-mathrm-t}$-th mode of the second radial eigenfunction in the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
 
 % C chi eigencoefficients
-\newsym{vec-C-chi-j}{\vec{C}_{\gls{sym-chi-1-2}}^j}{Vector of eigencoefficients corresponding to all modes of the $\gls{sym-chi-1-2}$-th radial eigenfunction in generic region $\gls{sym-j}$ in \glsxtrshort{acr-meem}}
 \newsym{C-chi-N-j-1-j}{C_{\gls{sym-chi-1-2}(N^j-1)}^j}{Eigencoefficient corresponding to the final ($(\gls{sym-N-j}-1)$-th) mode of the $\gls{sym-chi-1-2}$-th radial eigenfunction in generic region $\gls{sym-j}$ in \glsxtrshort{acr-meem}}
-\newsym{C-chi1-j}{C_{\gls{sym-chi-1-2}1}^j}{Eigencoefficient corresponding to the first mode of the $\gls{sym-chi-1-2}$-th radial eigenfunction in generic region $\gls{sym-j}$ in \glsxtrshort{acr-meem}}
-\newsym{C-chi2-j}{C_{\gls{sym-chi-1-2}2}^j}{Eigencoefficient corresponding to the second mode of the $\gls{sym-chi-1-2}$-th radial eigenfunction in generic region $\gls{sym-j}$ in \glsxtrshort{acr-meem}}
+\newsym{C-chi-1-j}{C_{\gls{sym-chi-1-2}1}^j}{Eigencoefficient corresponding to the first mode of the $\gls{sym-chi-1-2}$-th radial eigenfunction in generic region $\gls{sym-j}$ in \glsxtrshort{acr-meem}}
+\newsym{C-chi-2-j}{C_{\gls{sym-chi-1-2}2}^j}{Eigencoefficient corresponding to the second mode of the $\gls{sym-chi-1-2}$-th radial eigenfunction in generic region $\gls{sym-j}$ in \glsxtrshort{acr-meem}}
+\newsym{C-i-m}{C^{i_m}}{Eigencoefficient corresponding to any mode of any radial eigenfunction in the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ in \glsxtrshort{acr-meem}}
 
 %%%%%%%%%%%%%%%%%% EIGENVALUES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newsym{lambda}{\lambda}{Generic eigenvalue for \glsxtrshort{acr-meem}}
@@ -181,11 +184,18 @@
 \newsym{i-2-leq-m-M}{i_{2\leq m < M}}{Interior regions from the second to the $(\gls{sym-M-regions}-1)$-th in \glsxtrshort{acr-meem}}
 \newsym{i-3}{i_3}{Third interior region in \glsxtrshort{acr-meem}}
 \newsym{i-4}{i_4}{Fourth interior region in \glsxtrshort{acr-meem}}
+\newsym{i-M-1}{i_{M-1}}{Second-to-last interior region in \glsxtrshort{acr-meem}}
 \newsym{i-M}{i_M}{Last interior region in \glsxtrshort{acr-meem}}
 \newsym{i-m}{i_m}{Generic interior region in \glsxtrshort{acr-meem}}
 \newsym{i-m-1}{i_{m+1}}{Outer-neighbor interior region in \glsxtrshort{acr-meem}}
-\newsym{mathrm-t}{\mathrm{t}}{Subscript designating the region with taller fluid height in \glsxtrshort{acr-meem}}
-\newsym{mathrm-s}{\mathrm{s}}{Subscript designating the region with shorter fluid height in \glsxtrshort{acr-meem}}
+\newsym{i-m-1-2}{i_{m-1}}{Inner-neighbor interior region in \glsxtrshort{acr-meem}}
+\newsym{M-regions}{M}{Total number of interior fluid regions in \glsxtrshort{acr-meem}}
+\newsym{m-region}{m}{Index counting the interior fluid regions in \glsxtrshort{acr-meem}}
+
+% interior or exterior regions
+\newsym{mathrm-t}{\mathrm{t}}{Superscript designating the region with taller fluid height at a given boundary in \glsxtrshort{acr-meem}}
+\newsym{mathrm-s}{\mathrm{s}}{Superscript designating the region with shorter fluid height at a given boundary in \glsxtrshort{acr-meem}}
+\newsym{ell}{\ell}{Superscript indicating a generic region at a given boundary, either that with taller \gls{sym-mathrm-t} or shorter \gls{sym-mathrm-s} fluid height, in \glsxtrshort{acr-meem}}
 
 % indexing number of terms
 \newsym{n-1}{n_1}{Index counting the terms in the innermost interior region $\gls{sym-i-1}$}
@@ -194,8 +204,8 @@
 \newsym{n-e}{n_e}{Index counting the terms in the exterior region $e$}
 \newsym{n-mathrm-s}{n_\mathrm{s}}{Index counting the terms in the region with shorter fluid height $\gls{sym-mathrm-s}$}
 \newsym{n-mathrm-t}{n_\mathrm{t}}{Index counting the terms in the region with taller fluid height $\gls{sym-mathrm-t}$}
-\newsym{M-regions}{M}{Total number of interior fluid regions in \glsxtrshort{acr-meem}}
-\newsym{m-region}{m}{Index counting the interior fluid regions in \glsxtrshort{acr-meem}}
+\newsym{n-j}{n_j}{Index counting the terms in a generic region $\gls{sym-j}$}
+\newsym{n-ell}{n_\ell}{Index counting the terms in a generic region at a given boundary, either that with taller fluid height $\gls{sym-mathrm-t}$ or shorter fluid height $\gls{sym-mathrm-s}$}
 
 % total number of terms
 \newsym{N-big}{N^{\mathrm{big}}}{Largest number of terms used for the target region in \glsxtrshort{acr-meem} convergence testing sweeps}
@@ -207,11 +217,12 @@
 \newsym{N-i-m}{N^{i_m}}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$}
 \newsym{N-i-M-1}{N^{i_{M-1}}}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for the $(\gls{sym-M-regions}-1)$-th interior region $i_{M-1}$}
 \newsym{N-i-m-1}{N^{i_{m+1}}}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for the $(\gls{sym-m-region}+1)$-th interior region $\gls{sym-i-m-1}$}
-\newsym{N-i}{N^i}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for a generic region $i$}
+\newsym{N-iota}{N^\gls{sym-iota}}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for a generic region $\gls{sym-iota}$}
 \newsym{N-j}{N^j}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for a generic region $\gls{sym-j}$}
 \newsym{N-max}{N^\text{max}}{Maximum number of terms retained in the \glsxtrshort{acr-meem} infinite series, used to obtain ``true'' values for convergence studies}
 \newsym{N-mathrm-s}{N^\mathrm{s}}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for the region with shorter fluid height $\gls{sym-mathrm-s}$}
 \newsym{N-mathrm-t}{N^\mathrm{t}}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for the region with taller fluid height $\gls{sym-mathrm-t}$}
+\newsym{N-ell}{N^\ell}{Number of terms retained in the \glsxtrshort{acr-meem} infinite series for a generic region $\gls{sym-ell}$}
 \newsym{N-T}{N_\mathrm{T}}{Total number of unknown eigencoefficients in all regions, equal to the side length of the square matrix \gls{sym-mathbf-A}}
 
 % degrees of freedom
@@ -219,7 +230,12 @@
 \newsym{q-dof}{q}{Index for the radiating degree of freedom of a multibody \glsxtrshort{acr-meem} radiation problem}
 \newsym{p-dof}{p}{Index for the influenced degree of freedom of a multibody \glsxtrshort{acr-meem} radiation problem}
 
+% eigenfunction type within a region
 \newsym{chi-1-2}{\chi}{Index counting the radial eigenfunctions in a generic region in \glsxtrshort{acr-meem}}
+
+% generic indices
+\newsym{kappa-generic-index}{\kappa}{Generic index. Equivalent to \gls{sym-k-generic-index} and used when multiple distinct indices are needed in a single equation.}
+\newsym{iota}{\iota}{Generic index representing a fluid region index in MEEM. Equivalent to \gls{sym-j} and used when multiple distinct indices are needed in a single equation.}
 
 %%%%%%%%%%%%%%%%%%%%%%%% PHI %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % phi: all regions, total particular + homogeneous
@@ -324,7 +340,7 @@
 \newsym{boldsymbol-mathcal-Z-i-M-e}{\boldsymbol{\mathcal{Z}}^{i_M e}}{Matrix of coupling integrals between the $\gls{sym-M-regions}$-th interior region $\gls{sym-i-M}$ and the exterior region $e$ in \glsxtrshort{acr-meem}}
 \newsym{boldsymbol-mathcal-Z-i-m-e}{\boldsymbol{\mathcal{Z}}^{i_m e}}{Matrix of coupling integrals between the $\gls{sym-m-region}$-th interior region $\gls{sym-i-m}$ and the exterior region $e$ in \glsxtrshort{acr-meem}}
 \newsym{boldsymbol-mathcal-Z-i-mi-m-1}{\boldsymbol{\mathcal{Z}}^{i_mi_{m+1}}}{Matrix of coupling integrals between the $\gls{sym-m-region}$-th and $(\gls{sym-m-region}+1)$-th interior regions in \glsxtrshort{acr-meem}}
-\newsym{boldsymbol-mathcal-Z-ij}{\boldsymbol{\mathcal{Z}}^{ij}}{Matrix of coupling integrals between the $i$-th and $\gls{sym-j}$-th fluid regions in \glsxtrshort{acr-meem}}
+\newsym{boldsymbol-mathcal-Z-iota-j}{\boldsymbol{\mathcal{Z}}^{\gls{sym-iota}\gls{sym-j}}}{Matrix of coupling integrals between the $\gls{sym-iota}$-th and $\gls{sym-j}$-th fluid regions in \glsxtrshort{acr-meem}}
 \newsym{boldsymbol-mathcal-Z-mathrm-ts}{\boldsymbol{\mathcal{Z}}^\mathrm{ts}}{Matrix of coupling integrals between the region with taller fluid height $\gls{sym-mathrm-t}$ and the region with shorter fluid height $\gls{sym-mathrm-s}$ in \glsxtrshort{acr-meem}}
 \newsym{boldsymbol-mathcal-Z-mathrm-st}{\boldsymbol{\mathcal{Z}}^\mathrm{st}}{Matrix of coupling integrals between the region with shorter fluid height $\gls{sym-mathrm-s}$ and the region with taller fluid height $\gls{sym-mathrm-t}$ in \glsxtrshort{acr-meem}}
 

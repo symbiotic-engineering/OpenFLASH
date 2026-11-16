@@ -480,7 +480,7 @@ $\gls{sym-mathbf-A-1},\gls{sym-mathbf-A-2},\dots, \gls{sym-mathbf-A-M}$ and zero
 as shown in Table~\ref{jfm:tab:MEEM-A-matrix}. 
 The vector of unknowns has the form 
 $\gls{sym-vec-x}=[\gls{sym-vec-C-1-i-1}, \gls{sym-vec-C-1-i-2}, \gls{sym-vec-C-2-i-2},\dots, \gls{sym-vec-C-1-i-M}, \gls{sym-vec-C-2-i-M}, \gls{sym-vec-C-1-e}]^{\top} \in \gls{sym-mathbb-C}^{\gls{sym-N-T}}$, 
-where $\vec{C}_{\chi}^{j} = [\gls{sym-C-chi1-j}, \gls{sym-C-chi2-j}, ..., \gls{sym-C-chi-N-j-1-j}]$.
+where $\vec{C}_{\chi}^{j} = [\gls{sym-C-chi-1-j}, \gls{sym-C-chi-2-j}, ..., \gls{sym-C-chi-N-j-1-j}]$.
 Index $\gls{sym-j}\in\{\gls{sym-i-1},\gls{sym-i-2},...,\gls{sym-i-M},e\}$ specifies the region and $\gls{sym-chi-1-2}\in\{1,2\}$ specifies the eigenfunction type. 
 Column vector $\gls{sym-vec-b} \in \gls{sym-mathbb-R}^{\gls{sym-N-T}}$ consists of sub-vectors $\gls{sym-vec-b-m}$ such that 
 $\gls{sym-vec-b}=[\gls{sym-vec-b-1},\gls{sym-vec-b-2},\dots, \gls{sym-vec-b-M}]^{\top}$. 
@@ -492,11 +492,18 @@ Depending on which fluid region is taller, there are two cases of $\gls{sym-math
 The first case is more common, although the second case can occur for non-convex bodies.
 Corresponding right-hand-side vectors $\gls{sym-vec-b-m}$ are shown in 
 Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} and~\ref{jfm:tab:MEEM-b_m-vector-case-2}, respectively. 
-The matrix $\gls{sym-boldsymbol-mathcal-Z-ij}$ has size $\gls{sym-N-i} \times \gls{sym-N-j}$ 
-and contains the integrals of the products of vertical eigenfunctions in regions $i$ and $\gls{sym-j}$.
-Closed form expressions for $\gls{sym-boldsymbol-mathcal-Z-ij}$ are shown in Appendix~\ref{jfm:appB}. 
-The vector $\gls{sym-vec-R-chi-j}(\gls{sym-r}) = [\gls{sym-R-chi0-j}(\gls{sym-r}), \gls{sym-R-chi1-j}(\gls{sym-r}),\dots, \gls{sym-R-chi-N-j-1-j}(\gls{sym-r}) ]$ is evaluated at $\gls{sym-r}=\gls{sym-a-m}$ in each sub-matrix $\gls{sym-mathbf-A-m}$.
-Furthermore, $\mathbf{1}_{ij}$ is a matrix with $i$ rows and $\gls{sym-j}$ columns containing only ones, 
+The matrix $\gls{sym-boldsymbol-mathcal-Z-iota-j}$ has size $\gls{sym-N-iota} \times \gls{sym-N-j}$ 
+and contains the integrals of the products of vertical eigenfunctions in regions \gls{sym-iota} and \gls{sym-j}.
+Closed form expressions for $\gls{sym-boldsymbol-mathcal-Z-iota-j}$ are shown in Appendix~\ref{jfm:appB}. 
+The vector
+$\gls{sym-vec-R-chi-j}(\gls{sym-r}) = [
+    \gls{sym-R-chi0-j}(\gls{sym-r}),
+    \gls{sym-R-chi1-j}(\gls{sym-r}),
+    \dots,
+    \gls{sym-R-chi-N-j-1-j}(\gls{sym-r})
+]$
+is evaluated at $\gls{sym-r}=\gls{sym-a-m}$ in each sub-matrix $\gls{sym-mathbf-A-m}$.
+Furthermore, $\mathbf{1}_{\gls{sym-k-generic-index}\gls{sym-kappa-generic-index}}$ is a matrix with \gls{sym-k-generic-index} rows and \gls{sym-kappa-generic-index} columns containing only ones, 
 and $\odot$ is the Hadamard (element-wise) product. 
 The equations in Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1}-\ref{jfm:tab:MEEM-A_m-matrix-case-2} are valid as-is when $2 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$. 
 When $\gls{sym-m-region}=1$, the $\gls{sym-vec-C-2-i-1}$ column should be excluded from $\gls{sym-mathbf-A-1}$ 
@@ -979,7 +986,7 @@ where $\gls{sym-delta}_{pq}$ is the Kronecker delta symbol, and output row vecto
 \end{equation}
 for $2\le \gls{sym-m-region} \le \gls{sym-M-regions}$, and $\gls{sym-vec-c-p-e} = \vec{0}_{\gls{sym-N-e}}$. 
 Note that $\vec{0}_{\gls{sym-k-generic-index}}$ denotes a $\gls{sym-k-generic-index}$-long row vector of zeros and \gls{sym-vec-mathcal-R-chi-j} is a vector of integrals of radial eigenfunctions for region $\gls{sym-j}$ with closed form solutions in Appendix~\ref{jfm:appC}. 
-The vector $\gls{sym-vec-c-p}$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $\gls{sym-m-region}$th region in the $\gls{sym-vec-x-q}$ vector in Eq.~\ref{jfm:A_pq B_pq scalar form}. 
+The vector $\gls{sym-vec-c-p}$ contains non-zero elements that are positioned so they multiply the corresponding eigencoefficients for the $\gls{sym-m-region}$th region in the $\gls{sym-vec-x-q}$ vector in Eq.~\ref{jfm:A_pq B_pq scalar form}.
 By applying Eq.~\ref{jfm:A_pq B_pq scalar form} for $\gls{sym-q-dof}=1,2,\dots, \gls{sym-Q-dof}$ and $\gls{sym-p-dof}=1,2,\dots, \gls{sym-Q-dof}$, we can express the added mass matrix $\gls{sym-mathbf-A-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q-dof} \times \gls{sym-Q-dof}}$ and radiation damping matrix $\gls{sym-mathbf-B-h}(\gls{sym-omega}) \in \gls{sym-mathbb-R}^{\gls{sym-Q-dof} \times \gls{sym-Q-dof}}$ as
 \begin{equation}\label{jfm:A_pq B_pq matrix form}
     \gls{sym-mathbf-A-h}(\gls{sym-omega}) + \frac{\gls{sym-imag}\gls{sym-mathbf-B-h}(\gls{sym-omega})}{\gls{sym-omega}}
@@ -1361,38 +1368,38 @@ Figure context: \href{https://calkit.io/symbiotic-engineering/openflash/figures?
 $\gls{sym-alpha-A-i-m-1}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\begin{cases}
-    \gls{sym-c-1}, & p < 1\\
-    \gls{sym-c-2}, & p \geq 1
+    \gls{sym-c-1}, & \gls{sym-p-param} < 1\\
+    \gls{sym-c-2}, & \gls{sym-p-param} \geq 1
 \end{cases}$ & N/A\\
 \hline
 $\gls{sym-beta-A-i-m-1}$
 & $\gls{sym-c-1}\cdot \gls{sym-p-param}$
 & $\begin{cases}
-    \frac{\gls{sym-c-1}}{1 + e^{-\gls{sym-c-2}(p-1)}} + \gls{sym-c-3}, & p < 1\\
-    \gls{sym-c-4}, & p \geq 1
+    \frac{\gls{sym-c-1}}{1 + e^{-\gls{sym-c-2}(\gls{sym-p-param}-1)}} + \gls{sym-c-3}, & \gls{sym-p-param} < 1\\
+    \gls{sym-c-4}, & \gls{sym-p-param} \geq 1
 \end{cases}$
 & N/A\\
 \hline
 $\gls{sym-alpha-A-i-2-leq-m-M}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\begin{cases}
-    \gls{sym-c-1}, &p < 1\\
-    \gls{sym-c-2}, &p \geq 1
+    \gls{sym-c-1}, &\gls{sym-p-param} < 1\\
+    \gls{sym-c-2}, &\gls{sym-p-param} \geq 1
 \end{cases}$
 & $\begin{cases}
-    \gls{sym-c-1}, &p < 1\\
-    \gls{sym-c-2}, &p \geq 1
+    \gls{sym-c-1}, &\gls{sym-p-param} < 1\\
+    \gls{sym-c-2}, &\gls{sym-p-param} \geq 1
 \end{cases}$ \\
 \hline
 $\gls{sym-beta-A-i-2-leq-m-M}$\
 & $\gls{sym-c-1}\cdot \gls{sym-p-param}$
 & $\begin{cases}
-    \frac{\gls{sym-c-1}}{1 + e^{-\gls{sym-c-2}(p-1)}} + \gls{sym-c-3}, & p < 1\\
-    \gls{sym-c-4}, & p \geq 1
+    \frac{\gls{sym-c-1}}{1 + e^{-\gls{sym-c-2}(\gls{sym-p-param}-1)}} + \gls{sym-c-3}, & \gls{sym-p-param} < 1\\
+    \gls{sym-c-4}, & \gls{sym-p-param} \geq 1
 \end{cases}$
 & $\begin{cases}
-    \gls{sym-c-1}, &p < 1\\
-    \gls{sym-c-2}, &p \geq 1
+    \gls{sym-c-1}, &\gls{sym-p-param} < 1\\
+    \gls{sym-c-2}, &\gls{sym-p-param} \geq 1
 \end{cases}$\\
 \hline
 \end{tabular}\\
@@ -1407,8 +1414,8 @@ $\gls{sym-alpha-A-i-M}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2}) + \gls{sym-c-3}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & $\begin{cases}
-    \gls{sym-c-1}, & p < 1\\
-    \gls{sym-c-2}, & p \geq 1
+    \gls{sym-c-1}, & \gls{sym-p-param} < 1\\
+    \gls{sym-c-2}, & \gls{sym-p-param} \geq 1
 \end{cases}$
 & Independent
 & Independent\\
@@ -1417,8 +1424,8 @@ $\gls{sym-beta-A-i-M}$
 & $\gls{sym-c-1}\cdot \gls{sym-p-param}$
 & $\gls{sym-c-1}\ln(\gls{sym-p-param} + \gls{sym-c-2} - 1) + \gls{sym-c-3}$
 & $\begin{cases}
-    \gls{sym-c-1}, & p < 1\\
-    \gls{sym-c-2}, & p \geq 1
+    \gls{sym-c-1}, & \gls{sym-p-param} < 1\\
+    \gls{sym-c-2}, & \gls{sym-p-param} \geq 1
 \end{cases}$
 & $\gls{sym-c-1}\cdot \gls{sym-p-param} + \gls{sym-c-2}$
 & Independent\\
@@ -1436,8 +1443,8 @@ $\gls{sym-beta-B-i-M}$\
 & Independent
 & Independent
 & $\begin{cases}
-    c_1 \frac{p}{\sqrt 5}, & p < 5\\
-    c_1 \sqrt p, & p \geq 5
+    \gls{sym-c-1} \frac{\gls{sym-p-param}}{\sqrt 5}, & \gls{sym-p-param} < 5\\
+    \gls{sym-c-1} \sqrt{\gls{sym-p-param}}, & \gls{sym-p-param} \geq 5
 \end{cases}$\\
 \hline
 \end{tabular}
@@ -1863,7 +1870,7 @@ This occurs when
 \begin{equation}\label{jfm:eq:equal-args}
 \gls{sym-lambda-n-m-i-m}\gls{sym-a-m} = \gls{sym-lambda-n-e-e}\gls{sym-a-M}
 \end{equation}
-for any $(\gls{sym-n-m},\gls{sym-n-e},\gls{sym-m-region})$ positive integer triplet with $\gls{sym-m-region}>1$.
+for any $(\gls{sym-n-m},\gls{sym-n-e},\gls{sym-m-region})$ positive integer triplet with $\gls{sym-m-region}\geq 2$.
 %%%
 Substituting the eigenvalue definitions into Eq.~\ref{jfm:eq:equal-args}, we see that the $\gls{sym-n-m}$th Bessel term in the $\gls{sym-m-region}$th region can be 
 reused for the $\gls{sym-n-e}$th Bessel term in the exterior region if the frequency $\gls{sym-omega}$ and index $\gls{sym-n-e}$ are set as follows:
