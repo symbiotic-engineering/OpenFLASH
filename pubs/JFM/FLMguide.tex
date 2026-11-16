@@ -528,13 +528,13 @@ Comparing Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1} and \ref{jfm:tab:MEEM-A_m-
 each $\gls{sym-mathbf-A-m}$ sub-matrix contains four square diagonal blocks and four rectangular dense blocks but differs in the location of each block type.
 Diagonal blocks arise from orthogonality of the vertical eigenfunctions within a given region,
 and dense blocks arise from coupling of the vertical eigenfunctions between adjacent regions.
+Additionally, Appendix~\ref{jfm:sec:Forms of Matrix A} shows that each sub-matrix $\gls{sym-mathbf-A-m}$ decomposes into an element-wise product of purely radial and purely vertical components:
+$\gls{sym-mathbf-A-m} = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$.
 
 Tables~\ref{jfm:tab:MEEM-b_m-vector-case-1} and \ref{jfm:tab:MEEM-b_m-vector-case-2} 
 show the two cases of $\gls{sym-vec-b-m}$ sub-vectors, which have closed form solutions.
 For $1 \le \gls{sym-m-region} \le \gls{sym-M-regions}-1$, these can be used without modification to obtain all vectors $\gls{sym-vec-b-m}$.
 For $\gls{sym-m-region}=\gls{sym-M-regions}$, Table~\ref{jfm:tab:MEEM-b_m-vector-case-1} is modified so that any $\gls{sym-i-m-1}$ indices are replaced with $e$ and $\gls{sym-d-m-1}$ is set to zero. 
-Additionally, Appendix~\ref{jfm:sec:Forms of Matrix A} shows that each sub-matrix $\gls{sym-mathbf-A-m}$ decomposes into an element-wise product of purely radial and purely vertical components:
-$\gls{sym-mathbf-A-m} = \gls{sym-mathbf-A-m-r} \odot \gls{sym-mathbf-A-m-z}$.
 
 After constructing the $\gls{sym-mathbf-A}$ matrix and $\gls{sym-vec-b}$ vector 
 that correspond to the problem's geometry and wave conditions, 
@@ -939,7 +939,7 @@ Since $\gls{sym-hat-n-p}=\gls{sym-hat-e-z}$ at the horizontal portions of $\gls{
 % Note that this will not be the case in Sec.~\ref{jfm:sec:slant} when we use a finite number of cylindrical regions to approximate an axisymmetric body with a slanted surface that is not purely vertical or horizontal. 
 Proceeding with integration along the bottom body boundaries, the total heave force on body $\gls{sym-p-dof}$ will be due to integrating the potential on the bottom boundaries of all cylindrical rings belonging to body $\gls{sym-p-dof}$.
 We will define $\gls{sym-mathcal-M-p}$ as the set of all indices that correspond to regions which form the $\gls{sym-p-dof}$th body.
-For example, if body 1 consists of regions $\gls{sym-i-1}$, $\gls{sym-i-3}$ and $\gls{sym-i-4}$, $\gls{sym-mathcal-M-1} = \{1, 3, 4\}$.
+For example, if body 1 consists of the volume above regions $\gls{sym-i-1}$, $\gls{sym-i-3}$ and $\gls{sym-i-4}$, then $\gls{sym-mathcal-M-1} = \{1, 3, 4\}$.
 Eq.~\ref{jfm:eq:freq domain scalar rad force} can be written in terms of the potential at each region by
 \begin{equation}\label{jfm:eq:freq domain scalar rad force in terms of regions}
     \gls{sym-hat-f-pq} = \textrm{i} \gls{sym-omega} \gls{sym-rho-w} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-p}}\int_0^{2 \gls{sym-pi}} \int_{\gls{sym-a-m}}^{\gls{sym-a-m-1}} \, {}^{\gls{sym-q-dof}}\gls{sym-phi-i-m}(\gls{sym-r},-\gls{sym-d-m}) \, \gls{sym-r}  \, d\gls{sym-r}\, d\gls{sym-theta}
@@ -1021,7 +1021,7 @@ $\gls{sym-X-q}$ in the $\gls{sym-q-dof}$th entry.
 The hydrostatic stiffness matrix $\gls{sym-mathbf-K-h}$ and mass matrix $\gls{sym-mathbf-M}$ are diagonal matrices that can be found from geometry.
 The element in the $\gls{sym-q-dof}$th row and $\gls{sym-q-dof}$th column of $\gls{sym-mathbf-K-h}$ can be found by summing over the waterplane areas $\gls{sym-W-m}$ contributed by each region
 \begin{equation}\label{jfm:eq:hydrostatic stiffness}
-    [\gls{sym-mathbf-K-h}]_{qq}= \gls{sym-rho-w} \gls{sym-g} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}
+    [\gls{sym-mathbf-K-h}]_{\gls{sym-q-dof}\gls{sym-q-dof}}= \gls{sym-rho-w} \gls{sym-g} \sum_{\gls{sym-m-region} \in \gls{sym-mathcal-M-q}} \gls{sym-W-m}
 \end{equation}
 where $\gls{sym-W-m}= \gls{sym-pi} \gls{sym-a-m}^2$ for $\gls{sym-m-region}=1$ and $\gls{sym-W-m}= \gls{sym-pi}(\gls{sym-a-m}^2-\gls{sym-a-m-1-2}^2)$ otherwise.
 If we assume the configuration in Fig.~\ref{jfm:fig:Diagram} is in static equilibrium such that the gravitational force balances the buoyancy force, the element in the $\gls{sym-q-dof}$th row and $\gls{sym-q-dof}$th column of $\gls{sym-mathbf-M}$, is
@@ -1194,7 +1194,7 @@ the ratio of the $\gls{sym-n-m}=1$ term to the $\gls{sym-n-m}=\gls{sym-N-i-m}-1$
 This means that the condition number of $\gls{sym-mathbf-A}$ grows roughly exponentially with the maximum truncation order of the series, and more rapidly for geometries in which large radii co-occur with large drafts.
 In principle, a high condition number means that the $\gls{sym-mathbf-A}$ matrix will amplify small deviations or numerical errors in the $\gls{sym-vec-b}$ vector to produce large errors in the $\gls{sym-vec-x}$ vector, or equivalently that the $\gls{sym-vec-x}$ vector is close to non-unique.
 However, the validation in section~\ref{jfm:sec:validation} will show that these high condition numbers do not appear to interfere with the accuracy or convergence of the solution, even when the linear algebra solver produces warnings about ill-conditioned inputs.
-In their review of a related method, \cite[Section 4.3]{hiptmair_survey_2016} explain the high condition number as a consequence of the eigenfunctions becoming nearly linearly dependent at large truncation orders.
+In their review of a related method, \citet[Section 4.3]{hiptmair_survey_2016} explain the high condition number as a consequence of the eigenfunctions becoming nearly linearly dependent at large truncation orders.
 They reference some studies which likewise find no issue with the high condition number and others which choose the number of terms per region to balance truncation error and conditioning.
 
 \subsubsection{Matrix Sparsity}
@@ -1204,7 +1204,7 @@ This can be observed by partitioning $\gls{sym-mathbf-A}$ into rectangular block
 The bi-diagonal structure occurs because the matching equations at a given boundary contain only unknowns from the two regions at that boundary, and not from other regions.
 Each block features its own sparsity pattern, where some portions are completely populated, 
 and others have multiple individual bands of elements due to the diagonal blocks in Tables~\ref{jfm:tab:MEEM-A_m-matrix-case-1} and \ref{jfm:tab:MEEM-A_m-matrix-case-2}. 
-Although a standard linear solver was used in this work (\texttt{scipy}'s LU decomposition), 
+Although a standard linear solver is used in this work (\texttt{scipy}'s LU decomposition), 
 the computational complexity of \gls{acr-meem} may be reduced further by exploiting the sparsity of $\gls{sym-mathbf-A}$. 
 This is discussed further in Section~\ref{jfm:sec:compute-time}.
 
@@ -1245,7 +1245,7 @@ Note that the geometry is simplified in the \gls{acr-meem} and Capytaine models 
 In reality, the CorPower \gls{acr-wec} geometry also consists of a slanted section. 
 This will be accounted for later in Sec.~\ref{jfm:sec:slant}. 
 The geometry settings of this comparison were set as follows: 
-$\gls{sym-a-1}=1.25 \text{~m}$, $\gls{sym-a-2}=4.2 \text{~m}$, $\gls{sym-d-1}=14.45 \text{~m}$, $\gls{sym-d-2}=2.05 \text{~m}$, and $\gls{sym-h}=50 \text{~m}$. 
+\gls{sym-a-1}=1.25 m, \gls{sym-a-2}=4.2 m, \gls{sym-d-1}=14.45 m, \gls{sym-d-2}=2.05 m, and \gls{sym-h}=50 m.
 The series in each region was truncated to 150 for \gls{acr-meem} ($\gls{sym-N-i-1}=\gls{sym-N-i-2}=\gls{sym-N-e}=150$) and 1060 panels were used in Capytaine. 
 The hydrodynamic coefficients from \gls{acr-meem} and Capytaine are on average within 1\% of one another. 
 Small discrepancies can be attributed to Capytaine needing more panels to be completely converged, a consequence of Capytaine's slow convergence with the number of panels. 
