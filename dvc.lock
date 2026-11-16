@@ -598,8 +598,8 @@ stages:
       nfiles: 2
     - path: pubs/JFM/FLMguide.tex
       hash: md5
-      md5: f2df72db098bdaba10a55e8ba7e5a5c3
-      size: 181861
+      md5: 71dc90b0e2595321b77f36e1aa8d8892
+      size: 182687
     - path: pubs/JFM/JFM-FLM_Au.cls
       hash: md5
       md5: 3c186eafc5523bfaca542e040d306b68
@@ -615,28 +615,28 @@ stages:
       nfiles: 34
     - path: pubs/JFM/glossary/glossary-acronyms.tex
       hash: md5
-      md5: c9fd84e9fb58e776e522da65209702d4
-      size: 11391
+      md5: 3b5ca1496a769fb51f0082cc05b46a02
+      size: 10610
     - path: pubs/JFM/glossary/glossary-setup.tex
       hash: md5
       md5: 7e3d37c2a6c5583bef0e52489d64e253
       size: 9839
     - path: pubs/JFM/glossary/glossary-symbols-jfm.tex
       hash: md5
-      md5: 7f7e9eb9095d523edd42ac739c30956b
-      size: 47085
+      md5: da083f9124d81a7e3875486f35fa78ae
+      size: 48664
     - path: pubs/JFM/glossary/glossary-symbols-shared.tex
       hash: md5
-      md5: 40b11c7a3b081e9044139ebfa6089b38
-      size: 8221
+      md5: 7f65b6de09da7be1dd71a97d6f641348
+      size: 8281
     - path: pubs/JFM/glossary/no-appendix-glossary.tex
       hash: md5
       md5: 9ded186a16d32ccdaab303afcaa5db15
       size: 3260
     - path: pubs/JFM/jfm-appendix.tex
       hash: md5
-      md5: 7072f90b5d2f86a7edb422e1ea2c1e30
-      size: 40207
+      md5: 8776bc145f0f73758ca2c28a00fd2f0e
+      size: 40232
     - path: pubs/JFM/jfm.bib
       hash: md5
       md5: 94debb13be1e536dfceb909122f78e97
@@ -656,5 +656,5 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: e94cd6617e16347cbfbf4cee18f18c4b
-      size: 1231535
+      md5: 705d00827d5f0b27ffb3f79ea4ceb31d
+      size: 1173398
