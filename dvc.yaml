@@ -33,6 +33,28 @@ stages:
           cache: true
     desc: Automatically generated from the 'low-m0-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
+  slant-data-manual:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "analysis/slant_data_generation.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/analysis/slant_data_generation.ipynb
+      - package/src/
+      - dev/python/
+      - analysis/sea-lab-utils
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - analysis/data/slants.pkl
+      - analysis/data/slope-slants.pkl
+      - analysis/data/potential-slants.pkl
+      - .calkit/notebooks/executed/analysis/slant_data_generation.ipynb:
+          cache: true
+      - .calkit/notebooks/html/analysis/slant_data_generation.html:
+          cache: true
+    frozen: true
+    desc: Automatically generated from the 'slant-data-manual' stage in
+      calkit.yaml. Changes made here will be overwritten.
   slant-figs:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/slant_data_plots.ipynb"
@@ -71,6 +93,7 @@ stages:
           cache: true
       - .calkit/notebooks/html/analysis/timing_data_generation.html:
           cache: true
+    frozen: true
     desc: Automatically generated from the 'timing-data' stage in calkit.yaml.
       Changes made here will be overwritten.
   timing-figs:
@@ -92,6 +115,47 @@ stages:
           cache: true
     desc: Automatically generated from the 'timing-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
+  convergence-data-envelope:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html
+      "dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
+      - dev/python/convergence-study/helpers.py
+      - dev/python/multi_condensed.py
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+      - .calkit/notebooks/executed/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb:
+          cache: true
+      - .calkit/notebooks/html/dev/python/convergence-study/i-region-convergence/middle-region/envelope.html:
+          cache: true
+    frozen: true
+    desc: Automatically generated from the 'convergence-data-envelope' stage in
+      calkit.yaml. Changes made here will be overwritten.
+  convergence-data-prediction:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
+      html "dev/python/convergence-study/prediction/all-random-generator.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/dev/python/convergence-study/prediction/all-random-generator.ipynb
+      - dev/python/convergence-study/helpers.py
+      - dev/python/multi_condensed.py
+      - dev/python/convergence-study/prediction/prediction_evaluators.py
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+      - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
+      - .calkit/notebooks/executed/dev/python/convergence-study/prediction/all-random-generator.ipynb:
+          cache: true
+      - .calkit/notebooks/html/dev/python/convergence-study/prediction/all-random-generator.html:
+          cache: true
+    frozen: true
+    desc: Automatically generated from the 'convergence-data-prediction' stage
+      in calkit.yaml. Changes made here will be overwritten.
   convergence-figs:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/convergence-results.ipynb"
@@ -157,7 +221,6 @@ stages:
       - pubs/JFM/glossary/glossary-acronyms.tex
       - pubs/JFM/glossary/glossary-setup.tex
       - .calkit/env-locks/tex
-      - pubs/JFM/glossary/no-appendix-glossary.tex
     outs:
       - pubs/JFM/FLMguide.pdf
     desc: Automatically generated from the 'build-jfm-paper' stage in
