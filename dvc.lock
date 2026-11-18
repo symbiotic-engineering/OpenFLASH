@@ -254,8 +254,8 @@ stages:
       size: 12332
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 3b6a1695933c1cbeadb167812effac26.dir
-      size: 14988
+      md5: 2f5861633eb175984c67f748edb3d79d.dir
+      size: 15530
       nfiles: 20
     - path: package/src/
       hash: md5
@@ -266,16 +266,16 @@ stages:
     - path: 
         .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
       hash: md5
-      md5: e775fdd4037dfbabbbe608e760cfd4b8
-      size: 920295
+      md5: 59681a78d95dae6d22133f30290f160f
+      size: 920216
     - path: .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
       hash: md5
-      md5: 67fa35c387a026d248c5f5beeec2ff24
-      size: 1244674
+      md5: f493d7ca4624ec430dc381267ba199f1
+      size: 1253436
     - path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
       hash: md5
-      md5: 4f75eae9218276d2a0a679173432c971
-      size: 56440
+      md5: 68c03c9077376cddef6c93d8e4372b3f
+      size: 56447
   low-m0-figs:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
       html "analysis/low_m0_plots.ipynb"
@@ -291,8 +291,8 @@ stages:
       size: 11589
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 3b6a1695933c1cbeadb167812effac26.dir
-      size: 14988
+      md5: 2f5861633eb175984c67f748edb3d79d.dir
+      size: 15530
       nfiles: 20
     - path: dev/python/limiting-cases/low_m0.py
       hash: md5
@@ -306,15 +306,15 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
       hash: md5
-      md5: 4b3fc1f35902b93f872345a275838387
-      size: 102896
+      md5: 5c98fc47aac481bd4c229bc9a87e866e
+      size: 102898
     - path: .calkit/notebooks/html/analysis/low_m0_plots.html
       hash: md5
-      md5: 6826bfe99a3860d75a2564abfe06e62f
-      size: 415740
+      md5: de2370929a0f1ed1bc1f6551b04d153c
+      size: 423867
     - path: pubs/JFM/figs/MEEM-Low-Freq.pdf
       hash: md5
-      md5: 217c271980623a4ba3f216db9c779aac
+      md5: 2f8e02bfab908cd47da732f45b699d92
       size: 124159
   slant-figs:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
@@ -343,8 +343,8 @@ stages:
       size: 6664
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 3b6a1695933c1cbeadb167812effac26.dir
-      size: 14988
+      md5: 2f5861633eb175984c67f748edb3d79d.dir
+      size: 15530
       nfiles: 20
     - path: package/src/
       hash: md5
@@ -354,27 +354,27 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
       hash: md5
-      md5: b10513b4e0c79ed61d7796e4b589e828
-      size: 541032
+      md5: 0710b6113fffc598a5a1d48ab78a0046
+      size: 541119
     - path: .calkit/notebooks/html/analysis/slant_data_plots.html
       hash: md5
-      md5: 435be3f73f148c60e1a7e4fb4adaba0c
-      size: 960577
+      md5: 1204d380e74f999b58f97bf58f4f1b39
+      size: 969601
     - path: pubs/JFM/figs/Along-Outline.pdf
       hash: md5
-      md5: 15cb91e975616b90c65966c2537e771f
+      md5: 38b64e12e7fd722b8c2c5e16c2e517c7
       size: 50850
     - path: pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
       hash: md5
-      md5: e4ff43a4ab710463333a039c1b9cff35
+      md5: 38e54e884f127e47447f6ce107c0722e
       size: 275577
     - path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
       hash: md5
-      md5: 1a0e9457e02e1c00dea3e6d21b713a2d
-      size: 49633
+      md5: a7df77572ca20fc439008866591eb349
+      size: 49632
     - path: pubs/JFM/figs/Vary-Slopes.pdf
       hash: md5
-      md5: 84dd944d378eda88f548c9ff0d2f0bbd
+      md5: 82054bedeab124281f242fb47bfa59c4
       size: 61955
   timing-figs:
     cmd: calkit nb execute --environment openflash-on-branch-tex --no-check --to
@@ -395,8 +395,8 @@ stages:
       size: 4034
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 3b6a1695933c1cbeadb167812effac26.dir
-      size: 14988
+      md5: 2f5861633eb175984c67f748edb3d79d.dir
+      size: 15530
       nfiles: 20
     - path: package/src/
       hash: md5
@@ -406,23 +406,23 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
       hash: md5
-      md5: f4ffe7204fddf10bab95df37a7f99945
-      size: 469668
+      md5: 07b8c6d6f7786c5ed588e09684cc85a3
+      size: 469676
     - path: .calkit/notebooks/html/analysis/timing_plots.html
       hash: md5
-      md5: 4bdbb0b82de1ad43b2b9554db0e76452
-      size: 817005
+      md5: 29f0881d7c2dff2735864b6ea45e511a
+      size: 825411
     - path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
       hash: md5
-      md5: 088e7603b0c78ed152c21b9dc285627d
-      size: 47335
+      md5: 4b6abc53c0c8fccf92624022ebcc860d
+      size: 47336
     - path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
       hash: md5
-      md5: fb601e236cea7221f781bee8e332d98a
-      size: 41730
+      md5: 4445d81715fda5e6dc64e32e339e162a
+      size: 41733
     - path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
       hash: md5
-      md5: 256fff058b6263a502354fe5b8f36d40
+      md5: deff85120484e943a593eb7d032480cc
       size: 75010
   sparsity-figs:
     cmd: calkit nb execute --environment openflash-on-main-tex --no-check --to 
@@ -473,8 +473,8 @@ stages:
       size: 54915
     - path: analysis/sea-lab-utils
       hash: md5
-      md5: 3b6a1695933c1cbeadb167812effac26.dir
-      size: 14988
+      md5: 2f5861633eb175984c67f748edb3d79d.dir
+      size: 15530
       nfiles: 20
     - path: 
         dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
@@ -499,24 +499,24 @@ stages:
     outs:
     - path: .calkit/notebooks/executed/analysis/convergence-results.ipynb
       hash: md5
-      md5: 476f01d6630bbb9fcfc73302fc2d2be4
-      size: 309289
+      md5: b31837eb2ec68611961c06bdcf16e337
+      size: 309368
     - path: .calkit/notebooks/html/analysis/convergence-results.html
       hash: md5
-      md5: 03486c09af1335fc21b39412a7f3acc4
-      size: 726912
+      md5: 2ce53f5b6024ef6e4e7c9bb363efa78a
+      size: 736132
     - path: pubs/JFM/figs/alpha-beta-explanation.pdf
       hash: md5
-      md5: 8c12f65a2d1b1f138bcc13bdfbb7e238
+      md5: 074462b78739f34b30ffa4732ed5d999
       size: 122046
     - path: pubs/JFM/figs/alpha-beta-to-trend.pdf
       hash: md5
-      md5: 2ef4ad650b8279e71b6806a91eaaba6e
-      size: 127620
+      md5: 53f6080127cdd456aa8598cb4860cb5d
+      size: 127607
     - path: pubs/JFM/figs/convergence-fit-assessment.pdf
       hash: md5
-      md5: f35c25e55693788f005042d5e180d680
-      size: 66296
+      md5: a94555b7b14fc4fcbcf1f68e30b7caba
+      size: 66298
   timing-data:
     cmd: calkit nb execute --environment openflash-on-branch --no-check --to 
       html "analysis/timing_data_generation.ipynb"
@@ -610,29 +610,25 @@ stages:
       size: 3942
     - path: pubs/JFM/figs/
       hash: md5
-      md5: 4bbd4f82e1de561ed8bbf6c0adf8ba0d.dir
-      size: 1423511
+      md5: 664e0cc6fbe2ffd7403a08564a6c6dcc.dir
+      size: 1421240
       nfiles: 34
     - path: pubs/JFM/glossary/glossary-acronyms.tex
       hash: md5
-      md5: 3b5ca1496a769fb51f0082cc05b46a02
-      size: 10610
+      md5: 4e0b1fe98ec37caf987500a565bb1d98
+      size: 11557
     - path: pubs/JFM/glossary/glossary-setup.tex
       hash: md5
       md5: 7e3d37c2a6c5583bef0e52489d64e253
       size: 9839
     - path: pubs/JFM/glossary/glossary-symbols-jfm.tex
       hash: md5
-      md5: da083f9124d81a7e3875486f35fa78ae
-      size: 48664
+      md5: d30799150dc010cbfebf8e77b3dda9ef
+      size: 48983
     - path: pubs/JFM/glossary/glossary-symbols-shared.tex
       hash: md5
       md5: 7f65b6de09da7be1dd71a97d6f641348
       size: 8281
-    - path: pubs/JFM/glossary/no-appendix-glossary.tex
-      hash: md5
-      md5: 9ded186a16d32ccdaab303afcaa5db15
-      size: 3260
     - path: pubs/JFM/jfm-appendix.tex
       hash: md5
       md5: 8776bc145f0f73758ca2c28a00fd2f0e
@@ -656,8 +652,8 @@ stages:
     outs:
     - path: pubs/JFM/FLMguide.pdf
       hash: md5
-      md5: 705d00827d5f0b27ffb3f79ea4ceb31d
-      size: 1173398
+      md5: 2f52731bfdd43a029aedb30af6db432d
+      size: 1176817
   slant-data-manual:
     cmd: calkit nb execute --environment openflash-on-branch --no-check 
       "analysis/slant_data_generation.ipynb"
@@ -708,3 +704,244 @@ stages:
       hash: md5
       md5: 3cb581a4d2a2774c678c1ab000b5bcdc
       size: 6664
+  convergence-data-prediction:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check 
+      "dev/python/convergence-study/prediction/all-random-generator.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-branch
+      hash: md5
+      md5: dea3d1b2cea67738d990be0b4c3e21eb.dir
+      size: 20574
+      nfiles: 2
+    - path: 
+        .calkit/notebooks/cleaned/dev/python/convergence-study/prediction/all-random-generator.ipynb
+      hash: md5
+      md5: e06c6dfe1ccc27cb605774ede03f5d56
+      size: 12480
+    - path: dev/python/convergence-study/helpers.py
+      hash: md5
+      md5: a84f6b214ac08a461d71fb3237604099
+      size: 28536
+    - path: dev/python/convergence-study/prediction/prediction_evaluators.py
+      hash: md5
+      md5: 0f5ed6dac2ba0a57ccac419aa6c9d5ca
+      size: 16557
+    - path: dev/python/multi_condensed.py
+      hash: md5
+      md5: 9e22981c2e00b7e369542ca747a815c6
+      size: 44556
+    - path: package/src
+      hash: md5
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
+    outs:
+    - path: 
+        dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
+      hash: md5
+      md5: ddc3bea1331d91ff3d62d7b7df3c84b3
+      size: 6917562
+    - path: 
+        dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+      hash: md5
+      md5: 78f909357b3425b8c1d1731448942d21
+      size: 20776735
+  convergence-data-envelope:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check 
+      "dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-branch
+      hash: md5
+      md5: dea3d1b2cea67738d990be0b4c3e21eb.dir
+      size: 20574
+      nfiles: 2
+    - path: 
+        .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
+      hash: md5
+      md5: ca274750bcc796f521c8568361f7b969
+      size: 14632
+    - path: dev/python/convergence-study/helpers.py
+      hash: md5
+      md5: a84f6b214ac08a461d71fb3237604099
+      size: 28536
+    - path: dev/python/multi_condensed.py
+      hash: md5
+      md5: 9e22981c2e00b7e369542ca747a815c6
+      size: 44556
+    - path: package/src
+      hash: md5
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
+    outs:
+    - path: 
+        dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+      hash: md5
+      md5: d2417aed1d05400304c96cc7de3196f5
+      size: 1308030
+  convergence-data-deps-3:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check 
+      "dev/python/convergence-study/i-region-convergence/middle-region/3_dependencies.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-branch
+      hash: md5
+      md5: dea3d1b2cea67738d990be0b4c3e21eb.dir
+      size: 20574
+      nfiles: 2
+    - path: 
+        .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/3_dependencies.ipynb
+      hash: md5
+      md5: f2829002c1e32857667fea48c3630b48
+      size: 16862
+    - path: dev/python/convergence-study/helpers.py
+      hash: md5
+      md5: a84f6b214ac08a461d71fb3237604099
+      size: 28536
+    - path: dev/python/multi_condensed.py
+      hash: md5
+      md5: 9e22981c2e00b7e369542ca747a815c6
+      size: 44556
+    - path: package/src
+      hash: md5
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
+    outs:
+    - path: 
+        dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-1.pkl
+      hash: md5
+      md5: 12fafa94bfa1fc5037c7610ba8551193
+      size: 5288416
+    - path: 
+        dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-1.pkl
+      hash: md5
+      md5: 13db9dcae4a2ad59de893306df253ce0
+      size: 53080421
+  convergence-data-added-mass-indep-m0-h:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check 
+      "dev/python/convergence-study/i-region-convergence/middle-region/am_m0_h.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-branch
+      hash: md5
+      md5: dea3d1b2cea67738d990be0b4c3e21eb.dir
+      size: 20574
+      nfiles: 2
+    - path: 
+        .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/am_m0_h.ipynb
+      hash: md5
+      md5: d826d0e1d9d5a8cc31ac4d5df99f9f92
+      size: 12991
+    - path: dev/python/convergence-study/helpers.py
+      hash: md5
+      md5: a84f6b214ac08a461d71fb3237604099
+      size: 28536
+    - path: dev/python/multi_condensed.py
+      hash: md5
+      md5: 9e22981c2e00b7e369542ca747a815c6
+      size: 44556
+    - path: package/src
+      hash: md5
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
+    outs:
+    - path: 
+        dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-3.pkl
+      hash: md5
+      md5: e52aa20fbc5bc3275e53251651fc9c09
+      size: 654588
+  convergence-data-deps-4:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check 
+      "dev/python/convergence-study/i-region-convergence/middle-region/4_dependencies.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-branch
+      hash: md5
+      md5: dea3d1b2cea67738d990be0b4c3e21eb.dir
+      size: 20574
+      nfiles: 2
+    - path: 
+        .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/4_dependencies.ipynb
+      hash: md5
+      md5: 36d2b1cb33c5e3cca7079a0f35694be8
+      size: 27122
+    - path: dev/python/convergence-study/helpers.py
+      hash: md5
+      md5: a84f6b214ac08a461d71fb3237604099
+      size: 28536
+    - path: dev/python/multi_condensed.py
+      hash: md5
+      md5: 9e22981c2e00b7e369542ca747a815c6
+      size: 44556
+    - path: package/src
+      hash: md5
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
+    outs:
+    - path: 
+        dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-2.pkl
+      hash: md5
+      md5: 2424740d9d4254c5ab2c176ad4daf1d7
+      size: 3525649
+    - path: 
+        dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-2.pkl
+      hash: md5
+      md5: b68b6b3002bfc421472487bc9f68babe
+      size: 13622630
+  convergence-data-deps-5:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check 
+      "dev/python/convergence-study/i-region-convergence/middle-region/5_dependencies.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-branch
+      hash: md5
+      md5: dea3d1b2cea67738d990be0b4c3e21eb.dir
+      size: 20574
+      nfiles: 2
+    - path: 
+        .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/5_dependencies.ipynb
+      hash: md5
+      md5: 964a9bb33b2bdc5efbe05106f98210b6
+      size: 9934
+    - path: dev/python/convergence-study/helpers.py
+      hash: md5
+      md5: a84f6b214ac08a461d71fb3237604099
+      size: 28536
+    - path: dev/python/multi_condensed.py
+      hash: md5
+      md5: 9e22981c2e00b7e369542ca747a815c6
+      size: 44556
+    - path: package/src
+      hash: md5
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
+    outs:
+    - path: 
+        dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-3.pkl
+      hash: md5
+      md5: 1a0ac34e717dc6a6f4ebb599b6dc97f1
+      size: 9401539

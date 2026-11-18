@@ -132,6 +132,60 @@ pipeline:
         - pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
 
     #################################### CONVERGENCE ####################################
+    convergence-data-deps-3:
+      kind: jupyter-notebook
+      notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/3_dependencies.ipynb
+      environment: openflash-on-branch
+      inputs:
+        - dev/python/convergence-study/helpers.py
+        - dev/python/multi_condensed.py
+      outputs:
+        - dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-1.pkl
+        - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-1.pkl
+      frozen: true
+      executed_ipynb_storage: null
+      html_storage: null
+
+    convergence-data-deps-4:
+      kind: jupyter-notebook
+      notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/4_dependencies.ipynb
+      environment: openflash-on-branch
+      inputs:
+        - dev/python/convergence-study/helpers.py
+        - dev/python/multi_condensed.py
+      outputs:
+        - dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-2.pkl
+        - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-2.pkl
+      frozen: true
+      executed_ipynb_storage: null
+      html_storage: null
+    
+    convergence-data-deps-5:
+      kind: jupyter-notebook
+      notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/5_dependencies.ipynb
+      environment: openflash-on-branch
+      inputs:
+        - dev/python/convergence-study/helpers.py
+        - dev/python/multi_condensed.py
+      outputs:
+        - dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-3.pkl
+      frozen: true
+      executed_ipynb_storage: null
+      html_storage: null
+    
+    convergence-data-added-mass-indep-m0-h:
+        kind: jupyter-notebook
+        notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/am_m0_h.ipynb
+        environment: openflash-on-branch
+        inputs:
+          - dev/python/convergence-study/helpers.py
+          - dev/python/multi_condensed.py
+        outputs:
+          - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-3.pkl
+        frozen: true
+        executed_ipynb_storage: null
+        html_storage: null
+
     convergence-data-envelope:
       kind: jupyter-notebook
       notebook_path: dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
@@ -142,6 +196,8 @@ pipeline:
       outputs:
         - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
       frozen: true
+      executed_ipynb_storage: null
+      html_storage: null
 
     convergence-data-prediction:
       kind: jupyter-notebook
@@ -155,6 +211,8 @@ pipeline:
         - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
         - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
       frozen: true
+      executed_ipynb_storage: null
+      html_storage: null
 
     convergence-figs:
       kind: jupyter-notebook

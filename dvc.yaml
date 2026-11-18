@@ -111,9 +111,71 @@ stages:
           cache: true
     desc: Automatically generated from the 'timing-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
+  convergence-data-deps-3:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check
+      "dev/python/convergence-study/i-region-convergence/middle-region/3_dependencies.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/3_dependencies.ipynb
+      - dev/python/convergence-study/helpers.py
+      - dev/python/multi_condensed.py
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-1.pkl
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-1.pkl
+    frozen: true
+    desc: Automatically generated from the 'convergence-data-deps-3' stage in
+      calkit.yaml. Changes made here will be overwritten.
+  convergence-data-deps-4:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check
+      "dev/python/convergence-study/i-region-convergence/middle-region/4_dependencies.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/4_dependencies.ipynb
+      - dev/python/convergence-study/helpers.py
+      - dev/python/multi_condensed.py
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-2.pkl
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-2.pkl
+    frozen: true
+    desc: Automatically generated from the 'convergence-data-deps-4' stage in
+      calkit.yaml. Changes made here will be overwritten.
+  convergence-data-deps-5:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check
+      "dev/python/convergence-study/i-region-convergence/middle-region/5_dependencies.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/5_dependencies.ipynb
+      - dev/python/convergence-study/helpers.py
+      - dev/python/multi_condensed.py
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-3.pkl
+    frozen: true
+    desc: Automatically generated from the 'convergence-data-deps-5' stage in
+      calkit.yaml. Changes made here will be overwritten.
+  convergence-data-added-mass-indep-m0-h:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check
+      "dev/python/convergence-study/i-region-convergence/middle-region/am_m0_h.ipynb"
+    deps:
+      - .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/am_m0_h.ipynb
+      - dev/python/convergence-study/helpers.py
+      - dev/python/multi_condensed.py
+      - package/src
+      - pyproject.toml
+      - .calkit/env-locks/openflash-on-branch
+    outs:
+      - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-3.pkl
+    frozen: true
+    desc: Automatically generated from the
+      'convergence-data-added-mass-indep-m0-h' stage in calkit.yaml. Changes
+      made here will be overwritten.
   convergence-data-envelope:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
-      html
+    cmd: calkit nb execute --environment openflash-on-branch --no-check
       "dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb"
     deps:
       - .calkit/notebooks/cleaned/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb
@@ -124,16 +186,12 @@ stages:
       - .calkit/env-locks/openflash-on-branch
     outs:
       - dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
-      - .calkit/notebooks/executed/dev/python/convergence-study/i-region-convergence/middle-region/envelope.ipynb:
-          cache: true
-      - .calkit/notebooks/html/dev/python/convergence-study/i-region-convergence/middle-region/envelope.html:
-          cache: true
     frozen: true
     desc: Automatically generated from the 'convergence-data-envelope' stage in
       calkit.yaml. Changes made here will be overwritten.
   convergence-data-prediction:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
-      html "dev/python/convergence-study/prediction/all-random-generator.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check
+      "dev/python/convergence-study/prediction/all-random-generator.ipynb"
     deps:
       - .calkit/notebooks/cleaned/dev/python/convergence-study/prediction/all-random-generator.ipynb
       - dev/python/convergence-study/helpers.py
@@ -145,10 +203,6 @@ stages:
     outs:
       - dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
       - dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
-      - .calkit/notebooks/executed/dev/python/convergence-study/prediction/all-random-generator.ipynb:
-          cache: true
-      - .calkit/notebooks/html/dev/python/convergence-study/prediction/all-random-generator.html:
-          cache: true
     frozen: true
     desc: Automatically generated from the 'convergence-data-prediction' stage
       in calkit.yaml. Changes made here will be overwritten.
