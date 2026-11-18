@@ -270,6 +270,8 @@ pipeline:
         - pubs/JFM/glossary/glossary-setup.tex
       outputs:
         - pubs/JFM/FLMguide.pdf
+      diffs:
+        - main
 
     # build-joss-paper:
     #   kind: command

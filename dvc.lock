@@ -615,8 +615,8 @@ stages:
       nfiles: 34
     - path: pubs/JFM/glossary/glossary-acronyms.tex
       hash: md5
-      md5: 4e0b1fe98ec37caf987500a565bb1d98
-      size: 11557
+      md5: c9fd84e9fb58e776e522da65209702d4
+      size: 11391
     - path: pubs/JFM/glossary/glossary-setup.tex
       hash: md5
       md5: 7e3d37c2a6c5583bef0e52489d64e253
