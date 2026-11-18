@@ -45,18 +45,19 @@ pipeline:
       outputs:
         - pubs/NumericalFluids/WileyDesign/Optimal-Design-layout/figs/MEEM-Low-Freq.pdf
 
-    # slant-data-manual:
-    #   kind: jupyter-notebook
-    #   notebook_path: analysis/slant_data_generation.ipynb
-    #   environment: openflash-on-branch
-    #   inputs:
-    #     - package/src/
-    #     - dev/python/
-    #     - analysis/sea-lab-utils
-    #   outputs:
-    #     - analysis/data/slants.pkl
-    #     - analysis/data/slope-slants.pkl
-    #     - analysis/data/potential-slants.pkl
+    slant-data-manual:
+      kind: jupyter-notebook
+      notebook_path: analysis/slant_data_generation.ipynb
+      environment: openflash-on-branch
+      inputs:
+        - package/src/
+        - dev/python/
+        - analysis/sea-lab-utils
+      outputs:
+        - analysis/data/slants.pkl
+        - analysis/data/slope-slants.pkl
+        - analysis/data/potential-slants.pkl
+      frozen: true
     slant-figs:
       kind: jupyter-notebook
       notebook_path: analysis/slant_data_plots.ipynb
@@ -83,6 +84,7 @@ pipeline:
         - package/src/
       outputs:
         - analysis/data/timing.pkl
+      frozen: true
     timing-figs:
       kind: jupyter-notebook
       notebook_path: analysis/timing_plots.ipynb
