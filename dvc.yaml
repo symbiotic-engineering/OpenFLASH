@@ -34,8 +34,8 @@ stages:
     desc: Automatically generated from the 'low-m0-figs' stage in calkit.yaml.
       Changes made here will be overwritten.
   slant-data-manual:
-    cmd: calkit nb execute --environment openflash-on-branch --no-check --to
-      html "analysis/slant_data_generation.ipynb"
+    cmd: calkit nb execute --environment openflash-on-branch --no-check
+      "analysis/slant_data_generation.ipynb"
     deps:
       - .calkit/notebooks/cleaned/analysis/slant_data_generation.ipynb
       - package/src/
@@ -48,10 +48,6 @@ stages:
       - analysis/data/slants.pkl
       - analysis/data/slope-slants.pkl
       - analysis/data/potential-slants.pkl
-      - .calkit/notebooks/executed/analysis/slant_data_generation.ipynb:
-          cache: true
-      - .calkit/notebooks/html/analysis/slant_data_generation.html:
-          cache: true
     frozen: true
     desc: Automatically generated from the 'slant-data-manual' stage in
       calkit.yaml. Changes made here will be overwritten.

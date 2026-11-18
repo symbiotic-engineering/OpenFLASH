@@ -87,6 +87,8 @@ pipeline:
         - analysis/data/slope-slants.pkl
         - analysis/data/potential-slants.pkl
       frozen: true
+      executed_ipynb_storage: null
+      html_storage: null
 
     slant-figs:
       kind: jupyter-notebook

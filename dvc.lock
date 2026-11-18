@@ -658,3 +658,53 @@ stages:
       hash: md5
       md5: 705d00827d5f0b27ffb3f79ea4ceb31d
       size: 1173398
+  slant-data-manual:
+    cmd: calkit nb execute --environment openflash-on-branch --no-check 
+      "analysis/slant_data_generation.ipynb"
+    deps:
+    - path: .calkit/env-locks/openflash-on-branch
+      hash: md5
+      md5: dea3d1b2cea67738d990be0b4c3e21eb.dir
+      size: 20574
+      nfiles: 2
+    - path: .calkit/notebooks/cleaned/analysis/slant_data_generation.ipynb
+      hash: md5
+      md5: 7f8ae802ddd0cf5e5e4dc6db28a7eeb6
+      size: 23415
+    - path: analysis/sea-lab-utils
+      hash: md5
+      md5: 2f5861633eb175984c67f748edb3d79d.dir
+      size: 15530
+      nfiles: 20
+    - path: dev/python/
+      hash: md5
+      md5: 217483200718998b6554b27ce9b518d9.dir
+      size: 375930306
+      nfiles: 292
+    - path: package/src
+      hash: md5
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: package/src/
+      hash: md5
+      md5: 2b51b596d2c940d353dcca434c1163b4.dir
+      size: 128869
+      nfiles: 13
+    - path: pyproject.toml
+      hash: md5
+      md5: ab3c33fe9a53029dac3a1afd11e02097
+      size: 2115
+    outs:
+    - path: analysis/data/potential-slants.pkl
+      hash: md5
+      md5: 31cd3c8c05c5951db5f91ef631c166a0
+      size: 1495603
+    - path: analysis/data/slants.pkl
+      hash: md5
+      md5: 085a3f3953c7423cd8a47d5ef6271453
+      size: 6715
+    - path: analysis/data/slope-slants.pkl
+      hash: md5
+      md5: 3cb581a4d2a2774c678c1ab000b5bcdc
+      size: 6664
