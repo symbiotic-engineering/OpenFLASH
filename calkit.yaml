@@ -272,6 +272,9 @@ pipeline:
         - pubs/JFM/FLMguide.pdf
       diffs:
         - main
+      diff_filter:
+        kind: python-script
+        script_path: pubs/JFM/glossary-diff-filter.py
 
     # build-joss-paper:
     #   kind: command

@@ -277,12 +277,12 @@ stages:
       calkit.yaml. Changes made here will be overwritten.
   build-jfm-paper-diff-main:
     cmd: calkit latex diff -e tex --no-check --from main --revision-key
-      71fb61869edb --latexmk-arg -interaction=nonstopmode --input pubs/JFM/figs/
-      --input pubs/JFM/JFM-FLM_Au.cls --input pubs/JFM/jfm.bib --input
-      pubs/JFM/jfm.bst --input pubs/JFM/lineno-FLM.sty --input
-      pubs/JFM/zotero-meem-refs.bib --input pubs/JFM/becca-zotero-refs.bib
-      --input pubs/JFM/jfm-appendix.tex --input
-      pubs/JFM/glossary/glossary-symbols-jfm.tex --input
+      71fb61869edb --latexmk-arg -interaction=nonstopmode --filter-script
+      pubs/JFM/glossary-diff-filter.py --input pubs/JFM/figs/ --input
+      pubs/JFM/JFM-FLM_Au.cls --input pubs/JFM/jfm.bib --input pubs/JFM/jfm.bst
+      --input pubs/JFM/lineno-FLM.sty --input pubs/JFM/zotero-meem-refs.bib
+      --input pubs/JFM/becca-zotero-refs.bib --input pubs/JFM/jfm-appendix.tex
+      --input pubs/JFM/glossary/glossary-symbols-jfm.tex --input
       pubs/JFM/glossary/glossary-symbols-shared.tex --input
       pubs/JFM/glossary/glossary-acronyms.tex --input
       pubs/JFM/glossary/glossary-setup.tex --output-dir .calkit/latex-diffs/main
@@ -302,6 +302,7 @@ stages:
       - pubs/JFM/glossary/glossary-acronyms.tex
       - pubs/JFM/glossary/glossary-setup.tex
       - .calkit/env-locks/tex
+      - pubs/JFM/glossary-diff-filter.py
     outs:
       - .calkit/latex-diffs/main/pubs/JFM/FLMguide.pdf
     desc: Automatically generated from the 'build-jfm-paper' stage in
