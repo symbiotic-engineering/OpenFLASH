@@ -1,7 +1,6 @@
 name: openflash-openflash-on-branch
 channels:
   - conda-forge
-  - conda-pypi
 dependencies:
   - _openmp_mutex=4.5=20_gnu
   - _python_abi3_support=1.0=hd8ed1ab_3
@@ -228,6 +227,7 @@ dependencies:
   - pillow=13.0.0=py312h38079b3_0
   - pip=26.2.2=pyh8b19718_2
   - pixman=0.46.4=h54a6638_3
+  - pkgconf=3.0.11=pkg_config_hf2a7378_0
   - platformdirs=4.14.5=pyh5ded981_0
   - prometheus-cpp=1.3.0=h26ae035_1
   - prompt-toolkit=3.0.53=pyha770c72_0
