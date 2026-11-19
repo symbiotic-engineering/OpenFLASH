@@ -1,6 +1,13 @@
 name: openflash-openflash-on-main
 channels:
   - conda-forge
+  - sea-lab
 dependencies:
   - sea-lab::open-flash>=v1.0.25
-  - capytaine
+  - pandas<3.0
+  - papermill
+  - c-compiler
+  - fortran-compiler
+  - capytaine<3.0
+  - ipykernel
+  - pip

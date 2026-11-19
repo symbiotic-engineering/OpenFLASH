@@ -1,0 +1,33 @@
+{
+    "RepoDigests": [
+        "sha256:a0414b8b72fd8923917ede614d340d98dc7aa3102aabc2e955e9c02a6100fd62"
+    ],
+    "Architecture": "amd64",
+    "Os": "linux",
+    "RootFS": {
+        "Type": "layers",
+        "Layers": [
+            "sha256:922ec217407c0fd31cb18b46090bf62e439fb53ecd01f09406d62e25a906e09b",
+            "sha256:dfe268c1b17007073161e77870c1644f24066630ae3cde52aba98aef9a1a77a3",
+            "sha256:19159c1e76cfc282eaa9562d50c12b5c924189f7097b4bd7804e077cc2071573",
+            "sha256:487b2a7ebd41e2861ddfcc6899c24cdaa23ad257aaeb59d6176da6411b30a811",
+            "sha256:c08d57c60302efe0d89b2e90d7aba9c49bb57cb7d6f082c1e53a8bc6982fac6e",
+            "sha256:ffb102cf76df2f7c66a78b020dd68d1834b0a05651be1e74c643cba1540dc502",
+            "sha256:66998342e3d49e91f7b00fa631c09ae0a28309cb0e8f6747a15ccb30ab92d3e3",
+            "sha256:16b151d7bdb5fb272ac4375abd33449d2cf76d60cd6826d379807fa3a68b9902",
+            "sha256:b807c72d2a54fdc28a47bcae024b4669670545226808175f56aabadc4f2cc52d",
+            "sha256:c7635454da2a674f83542ce92aa46da03bd1972d083042c1387872881bcb1182",
+            "sha256:730505b86f49be034617387ed1609a7a8131b786902f4feb352ffec41f9b8226",
+            "sha256:a0d4c149ef5c5f3e0d72c48f706018c9ca02d6593c2a6342a35428fb8eb48fc2",
+            "sha256:0ab2b958688ffcd843342ac7220d07ba3efdf152c0273233f1f6d83c12366313",
+            "sha256:2b96a4c425b92883fb13ef828c935104c4c81ef3ccfb00dbedcc6f2db0d9bdcd",
+            "sha256:13a2745520d5d3da534718af2b7bec8e30b2623d3483cbe035df3c3aef5db452",
+            "sha256:ce1c20150487c0b46ca697d0e69ebd2de5fffd9bf9a6a8a0c8ed4918443cd0b4"
+        ]
+    },
+    "DockerfileMD5": null,
+    "DepsMD5s": {},
+    "EnvVars": {
+        "JOURNAL": "joss"
+    }
+}

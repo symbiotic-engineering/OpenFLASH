@@ -60,7 +60,7 @@ dev = [
     "ruff>=0.0.280"
 ]
 hydro = [
-    "capytaine>=2.2",
+    "capytaine>=2.2,<3.0",
 ]
 
 [tool.setuptools]
@@ -75,4 +75,5 @@ include = ["openflash*"]
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
+version_scheme = "no-guess-dev"
 fallback_version = "0+unknown"
