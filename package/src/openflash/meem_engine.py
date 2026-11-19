@@ -341,7 +341,7 @@ class MEEMEngine:
         
         cache = self.cache_list[problem]
         # We only need phi constants here since R1 and R2 are handled by the helper
-        _, _, int_phi_store = cache._get_integration_constants()
+        _, _, int_phi_store = cache._get_integration_constants() # list only for internal regions
 
         if modes_to_calculate is None:
             num_bodies = len(geometry.body_arrangement.bodies)
@@ -358,22 +358,30 @@ class MEEMEngine:
                 body_to_regions[b_i] = [current_region]
                 current_region += 1
 
-        for mode_index in modes_to_calculate:
+        for mode_index in modes_to_calculate: # loop through influenced modes
             heaving = [0] * len(domain_keys)
-            
-            if mode_index in body_to_regions:
+
+
+            # Set to 1 if region being influenced is part of the influenced body.
+            if mode_index in body_to_regions: 
                 for r_idx in body_to_regions[mode_index]:
-                    if r_idx < len(heaving):
+                    if r_idx < len(heaving): 
                         heaving[r_idx] = 1
+
+            # Effective Kronecker delta. If influenced mode (mode_index) is the radiating mode (problem.modes), 1. Otherwise, zero.
+            if mode_index==problem.modes:
+                Kronecker_delta = 1
+            else:
+                Kronecker_delta = 0
 
             # --- Use the new helper method ---
             c_vector = self.assemble_c_multi(problem, heaving)
 
             hydro_p_term_sum = np.zeros(boundary_count, dtype=complex)
             for i in range(boundary_count):
-                hydro_p_term_sum[i] = heaving[i] * int_phi_store[i]
+                hydro_p_term_sum[i] = heaving[i] * int_phi_store[i] ####################################################### double check. one per internal region
 
-            hydro_coef = 2 * pi * (np.dot(c_vector, X[:-NMK[-1]]) + sum(hydro_p_term_sum))
+            hydro_coef = 2 * pi * (np.dot(c_vector, X[:-NMK[-1]]) + Kronecker_delta * sum(hydro_p_term_sum))
 
             hydro_coef_real = hydro_coef.real * rho
             if m0 == np.inf:
@@ -390,7 +398,7 @@ class MEEMEngine:
                 "c_vector": c_vector # --- Added to output dictionary ---
             })
 
-        return results_per_mode
+        return results_per_mode # per influenced mode
     
     def calculate_potentials(self, problem, solution_vector: np.ndarray, m0, spatial_res, sharp, R_range: Optional[np.ndarray] = None, Z_range: Optional[np.ndarray] = None) -> Dict[str, Any]:
         # Ensure m_k_arr and N_k_arr are computed and retrieved from the cache
@@ -613,7 +621,7 @@ class MEEMEngine:
                 full_damping_matrix[freq_idx, :, :] = np.nan
                 continue
 
-            for i_idx, radiating_mode in enumerate(problem_modes):
+            for i_idx, radiating_mode in enumerate(problem_modes): # radiating dof idx
                 try:
                     current_region_idx = 0
                     for b_i, body in enumerate(temp_arrangement.bodies):
@@ -632,7 +640,7 @@ class MEEMEngine:
                     b_vector = temp_engine.assemble_b_multi(temp_problem, m0)
                     X_i = linalg.lu_solve(lu_piv, b_vector)
 
-                    hydro_coeffs_col = temp_engine.compute_hydrodynamic_coefficients(
+                    hydro_coeffs_col = temp_engine.compute_hydrodynamic_coefficients( ##########################
                         temp_problem, X_i, m0, modes_to_calculate=problem_modes
                     )
                     
@@ -640,7 +648,7 @@ class MEEMEngine:
                         j_mode = coeff_dict['mode']
                         j_idx_result = np.where(problem_modes == j_mode)[0]
                         if j_idx_result.size > 0:
-                            j_idx = j_idx_result[0]
+                            j_idx = j_idx_result[0] # influenced dof idx
                             full_added_mass_matrix[freq_idx, j_idx, i_idx] = coeff_dict['real']
                             full_damping_matrix[freq_idx, j_idx, i_idx] = coeff_dict['imag']
                             if i_idx == j_idx:

@@ -19,9 +19,6 @@ class BodyArrangement(ABC):
         for b in bodies:
             if getattr(b, 'heaving', False):
                 heaving_count += 1
-                
-        if heaving_count > 1:
-            raise ValueError("Only 0 or 1 body can be marked as heaving")
         
     @property
     @abstractmethod
