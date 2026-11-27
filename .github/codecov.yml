@@ -1,0 +1,46 @@
+coverage:
+  round: up
+  range: 0..10
+  precision: 5
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 10%
+      unit_tests_coverage:
+        target: auto
+        threshold: 10%
+        flags:
+          - unit
+    # NEW: Configure patch status check behavior
+    patch:
+      default:
+        target: 75%       # Requires 75% coverage on new lines (PR passed with 82.5%)
+        # Alternatively, uncomment 'informational: true' to never block PRs on patch coverage:
+        # informational: true
+
+codecov:
+  strict_yaml_branch: default
+  max_report_age: off
+
+flags:
+  unit:
+    paths:
+      - package/src/
+    carryforward: true
+
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+        threshold: 10%
+  individual_components:
+    - component_id: source_code
+      name: Source Code
+      paths:
+        - package/src/**
+    - component_id: tests
+      name: Tests
+      paths:
+        - package/test/**

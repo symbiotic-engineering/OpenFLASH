@@ -1,0 +1,396 @@
+d2e7c7dcf0975a7a88efbe482418a11d:
+  path: .calkit/notebooks/executed/analysis/convergence-results.ipynb
+  zipfile: archive.zip
+a782314abaceaeb9390089d3f158f4cb:
+  path: .calkit/notebooks/executed/analysis/low_m0_plots.ipynb
+  zipfile: archive.zip
+8d5611204ab0e703ed039336c4699632:
+  path: .calkit/notebooks/executed/analysis/slant_data_plots.ipynb
+  zipfile: archive.zip
+9f677e417bc9f3bc1489082de1ac3c7e:
+  path: .calkit/notebooks/executed/analysis/sparsity_plots.ipynb
+  zipfile: archive.zip
+869559240bd2a2bbee9f4f4ec4680d0b:
+  path: .calkit/notebooks/executed/analysis/timing_plots.ipynb
+  zipfile: archive.zip
+d2847a172193deeed4d40bc6b3d70ff6:
+  path: 
+    .calkit/notebooks/executed/analysis/validation_with_capytaine_plots.ipynb
+  zipfile: archive.zip
+41409405fd25df877b31fd8745eaaf98:
+  path: .calkit/notebooks/html/analysis/convergence-results.html
+  zipfile: archive.zip
+f523c9b99747fc1d795116283f48806a:
+  path: .calkit/notebooks/html/analysis/low_m0_plots.html
+  zipfile: archive.zip
+db2cf8946ff995ee1fcd5fe8db64f2b0:
+  path: .calkit/notebooks/html/analysis/slant_data_plots.html
+  zipfile: archive.zip
+81ffac3dae40fbb64803344eedfcfb20:
+  path: .calkit/notebooks/html/analysis/sparsity_plots.html
+  zipfile: archive.zip
+15c6d1c292d50cc6dac9cbd232457783:
+  path: .calkit/notebooks/html/analysis/timing_plots.html
+  zipfile: archive.zip
+f186a5c2f9cdc4e2aba285035a47c4c1:
+  path: 
+    .calkit/notebooks/html/analysis/validation_with_capytaine_plots.html
+  zipfile: archive.zip
+31cd3c8c05c5951db5f91ef631c166a0:
+  path: analysis/data/potential-slants.pkl
+  zipfile: archive.zip
+085a3f3953c7423cd8a47d5ef6271453:
+  path: analysis/data/slants.pkl
+  zipfile: archive.zip
+3cb581a4d2a2774c678c1ab000b5bcdc:
+  path: analysis/data/slope-slants.pkl
+  zipfile: archive.zip
+8f44378ee5eed677e435c38ac905d0af:
+  path: analysis/data/timing.pkl
+  zipfile: archive.zip
+fb1cc70f6b917838cfa3e236510304da:
+  path: dev/python/convergence-study/RM3/data/CPT.pkl
+  zipfile: archive.zip
+1e0de0e21b1b7ea2aae1b6cb90ed0127:
+  path: dev/python/convergence-study/RM3/data/MEEM-sweep.pkl
+  zipfile: archive.zip
+e71a4ad987abeb7e065d3b238677370d:
+  path: dev/python/convergence-study/RM3/data/pair-comparison.pkl
+  zipfile: archive.zip
+68c670cbce277017d455b750655af648:
+  path: dev/python/convergence-study/RM3/data/proto-cfs.pkl
+  zipfile: archive.zip
+e41760018aff143d943f86f9e5cbc9b3:
+  path: 
+    dev/python/convergence-study/e-region-convergence/data/predetermined-2.pkl
+  zipfile: archive.zip
+5c08d5be40d4bc4d13f3ac6a3b88b232:
+  path: 
+    dev/python/convergence-study/e-region-convergence/data/predetermined-configs.pkl
+  zipfile: archive.zip
+a691e8e567c16b17aab947a4689ee030:
+  path: 
+    dev/python/convergence-study/e-region-convergence/data/random-configs.pkl
+  zipfile: archive.zip
+8a443c06ebe4ad0605608257daa2071f:
+  path: 
+    dev/python/convergence-study/e-region-convergence/data/ratioed-outer-region.pkl
+  zipfile: archive.zip
+c6723f68bd28327cbf6332c0aa94248e:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h35_convergence_data.pkl
+  zipfile: archive.zip
+66bafdeeb86eb72a88458f6a8677900b:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_2i2ii_conv_data.pkl
+  zipfile: archive.zip
+07269f84257211c6e1562af556f00072:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_2ii2i_conv_data.pkl
+  zipfile: archive.zip
+71f7a5b202cf98ebd84bdcb236ecc26f:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_convergence_data.pkl
+  zipfile: archive.zip
+7c721c23eef5e10167559643098629e0:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_i2i2i_conv_data.pkl
+  zipfile: archive.zip
+fb0d4287bb4905e9b9d77e50662c8dae:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_i2ii_conv_data.pkl
+  zipfile: archive.zip
+702cbb3c91634c98d75a960715defe58:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_i3i3i_conv_data.pkl
+  zipfile: archive.zip
+4f34a8c9d3b3a79017918ef4ff029492:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_i3ii_conv_data.pkl
+  zipfile: archive.zip
+9a3f374982f28805c44a8b0e95b0388b:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_i4ii_conv_data.pkl
+  zipfile: archive.zip
+97a6483c5c40f6238f0410e300bed7ed:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_ii2i_conv_data.pkl
+  zipfile: archive.zip
+7083b4a376a4b2d1815cdc9843ae7a09:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h50_iii_conv_data.pkl
+  zipfile: archive.zip
+a11080492e1cbbef2370cfd0c6704af3:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h51_convergence_data.pkl
+  zipfile: archive.zip
+064df3bcfb1acbf4fd9b6dc8fc4adc25:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h52_convergence_data.pkl
+  zipfile: archive.zip
+8c9a2ec84f1ec0f3436a7bd2ffc3068b:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h53_convergence_data.pkl
+  zipfile: archive.zip
+da724b93a92a328a1407f0d7980a1312:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h54_convergence_data.pkl
+  zipfile: archive.zip
+5471ca401f21e17dc2eeb0b7d8a055ac:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h55_convergence_data.pkl
+  zipfile: archive.zip
+da6e75856abfcc8b6348a580216a3708:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h56_convergence_data.pkl
+  zipfile: archive.zip
+b7037280ef6094dd1f87e72aa46633e9:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h65_convergence_data.pkl
+  zipfile: archive.zip
+54a318250d63d20b074e8ab196aa4d1c:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/h80_convergence_data.pkl
+  zipfile: archive.zip
+e9a1b28b1e56c8b346a037b2225166c5:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_2iii_conv_data.pkl
+  zipfile: archive.zip
+9e996c06178a6e1f22e18eb6abf47995:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_i2ii_conv_data.pkl
+  zipfile: archive.zip
+ca6f16cf1d01a819a6ea5a1df9d06293:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_ii2i_conv_data.pkl
+  zipfile: archive.zip
+c9e1d6910d758d272ed1222d5a57760d:
+  path: 
+    dev/python/convergence-study/early-work/nmk-per-region-data/small_bicylinder_iii_conv_data.pkl
+  zipfile: archive.zip
+15555e2d5465d6335673cd3875a94419:
+  path: 
+    dev/python/convergence-study/i-region-convergence/all-regions/data/random-i-convergence.pkl
+  zipfile: archive.zip
+cafda8f81a03fffbba8c057716317592:
+  path: 
+    dev/python/convergence-study/i-region-convergence/all-regions/data/ratioed-regions.pkl
+  zipfile: archive.zip
+48a485b897fef367e373d0b0e9a8a430:
+  path: 
+    dev/python/convergence-study/i-region-convergence/innermost-region/data/histogram-1.pkl
+  zipfile: archive.zip
+dec54b23cfecc02102c6c8838234a8d1:
+  path: 
+    dev/python/convergence-study/i-region-convergence/innermost-region/data/predetermined-1.pkl
+  zipfile: archive.zip
+afb4139a3801d18f7029e2181b36eb89:
+  path: 
+    dev/python/convergence-study/i-region-convergence/innermost-region/data/predetermined-2.pkl
+  zipfile: archive.zip
+95ca6dc857a5bf85e35bd9f9e7ffc47f:
+  path: 
+    dev/python/convergence-study/i-region-convergence/innermost-region/data/predetermined-3.pkl
+  zipfile: archive.zip
+96a928392c9d9d17264aa8e01a4b8fca:
+  path: 
+    dev/python/convergence-study/i-region-convergence/innermost-region/data/predetermined-5.pkl
+  zipfile: archive.zip
+a5d24b1b5de4d2fc9c0104468c6963d6:
+  path: 
+    dev/python/convergence-study/i-region-convergence/innermost-region/data/predetermined-6.pkl
+  zipfile: archive.zip
+7277c239b26d053ba944e6e1f3e3c9ea:
+  path: 
+    dev/python/convergence-study/i-region-convergence/innermost-region/data/predetermined-8.pkl
+  zipfile: archive.zip
+fc55aff973a2c858e10470948671cc56:
+  path: 
+    dev/python/convergence-study/i-region-convergence/innermost-region/data/random-innermost.pkl
+  zipfile: archive.zip
+12fafa94bfa1fc5037c7610ba8551193:
+  path: 
+    dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-1.pkl
+  zipfile: archive.zip
+2424740d9d4254c5ab2c176ad4daf1d7:
+  path: 
+    dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-2.pkl
+  zipfile: archive.zip
+1a0ac34e717dc6a6f4ebb599b6dc97f1:
+  path: 
+    dev/python/convergence-study/i-region-convergence/middle-region/data/histogram-3.pkl
+  zipfile: archive.zip
+13db9dcae4a2ad59de893306df253ce0:
+  path: 
+    dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-1.pkl
+  zipfile: archive.zip
+b68b6b3002bfc421472487bc9f68babe:
+  path: 
+    dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-2.pkl
+  zipfile: archive.zip
+e52aa20fbc5bc3275e53251651fc9c09:
+  path: 
+    dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-3.pkl
+  zipfile: archive.zip
+d2417aed1d05400304c96cc7de3196f5:
+  path: 
+    dev/python/convergence-study/i-region-convergence/middle-region/data/predetermined-4.pkl
+  zipfile: archive.zip
+d038a7514a1b510c52b128a3a9ee33ff:
+  path: 
+    dev/python/convergence-study/i-region-convergence/outermost-region/data/histogram-1.pkl
+  zipfile: archive.zip
+db4fc43a4e26c4e0fc0e9a80733d63b3:
+  path: 
+    dev/python/convergence-study/i-region-convergence/outermost-region/data/histogram-2.pkl
+  zipfile: archive.zip
+55d496d78dafc6a321de45ecf6e8b026:
+  path: 
+    dev/python/convergence-study/i-region-convergence/outermost-region/data/predetermined-1.pkl
+  zipfile: archive.zip
+10f1ce26621dba8f5ffc1abadd3f3b8b:
+  path: 
+    dev/python/convergence-study/i-region-convergence/outermost-region/data/predetermined-2.pkl
+  zipfile: archive.zip
+b5ca096e03bc14a5b5571a90759f6f39:
+  path: 
+    dev/python/convergence-study/neighbor-convergence-effects/outermost-e-neighbors/data/predetermined-1.pkl
+  zipfile: archive.zip
+ddc3bea1331d91ff3d62d7b7df3c84b3:
+  path: 
+    dev/python/convergence-study/prediction/data/random-four-body-regions.pkl
+  zipfile: archive.zip
+78f909357b3425b8c1d1731448942d21:
+  path: 
+    dev/python/convergence-study/prediction/data/random-three-body-regions.pkl
+  zipfile: archive.zip
+8e832a7932f8e986e3df222525c7eedb:
+  path: 
+    dev/python/convergence-study/region-count-convergence/data/inner.pkl
+  zipfile: archive.zip
+b76f0e93dec0c9f9f7b00739989bd2ec:
+  path: 
+    dev/python/convergence-study/region-count-convergence/data/outer.pkl
+  zipfile: archive.zip
+fa9d75613698f07056ebf0d4015dec4a:
+  path: dev/python/limiting-cases/low-m0-capytaine.pkl
+  zipfile: archive.zip
+0511b65cbf7c11b639e5c1e111cf548e:
+  path: dev/python/slants/a-matrix-b-vector-changes/data/ps6.pkl
+  zipfile: archive.zip
+066749666b8c40a896dbd2f2e376768f:
+  path: dev/python/slants/behavior-with-basic-meem/data/ps2.pkl
+  zipfile: archive.zip
+abf0ad94987a8b92be672e700f3f6e86:
+  path: dev/python/slants/behavior-with-basic-meem/data/ps3.pkl
+  zipfile: archive.zip
+89bc1b045f172390b23357a5568ac9c4:
+  path: 
+    dev/python/slants/behavior-with-basic-meem/data/ps4-all-configs-res-nmk.pkl
+  zipfile: archive.zip
+aa78bedf3b95a5503e8760e7c32ba24b:
+  path: 
+    dev/python/slants/behavior-with-basic-meem/data/ps4-convergence-to-nmk-100.pkl
+  zipfile: archive.zip
+7c5d09bc1987049e56b3c041c3696182:
+  path: 
+    dev/python/slants/behavior-with-basic-meem/data/ps4-nmk-convergence-at-res-50.pkl
+  zipfile: archive.zip
+b43a6f5886f50b28a67e08d2d7c35f10:
+  path: 
+    dev/python/slants/behavior-with-basic-meem/data/ps4-res-nmk-grid.pkl
+  zipfile: archive.zip
+002a8db58d18fa77b30473f90c57ec48:
+  path: 
+    dev/python/slants/behavior-with-basic-meem/data/ps5-res-nmk-grid.pkl
+  zipfile: archive.zip
+72a98550115036de23a2844bb1613c40:
+  path: dev/python/slants/behavior-with-basic-meem/data/ps5.pkl
+  zipfile: archive.zip
+3a90e730522331288de10bf04fc2b1f7:
+  path: dev/python/slants/correcting-through-hydros/data/m3.pkl
+  zipfile: archive.zip
+2b03d1b36fab50ee0564fb0f8569f3a5:
+  path: 
+    dev/python/slants/potential-visualizer/data/capytaine-point-values.pkl
+  zipfile: archive.zip
+7a4873ed0cb1b22612ac7ecc98fdbf69:
+  path: 
+    dev/python/slants/pure-capytaine/data/cpt-slant-variations-1.pkl
+  zipfile: archive.zip
+459a8c424782dc62be1d3e03418e2543:
+  path: 
+    dev/python/slants/pure-capytaine/data/cpt-slant-variations-2.pkl
+  zipfile: archive.zip
+87be238b8f42c88ec30d02fa86c9e1e9:
+  path: dev/python/timing/data/cpt-timing.pkl
+  zipfile: archive.zip
+f68bf99ea9c22bb45cd2fd2568be6431:
+  path: pubs/JFM/FLMguide.pdf
+  zipfile: archive.zip
+51308691ed65e0f0324b836298183256:
+  path: pubs/JFM/figs/A_sparsity_plot.pdf
+  zipfile: archive.zip
+ecab407fb3a62756a437d55fa9e8bd9b:
+  path: pubs/JFM/figs/Along-Outline.pdf
+  zipfile: archive.zip
+5e51a27b563089ec5a0f50f6d830a573:
+  path: pubs/JFM/figs/B_sparsity_plot.pdf
+  zipfile: archive.zip
+736a8d4aa4366f94204eeeef422ece15:
+  path: pubs/JFM/figs/C_sparsity_plot.pdf
+  zipfile: archive.zip
+58bccbc56f19b42e5d257e3b909da55a:
+  path: pubs/JFM/figs/Cross-Section-Potential-Slant.pdf
+  zipfile: archive.zip
+b951cf84814bd1973b46a05ff2e31c3f:
+  path: pubs/JFM/figs/MEEM-CPT-Slant-Freq.pdf
+  zipfile: archive.zip
+f0e134ca285855ec35d68f242e1343de:
+  path: pubs/JFM/figs/MEEM-CPT-Speed-Comparison.pdf
+  zipfile: archive.zip
+7682944cb035fd5d8e2787103cdf3851:
+  path: pubs/JFM/figs/MEEM-CPT-Time-Matrix-Comparison.pdf
+  zipfile: archive.zip
+6567248d0290265acdfae069acb8b870:
+  path: pubs/JFM/figs/MEEM-Comp-Distribution.pdf
+  zipfile: archive.zip
+2bf4a14833f71e7f6eba68fa0a802bb9:
+  path: pubs/JFM/figs/MEEM-Low-Freq.pdf
+  zipfile: archive.zip
+5e58fc697e2461b1f790779432c4ae48:
+  path: pubs/JFM/figs/MEEM_vs_Capytaine_Nonslant_Validation.pdf
+  zipfile: archive.zip
+506aeded63fa344779365fa745ecfd4f:
+  path: pubs/JFM/figs/Matching_Diagram.pdf
+  zipfile: archive.zip
+abc23a795ac33c733f68cc06997d027f:
+  path: pubs/JFM/figs/Multi_MEEM_Diagram.pdf
+  zipfile: archive.zip
+5518636e7feb6024dae4d0ed32dcce25:
+  path: pubs/JFM/figs/Vary-Slopes.pdf
+  zipfile: archive.zip
+ae805e51c48d840f0ec491c98cfcb47c:
+  path: pubs/JFM/figs/alpha-beta-explanation.pdf
+  zipfile: archive.zip
+75d7be555ab5c1dac326d2d1d6a8a201:
+  path: pubs/JFM/figs/alpha-beta-to-trend.pdf
+  zipfile: archive.zip
+fd0f5390b527f85477e1e714aae9b20f:
+  path: pubs/JFM/figs/asymptotic_b.png
+  zipfile: archive.zip
+4f8c8d0d2a8d14e65edb18a7ec69567c:
+  path: pubs/JFM/figs/convergence-fit-assessment.pdf
+  zipfile: archive.zip
+e23ed37008379fb533fd132ba5c7daf8:
+  path: pubs/JFM/figs/discretization_scheme_diagrams.pdf
+  zipfile: archive.zip
+a9b22b3b8142f53823030431b128ca89:
+  path: pubs/JFM/figs/graph_abstract.log
+  zipfile: archive.zip
+ab6898db6da82271616f7b82ad05056a:
+  path: pubs/JFM/figs/graph_abstract.pdf
+  zipfile: archive.zip
+634f28bf0e17639c2b7677089ee8b959:
+  path: pubs/JFM/figs/slant_figures.pdf
+  zipfile: archive.zip

@@ -1,0 +1,5 @@
+outs:
+- md5: 3a90e730522331288de10bf04fc2b1f7
+  size: 331054
+  hash: md5
+  path: m3.pkl

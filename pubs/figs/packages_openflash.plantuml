@@ -1,0 +1,37 @@
+@startuml packages_openflash
+set namespaceSeparator none
+package "openflash" as openflash {
+}
+package "openflash.domain" as openflash.domain {
+}
+package "openflash.geometry" as openflash.geometry {
+}
+package "openflash.meem_engine" as openflash.meem_engine {
+}
+package "openflash.meem_problem" as openflash.meem_problem {
+}
+package "openflash.multi_constants" as openflash.multi_constants {
+}
+package "openflash.multi_equations" as openflash.multi_equations {
+}
+package "openflash.problem_cache" as openflash.problem_cache {
+}
+package "openflash.results" as openflash.results {
+}
+openflash --> openflash.domain
+openflash --> openflash.geometry
+openflash --> openflash.meem_engine
+openflash --> openflash.meem_problem
+openflash --> openflash.multi_equations
+openflash --> openflash.problem_cache
+openflash --> openflash.results
+openflash.geometry --> openflash.domain
+openflash.meem_engine --> openflash.meem_problem
+openflash.meem_engine --> openflash.multi_equations
+openflash.meem_engine --> openflash.problem_cache
+openflash.meem_engine --> openflash.results
+openflash.meem_problem --> openflash.geometry
+openflash.multi_equations --> openflash.multi_constants
+openflash.problem_cache --> openflash.multi_equations
+openflash.results --> openflash.geometry
+@enduml
