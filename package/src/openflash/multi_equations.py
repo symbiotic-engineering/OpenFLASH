@@ -508,7 +508,7 @@ def int_R_2n(i, n, a, h, d):
         bottom = - lambda0 * besselk0e(lambda0 * scale(a)[i])
         return (outer_term / bottom) * exp(lambda0 * (scale(a)[i] - a[i])) - (inner_term/bottom)* exp(lambda0 * (scale(a)[i] - a[i-1]))
     
-#integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i]
+#integrating phi_p_i * d_phi_p_i/dz * r *d_r at z=d[i] 
 def int_phi_p_i(i, h, d, a):
     denom = 16 * (h - d[i])
     if i == 0:

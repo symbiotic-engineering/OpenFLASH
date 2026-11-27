@@ -60,7 +60,9 @@ dev = [
     "ruff>=0.0.280"
 ]
 hydro = [
-    "capytaine>=2.2",
+    "capytaine>=2.2,<3",  # 3.0 is a major release; Capytaine tests are validated on 2.x
+    "gmsh",     # meshing for Capytaine comparison tests (package/test/test_multi_heave.py)
+    "pygmsh",
 ]
 
 [tool.setuptools]
