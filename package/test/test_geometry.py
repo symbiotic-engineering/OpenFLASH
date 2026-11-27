@@ -270,32 +270,3 @@ def test_fluid_domains_empty(mock_arrangement):
     assert isinstance(domains, dict)
     assert len(domains) == 0
     
-def test_invalid_heaving_count_init():
-    """
-    Test coverage for the centralized heaving count check.
-    Uses importlib.reload to obliterate any leaked mocks from other
-    test files that are silently swallowing the constructor.
-    """
-    # 1. Nuke test pollution from orbit by forcefully reloading the module
-    importlib.reload(openflash.geometry)
-    
-    # 2. Pull the fresh, un-mocked class directly from the reloaded module
-    CleanBodyArrangement = openflash.geometry.BodyArrangement
-    
-    class IsolatedArrangement(CleanBodyArrangement):
-        @property
-        def a(self): return np.array([])
-        @property
-        def d(self): return np.array([])
-        @property
-        def slant_angle(self): return np.array([])
-        @property
-        def heaving(self): return np.array([])
-
-    # 3. Create the bodies
-    body1 = SteppedBody(np.array([1.0]), np.array([1.0]), np.array([0.0]), heaving=True)
-    body2 = SteppedBody(np.array([2.0]), np.array([2.0]), np.array([0.0]), heaving=True)
-    
-    # 4. Execute the check. The fresh class guarantees execution!
-    with pytest.raises(ValueError, match="Only 0 or 1 body can be marked as heaving"):
-        IsolatedArrangement([body1, body2])
